@@ -1,0 +1,318 @@
+# Default values for Playground.
+# This is a YAML-formatted file.
+
+## Kubernetes cluster name
+##
+## Default value: playground
+cluster_name: playground
+
+## Kubernetes cluster node instance type
+##
+## Default value: playground
+cluster_instance_type: t3.medium
+
+## Editor for Playground. Defaults to autodetection of nano over vim and vi
+##
+## Default value: ''
+editor: ''
+
+services:
+  - name: cloudone
+    ## Cloud One region to work with
+    ## 
+    ## Default value: trend-us-1
+    region: trend-us-1
+
+    ## Cloud One instance to use
+    ##
+    ## Allowed values: cloudone, staging-cloudone, dev-cloudone
+    ## 
+    ## Default value: cloudone
+    instance: cloudone
+
+    ## Cloud One API Key with Full Access
+    ## 
+    ## REQUIRED if you want to play with Cloud One
+    ##
+    ## Default value: ''
+    api_key: ''
+
+    ## Cloud One Scanner API Key
+    ## 
+    ## REQUIRED if you want to play with Artifac Scanning as a Service
+    ##
+    ## Default value: ''
+    scanner_api_key: ''
+
+  - name: aws
+    ## The account id of your AWS account
+    ## 
+    ## Default value: ''
+    account_id: ''
+
+    ## The default AWS region to use
+    ## 
+    ## Default value: "eu-central-1"
+    region: "eu-central-1"
+
+    ## The default AWS environment name to use
+    ## 
+    ## Default value: "playground-awsone"
+    environment: "playground-awsone"
+
+  - name: awsone
+    ## Restrict access to AWS One
+    ## 
+    ## Default value: "0.0.0.0/0"
+    access_ip: "0.0.0.0/0"
+
+    ## Create Linux instance(s)
+    ## 
+    ## Default value: true
+    create_linux: true
+
+    ## Create Windows instance(s)
+    ## 
+    ## Default value: true
+    create_windows: true
+
+  - name: workload-security
+    ## Cloud One Workload Security Tenant ID
+    ## 
+    ## REQUIRED if you want to play with Cloud One Workload Security
+    ##
+    ## Default value: ''
+    ws_tenant_id: ''
+
+    ## Cloud One Workload Security Token
+    ## 
+    ## REQUIRED if you want to play with Cloud One Workload Security
+    ##
+    ## Default value: ''
+    ws_token: ''
+
+    ## Cloud One Workload Security Linux Policy ID
+    ## 
+    ## REQUIRED if you want to play with Cloud One Workload Security
+    ##
+    ## Default value: 0
+    ws_policy_id: 0
+
+  - name: container_security
+    ## The name of the created or reused policy
+    ## 
+    ## Default value: relaxed_playground
+    policy_name: relaxed_playground
+
+    ## The id of the policy for use with AWSONE
+    ## 
+    ## Example value: relaxed_playground-2OxPQEiC6Jo4dbDVfebKiZMured
+    policy_id: ''
+
+    ## Target namespace for Smart Check
+    ## 
+    ## Default value: trendmicro-system
+    namespace: trendmicro-system
+
+  # ================ DO NOT CHANGE ANYTHING BELOW THIS LINE ===============
+  # ================== UNLESS YOU KNOW WHAT YOU'RE DOING ==================
+
+  - name: playground-registry
+    ## Target namespace for registry
+    ## 
+    ## Default value: registry
+    namespace: registry
+
+    ## Storage size reserved for the registry
+    ## 
+    ## Default value: 10Gi
+    size: 10Gi
+
+    ## Registry username to set
+    ## 
+    ## Default value: admin
+    username: admin
+
+    ## Registry username to set
+    ## 
+    ## Default value: trendmicro
+    password: trendmicro
+
+    ## Other settings typically not required to be changed
+    hostname: playground.localdomain
+    port: "5000"
+    proxy_service_name: playground-registry
+    proxy_service_port: "5000"
+    proxy_listen_port: "5000"
+
+  - name: grafana
+    ## Target namespace for Grafana
+    ## 
+    ## Default value: prometheus
+    namespace: prometheus
+
+    ## Username to set
+    ## 
+    ## Default value: admin
+    username: admin
+
+    ## Password to set
+    ## 
+    ## Default value: trendmicro
+    password: trendmicro
+
+    ## Other settings typically not required to be changed
+    hostname: grafana
+    proxy_service_name: prometheus-grafana
+    proxy_service_port: "80"
+    proxy_listen_port: "8080"
+
+  - name: prometheus
+    ## Target namespace for Prometheus
+    ## 
+    ## Default value: prometheus
+    namespace: prometheus
+
+    ## Username to set
+    ## 
+    ## Default value: admin
+    username: admin
+
+    ## Password to set
+    ## 
+    ## Default value: trendmicro
+    password: trendmicro
+
+    ## Other settings typically not required to be changed
+    hostname: prometheus
+    proxy_service_name: prometheus-kube-prometheus-prometheus
+    proxy_service_port: "9090"
+    proxy_listen_port: "8081"
+
+  - name: falco
+    ## Target namespace for Falco
+    ## 
+    ## Default value: falco
+    namespace: falco
+
+    ## Other settings typically not required to be changed
+    hostname: falco
+    proxy_service_name: falco-falcosidekick-ui
+    proxy_service_port: "2802"
+    proxy_listen_port: "8082"
+
+  - name: jenkins
+    ## Settings typically not required to be changed
+    container_name: jenkins-blueocean
+    dind_name: jenkins-docker
+    dind_port: "2376"
+    service_port: "8087"
+    agent_port: "50000"
+    volume_data: jenkins-data
+    volume_docker_certs: jenkins-docker-certs
+
+  - name: gitlab
+    ## Settings typically not required to be changed
+    home_gitlab: /srv/gitlab
+    home_gitlab_runner: /srv/gitlab-runner
+    container_name: gitlab-ce
+    container_runner_name: gitlab-runner
+    gitlab_http_port: "80"
+    gitlab_https_port: "443"
+    gitlab_ssh_port: "8090"
+    service_port: "8088"
+
+  - name: trivy
+    ## Target namespace for Trivy
+    ## 
+    ## Default value: trivy-system
+    namespace: trivy-system
+
+  - name: opa
+    ## Target namespace for Open Policy Agent
+    ## 
+    ## Default value: opa
+    namespace: opa
+
+  - name: gatekeeper
+    ## Target namespace for Gatekeeper
+    ## 
+    ## Default value: gatekeeper-system
+    namespace: gatekeeper-system
+
+  - name: kubeclarity
+    ## Target namespace for Kubeclarity
+    ## 
+    ## Default value: kubeclarity
+    namespace: kubeclarity
+
+    ## Other settings typically not required to be changed
+    proxy_service_name: kubeclarity-kubeclarity
+    proxy_service_port: "8080"
+    proxy_listen_port: "8091"
+
+  - name: harbor
+    ## Target namespace for Harbor
+    ## 
+    ## Default value: harbor
+    namespace: harbor
+
+    ## Common name for Harbor to use in certificate generation
+    ## 
+    ## Default value: 172.250.255.5
+    common_name: 172.250.255.5
+
+    ## Harbor admin password to set
+    ## 
+    ## Default value: trendmicro
+    admin_password: trendmicro
+
+    ## Registry username to set
+    ## 
+    ## Default value: admin
+    reg_username: admin
+
+    ## Registry password to set
+    ## 
+    ## Default value: trendmicro
+    reg_password: trendmicro
+
+    ## Registry password to set in htpasswd format. If you change
+    ## reg_password to a different value you need to regenerate
+    ## the htpasswd.
+    ## 
+    ## Default value: admin:$2y$10$lA2oNWrQ0WEvIzRs/1FxiOIzmW0GA1s8wjXHYa7C.Dsw0/8z47u8u
+    reg_htpasswd: admin:$2y$10$lA2oNWrQ0WEvIzRs/1FxiOIzmW0GA1s8wjXHYa7C.Dsw0/8z47u8u
+
+    ## Other settings typically not required to be changed
+    proxy_service_name: harbor
+    proxy_service_port: "443"
+    proxy_listen_port: "8085"
+
+  - name: pipeline
+    github_username: mawinkler
+    github_email: winkler.info@icloud.com
+    github_project: c1-app-sec-uploader
+    docker_username: YOUR USERNAME HERE
+    docker_password: YOUR PASSWORD HERE
+
+  - name: demo-java-goof
+    namespace: victims
+    proxy_service_name: java-goof-service
+    proxy_service_port: 80
+    proxy_listen_port: 8089
+
+  - name: demo-webapp
+    namespace: victims
+    proxy_service_name: web-app-service
+    proxy_service_port: 80
+    proxy_listen_port: 8090
+
+  - name: demo-attack
+    namespace: attackers
+
+  - name: kube-system
+    ## Target namespace for kube-system components
+    ## 
+    ## Default value: kube-system
+    namespace: kube-system

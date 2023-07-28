@@ -1,0 +1,30 @@
+.DS_Store
+
+# Directories
+auth
+certs
+overrides
+log/*
+
+# Config
+config.yaml
+env.sh
+venv
+
+# Archive
+archive
+
+# Terraform
+.terraform*
+terraform.tfstate*
+*-key-pair*
+terraform.tfvars
+.pluralith
+
+# Terraform
+0-files-park
+TMServerAgent_Windows_auto_64_Server_-_Workload_Protection_Manager.zip
+TMServerAgent_Linux_auto_64_Server_-_Workload_Protection_Manager.tar
+8-cluster-eks-deployments-repo
+9-cluster-ecs-services-repo
+9-cluster-ecs-services
