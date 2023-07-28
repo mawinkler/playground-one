@@ -15,16 +15,26 @@ variable "environment" {
 }
 
 variable "ws_tenantid" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "ws_token" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "ws_policyid" {
-  type = number
+  type    = number
   default = 0
+}
+
+variable "ecs_ec2" {
+  type    = bool
+  default = false
+}
+
+variable "ecs_fargate" {
+  type    = bool
+  default = true
 }

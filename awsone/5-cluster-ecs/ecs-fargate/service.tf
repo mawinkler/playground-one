@@ -9,16 +9,8 @@ module "ecs_service" {
   name        = module.ecs.cluster_name
   cluster_arn = module.ecs.cluster_arn
 
-  # Task Definition
-  requires_compatibilities = ["EC2"]
-  capacity_provider_strategy = {
-    # spot instances
-    asg-spot = {
-      capacity_provider = module.ecs.autoscaling_capacity_providers["asg-spot"].name
-      weight            = 1
-      base              = 1
-    }
-  }
+  cpu    = 1024
+  memory = 4096
 
   volume = {
     my-vol = {}
@@ -52,7 +44,7 @@ module "ecs_service" {
 
   container_definitions = {
     (local.container_name) = {
-      image = "mawinkler/java-goof"
+      image = "mawinkler/goof:latest"
       port_mappings = [
         {
           name          = local.container_name
@@ -61,18 +53,19 @@ module "ecs_service" {
         }
       ]
 
-      # mount_points = [
-      #   {
-      #     sourceVolume  = "my-vol",
-      #     containerPath = "/var/www/my-vol"
-      #   }
-      # ]
-
-      command = ["catalina.sh", "run"]
-      # entry_point = ["/usr/sbin/apache2", "-D", "FOREGROUND"]
-
-      # Example image used requires access to write to root filesystem
       readonly_root_filesystem = false
+    }
+  }
+
+  service_connect_configuration = {
+    namespace = aws_service_discovery_http_namespace.this.arn
+    service = {
+      client_alias = {
+        port     = local.container_port
+        dns_name = local.container_name
+      }
+      port_name      = local.container_name
+      discovery_name = local.container_name
     }
   }
 
@@ -94,7 +87,20 @@ module "ecs_service" {
       description              = "Service port"
       source_security_group_id = module.alb_sg.security_group_id
     }
+    egress_all = {
+      type        = "egress"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
   }
 
   tags = local.tags
+}
+
+resource "aws_service_discovery_http_namespace" "this" {
+  name        = module.ecs.cluster_name
+  description = "CloudMap namespace for ${module.ecs.cluster_name}"
+  tags        = local.tags
 }

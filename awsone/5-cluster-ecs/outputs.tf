@@ -1,16 +1,22 @@
 # #############################################################################
 # Outputs
 # #############################################################################
-output "cluster_name" {
+output "cluster_name_ec2" {
   description = "ECS Cluster Name"
-  value       = module.ecs-ec2.cluster_name
+  value       = var.ecs_ec2 ? module.ecs-ec2.cluster_name : null
 }
 
-output "cluster_arn" {
-  description = "ECS Cluster ARN"
-  value       = module.ecs-ec2.cluster_arn
+output "loadbalancer_dns_ec2" {
+  description = "ECS Loadbalancer DNS name"
+  value       = var.ecs_ec2 ? module.ecs-ec2.loadbalancer_dns : null
 }
 
-output "loadbalancer_dns" {
-  value = module.ecs-ec2.loadbalancer_dns
+output "cluster_name_fargate" {
+  description = "ECS Cluster Name"
+  value       = var.ecs_fargate ? module.ecs-fargate[0].cluster_name : null
+}
+
+output "loadbalancer_dns_fargate" {
+  description = "ECS Loadbalancer DNS name"
+  value       = var.ecs_fargate ? module.ecs-fargate[0].loadbalancer_dns : null
 }

@@ -2,7 +2,7 @@ module "ecs" {
   source  = "terraform-aws-modules/ecs/aws"
   version = "5.2.0"
 
-  cluster_name = "${var.environment}-ecs"
+  cluster_name = "${var.environment}-ecs-ec2"
 
   # Capacity provider - autoscaling groups
   default_capacity_provider_use_fargate = false
