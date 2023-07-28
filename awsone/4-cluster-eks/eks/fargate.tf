@@ -10,9 +10,14 @@ module "fargate_profile" {
   cluster_name = module.eks.cluster_name
 
   subnet_ids = var.private_subnet_ids
-  selectors = [{
-    namespace = "fargate"
-  }]
+  selectors = [
+    {
+      namespace = "fargate"
+    },
+    {
+      labels = "fargate=true"
+    }
+  ]
 
   tags = {
     Environment = "dev"
