@@ -5,7 +5,11 @@ set -e
 # Source helpers
 .  $ONEPATH/bin/playground-helpers.sh
 
-# Get config
+#######################################
+# Reads the config.yaml
+# Globals:
+#   None
+#######################################
 # AWS
 AWS_ACCOUNT_ID="$(yq '.services[] | select(.name=="aws") | .account_id' $ONEPATH/config.yaml)"
 AWS_REGION="$(yq '.services[] | select(.name=="aws") | .region' $ONEPATH/config.yaml)"
@@ -145,7 +149,6 @@ function apply() {
       terraform apply -auto-approve
       ;;
   esac
-  echo "💬 Terraform terraform.tfvars dropped to configurations"
 }
 
 #######################################
@@ -179,7 +182,6 @@ function destroy() {
       terraform destroy -auto-approve
       ;;
   esac
-  echo "💬 Terraform terraform.tfvars dropped to configurations"
 }
 
 #######################################
@@ -213,7 +215,6 @@ function output() {
       terraform output
       ;;
   esac
-  echo "💬 Terraform terraform.tfvars dropped to configurations"
 }
 
 #######################################
@@ -247,7 +248,6 @@ function state() {
       terraform state list
       ;;
   esac
-  echo "💬 Terraform terraform.tfvars dropped to configurations"
 }
 
 #######################################
@@ -282,7 +282,6 @@ function show() {
       terraform show
       ;;
   esac
-  echo "💬 Terraform terraform.tfvars dropped to configurations"
 }
 
 #######################################
