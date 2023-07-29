@@ -1,0 +1,314 @@
+#!/bin/bash
+
+set -e
+
+# Source helpers
+.  $ONEPATH/bin/playground-helpers.sh
+
+# Get config
+# AWS
+AWS_ACCOUNT_ID="$(yq '.services[] | select(.name=="aws") | .account_id' $ONEPATH/config.yaml)"
+AWS_REGION="$(yq '.services[] | select(.name=="aws") | .region' $ONEPATH/config.yaml)"
+AWS_ENVIRONMENT="$(yq '.services[] | select(.name=="aws") | .environment' $ONEPATH/config.yaml)"
+
+# AWS One
+ACCESS_IP="$(yq '.services[] | select(.name=="awsone") | .access_ip' $ONEPATH/config.yaml)"
+
+# Instances
+INSTANCES_CREATE_LINUX="$(yq '.services[] | select(.name=="awsone") | .instances.create_linux' $ONEPATH/config.yaml)"
+INSTANCES_CREATE_WINDOWS="$(yq '.services[] | select(.name=="awsone") | .instances.create_windows' $ONEPATH/config.yaml)"
+
+# Cluster EKS
+EKS_CREATE_FARGATE_PROFILE="$(yq '.services[] | select(.name=="awsone") | .cluster-eks.create_fargate_profile' $ONEPATH/config.yaml)"
+
+CLOUD_ONE_API_KEY="$(yq '.services[] | select(.name=="cloudone") | .api_key' $ONEPATH/config.yaml)"
+CLOUD_ONE_REGION="$(yq '.services[] | select(.name=="cloudone") | .region' $ONEPATH/config.yaml)"
+CLOUD_ONE_INSTANCE="$(yq '.services[] | select(.name=="cloudone") | .instance' $ONEPATH/config.yaml)"
+[[ "${CLOUD_ONE_REGION}" = "null" ]] && CLOUD_ONE_REGION="trend-us-1"
+[[ "${CLOUD_ONE_INSTANCE}" = "null" ]] && CLOUD_ONE_INSTANCE="cloudone"
+
+# Workload Security
+WS_TENANTID="$(yq '.services[] | select(.name=="workload-security") | .ws_tenant_id' $ONEPATH/config.yaml)"
+WS_TOKEN="$(yq '.services[] | select(.name=="workload-security") | .ws_token' $ONEPATH/config.yaml)"
+WS_POLICY="$(yq '.services[] | select(.name=="workload-security") | .ws_policy_id' $ONEPATH/config.yaml)"
+[[ "${WS_TENANTID}" = "null" ]] && WS_TENANTID=""
+[[ "${WS_TOKEN}" = "null" ]] && WS_TOKEN=""
+[[ "${WS_POLICY}" = "null" ]] && WS_POLICY=0
+
+# Container Security
+CLOUD_ONE_POLICY_ID="$(yq '.services[] | select(.name=="container_security") | .policy_id' $ONEPATH/config.yaml)"
+[[ "${CLOUD_ONE_POLICY_ID}" = "null" ]] && CLOUD_ONE_POLICY_ID=""
+
+#######################################
+# Initializes Terraform and creates
+# variables.tfvars
+# Globals:
+#   ONEPATH
+# Arguments:
+#   Configuration name or all
+# Outputs:
+#   None
+#######################################
+function init() {
+
+  case $1 in
+    vpc|all)
+      printf '%s\n' "Create terraform.tfvars for network"
+      AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID} \
+      AWS_REGION=${AWS_REGION} \
+      AWS_ENVIRONMENT=${AWS_ENVIRONMENT} \
+      ACCESS_IP=${ACCESS_IP} \
+        envsubst <$ONEPATH/templates/terraform-2-network.tfvars >$ONEPATH/awsone/2-network/terraform.tfvars
+      
+      cd ${ONEPATH}/awsone/2-network
+      terraform init
+      ;;&
+    ec2|all)
+      printf '%s\n' "Create terraform.tfvars for instances"
+      AWS_REGION=${AWS_REGION} \
+      ACCESS_IP=${ACCESS_IP} \
+      AWS_ENVIRONMENT=${AWS_ENVIRONMENT} \
+      INSTANCES_CREATE_LINUX=${INSTANCES_CREATE_LINUX} \
+      INSTANCES_CREATE_WINDOWS=${INSTANCES_CREATE_WINDOWS} \
+        envsubst <$ONEPATH/templates/terraform-3-instances.tfvars >$ONEPATH/awsone/3-instances/terraform.tfvars
+
+      cd ${ONEPATH}/awsone/3-instances
+      terraform init
+      ;;&
+    eks|all)
+      printf '%s\n' "Create terraform.tfvars for cluster-eks"
+      AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID} \
+      AWS_REGION=${AWS_REGION} \
+      AWS_ENVIRONMENT=${AWS_ENVIRONMENT} \
+      ACCESS_IP=${ACCESS_IP} \
+      EKS_CREATE_FARGATE_PROFILE=${EKS_CREATE_FARGATE_PROFILE} \
+        envsubst <$ONEPATH/templates/terraform-4-cluster-eks.tfvars >$ONEPATH/awsone/4-cluster-eks/terraform.tfvars
+      printf '%s\n' "Create terraform.tfvars for cluster-eks deployments"
+      AWS_ENVIRONMENT=${AWS_ENVIRONMENT} \
+      CLOUD_ONE_API_KEY=${CLOUD_ONE_API_KEY} \
+      CLOUD_ONE_REGION=${CLOUD_ONE_REGION} \
+      CLOUD_ONE_INSTANCE=${CLOUD_ONE_INSTANCE} \
+      CLOUD_ONE_POLICY_ID=${CLOUD_ONE_POLICY_ID} \
+        envsubst <$ONEPATH/templates/terraform-8-cluster-eks-deployments.tfvars >$ONEPATH/awsone/8-cluster-eks-deployments/terraform.tfvars
+
+      cd ${ONEPATH}/awsone/4-cluster-eks
+      terraform init
+      cd ${ONEPATH}/awsone/8-cluster-eks-deployments
+      terraform init
+      ;;&
+    ecs|all)
+      printf '%s\n' "Create terraform.tfvars for cluster-ecs"
+      AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID} \
+      AWS_REGION=${AWS_REGION} \
+      AWS_ENVIRONMENT=${AWS_ENVIRONMENT} \
+      ACCESS_IP=${ACCESS_IP} \
+      WS_TENANTID=${WS_TENANTID} \
+      WS_TOKEN=${WS_TOKEN} \
+      WS_POLICY=${WS_POLICY} \
+        envsubst <$ONEPATH/templates/terraform-5-cluster-ecs.tfvars >$ONEPATH/awsone/5-cluster-ecs/terraform.tfvars
+
+      cd ${ONEPATH}/awsone/5-cluster-ecs
+      terraform init
+      ;;
+  esac
+  echo "💬 Terraform terraform.tfvars dropped to configurations"
+}
+
+#######################################
+# Applies a Terraform configuration
+# Globals:
+#   ONEPATH
+# Arguments:
+#   Configuration name or all
+# Outputs:
+#   None
+#######################################
+function apply() {
+
+  case $1 in
+    vpc)
+      cd ${ONEPATH}/awsone/2-network
+      terraform apply -auto-approve
+      ;;
+    ec2)
+      cd ${ONEPATH}/awsone/3-instances
+      terraform apply -auto-approve
+      ;;
+    eks)
+      cd ${ONEPATH}/awsone/4-cluster-eks
+      terraform apply -auto-approve
+      cd ${ONEPATH}/awsone/8-cluster-eks-deployments
+      terraform apply -auto-approve
+      ;;
+    ecs)
+      cd ${ONEPATH}/awsone/5-cluster-ecs
+      terraform apply -auto-approve
+      ;;
+  esac
+  echo "💬 Terraform terraform.tfvars dropped to configurations"
+}
+
+#######################################
+# Destroys a Terraform configuration
+# Globals:
+#   ONEPATH
+# Arguments:
+#   Configuration name or all
+# Outputs:
+#   None
+#######################################
+function destroy() {
+
+  case $1 in
+    vpc)
+      cd ${ONEPATH}/awsone/2-network
+      terraform destroy -auto-approve
+      ;;
+    ec2)
+      cd ${ONEPATH}/awsone/3-instances
+      terraform destroy -auto-approve
+      ;;
+    eks)
+      cd ${ONEPATH}/awsone/8-cluster-eks-deployments
+      terraform destroy -auto-approve
+      cd ${ONEPATH}/awsone/4-cluster-eks
+      terraform destroy -auto-approve
+      ;;
+    ecs)
+      cd ${ONEPATH}/awsone/5-cluster-ecs
+      terraform destroy -auto-approve
+      ;;
+  esac
+  echo "💬 Terraform terraform.tfvars dropped to configurations"
+}
+
+#######################################
+# Lists Terraform outputs
+# Globals:
+#   ONEPATH
+# Arguments:
+#   Configuration name or all
+# Outputs:
+#   None
+#######################################
+function output() {
+
+  case $1 in
+    vpc|all)
+      cd ${ONEPATH}/awsone/2-network
+      terraform output
+      ;;&
+    ec2|all)
+      cd ${ONEPATH}/awsone/3-instances
+      terraform output
+      ;;&
+    eks|all)
+      cd ${ONEPATH}/awsone/8-cluster-eks-deployments
+      terraform output
+      cd ${ONEPATH}/awsone/4-cluster-eks
+      terraform output
+      ;;&
+    ecs|all)
+      cd ${ONEPATH}/awsone/5-cluster-ecs
+      terraform output
+      ;;
+  esac
+  echo "💬 Terraform terraform.tfvars dropped to configurations"
+}
+
+#######################################
+# Shows a Terraform configuration state
+# Globals:
+#   ONEPATH
+# Arguments:
+#   Configuration name or all
+# Outputs:
+#   None
+#######################################
+function state() {
+
+  case $1 in
+    vpc|all)
+      cd ${ONEPATH}/awsone/2-network
+      terraform state list
+      ;;&
+    ec2|all)
+      cd ${ONEPATH}/awsone/3-instances
+      terraform state list
+      ;;&
+    eks|all)
+      cd ${ONEPATH}/awsone/8-cluster-eks-deployments
+      terraform state list
+      cd ${ONEPATH}/awsone/4-cluster-eks
+      terraform state list
+      ;;&
+    ecs|all)
+      cd ${ONEPATH}/awsone/5-cluster-ecs
+      terraform state list
+      ;;
+  esac
+  echo "💬 Terraform terraform.tfvars dropped to configurations"
+}
+
+#######################################
+# Shows a Terraform configuration full
+# state
+# Globals:
+#   ONEPATH
+# Arguments:
+#   Configuration name or all
+# Outputs:
+#   None
+#######################################
+function show() {
+
+  case $1 in
+    vpc|all)
+      cd ${ONEPATH}/awsone/2-network
+      terraform show
+      ;;&
+    ec2|all)
+      cd ${ONEPATH}/awsone/3-instances
+      terraform show
+      ;;&
+    eks|all)
+      cd ${ONEPATH}/awsone/8-cluster-eks-deployments
+      terraform show
+      cd ${ONEPATH}/awsone/4-cluster-eks
+      terraform show
+      ;;&
+    ecs|all)
+      cd ${ONEPATH}/awsone/5-cluster-ecs
+      terraform show
+      ;;
+  esac
+  echo "💬 Terraform terraform.tfvars dropped to configurations"
+}
+
+#######################################
+# Main:
+# Manages a AWS based V1 & C1
+# demo environment
+#######################################
+TEMP=$(getopt -o i:a:d:o:s:S: --long init:apply:,destroy:,output:,state:,show: -- "$@")
+if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+
+eval set -- "$TEMP"
+
+VERBOSE=false
+DEBUG=false
+MEMORY=
+DEBUGFILE=
+JAVA_MISC_OPT=
+while true; do
+  case "$1" in
+    -i | --init ) init $2; shift 2;;
+    -a | --apply ) apply $2; shift 2;;
+    -d | --destroy ) destroy $2; shift 2;;
+    -o | --output ) output $2; shift 2 ;;
+    -s | --state ) state $2; shift 2 ;;
+    -S | --show ) show $2; shift 2 ;;
+    -- ) shift; break ;;
+    * ) break ;;
+  esac
+done
