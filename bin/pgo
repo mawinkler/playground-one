@@ -14,20 +14,23 @@ set -e
 AWS_ACCOUNT_ID="$(yq '.services[] | select(.name=="aws") | .account_id' $ONEPATH/config.yaml)"
 AWS_REGION="$(yq '.services[] | select(.name=="aws") | .region' $ONEPATH/config.yaml)"
 AWS_ENVIRONMENT="$(yq '.services[] | select(.name=="aws") | .environment' $ONEPATH/config.yaml)"
+[[ "${AWS_ACCOUNT_ID}" = "null" ]] && AWS_ACCOUNT_ID="eu-central-1"
+[[ "${AWS_ENVIRONMENT}" = "null" ]] && AWS_ENVIRONMENT="playground-one"
 
 # AWS One
 ACCESS_IP="$(yq '.services[] | select(.name=="awsone") | .access_ip' $ONEPATH/config.yaml)"
-
-# Instances
 INSTANCES_CREATE_LINUX="$(yq '.services[] | select(.name=="awsone") | .instances.create_linux' $ONEPATH/config.yaml)"
 INSTANCES_CREATE_WINDOWS="$(yq '.services[] | select(.name=="awsone") | .instances.create_windows' $ONEPATH/config.yaml)"
+[[ "${ACCESS_IP}" = "null" ]] && ACCESS_IP="0.0.0.0/0"
+[[ "${INSTANCES_CREATE_LINUX}" = "null" ]] && INSTANCES_CREATE_LINUX=true
+[[ "${INSTANCES_CREATE_WINDOWS}" = "null" ]] && INSTANCES_CREATE_WINDOWS=true
 
 # Cluster EKS
 EKS_CREATE_FARGATE_PROFILE="$(yq '.services[] | select(.name=="awsone") | .cluster-eks.create_fargate_profile' $ONEPATH/config.yaml)"
-
 CLOUD_ONE_API_KEY="$(yq '.services[] | select(.name=="cloudone") | .api_key' $ONEPATH/config.yaml)"
 CLOUD_ONE_REGION="$(yq '.services[] | select(.name=="cloudone") | .region' $ONEPATH/config.yaml)"
 CLOUD_ONE_INSTANCE="$(yq '.services[] | select(.name=="cloudone") | .instance' $ONEPATH/config.yaml)"
+[[ "${EKS_CREATE_FARGATE_PROFILE}" = "null" ]] && EKS_CREATE_FARGATE_PROFILE=true
 [[ "${CLOUD_ONE_REGION}" = "null" ]] && CLOUD_ONE_REGION="trend-us-1"
 [[ "${CLOUD_ONE_INSTANCE}" = "null" ]] && CLOUD_ONE_INSTANCE="cloudone"
 
@@ -115,7 +118,7 @@ function init() {
       terraform init
       ;;
   esac
-  echo "💬 Terraform terraform.tfvars dropped to configurations"
+  printf '%s\n' "💬 Terraform terraform.tfvars dropped to configurations"
 }
 
 #######################################
@@ -130,21 +133,22 @@ function init() {
 function apply() {
 
   case $1 in
-    vpc)
+    vpc|all)
       cd ${ONEPATH}/awsone/2-network
       terraform apply -auto-approve
-      ;;
-    ec2)
+      ;;&
+    ec2|all)
       cd ${ONEPATH}/awsone/3-instances
       terraform apply -auto-approve
-      ;;
-    eks)
+      ;;&
+    eks|all)
       cd ${ONEPATH}/awsone/4-cluster-eks
       terraform apply -auto-approve
+      $(terraform output -raw update_local_context_command)
       cd ${ONEPATH}/awsone/8-cluster-eks-deployments
       terraform apply -auto-approve
-      ;;
-    ecs)
+      ;;&
+    ecs|all)
       cd ${ONEPATH}/awsone/5-cluster-ecs
       terraform apply -auto-approve
       ;;
@@ -181,6 +185,18 @@ function destroy() {
       cd ${ONEPATH}/awsone/5-cluster-ecs
       terraform destroy -auto-approve
       ;;
+    all)
+      cd ${ONEPATH}/awsone/3-instances
+      terraform destroy -auto-approve
+      cd ${ONEPATH}/awsone/8-cluster-eks-deployments
+      terraform destroy -auto-approve
+      cd ${ONEPATH}/awsone/4-cluster-eks
+      terraform destroy -auto-approve
+      cd ${ONEPATH}/awsone/5-cluster-ecs
+      terraform destroy -auto-approve
+      cd ${ONEPATH}/awsone/2-network
+      terraform destroy -auto-approve
+      ;;
   esac
 }
 
@@ -203,6 +219,7 @@ function output() {
     ec2|all)
       cd ${ONEPATH}/awsone/3-instances
       terraform output
+      printf '%s\n' "public_instance_password_srv1 = \"$(terraform output -raw public_instance_password_srv1)\""
       ;;&
     eks|all)
       cd ${ONEPATH}/awsone/8-cluster-eks-deployments
@@ -284,21 +301,47 @@ function show() {
   esac
 }
 
+function help() {
+
+  printf '%s\n' "Usage: pgo -<command> <configuration> ..."
+  printf '%s\n' ""
+  printf '%s\n' "The available commands for execution are listed below."
+  printf '%s\n' "The primary workflow commands are given first, followed by"
+  printf '%s\n' "less common or more advanced commands."
+  printf '%s\n' ""
+  printf '%s\n' "Main commands:"
+  printf '%s\n' "  -i --init     Prepare a configuration for other commands"
+  printf '%s\n' "  -a --apply    Create of update infrastructure"
+  printf '%s\n' "  -d --destroy  Destroy previously-created infrastructure"
+  printf '%s\n' "  -o --output   Show output values"
+  printf '%s\n' "  -s --state    Show the current state"
+  printf '%s\n' "  -h --help     Show this help"
+  printf '%s\n' ""
+  printf '%s\n' "Other commands:"
+  printf '%s\n' "  -S --show     Show advanced state"
+  printf '%s\n' ""
+  printf '%s\n' "Available configurations:"
+  printf '%s\n' "  vpc           Full network configuration"
+  printf '%s\n' "  ec2           EC2 configuration"
+  printf '%s\n' "  eks           EKS configuration"
+  printf '%s\n' "  ecs           ECS configurations"
+  printf '%s\n' "  all           All configurations"
+  printf '%s\n' ""
+  printf '%s\n' "Examples:"
+  printf '%s\n' "  pgo --apply vpc"
+  printf '%s\n' "  pgo --state all"
+}
+
 #######################################
 # Main:
 # Manages a AWS based V1 & C1
 # demo environment
 #######################################
-TEMP=$(getopt -o i:a:d:o:s:S: --long init:apply:,destroy:,output:,state:,show: -- "$@")
+TEMP=$(getopt -o i:a:d:o:s:S:h --long init:apply:,destroy:,output:,state:,show:,help -- "$@")
 if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 
 eval set -- "$TEMP"
 
-VERBOSE=false
-DEBUG=false
-MEMORY=
-DEBUGFILE=
-JAVA_MISC_OPT=
 while true; do
   case "$1" in
     -i | --init ) init $2; shift 2;;
@@ -307,6 +350,7 @@ while true; do
     -o | --output ) output $2; shift 2 ;;
     -s | --state ) state $2; shift 2 ;;
     -S | --show ) show $2; shift 2 ;;
+    -h | --help ) help ; break ;;
     -- ) shift; break ;;
     * ) break ;;
   esac
