@@ -25,8 +25,8 @@ In a nutshell:
 
 ## Currently Work in Progress
 
-- Preparing the sub project `terraform-awsone` to integrate with V1ES for Server & Workload Protection (Windows & Linux)
-- Enable ALB for Bottlerocket and Fargate cluster
+- Fine-tuning and fixing bugs :-)
+- Documentation of playbooks
 
 ## Requirements and Support Matrix
 
@@ -34,7 +34,6 @@ The Playground One is designed to work with AWS and is tested these operating sy
 
 - Ubuntu Bionic and newer
 - Cloud9 with Ubuntu
-
 
 ## CLI Commands of the Playground
 
