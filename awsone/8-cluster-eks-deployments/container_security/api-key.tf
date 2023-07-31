@@ -21,7 +21,7 @@ resource "restapi_object" "cluster" {
   path           = ""
   create_method  = "POST"
   destroy_method = "DELETE"
-  data = "{\"name\": \"${var.environment}_eks_${random_string.suffix.result}\",\"description\": \"Playground Cluster\",\"policyID\": \"${var.cluster_policy}\"}"
+  data = "{\"name\": \"${replace(var.environment, "-", "_")}_eks_${random_string.suffix.result}\",\"description\": \"Playground Cluster\",\"policyID\": \"${var.cluster_policy}\"}"
 
   lifecycle {
     replace_triggered_by = [
