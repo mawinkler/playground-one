@@ -497,7 +497,7 @@ ensure_bashrc
 ensure_playground
 ensure_essentials
 ensure_ec2_instance_role
-ensure_docker
+# ensure_docker
 if [ "${PACKAGE_MANAGER}" == "brew" ]; then
   ensure_formulae
 else
