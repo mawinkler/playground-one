@@ -1,7 +1,5 @@
 # Getting Started
 
-***TODO: ADAPT TO PGO***
-
 Choose the platform documentation
 
 ## Ubuntu
@@ -25,20 +23,12 @@ Add the following line:
 Now, run the Playground
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/master/bin/pgo | bash && exit
+curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/pgo | bash && exit
 ```
 
-Choose Bootstrap.
+The bootstrapping process will exit your current terminal or shell after it has done it's work. Depending on your environment just create a new terminal session and continue with [Configuration](configuration.md).
 
-The bootstrapping process will exit your current terminal or shell after it has done it's work. Depending on your environment just create a new terminal session and continue.
-
-To interact with the Playground One use the command line interface
-
-```sh
-pgo
-```
-
-from anywhere in your terminal.
+> ***Note:*** Ensure that you are authenticated to AWS on your Ubuntu server. If not, run `aws configure` before proceeding.
 
 ## Cloud9
 
@@ -67,7 +57,7 @@ Update IAM Settings for the Workspace
 Now, run the Playground
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/master/bin/pgo | bash && exit
+curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/pgo | bash && exit
 ```
 
 If you run the above command on a newly created or rebooted Cloud9 instance and are receiving the following error, just wait a minute or two and rerun the curl command. The reason for this error is, that directly after starting the machine some update processes are running in the background causing the lock to the package manager process.
@@ -77,16 +67,8 @@ E: Could not get lock /var/lib/dpkg/lock-frontend - open (11: Resource temporari
 E: Unable to acquire the dpkg frontend lock (/var/lib/dpkg/lock-frontend), is another process using it?
 ```
 
-Choose `Bootstrap`. You will be asked for your AWS credentials. They will never be stored on disk and get removed from memory after creating and assigning an instance role to the Cloud9 instance.
+You will be asked for your AWS credentials. They will never be stored on disk and get removed from memory after creating and assigning an instance role to the Cloud9 instance.
 
 If you forgot to disable AWS managed temporary credentials you will asked to do it again.
 
-The bootstrapping process will exit your current terminal or shell after it has done it's work. Depending on your environment just create a new terminal session and continue.
-
-To interact with the Playground One use the command line interface
-
-```sh
-pgo
-```
-
-from anywhere in your terminal.
+The bootstrapping process will exit your current terminal or shell after it has done it's work. Depending on your environment just create a new terminal session and continue with [Configuration](configuration.md).

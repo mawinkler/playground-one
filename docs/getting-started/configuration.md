@@ -1,12 +1,15 @@
 # Getting Started Configuration
 
-After bootstrapping you need to create a file called `config.yaml` to hold your specific configuration.
+If you didn't create a new shell, then do so now.
 
-Create this by running
+After bootstrapping you need to create a file called `config.yaml` to hold your specific configuration. Create this by running
 
 ```sh
+cd ${ONEPATH}
 cp config.yaml.sample config.yaml
 ```
+
+and open it with your prefered editor.
 
 The bare minimum to adapt are:
 
@@ -112,3 +115,5 @@ services:
     ws_policy_id: 0
 ...
 ```
+
+Now, continue with the chapter [General Life-Cycle](../life-cycle.md).

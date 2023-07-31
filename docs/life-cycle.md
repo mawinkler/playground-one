@@ -1,6 +1,14 @@
 # General Life-Cycle
 
-The life-cycle of Playground One is controlled by the command line interface `pgo`
+The life-cycle of Playground One is controlled by the command line interface `pgo`.
+
+Use it to interact with the Playground One from anywhere in your terminal by running
+
+```sh
+pgo
+```
+
+from anywhere in your terminal.
 
 ## Getting Help
 
@@ -29,7 +37,7 @@ Other commands:
   -S --show     Show advanced state
 
 Available configurations:
-  vpc           Full network configuration
+  vpc           VPC configuration
   ec2           EC2 configuration
   eks           EKS configuration
   ecs           ECS configurations
@@ -122,6 +130,7 @@ If you want to tear down everything run
 ```sh
 pgo --destroy all
 ```
+
 ## Optional: Adapt `terraform.tfvars` in Configurations
 
 The `terraform.tfvars`-files located within the configurations allow you to configure the AWS One playground in some aspects. Normally there's nothing to do for you, but if you only need Linux servers you could disable windows instance(s) in `3-instances/terraform.tfvars`.

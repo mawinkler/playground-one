@@ -1,12 +1,12 @@
-site_name: Playground Simplicity
+site_name: Playground One
 nav:
   - Home: index.md
   - Orchestration: orchestration.md
   - Configurations: configurations.md
-  - General Life-Cycle: life-cycle.md
   - Getting Started:
     - Prepare: getting-started/prepare.md
     - Configuration: getting-started/configuration.md
+  - General Life-Cycle: life-cycle.md
   - Integrations:
     - Vision One Endpoint Security: integrations/endpoint_security.md
     - XDR for Containers: integrations/xdr_for_containers.md

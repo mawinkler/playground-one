@@ -1,6 +1,6 @@
 # Playground One
 
-Ultra fast and slim playground.
+Ultra fast and slim playground in the clouds designed for educational and demoing purposes.
 
 ## Latest News
 
@@ -11,13 +11,15 @@ In a nutshell:
 - Bootstrapping directly from the clouds. It will attempt to upgrade already installed tools to the latest available version.  
 
   ```sh
-  curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/master/bin/pgo | bash && exit
+  curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/pgo | bash && exit
   ```
 
 - Management of the environment with the help of an easy to use command line interface `pgo`.
+- Based on Terraform >1.5
+
 ## Change Log
 
-07/07/2023
+08/07/2023
 
 - Initial release
 
