@@ -32,7 +32,7 @@ OS="$(uname)"
 PACKAGE_MANAGER="apt"
 
 # Repo
-REPO=https://raw.githubusercontent.com/mawinkler/playground-one/master
+REPO=https://raw.githubusercontent.com/mawinkler/playground-one/main
 
 function find_playground() {
   if [ "${ONEPATH}" != "" ] && [ -f "${ONEPATH}/.pghome" ]; then
@@ -112,7 +112,7 @@ function ensure_essentials() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Installing essential packages on linux"
   sudo apt update
-  sudo apt install -y jq apt-transport-https gnupg2 curl nginx apache2-utils pv unzip
+  sudo apt install -y jq apt-transport-https gnupg2 curl nginx apache2-utils pv unzip dialog
 
   if [ "${PACKAGE_MANAGER}" == "brew" ]; then
     if ! command -v brew &>/dev/null; then
@@ -329,19 +329,19 @@ function ensure_kubectl() {
   fi
 }
 
-# function ensure_eksctl() {
+function ensure_eksctl() {
 
-#   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for eksctl"
-#   if ! command -v eksctl &>/dev/null; then
-#     printf "${RED}${BOLD}%s${RESET}\n" "Installing eksctl on linux"
-#     curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-#     sudo mv /tmp/eksctl /usr/local/bin
-#   else
-#     printf "${YELLOW}%s${RESET}\n" "Eksctl already installed, ensuring latest version"
-#     curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-#     sudo mv /tmp/eksctl /usr/local/bin
-#   fi
-# }
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for eksctl"
+  if ! command -v eksctl &>/dev/null; then
+    printf "${RED}${BOLD}%s${RESET}\n" "Installing eksctl on linux"
+    curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+    sudo mv /tmp/eksctl /usr/local/bin
+  else
+    printf "${YELLOW}%s${RESET}\n" "Eksctl already installed, ensuring latest version"
+    curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+    sudo mv /tmp/eksctl /usr/local/bin
+  fi
+}
 
 # function ensure_kustomize() {
 
@@ -503,7 +503,7 @@ if [ "${PACKAGE_MANAGER}" == "brew" ]; then
 else
   ensure_kubectl
   ensure_eksctl
-  ensure_kustomize
+  # ensure_kustomize
   ensure_helm
   ensure_k9s
   ensure_stern
