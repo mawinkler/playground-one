@@ -15,6 +15,7 @@ DIALOG_INSTALLED=$(apt -qq list dialog 2>/dev/null)
 if [[ "$DIALOG_INSTALLED" == *"installed"* ]]; then
     echo "dialog installed"
 else
+    sudo apt update
     sudo apt install -y dialog
 fi
 
