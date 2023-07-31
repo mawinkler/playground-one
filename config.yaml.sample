@@ -39,8 +39,11 @@ services:
 
     ## The default AWS environment name to use
     ## 
+    ## IMPORTANT: The value MUST NOT be longer than 15 characters
+    ##
     ## Default value: "playground-one"
-    environment: "playground-one"
+    environment: ''
+    ##        max ############### 15 characters
 
   - name: awsone
     ## Restrict access to AWS One

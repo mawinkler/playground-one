@@ -1,4 +1,4 @@
-# Playground
+# Playground One
 
 Ultra fast and slim playground in the clouds designed for educational and demoing purposes.
 

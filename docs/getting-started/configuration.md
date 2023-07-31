@@ -16,6 +16,8 @@ The bare minimum to adapt are:
 - `aws.account_id`
 - `cloudone_api_key`
 
+If you change the `aws.environment`-name ensure that the value does NOT exceed 15 characters in length.
+
 For the rest and especially the default values see below:
 
 ```yaml
@@ -60,8 +62,11 @@ services:
 
     ## The default AWS environment name to use
     ## 
+    ## IMPORTANT: The value MUST NOT be longer than 15 characters
+    ##
     ## Default value: "playground-one"
     environment: "playground-one"
+    ##        max ############### 15 characters
 
   - name: awsone
     ## Restrict access to AWS One
