@@ -89,8 +89,6 @@ function ensure_bashrc() {
     # FIXME: why does the source from above not work?
     export ONEPATH=${CURRENT_PATH}/playground-one
     export PATH==${ONEPATH}/bin:$PATH
-
-    touch ${ONEPATH}/.pghome
   else
     echo "playground already installed in ${ONEPATH}"
   fi
