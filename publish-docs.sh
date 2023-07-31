@@ -1,5 +1,5 @@
 #!/bin/bash
 mkdocs build
-mv site ../playground-pages/
-rm -rf ../playground-pages/docs
-mv ../playground-pages/site ../playground-pages/docs
+mv site ../playground-one-pages/
+rm -rf ../playground-one-pages/docs
+mv ../playground-one-pages/site ../playground-one-pages/docs

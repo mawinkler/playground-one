@@ -1,0 +1,59 @@
+site_name: Playground Simplicity
+nav:
+  - Home: index.md
+  - Orchestration: orchestration.md
+  - Configurations: configurations.md
+  - General Life-Cycle: life-cycle.md
+  - Getting Started:
+    - Prepare: getting-started/prepare.md
+    - Configuration: getting-started/configuration.md
+  - Integrations:
+    - Vision One Endpoint Security: integrations/endpoint_security.md
+    - XDR for Containers: integrations/xdr_for_containers.md
+    - Sentry: integrations/sentry.md
+  # - Play with the Playground:
+  #   - Tools and Scripts: play/tools.md
+  #   - With Falco: play/with-falco.md
+  #   - Demo Scripts: play/scripts.md
+theme:
+  features:
+  #   - navigation.tabs
+    - content.tabs.link
+  # favicon: images/kubecon_logo.jpeg
+  palette:
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  name: material
+#   # logo: 'images/kubecon_logo.jpeg'
+extra_css:
+    - css/extra.css
+# extra:
+#   social:
+#     - icon: fontawesome/brands/twitter
+#       link: https://twitter.com/cloudnativeca
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - codehilite:
+      guess_lang: false
+  - toc:
+      permalink: true
+  - footnotes
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences 
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      # slugify: !!python/object/apply:pymdownx.slugs.slugify
+      #   kwds:
+      #     case: lower
+      alternate_style: true 
+  - tables
+  - attr_list
+  - md_in_html
+  - def_list
+  - pymdownx.tasklist:
+      custom_checkbox: true

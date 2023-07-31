@@ -1,3 +1,21 @@
+# Getting Started Configuration
+
+After bootstrapping you need to create a file called `config.yaml` to hold your specific configuration.
+
+Create this by running
+
+```sh
+cp config.yaml.sample config.yaml
+```
+
+The bare minimum to adapt are:
+
+- `aws.account_id`
+- `cloudone_api_key`
+
+For the rest and especially the default values see below:
+
+```yaml
 services:
   - name: cloudone
     ## Cloud One region to work with
@@ -92,3 +110,5 @@ services:
     ##
     ## Default value: 0
     ws_policy_id: 0
+...
+```
