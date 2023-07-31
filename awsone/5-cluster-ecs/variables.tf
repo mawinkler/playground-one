@@ -31,7 +31,7 @@ variable "ws_policyid" {
 
 variable "ecs_ec2" {
   type    = bool
-  default = false
+  default = true
 }
 
 variable "ecs_fargate" {
