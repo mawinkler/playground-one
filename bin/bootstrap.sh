@@ -112,7 +112,7 @@ function ensure_essentials() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Installing essential packages on linux"
   sudo apt update
-  sudo apt install -y jq apt-transport-https gnupg2 curl nginx apache2-utils pv unzip dialog
+  sudo apt install -y jq apt-transport-https gnupg2 curl nginx apache2-utils pv unzip dialog software-properties-common
 
   if [ "${PACKAGE_MANAGER}" == "brew" ]; then
     if ! command -v brew &>/dev/null; then
@@ -314,6 +314,28 @@ function ensure_formulae () {
   brew install krew
 }
 
+function ensure_terraform() {
+
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for terraform"
+  # if ! is_ec2 ; then
+    if ! command -v terraform &>/dev/null; then
+      printf "${RED}${BOLD}%s${RESET}\n" "Installing terraform on linux"
+      # sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
+      wget -O- https://apt.releases.hashicorp.com/gpg | \
+        gpg --dearmor | \
+        sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
+      echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
+        https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
+        sudo tee /etc/apt/sources.list.d/hashicorp.list
+      sudo apt update
+      sudo apt-get install terraform
+    else
+      printf "${YELLOW}%s${RESET}\n" "Terraform already installed, ensuring latest version"
+      sudo apt-get upgrade -y terraform
+    fi
+  # fi
+}
+
 function ensure_kubectl() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for kubectl"
@@ -497,6 +519,7 @@ ensure_bashrc
 ensure_playground
 ensure_essentials
 ensure_ec2_instance_role
+ensure_terraform
 # ensure_docker
 if [ "${PACKAGE_MANAGER}" == "brew" ]; then
   ensure_formulae
