@@ -12,6 +12,12 @@ access_ip = "${ACCESS_IP}"
 # Environment Name
 environment = "${AWS_ENVIRONMENT}"
 
+# Create EC2
+create_ec2 = ${ECS_CREATE_EC2}
+
+# Create Fargate Profile
+create_fargate = ${ECS_CREATE_FARGATE}
+
 # Workload Security
 ws_tenantid = "${WS_TENANTID}"
 ws_token    = "${WS_TOKEN}"

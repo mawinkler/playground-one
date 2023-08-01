@@ -63,6 +63,12 @@ CLOUD_ONE_INSTANCE="$(yq '.services[] | select(.name=="cloudone") | .instance' $
 [[ "${CLOUD_ONE_REGION}" = "null" || "${CLOUD_ONE_REGION}" = "" ]] && CLOUD_ONE_REGION="trend-us-1"
 [[ "${CLOUD_ONE_INSTANCE}" = "null" || "${CLOUD_ONE_INSTANCE}" = "" ]] && CLOUD_ONE_INSTANCE="cloudone"
 
+# Cluster ECS
+ECS_CREATE_EC2="$(yq '.services[] | select(.name=="awsone") | .cluster-ecs.create_ec2' $ONEPATH/config.yaml)"
+ECS_CREATE_FARGATE="$(yq '.services[] | select(.name=="awsone") | .cluster-ecs.create_fargate' $ONEPATH/config.yaml)"
+[[ "${ECS_CREATE_EC2}" = "null" || "${ECS_CREATE_EC2}" = "" ]] && ECS_CREATE_EC2=true
+[[ "${ECS_CREATE_FARGATE}" = "null" || "${ECS_CREATE_FARGATE}" = "" ]] && ECS_CREATE_FARGATE=true
+
 # Workload Security
 WS_TENANTID="$(yq '.services[] | select(.name=="workload-security") | .ws_tenant_id' $ONEPATH/config.yaml)"
 WS_TOKEN="$(yq '.services[] | select(.name=="workload-security") | .ws_token' $ONEPATH/config.yaml)"
@@ -138,6 +144,8 @@ function init() {
       AWS_REGION=${AWS_REGION} \
       AWS_ENVIRONMENT=${AWS_ENVIRONMENT} \
       ACCESS_IP=${ACCESS_IP} \
+      ECS_CREATE_EC2=${ECS_CREATE_EC2} \
+      ECS_CREATE_FARGATE=${ECS_CREATE_FARGATE} \
       WS_TENANTID=${WS_TENANTID} \
       WS_TOKEN=${WS_TOKEN} \
       WS_POLICY=${WS_POLICY} \

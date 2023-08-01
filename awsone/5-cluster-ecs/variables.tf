@@ -26,15 +26,12 @@ variable "ws_token" {
 
 variable "ws_policyid" {
   type    = number
-  default = 0
 }
 
 variable "ecs_ec2" {
   type    = bool
-  default = true
 }
 
 variable "ecs_fargate" {
   type    = bool
-  default = true
 }
