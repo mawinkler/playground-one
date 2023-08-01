@@ -11,10 +11,11 @@ nav:
     - Vision One Endpoint Security: integrations/endpoint_security.md
     - XDR for Containers: integrations/xdr_for_containers.md
     - Sentry: integrations/sentry.md
-  # - Play with the Playground:
-  #   - Tools and Scripts: play/tools.md
-  #   - With Falco: play/with-falco.md
-  #   - Demo Scripts: play/scripts.md
+  - Scenarios:
+    - XDR for Containers:
+      - Tomcat Remote Code Execution: scenarios/xdr_for_containers-ecs-tomcat-rce.md
+      - JNDI Injection in HTTP Request: scenarios/xdr_for_containers-ecs-log4j.md
+      - Apache Struts Multipart Encoding Command Injection: scenarios/xdr_for_containers-ecs-struts.md
 theme:
   features:
   #   - navigation.tabs
