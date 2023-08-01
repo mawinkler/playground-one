@@ -8,12 +8,12 @@ if (!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]
 }
 
 
-$archive="TMServerAgent_Windows_auto_64_Server_-_Workload_Protection_Manager.zip"
+$archive="TMServerAgent_Windows.zip"
 if (Test-Path $archive) {
 
     Write-Host "Extracting XBC/Basecamp Package" -ForegroundColor Green
 
-    Expand-Archive -LiteralPath $HOME/Downloads/TMServerAgent_Windows_auto_64_Server_-_Workload_Protection_Manager.zip -DestinationPath $HOME/Downloads -Force
+    Expand-Archive -LiteralPath $HOME/Downloads/$archive -DestinationPath $HOME/Downloads -Force
 
     try {
         Write-Host "Starting XBC/Basecamp Install Process" -ForegroundColor Green

@@ -2,6 +2,8 @@
 
 set -e
 
+[ -f $ONEPATH/banner.txt ] && cat $ONEPATH/banner.txt
+
 # Source helpers
 if [ -f $ONEPATH/bin/playground-helpers.sh ]; then
     .  $ONEPATH/bin/playground-helpers.sh
@@ -374,6 +376,8 @@ function helpcmd() {
 # Manages a AWS based V1 & C1
 # demo environment
 #######################################
+[ -z "$1" ] && helpcmd
+
 TEMP=$(getopt -o i:a:d:o:s:S:h --long init:apply:,destroy:,output:,state:,show:,help -- "$@")
 if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 

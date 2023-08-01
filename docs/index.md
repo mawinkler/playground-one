@@ -37,7 +37,7 @@ The Playground One is designed to work with AWS and is tested these operating sy
 
 ## CLI Commands of the Playground
 
-Besides the obvious cli tools like `kubectl`, `docker`, etc. the Playground offers you additional commands shown in the table below (and more):
+Besides the obvious cli tools like `kubectl`, etc. the Playground offers you additional commands shown in the table below (and more):
 
 Command | Function
 ------- | --------
