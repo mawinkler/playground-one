@@ -32,4 +32,4 @@ As we can see, the configuration `vpc` is the base for the other configurations.
 
 ***Documentation***
 
-Full documentation: ***[Playground Pages](https://mawinkler.github.io/playground-pages/)***
+Full documentation: ***[Playground One Pages](https://mawinkler.github.io/playground-one-pages/)***
