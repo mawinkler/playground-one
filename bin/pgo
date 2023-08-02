@@ -97,6 +97,17 @@ function init() {
 
   case $1 in
     vpc|all)
+      printf '%s\n' "Create terraform.tfvars for vpc"
+      AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID} \
+      AWS_REGION=${AWS_REGION} \
+      AWS_ENVIRONMENT=${AWS_ENVIRONMENT} \
+      ACCESS_IP=${ACCESS_IP} \
+        envsubst <$ONEPATH/templates/terraform-1-vpc.tfvars >$ONEPATH/awsone/1-vpc/terraform.tfvars
+      
+      cd ${ONEPATH}/awsone/1-vpc
+      terraform init
+      ;;&
+    nw|network|all)
       printf '%s\n' "Create terraform.tfvars for network"
       AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID} \
       AWS_REGION=${AWS_REGION} \
@@ -124,11 +135,11 @@ function init() {
       AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID} \
       AWS_REGION=${AWS_REGION} \
       AWS_ENVIRONMENT=${AWS_ENVIRONMENT} \
-      ACCESS_IP=${ACCESS_IP} \
       EKS_CREATE_FARGATE_PROFILE=${EKS_CREATE_FARGATE_PROFILE} \
         envsubst <$ONEPATH/templates/terraform-4-cluster-eks.tfvars >$ONEPATH/awsone/4-cluster-eks/terraform.tfvars
       printf '%s\n' "Create terraform.tfvars for cluster-eks deployments"
       AWS_ENVIRONMENT=${AWS_ENVIRONMENT} \
+      ACCESS_IP=${ACCESS_IP} \
       CLOUD_ONE_API_KEY=${CLOUD_ONE_API_KEY} \
       CLOUD_ONE_REGION=${CLOUD_ONE_REGION} \
       CLOUD_ONE_INSTANCE=${CLOUD_ONE_INSTANCE} \
@@ -173,6 +184,10 @@ function apply() {
 
   case $1 in
     vpc|all)
+      cd ${ONEPATH}/awsone/1-vpc
+      terraform apply -auto-approve
+      ;;&
+    nw|network|all)
       cd ${ONEPATH}/awsone/2-network
       terraform apply -auto-approve
       ;;&
@@ -207,6 +222,10 @@ function destroy() {
 
   case $1 in
     vpc)
+      cd ${ONEPATH}/awsone/1-network
+      terraform destroy -auto-approve
+      ;;
+    nw|network|all)
       cd ${ONEPATH}/awsone/2-network
       terraform destroy -auto-approve
       ;;
@@ -252,6 +271,10 @@ function output() {
 
   case $1 in
     vpc|all)
+      cd ${ONEPATH}/awsone/1-vpc
+      terraform output
+      ;;&
+    nw|network|all)
       cd ${ONEPATH}/awsone/2-network
       terraform output
       ;;&
@@ -286,6 +309,10 @@ function state() {
 
   case $1 in
     vpc|all)
+      cd ${ONEPATH}/awsone/1-vpc
+      terraform state list
+      ;;&
+    nw|network|all)
       cd ${ONEPATH}/awsone/2-network
       terraform state list
       ;;&
@@ -320,6 +347,10 @@ function show() {
 
   case $1 in
     vpc|all)
+      cd ${ONEPATH}/awsone/1-vpc
+      terraform show
+      ;;&
+    nw|network|all)
       cd ${ONEPATH}/awsone/2-network
       terraform show
       ;;&
@@ -340,6 +371,43 @@ function show() {
   esac
 }
 
+#######################################
+# Validates a Terraform configuration
+# Globals:
+#   ONEPATH
+# Arguments:
+#   Configuration name or all
+# Outputs:
+#   None
+#######################################
+function validate() {
+
+  case $1 in
+    vpc|all)
+      cd ${ONEPATH}/awsone/1-vpc
+      terraform validate
+      ;;&
+    nw|network|all)
+      cd ${ONEPATH}/awsone/2-network
+      terraform validate
+      ;;&
+    ec2|all)
+      cd ${ONEPATH}/awsone/3-instances
+      terraform validate
+      ;;&
+    eks|all)
+      cd ${ONEPATH}/awsone/4-cluster-eks
+      terraform validate
+      cd ${ONEPATH}/awsone/8-cluster-eks-deployments
+      terraform validate
+      ;;&
+    ecs|all)
+      cd ${ONEPATH}/awsone/5-cluster-ecs
+      terraform validate
+      ;;
+  esac
+}
+
 function helpcmd() {
 
   printf '%s\n' "Usage: pgo -<command> <configuration> ..."
@@ -347,6 +415,8 @@ function helpcmd() {
   printf '%s\n' "The available commands for execution are listed below."
   printf '%s\n' "The primary workflow commands are given first, followed by"
   printf '%s\n' "less common or more advanced commands."
+  printf '%s\n' ""
+  printf '%s\n' "Available configurations: vpc, nw, ec2, eks, ecs"
   printf '%s\n' ""
   printf '%s\n' "Main commands:"
   printf '%s\n' "  -i --init     Prepare a configuration for other commands"
@@ -358,6 +428,7 @@ function helpcmd() {
   printf '%s\n' ""
   printf '%s\n' "Other commands:"
   printf '%s\n' "  -S --show     Show advanced state"
+  printf '%s\n' "  -v --validate Check whether the configuration is valid"
   printf '%s\n' ""
   printf '%s\n' "Available configurations:"
   printf '%s\n' "  vpc           VPC configuration"
@@ -378,7 +449,7 @@ function helpcmd() {
 #######################################
 [ -z "$1" ] && helpcmd
 
-TEMP=$(getopt -o i:a:d:o:s:S:h --long init:apply:,destroy:,output:,state:,show:,help -- "$@")
+TEMP=$(getopt -o i:a:d:o:s:S:v:h --long init:apply:,destroy:,output:,state:,show:,validate:,help -- "$@")
 if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 
 eval set -- "$TEMP"
@@ -391,6 +462,7 @@ while true; do
     -o | --output ) output $2; shift 2 ;;
     -s | --state ) state $2; shift 2 ;;
     -S | --show ) show $2; shift 2 ;;
+    -v | --validate ) validate $2; shift 2 ;;
     -h | --help ) helpcmd; break ;;
     -- ) shift; break ;;
     * ) break ;;
