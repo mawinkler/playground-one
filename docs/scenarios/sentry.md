@@ -3,7 +3,7 @@
 To create findings and scan with Sentry run
 
 ```sh
-$PGPATH/terraform-awsone/1-scripts/create-findings.sh
+$PGPATH/terraform-awsone/0-scripts/create-findings.sh
 ```
 
 Feel free to have a look on the script above, but in theory it should prepare six findings for Sentry and two Workbenches in Vision One.

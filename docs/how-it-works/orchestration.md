@@ -2,7 +2,7 @@
 
 The Playground One utilizes Terraform to maintain the environment. For best flexibility and cost optimization it is structured into several Terraform configurations. You can also view these configurations as modules that can be linked together as needed.
 
-> Note: Currently, the only cloud provides supported is AWS, when required other public cloud providers might follow.
+> Note: Currently, the only cloud supported is AWS, when required other public cloud providers might follow.
 
 ## What is Terraform?
 

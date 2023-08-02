@@ -4,30 +4,37 @@ The Playground One has a modular structure as shown in the following tree:
 
 ```
 awsone
-├── vpc (2-network)
-│   ├── ec2 (3-instances)
-│   ├── eks (4-cluster-eks)
-│   |   └── eks-deployments (8-cluster-eks-deployments)
-│   └── ecs (5-cluster-ecs)
+├── vpc (1-vpc)
+├   └── network (2-network)
+│       ├── ec2 (3-instances)
+│       ├── eks (4-cluster-eks)
+│       |   └── eks-deployments (8-cluster-eks-deployments)
+│       └── ecs (5-cluster-ecs)
 ```
 
-As we can see, the configuration `vpc` is the base for the other configurations. One can choose to only create the EKS cluster, or ECS cluster, or even the full stack. Everything will reside in the same VPC.
+As we can see, the configuration `vpc` is the base for the other configurations. The configuration `network` creates the Subnets, Route Tables, Security Groups, etc. One can choose to only create the EKS cluster, or ECS cluster, or even the full stack. Everything will reside in the same VPC.
 
 *Architecture:*
 
 ![alt text](images/architecture.png "Architecture diagram")
 
-*Security Groups:*
+*Security Groups:* TODO: UPDATE
 
 ![alt text](images/security-groups.png "Security Groups")
 
 The following chapters describe the different configurations on a high level, refer the the dedicated documentation for more details.
 
+## Virtual Private Cloud
+
+*Configuration located in `awsone/1-vpc`*
+
+This, very simple configuration just creates a VPC with actually no content. Solely DNS and the VPC CIDR is defined.
+
 ## Network
 
 *Configuration located in `awsone/2-network`*
 
-This configuration defines a VPC with the most commonly used architecture, private and public subnets accross three availability zones. It includes everything what a VPC should have, this is amongst others an internet gateway, NAT gateway, security groups, etc. Since a VPC is cheap there's no real need to destroy the networking configuration everyday, just leave it as it is and reuse it the next time. This eases the handling of other components like Vision One XDR for Containers.
+This configuration defines a network with the most commonly used architecture, private and public subnets accross three availability zones. It includes everything what a VPC should have, this is amongst others an internet gateway, NAT gateway, security groups, etc. Since a VPC is cheap there's no real need to destroy the networking configuration everyday, just leave it as it is and reuse it the next time. This eases the handling of other components like Vision One XDR for Containers.
 
 ## Virtual Instances
 

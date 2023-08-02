@@ -16,7 +16,18 @@ The bare minimum to adapt are:
 - `aws.account_id`
 - `cloudone_api_key`
 
-If you change the `aws.environment`-name ensure that the value does NOT exceed 15 characters in length.
+If you change the `aws.environment`-name ensure that the value does NOT exceed **15** characters in length.
+
+> ***Note:*** It is highly recommended to change the `awsone.access_ip` to a single IP or at least a small CIDR to prevent anonymous users playing with your environmnent. Remember: we're deploying vulnerable applications.
+> 
+> If you need to change the `awsone.access_ip` later on, maybe because you got a new one assigned, follow these steps:
+> 
+> 1. change `awsone.access_ip` in the `config.yaml`
+> 2. run `pgo --init all`
+> 3. run `pgo --apply vpc`
+> 
+> If you have an EKS deployed run `pgo --apply eks`  
+> If you have an ECS deployed run `pgo --apply ecs`
 
 For the rest and especially the default values see below:
 
