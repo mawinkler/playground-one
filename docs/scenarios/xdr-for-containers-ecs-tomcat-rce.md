@@ -10,8 +10,8 @@
 If you need to extract the exploits unzip with the password `virus`:
 
 ```sh
-cd ${ONEPATH}
-unzip exploits.zip
+$ cd ${ONEPATH}
+$ unzip exploits.zip
 ```
 
 ## Exploiting
@@ -37,7 +37,7 @@ Now you can check to see if the tomcat server is vulnerable.
 If it is you should see something similar to the following:
 
 ```sh
-cd ${ONEPATH}/exploits/tomcat-rce/
+$ cd ${ONEPATH}/exploits/tomcat-rce/
 $ python3 exploit.py -u http://playground-ecs-ec2-135067951.eu-central-1.elb.amazonaws.com
 ```
 

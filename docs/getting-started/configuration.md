@@ -5,8 +5,8 @@ If you didn't create a new shell, then do so now.
 After bootstrapping you need to create a file called `config.yaml` to hold your specific configuration. Create this by running
 
 ```sh
-cd ${ONEPATH}
-cp config.yaml.sample config.yaml
+$ cd ${ONEPATH}
+$ cp config.yaml.sample config.yaml
 ```
 
 and open it with your prefered editor.

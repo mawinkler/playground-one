@@ -222,7 +222,7 @@ function destroy() {
 
   case $1 in
     vpc)
-      cd ${ONEPATH}/awsone/1-network
+      cd ${ONEPATH}/awsone/1-vpc
       terraform destroy -auto-approve
       ;;
     nw|network|all)

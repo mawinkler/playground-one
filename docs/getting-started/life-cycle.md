@@ -5,7 +5,7 @@ The life-cycle of Playground One is controlled by the command line interface `pg
 Use it to interact with the Playground One from anywhere in your terminal by running
 
 ```sh
-pgo
+$ pgo
 ```
 
 from anywhere in your terminal.
@@ -15,7 +15,7 @@ from anywhere in your terminal.
 Run:
 
 ```sh
-pgo --help
+$ pgo --help
 ```
 
 ```sh
@@ -35,9 +35,11 @@ Main commands:
 
 Other commands:
   -S --show     Show advanced state
+  -v --validate Check whether the configuration is valid
 
 Available configurations:
   vpc           VPC configuration
+  nw            Network configuration
   ec2           EC2 configuration
   eks           EKS configuration
   ecs           ECS configurations
@@ -53,31 +55,39 @@ Examples:
 1. Initialize with
 
     ```sh
-    pgo --init all
+    $ pgo --init all
     ```
 
     This will prepare all available configurations. No changes done in the clouds yet. You only need to init once after cloning the repository.
 
-2. To create the Network run
+2. To create the VPC run
 
     ```sh
-    pgo --apply vpc
+    $ pgo --apply vpc
     ```
 
     This will create your VPC in the configured region (see `config.yaml`)
 
-3. Create Virtual Instances and/or Kubernetes Clusters with demo workload
+3. To create the Network run
+
+    ```sh
+    $ pgo --apply nw
+    ```
+
+    This will create your network in the configured vpc
+
+4. Create Virtual Instances and/or Kubernetes Clusters with demo workload
 
     EC2 instances:
 
     ```sh
-    pgo --apply ec2
+    $ pgo --apply ec2
     ```
 
     EKS cluster:
 
     ```sh
-    pgo --apply eks
+    $ pgo --apply eks
     ```
 
     The default workload (Container Security, Trivy, and vulnerable apps) are deployed automatically.
@@ -85,7 +95,7 @@ Examples:
     ECS cluster:
 
     ```sh
-    pgo --apply ecs
+    $ pgo --apply ecs
     ```
 
     A default workload is deployed automatically.
@@ -95,7 +105,7 @@ Examples:
 The most relevant information on your configuration can be queried by running
 
 ```sh
-pgo --output <configuration>
+$ pgo --output <configuration>
 ```
 
 Example: `pgo --output ec2`:
@@ -122,14 +132,16 @@ With this you can always query how to connect to your running EC2 instances. All
 If you want to destroy your environment completely or only parts of it
 
 ```sh
-pgo --destroy <configuration>
+$ pgo --destroy <configuration>
 ```
 
 If you want to tear down everything run
 
 ```sh
-pgo --destroy all
+$ pgo --destroy all
 ```
+
+> ***Note:*** The VPC is not automatically destroyed. You can do this manually by running `pgo --destroy vpc`.
 
 ## Optional: Adapt `terraform.tfvars` in Configurations
 
