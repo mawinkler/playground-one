@@ -58,7 +58,7 @@ resource "kubernetes_service_v1" "openssl3_service" {
     internal_traffic_policy = "Cluster"
     port {
       port        = 80
-      target_port = 8080
+      target_port = 80
     }
     selector = {
       app = "web-app"
@@ -72,8 +72,10 @@ resource "kubernetes_ingress_v1" "openssl3_ingress" {
 
   metadata {
     annotations = {
-      "alb.ingress.kubernetes.io/scheme"      = "internet-facing"
-      "alb.ingress.kubernetes.io/target-type" = "ip"
+      "alb.ingress.kubernetes.io/scheme"        = "internet-facing"
+      "alb.ingress.kubernetes.io/target-type"   = "ip"
+      "kubernetes.io/ingress.class"             = "alb"
+      "alb.ingress.kubernetes.io/inbound-cidrs" = var.access_ip
     }
     labels = {
       app = "web-app"
@@ -82,7 +84,6 @@ resource "kubernetes_ingress_v1" "openssl3_ingress" {
     namespace = var.namespace
   }
   spec {
-    ingress_class_name = "alb"
     rule {
       http {
         path {
@@ -94,7 +95,7 @@ resource "kubernetes_ingress_v1" "openssl3_ingress" {
               }
             }
           }
-          path = "/"
+          path = "/*"
         }
       }
     }

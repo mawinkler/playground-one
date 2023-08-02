@@ -1,24 +1,28 @@
 # ####################################
 # Variables
 # ####################################
+variable "access_ip" {
+  type = string
+}
+
 # Container Security
 variable "cluster_policy" {
-  type    = string
+  type = string
 }
 
 variable "environment" {
-  type    = string
+  type = string
 }
 
 # Cloud One
 variable "cloud_one_region" {
-  type    = string
+  type = string
 }
 
 variable "cloud_one_instance" {
-  type    = string
+  type = string
 }
 
 variable "api_key" {
-  type    = string
+  type = string
 }

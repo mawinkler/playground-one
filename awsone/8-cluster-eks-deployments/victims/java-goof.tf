@@ -32,11 +32,11 @@ resource "kubernetes_deployment_v1" "java_goof_deployment" {
       }
       spec {
         container {
-          image             = "mawinkler/java-goof"
+          image             = "mawinkler/goof"
           image_pull_policy = "Always"
           name              = "java-goof"
           port {
-            container_port = 80
+            container_port = 8080
           }
         }
         restart_policy = "Always"
@@ -57,7 +57,7 @@ resource "kubernetes_service_v1" "java_goof_service" {
     external_traffic_policy = "Cluster"
     internal_traffic_policy = "Cluster"
     port {
-      port        = 80
+      port        = 8080
       target_port = 8080
     }
     selector = {
@@ -72,8 +72,10 @@ resource "kubernetes_ingress_v1" "java_goof_ingress" {
 
   metadata {
     annotations = {
-      "alb.ingress.kubernetes.io/scheme"      = "internet-facing"
-      "alb.ingress.kubernetes.io/target-type" = "ip"
+      "alb.ingress.kubernetes.io/scheme"        = "internet-facing"
+      "alb.ingress.kubernetes.io/target-type"   = "ip"
+      "kubernetes.io/ingress.class"             = "alb"
+      "alb.ingress.kubernetes.io/inbound-cidrs" = var.access_ip
     }
     labels = {
       app = "java-goof"
@@ -82,7 +84,6 @@ resource "kubernetes_ingress_v1" "java_goof_ingress" {
     namespace = var.namespace
   }
   spec {
-    ingress_class_name = "alb"
     rule {
       http {
         path {
@@ -90,11 +91,11 @@ resource "kubernetes_ingress_v1" "java_goof_ingress" {
             service {
               name = "java-goof-service"
               port {
-                number = 80
+                number = 8080
               }
             }
           }
-          path = "/"
+          path = "/*"
         }
       }
     }

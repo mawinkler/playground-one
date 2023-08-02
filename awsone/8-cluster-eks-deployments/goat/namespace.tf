@@ -1,9 +1,8 @@
 # #############################################################################
-# Variables
+# Create a Namespace
 # #############################################################################
-# Kubernetes
-variable "access_ip" {}
-
-variable "environment" {}
-
-variable "namespace" {}
+resource "kubernetes_namespace_v1" "goat_namespace" {
+  metadata {
+    name = var.namespace
+  }
+}
