@@ -91,6 +91,17 @@ services:
       ## Default value: true
       create_fargate_profile : true
 
+    cluster-ecs:
+      ## Create ECS Cluster with EC2
+      ## 
+      ## Default value: true
+      create_ec2: true
+
+      ## Create ECS Cluster with Fargate
+      ## 
+      ## Default value: true
+      create_fargate: true
+      
   - name: container_security
     ## The id of the policy for use with AWSONE
     ## 
@@ -121,4 +132,4 @@ services:
 ...
 ```
 
-Now, continue with the chapter [General Life-Cycle](../life-cycle.md).
+Now, continue with the chapter [General Life-Cycle](life-cycle.md).

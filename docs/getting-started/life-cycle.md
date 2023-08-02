@@ -66,7 +66,7 @@ Examples:
 
     This will create your VPC in the configured region (see `config.yaml`)
 
-3. Create Virtual Instances and/or Kubernetes Clusters with Workload
+3. Create Virtual Instances and/or Kubernetes Clusters with demo workload
 
     EC2 instances:
 
