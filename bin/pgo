@@ -83,6 +83,50 @@ WS_POLICY="$(yq '.services[] | select(.name=="workload-security") | .ws_policy_i
 CLOUD_ONE_POLICY_ID="$(yq '.services[] | select(.name=="container_security") | .policy_id' $ONEPATH/config.yaml)"
 [[ "${CLOUD_ONE_POLICY_ID}" = "null" || "${CLOUD_ONE_POLICY_ID}" = "" ]] && CLOUD_ONE_POLICY_ID=""
 
+function lock() {
+
+  touch ${ONEPATH}/awsone/1-vpc/.pgo.$1.lock
+  touch ${ONEPATH}/awsone/2-network/.pgo.$1.lock
+}
+
+function unlock() {
+
+  rm -f ${ONEPATH}/awsone/1-vpc/.pgo.$1.lock
+  rm -f ${ONEPATH}/awsone/2-network/.pgo.$1.lock
+}
+
+function check_vpc() {
+
+  if [[ -f ${ONEPATH}/awsone/1-vpc/.pgo.ec2.lock ]] ; then
+    echo Destroy EC2 configuration first
+    exit 0
+  fi
+  if [[ -f ${ONEPATH}/awsone/1-vpc/.pgo.eks.lock ]] ; then
+    echo Destroy EKS configuration first
+    exit 0
+  fi
+  if [[ -f ${ONEPATH}/awsone/1-vpc/.pgo.ecs.lock ]] ; then
+    echo Destroy ECS configuration first
+    exit 0
+  fi
+}
+
+function check_network() {
+
+  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.ec2.lock ]] ; then
+    echo Destroy EC2 configuration first
+    exit 0
+  fi
+  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.eks.lock ]] ; then
+    echo Destroy EKS configuration first
+    exit 0
+  fi
+  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.ecs.lock ]] ; then
+    echo Destroy ECS configuration first
+    exit 0
+  fi
+}
+
 #######################################
 # Initializes Terraform and creates
 # variables.tfvars
@@ -190,21 +234,25 @@ function apply() {
 
   case $1 in
     vpc)
+      check_vpc
       cd ${ONEPATH}/awsone/1-vpc
       terraform apply -auto-approve
       ;;
     nw|network|all)
+      check_network
       cd ${ONEPATH}/awsone/1-vpc
       terraform apply -auto-approve
       cd ${ONEPATH}/awsone/2-network
       terraform apply -auto-approve
       ;;&
     ec2|all)
+      lock ec2
       cd ${ONEPATH}/awsone/3-instances
       terraform apply -auto-approve
       printf '%s\n' "public_instance_password_srv1 = \"$(terraform output -raw public_instance_password_srv1)\""
       ;;&
     eks|all)
+      lock ek2
       cd ${ONEPATH}/awsone/4-cluster-eks
       terraform apply -auto-approve
       $(terraform output -raw update_local_context_command)
@@ -212,6 +260,7 @@ function apply() {
       terraform apply -auto-approve
       ;;&
     ecs|all)
+      lock ecs
       cd ${ONEPATH}/awsone/5-cluster-ecs
       terraform apply -auto-approve
       ;;
@@ -231,36 +280,44 @@ function destroy() {
 
   case $1 in
     vpc)
+      check_vpc
       cd ${ONEPATH}/awsone/1-vpc
       terraform destroy -auto-approve
       ;;
     nw|network)
+      check_network
       cd ${ONEPATH}/awsone/2-network
       terraform destroy -auto-approve
       ;;
     ec2)
       cd ${ONEPATH}/awsone/3-instances
       terraform destroy -auto-approve
+      unlock ec2
       ;;
     eks)
       cd ${ONEPATH}/awsone/8-cluster-eks-deployments
       terraform destroy -auto-approve
       cd ${ONEPATH}/awsone/4-cluster-eks
       terraform destroy -auto-approve
+      unlock eks
       ;;
     ecs)
       cd ${ONEPATH}/awsone/5-cluster-ecs
       terraform destroy -auto-approve
+      unlock ecs
       ;;
     all)
       cd ${ONEPATH}/awsone/3-instances
       terraform destroy -auto-approve
+      unlock ec2
       cd ${ONEPATH}/awsone/8-cluster-eks-deployments
       terraform destroy -auto-approve
       cd ${ONEPATH}/awsone/4-cluster-eks
       terraform destroy -auto-approve
+      unlock eks
       cd ${ONEPATH}/awsone/5-cluster-ecs
       terraform destroy -auto-approve
+      unlock ecs
       ;;
   esac
 }

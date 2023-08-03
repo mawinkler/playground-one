@@ -34,6 +34,9 @@ atomic_launcher_linux_1.0.0.1009.zip
 atomic_launcher_windows_1.0.0.1013.zip
 TMServerAgent_Linux.tar
 TMServerAgent_Windows.zip
+.pgo.ec2.lock
+.pgo.eks.lock
+.pgo.ecs.lock
 
 # Exploits
 exploits
