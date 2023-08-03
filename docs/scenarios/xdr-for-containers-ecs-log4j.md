@@ -1,4 +1,4 @@
-# Scenario: Vision One XDR for Containers Detect JNDI Injection in HTTP Request (Log4j)
+# Scenario: Detect JNDI Injection in HTTP Request (Log4j)
 
 ## Prerequisites
 

@@ -1,4 +1,4 @@
-# Scenario: Vision One XDR for Containers Detect Tomcat RCE
+# Scenario: Detect Tomcat RCE
 
 ## Prerequisites
 

@@ -1,4 +1,4 @@
-# Scenario: Vision One XDR for Containers Detect Log4j
+# Scenario: Detect Log4j
 
 ## Prerequisites
 
