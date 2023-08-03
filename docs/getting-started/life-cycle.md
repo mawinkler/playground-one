@@ -19,6 +19,10 @@ $ pgo --help
 ```
 
 ```sh
+ __                 __   __   __             __      __        ___ 
+|__) |     /\  \ / / _` |__) /  \ |  | |\ | |  \    /  \ |\ | |__  
+|    |___ /~~\  |  \__> |  \ \__/ \__/ | \| |__/    \__/ | \| |___ 
+                                                                   
 Usage: pgo <command> <configuration> ...
 
 The available commands for execution are listed below.
@@ -46,7 +50,7 @@ Available configurations:
   all           All configurations
 
 Examples:
-  pgo --apply vpc
+  pgo --apply nw
   pgo --state all
 ```
 
@@ -60,23 +64,15 @@ Examples:
 
     This will prepare all available configurations. No changes done in the clouds yet. You only need to init once after cloning the repository.
 
-2. To create the VPC run
-
-    ```sh
-    $ pgo --apply vpc
-    ```
-
-    This will create your VPC in the configured region (see `config.yaml`)
-
-3. To create the Network run
+2. To create the VPC and Network run
 
     ```sh
     $ pgo --apply nw
     ```
 
-    This will create your network in the configured vpc
+    This will create your VPC and network in the configured region (see `config.yaml`)
 
-4. Create Virtual Instances and/or Kubernetes Clusters with demo workload
+3. Create Virtual Instances and/or Kubernetes Clusters with demo workload
 
     EC2 instances:
 
@@ -98,7 +94,7 @@ Examples:
     $ pgo --apply ecs
     ```
 
-    A default workload is deployed automatically.
+    A vulnerable default workload is deployed automatically.
 
 ## Query Outputs and State
 

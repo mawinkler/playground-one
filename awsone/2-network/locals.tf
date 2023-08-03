@@ -7,7 +7,7 @@ locals {
 locals {
   security_groups = {
     public = {
-      name        = "public_sg"
+      name        = "${var.environment}-public-sg"
       description = "Security group for Public Access"
       ingress = {
         ssh = {
@@ -51,7 +51,7 @@ locals {
     }
 
     private = {
-      name        = "private_sg"
+      name        = "${var.environment}-private-sg"
       description = "Security group"
       ingress = {
         ssh = {

@@ -24,7 +24,7 @@ If you change the `aws.environment`-name ensure that the value does NOT exceed *
 > 
 > 1. change `awsone.access_ip` in the `config.yaml`
 > 2. run `pgo --init all`
-> 3. run `pgo --apply vpc`
+> 3. run `pgo --apply nw`
 > 
 > If you have an EKS deployed run `pgo --apply eks`  
 > If you have an ECS deployed run `pgo --apply ecs`

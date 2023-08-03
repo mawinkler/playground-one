@@ -189,11 +189,13 @@ function init() {
 function apply() {
 
   case $1 in
-    vpc|all)
+    vpc)
       cd ${ONEPATH}/awsone/1-vpc
       terraform apply -auto-approve
-      ;;&
+      ;;
     nw|network|all)
+      cd ${ONEPATH}/awsone/1-vpc
+      terraform apply -auto-approve
       cd ${ONEPATH}/awsone/2-network
       terraform apply -auto-approve
       ;;&
@@ -232,7 +234,7 @@ function destroy() {
       cd ${ONEPATH}/awsone/1-vpc
       terraform destroy -auto-approve
       ;;
-    nw|network|all)
+    nw|network)
       cd ${ONEPATH}/awsone/2-network
       terraform destroy -auto-approve
       ;;
@@ -259,8 +261,6 @@ function destroy() {
       terraform destroy -auto-approve
       cd ${ONEPATH}/awsone/5-cluster-ecs
       terraform destroy -auto-approve
-      # cd ${ONEPATH}/awsone/2-network
-      # terraform destroy -auto-approve
       ;;
   esac
 }
@@ -439,13 +439,14 @@ function helpcmd() {
   printf '%s\n' ""
   printf '%s\n' "Available configurations:"
   printf '%s\n' "  vpc           VPC configuration"
+  printf '%s\n' "  nw            Network configuration"
   printf '%s\n' "  ec2           EC2 configuration"
   printf '%s\n' "  eks           EKS configuration"
   printf '%s\n' "  ecs           ECS configurations"
   printf '%s\n' "  all           All configurations"
   printf '%s\n' ""
   printf '%s\n' "Examples:"
-  printf '%s\n' "  pgo --apply vpc"
+  printf '%s\n' "  pgo --apply nw"
   printf '%s\n' "  pgo --state all"
 }
 

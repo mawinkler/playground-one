@@ -4,7 +4,7 @@ Ultra fast and slim playground in the clouds designed for educational and demoin
 
 ## Latest News
 
-!!! ***Playground prepares for Vision One*** !!!
+!!! ***Playground integrated with Vision One*** !!!
 
 In a nutshell:
 

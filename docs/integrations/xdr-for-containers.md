@@ -6,13 +6,13 @@ You need to create a connection with XDR for Containers by going through the wor
 
 ## Connect XDR for Containers with the Playground One
 
-Before connecting XDR for Containers you need to have the VPC of Playground One created already.
+Before connecting XDR for Containers you need to have the VPC and network of Playground One created already.
 
 ```sh
-$ pgo --apply vpc
+$ pgo --apply nw
 ```
 
-> ***Note:*** You don't need to destroy the VPC each time because this would mean to disconnect Vision One from it and reestablish the connection the next time. This takes about 20 minutes overall. So leave the VPC as it is.
+> ***Note:*** You don't need to destroy the VPC and network each time because this would mean to disconnect Vision One from it and reestablish the connection the next time. This takes about 20 minutes overall. So leave the VPC as it is.
 
 Required information:
 

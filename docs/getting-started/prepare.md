@@ -20,6 +20,8 @@ Add the following line:
 <YOUR USER NAME> ALL=(ALL) NOPASSWD:ALL 
 ```
 
+> ***Note:*** Ensure that you are authenticated to AWS on your Ubuntu server. If not, run `aws configure` before proceeding.
+
 Now, run the Playground
 
 ```sh
@@ -27,8 +29,6 @@ $ curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin
 ```
 
 The bootstrapping process will exit your current terminal or shell after it has done it's work. Depending on your environment just create a new terminal session and continue with [Configuration](configuration.md).
-
-> ***Note:*** Ensure that you are authenticated to AWS on your Ubuntu server. If not, run `aws configure` before proceeding.
 
 ## Cloud9
 
