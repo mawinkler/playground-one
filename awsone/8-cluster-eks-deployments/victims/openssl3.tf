@@ -2,6 +2,7 @@
 # Deploy a vulnerable web application
 # #############################################################################
 resource "kubernetes_deployment_v1" "openssl3_deployment" {
+  depends_on = [kubernetes_namespace_v1.victims_namespace]
   metadata {
     name = "web-app"
     labels = {

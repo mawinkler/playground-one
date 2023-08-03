@@ -2,6 +2,7 @@
 # Deploy the vulnerable web application java-goof
 # #############################################################################
 resource "kubernetes_deployment_v1" "java_goof_deployment" {
+  depends_on = [kubernetes_namespace_v1.victims_namespace]
   metadata {
     name = "java-goof"
     labels = {

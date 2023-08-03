@@ -148,30 +148,31 @@ function is_darwin() {
 #######################################
 function get_registry() {
   # gke
-  if is_gke ; then
-    GCP_HOSTNAME="gcr.io"
-    GCP_PROJECTID=$(gcloud config list --format 'value(core.project)' 2>/dev/null)
-    REGISTRY=${GCP_HOSTNAME}/${GCP_PROJECTID}
-  # aks
-  elif is_aks ; then
-    PLAYGROUND_NAME="$(yq '.cluster_name' $ONEPATH/config.yaml | tr '[:upper:]' '[:lower:]')"
-    if [[ $(az group list | jq -r --arg PLAYGROUND_NAME ${PLAYGROUND_NAME} '.[] | select(.name==$PLAYGROUND_NAME) | .name') == "" ]]; then
-      printf '%s\n' "creating resource group ${PLAYGROUND_NAME}"
-      az group create --name ${PLAYGROUND_NAME} --location westeurope
-    else
-      printf '%s\n' "using resource group ${PLAYGROUND_NAME}"
-    fi
-    REGISTRY_NAME=$(az acr list --resource-group ${PLAYGROUND_NAME} | jq -r --arg PLAYGROUND_NAME ${PLAYGROUND_NAME//-/} '.[] | select(.name | startswith($PLAYGROUND_NAME)) | .name')
-    if [[ ${REGISTRY_NAME} == "" ]]; then
-      REGISTRY_NAME=${PLAYGROUND_NAME//-/}$(openssl rand -hex 4)
-      printf '%s\n' "creating container registry ${REGISTRY_NAME}"
-      az acr create --resource-group ${PLAYGROUND_NAME} --name ${REGISTRY_NAME} --sku Basic
-    else
-      printf '%s\n' "using container registry ${REGISTRY_NAME}"
-    fi
-    REGISTRY=$(az acr show --resource-group ${PLAYGROUND_NAME} --name ${REGISTRY_NAME} -o json | jq -r '.loginServer')
+  # if is_gke ; then
+  #   GCP_HOSTNAME="gcr.io"
+  #   GCP_PROJECTID=$(gcloud config list --format 'value(core.project)' 2>/dev/null)
+  #   REGISTRY=${GCP_HOSTNAME}/${GCP_PROJECTID}
+  # # aks
+  # elif is_aks ; then
+  #   PLAYGROUND_NAME="$(yq '.cluster_name' $ONEPATH/config.yaml | tr '[:upper:]' '[:lower:]')"
+  #   if [[ $(az group list | jq -r --arg PLAYGROUND_NAME ${PLAYGROUND_NAME} '.[] | select(.name==$PLAYGROUND_NAME) | .name') == "" ]]; then
+  #     printf '%s\n' "creating resource group ${PLAYGROUND_NAME}"
+  #     az group create --name ${PLAYGROUND_NAME} --location westeurope
+  #   else
+  #     printf '%s\n' "using resource group ${PLAYGROUND_NAME}"
+  #   fi
+  #   REGISTRY_NAME=$(az acr list --resource-group ${PLAYGROUND_NAME} | jq -r --arg PLAYGROUND_NAME ${PLAYGROUND_NAME//-/} '.[] | select(.name | startswith($PLAYGROUND_NAME)) | .name')
+  #   if [[ ${REGISTRY_NAME} == "" ]]; then
+  #     REGISTRY_NAME=${PLAYGROUND_NAME//-/}$(openssl rand -hex 4)
+  #     printf '%s\n' "creating container registry ${REGISTRY_NAME}"
+  #     az acr create --resource-group ${PLAYGROUND_NAME} --name ${REGISTRY_NAME} --sku Basic
+  #   else
+  #     printf '%s\n' "using container registry ${REGISTRY_NAME}"
+  #   fi
+  #   REGISTRY=$(az acr show --resource-group ${PLAYGROUND_NAME} --name ${REGISTRY_NAME} -o json | jq -r '.loginServer')
   # eks
-  elif is_eks ; then
+  # elif is_eks ; then
+  if is_eks ; then
     AWS_ACCOUNT_ID=$(aws sts get-caller-identity --output text --query Account)
     AWS_REGION=$(aws configure get region)
     REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"

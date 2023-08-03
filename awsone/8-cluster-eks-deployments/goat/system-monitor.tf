@@ -12,6 +12,7 @@
 # }
 
 resource "kubernetes_secret_v1" "goatvault" {
+  depends_on = [kubernetes_namespace_v1.goat_namespace]
   metadata {
     name = "goatvault"
     labels = {
@@ -25,6 +26,7 @@ resource "kubernetes_secret_v1" "goatvault" {
 }
 
 resource "kubernetes_deployment_v1" "system_monitor_deployment" {
+  depends_on = [kubernetes_namespace_v1.goat_namespace]
   metadata {
     name = "system-monitor"
     labels = {
