@@ -50,7 +50,10 @@ services:
   - name: awsone
     ## Restrict access to AWS One
     ## 
-    ## Default value: "0.0.0.0/0"
+    ## To define multipe IPs/CIDRs do something like
+    ## ["87.170.6.193/32","3.123.18.11/32"]
+    ##
+    ## Default value: ["0.0.0.0/0"]
     access_ip: ''
 
     instances:

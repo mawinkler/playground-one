@@ -24,6 +24,7 @@ nav:
       # - Privileged Shell: scenarios/container-security-eks-privileged-shell.md
     - Sentry:
       - Sentry: scenarios/sentry.md
+  - FAQ: faq.md
 theme:
   features:
   #   - navigation.tabs
