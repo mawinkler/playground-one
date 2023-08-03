@@ -457,7 +457,7 @@ function helpcmd() {
 #######################################
 [ -z "$1" ] && helpcmd
 
-TEMP=$(getopt -o i:a:d:o:s:S:v:h --long init:apply:,destroy:,output:,state:,show:,validate:,help -- "$@")
+TEMP=$(getopt -o i:a:d:o:s:S:v:h --long init:,apply:,destroy:,output:,state:,show:,validate:,help -- "$@")
 if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 
 eval set -- "$TEMP"
