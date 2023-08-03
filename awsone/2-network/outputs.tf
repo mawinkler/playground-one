@@ -3,11 +3,11 @@ output "vpc_id" {
 }
 
 output "public_security_group_id" {
-  value = module.network.public_security_group_id
+  value = module.ec2.public_security_group_id
 }
 
 output "private_security_group_id" {
-  value = module.network.private_security_group_id
+  value = module.ec2.private_security_group_id
 }
 
 output "public_subnet_ids" {

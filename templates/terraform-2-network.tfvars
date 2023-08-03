@@ -11,3 +11,5 @@ access_ip = "${ACCESS_IP}"
 
 # Environment Name
 environment = "${AWS_ENVIRONMENT}"
+
+one_path = "${ONEPATH}"

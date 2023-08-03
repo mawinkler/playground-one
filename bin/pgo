@@ -102,6 +102,7 @@ function init() {
       AWS_REGION=${AWS_REGION} \
       AWS_ENVIRONMENT=${AWS_ENVIRONMENT} \
       ACCESS_IP=${ACCESS_IP} \
+      ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-1-vpc.tfvars >$ONEPATH/awsone/1-vpc/terraform.tfvars
       
       cd ${ONEPATH}/awsone/1-vpc
@@ -113,6 +114,7 @@ function init() {
       AWS_REGION=${AWS_REGION} \
       AWS_ENVIRONMENT=${AWS_ENVIRONMENT} \
       ACCESS_IP=${ACCESS_IP} \
+      ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-2-network.tfvars >$ONEPATH/awsone/2-network/terraform.tfvars
       
       cd ${ONEPATH}/awsone/2-network
@@ -125,6 +127,7 @@ function init() {
       AWS_ENVIRONMENT=${AWS_ENVIRONMENT} \
       INSTANCES_CREATE_LINUX=${INSTANCES_CREATE_LINUX} \
       INSTANCES_CREATE_WINDOWS=${INSTANCES_CREATE_WINDOWS} \
+      ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-3-instances.tfvars >$ONEPATH/awsone/3-instances/terraform.tfvars
 
       cd ${ONEPATH}/awsone/3-instances
@@ -136,6 +139,7 @@ function init() {
       AWS_REGION=${AWS_REGION} \
       AWS_ENVIRONMENT=${AWS_ENVIRONMENT} \
       EKS_CREATE_FARGATE_PROFILE=${EKS_CREATE_FARGATE_PROFILE} \
+      ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-4-cluster-eks.tfvars >$ONEPATH/awsone/4-cluster-eks/terraform.tfvars
       printf '%s\n' "Create terraform.tfvars for cluster-eks deployments"
       AWS_ENVIRONMENT=${AWS_ENVIRONMENT} \
@@ -144,6 +148,7 @@ function init() {
       CLOUD_ONE_REGION=${CLOUD_ONE_REGION} \
       CLOUD_ONE_INSTANCE=${CLOUD_ONE_INSTANCE} \
       CLOUD_ONE_POLICY_ID=${CLOUD_ONE_POLICY_ID} \
+      ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-8-cluster-eks-deployments.tfvars >$ONEPATH/awsone/8-cluster-eks-deployments/terraform.tfvars
 
       cd ${ONEPATH}/awsone/4-cluster-eks
@@ -159,6 +164,7 @@ function init() {
       ACCESS_IP=${ACCESS_IP} \
       ECS_CREATE_EC2=${ECS_CREATE_EC2} \
       ECS_CREATE_FARGATE=${ECS_CREATE_FARGATE} \
+      ONEPATH=${ONEPATH} \
       WS_TENANTID=${WS_TENANTID} \
       WS_TOKEN=${WS_TOKEN} \
       WS_POLICY=${WS_POLICY} \
@@ -194,6 +200,7 @@ function apply() {
     ec2|all)
       cd ${ONEPATH}/awsone/3-instances
       terraform apply -auto-approve
+      printf '%s\n' "public_instance_password_srv1 = \"$(terraform output -raw public_instance_password_srv1)\""
       ;;&
     eks|all)
       cd ${ONEPATH}/awsone/4-cluster-eks
@@ -252,8 +259,8 @@ function destroy() {
       terraform destroy -auto-approve
       cd ${ONEPATH}/awsone/5-cluster-ecs
       terraform destroy -auto-approve
-      cd ${ONEPATH}/awsone/2-network
-      terraform destroy -auto-approve
+      # cd ${ONEPATH}/awsone/2-network
+      # terraform destroy -auto-approve
       ;;
   esac
 }

@@ -141,7 +141,7 @@ If you want to tear down everything run
 $ pgo --destroy all
 ```
 
-> ***Note:*** The VPC is not automatically destroyed. You can do this manually by running `pgo --destroy vpc`.
+> ***Note:*** The network and VPC are not automatically destroyed. You can do this manually by running `pgo --destroy nw` and `pgo --destroy vpc`.
 
 ## Optional: Adapt `terraform.tfvars` in Configurations
 
