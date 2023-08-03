@@ -331,7 +331,7 @@ function ensure_terraform() {
       sudo apt-get install terraform
     else
       printf "${YELLOW}%s${RESET}\n" "Terraform already installed, ensuring latest version"
-      sudo apt-get upgrade -y terraform
+      # sudo apt-get upgrade -y terraform
     fi
   # fi
 }
