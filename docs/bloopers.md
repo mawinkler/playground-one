@@ -1,17 +1,5 @@
 # Bloopers during development
 
-- [Bloopers during development](#bloopers-during-development)
-  - [Terraform](#terraform)
-    - [Delete all resources except one](#delete-all-resources-except-one)
-  - [EKS](#eks)
-    - [Unable to delete ingress](#unable-to-delete-ingress)
-    - [Unable to delete namespace](#unable-to-delete-namespace)
-    - [EKSWorkerNode is not joining Node Group](#eksworkernode-is-not-joining-node-group)
-    - [EKS Service behind ALB shows only HTML](#eks-service-behind-alb-shows-only-html)
-  - [ECS](#ecs)
-    - [ECS cluster with capacity providers cannot be destroyed](#ecs-cluster-with-capacity-providers-cannot-be-destroyed)
-  - [XDR for Containers](#xdr-for-containers)
-
 ## Terraform
 
 ### Delete all resources except one
@@ -45,6 +33,23 @@ By the way, later you still have chance to import the resource back with terrafo
 ```sh
 terraform import module.vpc.aws_vpc.vpc vpc-0933149e01f1136aa
 ```
+
+### ECS cluster with capacity providers cannot be destroyed
+
+The problem is that the capacity_provider property on the aws_ecs_cluster introduces a new dependency:
+aws_ecs_cluster depends on aws_ecs_capacity_provider depends on aws_autoscaling_group.
+
+This causes terraform to destroy the ECS cluster before the autoscaling group, which is the wrong way around: the autoscaling group must be destroyed first because the cluster must contain zero instances before it can be destroyed.
+
+This leads to Terraform error out with the cluster partly alive and the capacity providers fully alive.
+
+References:
+
+- <https://github.com/hashicorp/terraform-provider-aws/issues/4852>
+- <https://github.com/hashicorp/terraform-provider-aws/issues/11409>
+- <https://github.com/hashicorp/terraform-provider-aws/pull/22672>
+
+I haven't found a proper workaround, yet...
 
 ## EKS
 
@@ -147,25 +152,6 @@ resource "kubernetes_ingress_v1" "openssl3_ingress" {
 ```
 
 The `*` in `path` is important :-)
-
-## ECS
-
-### ECS cluster with capacity providers cannot be destroyed
-
-The problem is that the capacity_provider property on the aws_ecs_cluster introduces a new dependency:
-aws_ecs_cluster depends on aws_ecs_capacity_provider depends on aws_autoscaling_group.
-
-This causes terraform to destroy the ECS cluster before the autoscaling group, which is the wrong way around: the autoscaling group must be destroyed first because the cluster must contain zero instances before it can be destroyed.
-
-This leads to Terraform error out with the cluster partly alive and the capacity providers fully alive.
-
-References:
-
-- <https://github.com/hashicorp/terraform-provider-aws/issues/4852>
-- <https://github.com/hashicorp/terraform-provider-aws/issues/11409>
-- <https://github.com/hashicorp/terraform-provider-aws/pull/22672>
-
-I haven't found a proper workaround, yet...
 
 ## XDR for Containers
 
