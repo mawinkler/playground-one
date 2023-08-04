@@ -43,3 +43,14 @@ If you need to change the `awsone.access_ip` later on, maybe your provider assig
 4. run `pgo --apply nw`
 
 Then reaply your eks, ecs or ec2 instances by `pgo --apply <configuration>`
+
+## I cannot destroy the ECS EC2 cluster
+
+The problem is that this new capacity_provider property on the aws_ecs_cluster introduces a new dependency:
+aws_ecs_cluster depends on aws_ecs_capacity_provider depends on aws_autoscaling_group.
+
+This causes terraform to destroy the ECS cluster before the autoscaling group, which is the wrong way around: the autoscaling group must be destroyed first because the cluster must contain zero instances before it can be destroyed.
+
+This leads to Terraform error out with the cluster partly alive and the capacity providers fully alive.
+
+I don't have a proper fix for that, yet. For now, initiate the `destroy` process via `pgo -d ecs` and head over to the AWS EC2 console --> Auto Scaling groups. Select the two groups with the prefix of your environment name and choose the Action `Delete`.

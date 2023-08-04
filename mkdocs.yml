@@ -25,6 +25,7 @@ nav:
     - Sentry:
       - Sentry: scenarios/sentry.md
   - FAQ: faq.md
+  - Bloopers: bloopers.md
 theme:
   features:
   #   - navigation.tabs
