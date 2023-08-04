@@ -1,33 +1,6 @@
 # Default values for Playground One.
 # This is a YAML-formatted file.
 services:
-  - name: cloudone
-    ## Cloud One region to work with
-    ## 
-    ## Default value: trend-us-1
-    region: ''
-
-    ## Cloud One instance to use
-    ##
-    ## Allowed values: cloudone, staging-cloudone, dev-cloudone
-    ## 
-    ## Default value: cloudone
-    instance: ''
-
-    ## Cloud One API Key with Full Access
-    ## 
-    ## REQUIRED if you want to play with Cloud One
-    ##
-    ## Default value: ''
-    api_key: ''
-
-    ## Cloud One Scanner API Key
-    ## 
-    ## REQUIRED if you want to play with Artifac Scanning as a Service
-    ##
-    ## Default value: ''
-    scanner_api_key: ''
-
   - name: aws
     ## The account id of your AWS account
     ## 
@@ -84,6 +57,26 @@ services:
       ## Default value: true
       create_fargate: true
       
+  - name: cloudone
+    ## Cloud One region to work with
+    ## 
+    ## Default value: trend-us-1
+    region: ''
+
+    ## Cloud One instance to use
+    ##
+    ## Allowed values: cloudone, staging-cloudone, dev-cloudone
+    ## 
+    ## Default value: cloudone
+    instance: ''
+
+    ## Cloud One API Key with Full Access
+    ## 
+    ## REQUIRED if you want to play with Cloud One
+    ##
+    ## Default value: ''
+    api_key: ''
+
   - name: container_security
     ## The id of the policy for use with AWSONE
     ## 

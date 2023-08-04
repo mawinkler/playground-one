@@ -215,7 +215,7 @@ function apply() {
       printf '%s\n' "public_instance_password_srv1 = \"$(terraform output -raw public_instance_password_srv1)\""
       ;;&
     eks|all)
-      lock ek2
+      lock eks
       cd ${ONEPATH}/awsone/4-cluster-eks
       terraform apply -auto-approve
       $(terraform output -raw update_local_context_command)

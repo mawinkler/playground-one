@@ -2,7 +2,7 @@
 # Variables
 # ####################################
 variable "access_ip" {
-  type = list
+  type = string
 }
 
 # Container Security
