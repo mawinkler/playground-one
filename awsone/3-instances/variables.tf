@@ -3,7 +3,7 @@ variable "aws_region" {
 }
 
 variable "access_ip" {
-  type = string
+  type = list
 }
 
 variable "s3_bucket" {
