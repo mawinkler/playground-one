@@ -21,7 +21,7 @@ In a nutshell:
 
 08/07/2023
 
-- Initial release
+- Initial release (planned)
 
 ## Currently Work in Progress
 

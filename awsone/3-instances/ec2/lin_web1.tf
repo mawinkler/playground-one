@@ -31,7 +31,7 @@ resource "aws_instance" "web1" {
 
     # nginx installation
     provisioner "file" {
-        source      = "../0-scripts/nginx.sh"
+        source      = "../1-scripts/nginx.sh"
         destination = "/tmp/nginx.sh"
     }
 
@@ -44,7 +44,7 @@ resource "aws_instance" "web1" {
 
     # # wordpress installation
     # provisioner "file" {
-    #     source      = "../0-scripts/wordpress.sh"
+    #     source      = "../1-scripts/wordpress.sh"
     #     destination = "/tmp/wordpress.sh"
     # }
 

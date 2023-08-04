@@ -4,15 +4,14 @@ The Playground One has a modular structure as shown in the following tree:
 
 ```
 awsone
-└── vpc (1-vpc)
-    └── network (2-network)
-        ├── ec2 (3-instances)
-        ├── eks (4-cluster-eks)
-        |   └── eks-deployments (8-cluster-eks-deployments)
-        └── ecs (5-cluster-ecs)
+└── network (2-network)
+    ├── ec2 (3-instances)
+    ├── eks (4-cluster-eks)
+    |   └── eks-deployments (8-cluster-eks-deployments)
+    └── ecs (5-cluster-ecs)
 ```
 
-As we can see, the configuration `vpc` is the base for the other configurations. The configuration `network` creates the Subnets, Route Tables, Security Groups, etc. One can choose to only create the EKS cluster, or ECS cluster, or even the full stack. Everything will reside in the same VPC.
+As we can see, the configuration `network` is the base for the other configurations. It creates the VPC, Subnets, Route Tables, Security Groups, etc. One can choose to only create the EKS cluster, or ECS cluster, or even the full stack. Everything will reside in the same VPC.
 
 *Architecture:*
 
@@ -24,13 +23,7 @@ As we can see, the configuration `vpc` is the base for the other configurations.
 
 The following chapters describe the different configurations on a high level, refer the the dedicated documentation for more details.
 
-## Virtual Private Cloud
-
-*Configuration located in `awsone/1-vpc`*
-
-This, very simple configuration just creates a VPC with actually no content. Solely DNS and the VPC CIDR is defined.
-
-## Network
+## Virtual Private Cloud and Network
 
 *Configuration located in `awsone/2-network`*
 

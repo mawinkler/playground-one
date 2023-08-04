@@ -85,30 +85,12 @@ CLOUD_ONE_POLICY_ID="$(yq '.services[] | select(.name=="container_security") | .
 
 function lock() {
 
-  touch ${ONEPATH}/awsone/1-vpc/.pgo.$1.lock
   touch ${ONEPATH}/awsone/2-network/.pgo.$1.lock
 }
 
 function unlock() {
 
-  rm -f ${ONEPATH}/awsone/1-vpc/.pgo.$1.lock
   rm -f ${ONEPATH}/awsone/2-network/.pgo.$1.lock
-}
-
-function check_vpc() {
-
-  if [[ -f ${ONEPATH}/awsone/1-vpc/.pgo.ec2.lock ]] ; then
-    echo Destroy EC2 configuration first
-    exit 0
-  fi
-  if [[ -f ${ONEPATH}/awsone/1-vpc/.pgo.eks.lock ]] ; then
-    echo Destroy EKS configuration first
-    exit 0
-  fi
-  if [[ -f ${ONEPATH}/awsone/1-vpc/.pgo.ecs.lock ]] ; then
-    echo Destroy ECS configuration first
-    exit 0
-  fi
 }
 
 function check_network() {
@@ -140,18 +122,6 @@ function check_network() {
 function init() {
 
   case $1 in
-    vpc|all)
-      printf '%s\n' "Create terraform.tfvars for vpc"
-      AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID} \
-      AWS_REGION=${AWS_REGION} \
-      AWS_ENVIRONMENT=${AWS_ENVIRONMENT} \
-      ACCESS_IP=${ACCESS_IP} \
-      ONEPATH=${ONEPATH} \
-        envsubst <$ONEPATH/templates/terraform-1-vpc.tfvars >$ONEPATH/awsone/1-vpc/terraform.tfvars
-      
-      cd ${ONEPATH}/awsone/1-vpc
-      terraform init
-      ;;&
     nw|network|all)
       printf '%s\n' "Create terraform.tfvars for network"
       AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID} \
@@ -233,15 +203,8 @@ function init() {
 function apply() {
 
   case $1 in
-    vpc)
-      check_vpc
-      cd ${ONEPATH}/awsone/1-vpc
-      terraform apply -auto-approve
-      ;;
     nw|network|all)
       check_network
-      cd ${ONEPATH}/awsone/1-vpc
-      terraform apply -auto-approve
       cd ${ONEPATH}/awsone/2-network
       terraform apply -auto-approve
       ;;&
@@ -279,11 +242,6 @@ function apply() {
 function destroy() {
 
   case $1 in
-    vpc)
-      check_vpc
-      cd ${ONEPATH}/awsone/1-vpc
-      terraform destroy -auto-approve
-      ;;
     nw|network)
       check_network
       cd ${ONEPATH}/awsone/2-network
@@ -334,10 +292,6 @@ function destroy() {
 function output() {
 
   case $1 in
-    vpc|all)
-      cd ${ONEPATH}/awsone/1-vpc
-      terraform output
-      ;;&
     nw|network|all)
       cd ${ONEPATH}/awsone/2-network
       terraform output
@@ -372,10 +326,6 @@ function output() {
 function state() {
 
   case $1 in
-    vpc|all)
-      cd ${ONEPATH}/awsone/1-vpc
-      terraform state list
-      ;;&
     nw|network|all)
       cd ${ONEPATH}/awsone/2-network
       terraform state list
@@ -410,10 +360,6 @@ function state() {
 function show() {
 
   case $1 in
-    vpc|all)
-      cd ${ONEPATH}/awsone/1-vpc
-      terraform show
-      ;;&
     nw|network|all)
       cd ${ONEPATH}/awsone/2-network
       terraform show
@@ -447,10 +393,6 @@ function show() {
 function validate() {
 
   case $1 in
-    vpc|all)
-      cd ${ONEPATH}/awsone/1-vpc
-      terraform validate
-      ;;&
     nw|network|all)
       cd ${ONEPATH}/awsone/2-network
       terraform validate
@@ -495,7 +437,6 @@ function helpcmd() {
   printf '%s\n' "  -v --validate Check whether the configuration is valid"
   printf '%s\n' ""
   printf '%s\n' "Available configurations:"
-  printf '%s\n' "  vpc           VPC configuration"
   printf '%s\n' "  nw            Network configuration"
   printf '%s\n' "  ec2           EC2 configuration"
   printf '%s\n' "  eks           EKS configuration"

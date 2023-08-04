@@ -50,7 +50,7 @@ terraform import module.vpc.aws_vpc.vpc vpc-0933149e01f1136aa
 
 ```sh
 kubectl delete ValidatingWebhookConfiguration aws-load-balancer-webhook
-kubectl patch ingress $Ingressname -n $namespace -p '{"metadata":{"finalizers":[]}}' --type=merge
+kubectl patch ingress $ingressname -n $namespace -p '{"metadata":{"finalizers":[]}}' --type=merge
 ```
 
 ### Unable to delete namespace
@@ -63,7 +63,7 @@ To delete a namespace, Kubernetes must first delete all the resources in the nam
 1. Save a JSON file like in the following example:
 
 ```sh
-kubectl get namespace TERMINATING_NAMESPACE -o json > tempfile.json
+kubectl get namespace $namespace -o json > tempfile.json
 ```
 
 2. Remove the finalizers array block from the spec section of the JSON file:
@@ -86,7 +86,7 @@ After you remove the finalizers array block, the spec section of the JSON file l
 3. To apply the changes, run the following command:
 
 ```sh
-kubectl replace --raw "/api/v1/namespaces/TERMINATING_NAMESPACE/finalize" -f ./tempfile.json
+kubectl replace --raw "/api/v1/namespaces/$namespace/finalize" -f ./tempfile.json
 ```
 
 4. Verify that the terminating namespace is removed:

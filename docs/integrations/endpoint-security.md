@@ -1,11 +1,11 @@
 # Vision One Endpoint Security Server & Workload Protection
 
-Three different instances are currently provided by the AWS One Playground with different configurations:
+Three different instances are currently provided by the Playground One with different configurations:
 
 Instance Web1:
 
 - Ubuntu Linux 20.04
-- Nginx and Wordpress deployment
+- Nginx deployment
 - Vision One Endpoint Security Basecamp agent for Server & Workload Protection
 
 Instance Db1:

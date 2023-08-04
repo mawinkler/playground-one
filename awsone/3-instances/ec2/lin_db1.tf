@@ -30,7 +30,7 @@ resource "aws_instance" "db1" {
 
     # mysql installation
     provisioner "file" {
-        source      = "../0-scripts/mysql.sh"
+        source      = "../1-scripts/mysql.sh"
         destination = "/tmp/mysql.sh"
     }
 

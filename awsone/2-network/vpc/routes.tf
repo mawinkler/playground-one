@@ -5,7 +5,7 @@
 # #############################################################################
 # Routing table for private subnet
 resource "aws_route_table" "private" {
-  vpc_id = var.vpc_id
+  vpc_id = aws_vpc.vpc.id
 
   tags = {
     Name        = "${var.environment}-private-route-table"
@@ -15,7 +15,7 @@ resource "aws_route_table" "private" {
 
 # Routing table for public subnet
 resource "aws_route_table" "public" {
-  vpc_id = var.vpc_id
+  vpc_id = aws_vpc.vpc.id
 
   tags = {
     Name        = "${var.environment}-public-route-table"

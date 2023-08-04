@@ -1,5 +1,5 @@
 output "vpc_id" {
-  value = module.network.vpc_id
+  value = module.vpc.vpc_id
 }
 
 output "public_security_group_id" {
@@ -11,19 +11,19 @@ output "private_security_group_id" {
 }
 
 output "public_subnet_ids" {
-  value = module.network.public_subnet_ids
+  value = module.vpc.public_subnet_ids
 }
 
 output "public_subnet_cidr_blocks" {
-  value = module.network.public_subnet_cidr_blocks
+  value = module.vpc.public_subnet_cidr_blocks
 }
 
 output "private_subnet_ids" {
-  value = module.network.private_subnet_ids
+  value = module.vpc.private_subnet_ids
 }
 
 output "private_subnet_cidr_blocks" {
-  value = module.network.private_subnet_cidr_blocks
+  value = module.vpc.private_subnet_cidr_blocks
 }
 
 output "key_name" {

@@ -5,7 +5,7 @@
 # #############################################################################
 # Public subnets
 resource "aws_subnet" "public_subnet" {
-  vpc_id     = var.vpc_id
+  vpc_id     = aws_vpc.vpc.id
   count      = length(var.public_subnets_cidr)
   cidr_block = element(var.public_subnets_cidr, count.index)
   # availability_zone       = "${element(var.availability_zones,   count.index)}"
@@ -21,7 +21,7 @@ resource "aws_subnet" "public_subnet" {
 
 # Private subnets
 resource "aws_subnet" "private_subnet" {
-  vpc_id     = var.vpc_id
+  vpc_id     = aws_vpc.vpc.id
   count      = length(var.private_subnets_cidr)
   cidr_block = element(var.private_subnets_cidr, count.index)
   # availability_zone       = "${element(var.availability_zones,   count.index)}"
