@@ -10,7 +10,7 @@ module "alb_sg" {
   vpc_id      = var.vpc_id
 
   ingress_rules       = ["http-80-tcp"]
-  ingress_cidr_blocks = [var.access_ip]
+  ingress_cidr_blocks = var.access_ip
 
   egress_rules       = ["all-all"]
   egress_cidr_blocks = var.private_subnet_cidr_blocks

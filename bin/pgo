@@ -157,7 +157,7 @@ function init() {
         envsubst <$ONEPATH/templates/terraform-4-cluster-eks.tfvars >$ONEPATH/awsone/4-cluster-eks/terraform.tfvars
       printf '%s\n' "Create terraform.tfvars for cluster-eks deployments"
       AWS_ENVIRONMENT=${AWS_ENVIRONMENT} \
-      ACCESS_IP=${ACCESS_IP} \
+      ACCESS_IP=${ACCESS_IP//[\[\]\" ]/} \
       CLOUD_ONE_API_KEY=${CLOUD_ONE_API_KEY} \
       CLOUD_ONE_REGION=${CLOUD_ONE_REGION} \
       CLOUD_ONE_INSTANCE=${CLOUD_ONE_INSTANCE} \
