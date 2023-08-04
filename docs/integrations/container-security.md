@@ -20,10 +20,37 @@ https://cloudone.trendmicro.com/container/policies/relaxed_playground-2OxPQEiC6J
 
 Here: `relaxed_playground-2OxPQEiC6Jo4dbDVfebKiZMured`
 
-Create the EKS cluster including Container Security by running
+Relevant sections in `config.yaml` with example values:
 
-```sh
-$ pgo --apply eks
+```yaml
+services:
+  - name: cloudone
+    ## Cloud One region to work with
+    ## 
+    ## Default value: trend-us-1
+    region: us-1
+
+    ## Cloud One instance to use
+    ##
+    ## Allowed values: cloudone, staging-cloudone, dev-cloudone
+    ## 
+    ## Default value: cloudone
+    instance: cloudone
+
+    ## Cloud One API Key with Full Access
+    ## 
+    ## REQUIRED if you want to play with Cloud One
+    ##
+    ## Default value: ''
+    api_key: tmc1234567890...
+
+- name: container_security
+    ## The id of the policy for use with AWSONE
+    ## 
+    ## Default value: ''
+    policy_id: relaxed_playground-2OxPQEiC6Jo4dbDVfebKiZMured
+
+...
 ```
 
 ## Scenarios

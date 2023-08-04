@@ -22,7 +22,7 @@ Required information:
 - AWS VPC ID
 - VPC Region
 
-Follow the deployment instructions from Vision One. You can query your `AWS VPC ID` by running `pgo --output vpc`.
+Follow the deployment instructions from Vision One. You can query your `AWS VPC ID` by running `pgo --output nw`.
 
 Make sure to deploy the stack in the region of the VPC when pressing `[Launch Stack]`.
 

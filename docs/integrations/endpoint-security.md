@@ -46,12 +46,12 @@ Create Event-Based Tasks to automatically assign Linux or Windows server policie
 Agent-initiated Activation Linux
 
 - *Actions:* Assign Policy: Linux Server
-- *Conditions:* "Platform" matches ".\*Linux\*."
+- *Conditions:* "Platform" matches ".\*Linux.\*"
 
 Agent-initiated Activation Windows
 
 - *Actions:* Assign Policy: Windows Server
-- *Conditions:* "Platform" matches ".\*Windows\*."
+- *Conditions:* "Platform" matches ".\*Windows.\*"
 
 ## Optional: Drop Atomic Launcher Packages
 

@@ -42,7 +42,6 @@ Other commands:
   -v --validate Check whether the configuration is valid
 
 Available configurations:
-  vpc           VPC configuration
   nw            Network configuration
   ec2           EC2 configuration
   eks           EKS configuration
@@ -72,7 +71,11 @@ Examples:
 
     This will create your VPC and network in the configured region (see `config.yaml`)
 
-3. Create Virtual Instances and/or Kubernetes Clusters with demo workload
+3. If you want to connect with Vision One XDR for Containers head over to [Vision One XDR for Containers](../integrations/xdr-for-containers.md) and come back afterwards.
+
+4. If you want your EC2 instances to be connected to Vision One Endpoint Security head over to [Vision One Endpoint Security Server & Workload Protection](../integrations/endpoint-security.md) and come back afterwards.
+
+5. Create Virtual Instances and/or Kubernetes Clusters with demo workload.
 
     EC2 instances:
 
@@ -88,7 +91,7 @@ Examples:
 
     The default workload (Container Security, Trivy, and vulnerable apps) are deployed automatically.
 
-    ECS cluster:
+    ECS cluster(s):
 
     ```sh
     $ pgo --apply ecs
@@ -123,6 +126,10 @@ public_instance_password_srv1 = "4h1v}Q7Hc9tbGWdM"
 
 With this you can always query how to connect to your running EC2 instances. All instances support SSH connections, the Windows Server Remote Desktop as well. For RDP Use the configured `admin` user, the ip address and password for srv1.
 
+## Play with the Playground One
+
+It's a playground, or? Experiment and hopefully learn a few things. For your guidance, there are some prepared scenarios for you to go through. Find them in the navigation pane.
+
 ## Tear Down
 
 If you want to destroy your environment completely or only parts of it
@@ -137,8 +144,5 @@ If you want to tear down everything run
 $ pgo --destroy all
 ```
 
-> ***Note:*** The network and VPC are not automatically destroyed. You can do this manually by running `pgo --destroy nw` and `pgo --destroy vpc`.
+> ***Note:*** The network and VPC are not automatically destroyed. You can do this manually by running `pgo --destroy nw`. Be sure to have the CloudFormation stack of XDR for Containers deleted before doing so. Otherwise it will be in a fail (blackhole) state.
 
-## Optional: Adapt `terraform.tfvars` in Configurations
-
-The `terraform.tfvars`-files located within the configurations allow you to configure the AWS One playground in some aspects. Normally there's nothing to do for you, but if you only need Linux servers you could disable windows instance(s) in `3-instances/terraform.tfvars`.

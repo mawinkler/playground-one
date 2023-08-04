@@ -9,57 +9,16 @@ $ cd ${ONEPATH}
 $ cp config.yaml.sample config.yaml
 ```
 
-and open it with your prefered editor.
+and open it with your prefered editor. The following chapters walk you through the config file.
 
-The bare minimum to adapt are:
+## Section: aws
 
-- `aws.account_id`
-- `cloudone_api_key`
-
-If you change the `aws.environment`-name ensure that the value does NOT exceed **15** characters in length.
-
-> ***Note:*** It is highly recommended to change the `awsone.access_ip` to a single IP or at least a small CIDR to prevent anonymous users playing with your environmnent. Remember: we're deploying vulnerable applications.
-> 
-> If you need to change the `awsone.access_ip` later on, maybe because you got a new one assigned, follow these steps:
-> 
-> 1. change `awsone.access_ip` in the `config.yaml`
-> 2. run `pgo --init all`
-> 3. run `pgo --apply nw`
-> 
-> If you have an EKS deployed run `pgo --apply eks`  
-> If you have an ECS deployed run `pgo --apply ecs`
-
-For the rest and especially the default values see below:
+The first section you need to adapt is `services.aws`:
 
 ```yaml
+# Default values for Playground One.
+# This is a YAML-formatted file.
 services:
-  - name: cloudone
-    ## Cloud One region to work with
-    ## 
-    ## Default value: trend-us-1
-    region: ''
-
-    ## Cloud One instance to use
-    ##
-    ## Allowed values: cloudone, staging-cloudone, dev-cloudone
-    ## 
-    ## Default value: cloudone
-    instance: ''
-
-    ## Cloud One API Key with Full Access
-    ## 
-    ## REQUIRED if you want to play with Cloud One
-    ##
-    ## Default value: ''
-    api_key: ''
-
-    ## Cloud One Scanner API Key
-    ## 
-    ## REQUIRED if you want to play with Artifac Scanning as a Service
-    ##
-    ## Default value: ''
-    scanner_api_key: ''
-
   - name: aws
     ## The account id of your AWS account
     ## 
@@ -76,12 +35,26 @@ services:
     ## IMPORTANT: The value MUST NOT be longer than 15 characters
     ##
     ## Default value: "playground-one"
-    environment: "playground-one"
+    environment: ''
     ##        max ############### 15 characters
+```
 
+Set:
+
+- `account_id`: The ID of your AWS subscription (just numbers no `-`).
+- `region`: If you want to use another region as `eu-central-1`.
+- `environment`: Your to be built environment name. It MUST NOT be longer than 15 characters.
+
+## Section: awsone
+
+You don't necessarily need to change anything here if you're satisfied with the defaults, but
+
+> ***note:*** It is highly recommended to change the `awsone.access_ip` to a single IP or at least a small CIDR to prevent anonymous users playing with your environmnent. Remember: we're deploying vulnerable applications.
+
+```yaml
   - name: awsone
     ## Restrict access to AWS One
-    ##
+    ## 
     ## To define multipe IPs/CIDRs do something like
     ## ["87.170.6.193/32","3.123.18.11/32"]
     ##
@@ -115,35 +88,71 @@ services:
       ## 
       ## Default value: true
       create_fargate: true
-      
+```
+
+Set:
+
+- `access_ip`:
+  - If you're running on a local Ubuntu server (not Cloud9), get your public IP and set the value to `["<YOUR IP>/32"]`.
+  - If you're working on a Cloud9, get your public IP from home AND from the Cloud9 instance. Set the value to `["<YOUR IP>/32","<YOUR CLOUD9 IP>/32"]`
+- `instances`: The `ec2` configuration can create Linux and/or Windows instance(s). If you only want Linux, you can disable Windows by setting it to `false` (and vice versa).
+- `cluster-eks`: If you don't want the Fargate profile on the EKS cluster you can disable it here by setting it to `false`.
+- `cluster-ecs`: Here you can choose to have ECS cluster(s) with EC2 and/or Fargate instances.
+
+> If your IP address has changed see [FAQ](../faq.md#my-ip-address-has-changed-and-i-cannot-access-my-apps-anymore).
+
+## Section: cloudone
+
+Container Security will move to Vision One but currently requires your Cloud One environment. With GA availability of Vision One Container Security the following will change.
+
+```yaml
+  - name: cloudone
+    ## Cloud One region to work with
+    ## 
+    ## Default value: trend-us-1
+    region: ''
+
+    ## Cloud One instance to use
+    ##
+    ## Allowed values: cloudone, staging-cloudone, dev-cloudone
+    ## 
+    ## Default value: cloudone
+    instance: ''
+
+    ## Cloud One API Key with Full Access
+    ## 
+    ## REQUIRED if you want to play with Cloud One
+    ##
+    ## Default value: ''
+    api_key: ''
+```
+
+Set:
+
+- `region`: Set your Cloud One region here if it is not `trend-us-1`.
+- `instance`: If you are using a staging or dev environment set it here.
+- `api_key`: Your Cloud One API Key with full access.
+
+## Section: container_security
+
+To get the Policy ID for your Container Security deployment head over to Container Security on Cloud One and navigate to the policy. The Policy ID is the part after the last `/` in the URL:
+
+```ascii
+https://cloudone.trendmicro.com/container/policies/relaxed_playground-2OxPQEiC6Jo4dbDVfebKiZMured
+```
+
+Here: `relaxed_playground-2OxPQEiC6Jo4dbDVfebKiZMured`
+
+```yaml
   - name: container_security
     ## The id of the policy for use with AWSONE
     ## 
     ## Default value: ''
     policy_id: ''
-
-  - name: workload-security
-    ## Cloud One Workload Security Tenant ID
-    ## 
-    ## REQUIRED if you want to play with Cloud One Workload Security
-    ##
-    ## Default value: ''
-    ws_tenant_id: ''
-
-    ## Cloud One Workload Security Token
-    ## 
-    ## REQUIRED if you want to play with Cloud One Workload Security
-    ##
-    ## Default value: ''
-    ws_token: ''
-
-    ## Cloud One Workload Security Linux Policy ID
-    ## 
-    ## REQUIRED if you want to play with Cloud One Workload Security
-    ##
-    ## Default value: 0
-    ws_policy_id: 0
-...
 ```
+
+Set:
+
+- `policy_id`: Set the policy ID or your policy here.
 
 Now, continue with the chapter [General Life-Cycle](life-cycle.md).

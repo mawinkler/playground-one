@@ -32,3 +32,14 @@ Then run
 pgo --init nw
 pgo --apply nw
 ```
+
+## My IP address has changed and I cannot access my apps anymore
+
+If you need to change the `awsone.access_ip` later on, maybe your provider assigned you a new one, follow these steps:
+
+1. change `awsone.access_ip` in the `config.yaml`
+2. run `pgo --destroy all` (this will keep the network alive)
+3. run `pgo --init all`
+4. run `pgo --apply nw`
+
+Then reaply your eks, ecs or ec2 instances by `pgo --apply <configuration>`

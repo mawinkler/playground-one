@@ -44,7 +44,7 @@ Follow the steps below to create a Cloud9 suitable for the Playground.
 - Select `[Create Cloud9 environment]`
 - Name it as you like
 - Choose `[t3.medium]` for instance type and
-- `Ubuntu 18.04 LTS` as the platform
+- `Ubuntu 22.04 LTS` as the platform
 - For the rest take all default values and click `[Create environment]`
 
 Update IAM Settings for the Workspace
