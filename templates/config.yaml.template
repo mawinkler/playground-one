@@ -1,0 +1,96 @@
+---
+# Default values for Playground One.
+# This is a YAML-formatted file.
+services:
+  aws:
+    ## The account id of your AWS account
+    ##
+    ## Default value: ''
+    account-id: ''
+    ## The default AWS region to use
+    ##
+    ## Default value: eu-central-1
+    region: ''
+    ## The default AWS environment name to use
+    ##
+    ## IMPORTANT: The value MUST NOT be longer than 15 characters
+    ##
+    ## Default value: playground-one
+    environment: playground-one
+    ##       max ############### 15 characters
+  playground-one:
+    ## Restrict access to AWS One
+    ##
+    ## To define multipe IPs/CIDRs do something like
+    ## ["87.170.6.193/32","3.123.18.11/32"]
+    ##
+    ## Default value: ["0.0.0.0/0"]
+    access-ip: ["0.0.0.0/0"]
+    ec2:
+      ## Create Linux instance(s)
+      ##
+      ## Default value: true
+      create-linux: true
+      ## Create Windows instance(s)
+      ##
+      ## Default value: true
+      create-windows: true
+    eks:
+      ## Create Fargate Profile
+      ##
+      ## Default value: true
+      create-fargate-profile: true
+    ecs:
+      ## Create ECS Cluster with EC2
+      ##
+      ## Default value: true
+      create-ec2: true
+      ## Create ECS Cluster with Fargate
+      ##
+      ## Default value: true
+      create-fargate: true
+  cloud-one:
+    ## Cloud One region to work with
+    ## 
+    ## Default value: trend-us-1
+    region: trend-us-1
+    ## Cloud One instance to use
+    ##
+    ## Allowed values: cloudone, staging-cloudone, dev-cloudone
+    ## 
+    ## Default value: cloudone
+    instance: cloudone
+    ## Cloud One API Key with Full Access
+    ## 
+    ## REQUIRED if you want to play with Cloud One
+    ##
+    ## Default value: ''
+    api-key: ''
+    container-security:
+      ## The id of the policy for use with AWSONE
+      ## 
+      ## Default value: ''
+      policy-id: ''
+  vision-one:
+    server-workload-protection:
+      ## Vision One Server & Workload Protection Tenant ID
+      ## 
+      ## REQUIRED if you want to play with Vision One
+      ## Server & Workload Protection deployment scripts
+      ##
+      ## Default value: ''
+      tenant-id: ''
+      ## Vision One Server & Workload Protection Token
+      ## 
+      ## REQUIRED if you want to play with Vision One
+      ## Server & Workload Protection deployment scripts
+      ##
+      ## Default value: ''
+      token: ''
+      ## Vision One Server & Workload Protection Linux Policy ID
+      ## 
+      ## REQUIRED if you want to play with Vision One
+      ## Server & Workload Protection deployment scripts
+      ##
+      ## Default value: 0
+      policy-id: 0

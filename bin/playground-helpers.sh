@@ -345,3 +345,53 @@ function get_editor() {
   fi
   echo Editor: ${EDITOR}
 }
+
+#######################################
+# Get config.yaml
+# Globals:
+#   None
+# Arguments:
+#   None
+# Outputs:
+#   None
+#######################################
+function get_config() {
+  aws_account_id="$(yq '.services.aws.account-id' $ONEPATH/config.yaml)"
+  aws_region="$(yq '.services.aws.region' $ONEPATH/config.yaml)"
+  aws_environment="$(yq '.services.aws.environment' $ONEPATH/config.yaml)"
+  [[ "${aws_region}" = "null" || "${aws_region}" = "" ]] && aws_region="eu-central-1"
+  [[ "${aws_environment}" = "null" || "${aws_environment}" = "" ]] && aws_environment="playground-one"
+
+  # Playground One
+  pgo_access_ip="$(yq '.services.playground-one.access-ip' $ONEPATH/config.yaml)"
+  pgo_ec2_create_linux="$(yq '.services.playground-one.ec2.create-linux' $ONEPATH/config.yaml)"
+  pgo_ec2_create_windows="$(yq '.services.playground-one.ec2.create-windows' $ONEPATH/config.yaml)"
+  pgo_eks_create_fargate_profile="$(yq '.services.playground-one.eks.create-fargate-profile' $ONEPATH/config.yaml)"
+  pgo_ecs_create_ec2="$(yq '.services.playground-one.ecs.create-ec2' $ONEPATH/config.yaml)"
+  pgo_ecs_create_fargate="$(yq '.services.playground-one.ecs.create-fargate' $ONEPATH/config.yaml)"
+  [[ "${pgo_access_ip}" = "null" || "${pgo_access_ip}" = "" ]] && pgo_access_ip=[\"0.0.0.0/0\"]
+  [[ "${pgo_ec2_create_linux}" = "null" || "${pgo_ec2_create_linux}" = "" ]] && pgo_ec2_create_linux=true
+  [[ "${pgo_ec2_create_windows}" = "null" || "${pgo_ec2_create_windows}" = "" ]] && pgo_ec2_create_windows=true
+  [[ "${pgo_eks_create_fargate_profile}" = "null" || "${pgo_eks_create_fargate_profile}" = "" ]] && pgo_eks_create_fargate_profile=true
+  [[ "${pgo_ecs_create_ec2}" = "null" || "${pgo_ecs_create_ec2}" = "" ]] && pgo_ecs_create_ec2=true
+  [[ "${pgo_ecs_create_fargate}" = "null" || "${pgo_ecs_create_fargate}" = "" ]] && pgo_ecs_create_fargate=true
+
+  # Cloud One
+  cloud_one_api_key="$(yq '.services.cloud-one.api-key' $ONEPATH/config.yaml)"
+  cloud_one_region="$(yq '.services.cloud-one.region' $ONEPATH/config.yaml)"
+  cloud_one_instance="$(yq '.services.cloud-one.instance' $ONEPATH/config.yaml)"
+  cloud_one_cs_policy_id="$(yq '.services.cloud-one.container-security.policy-id' $ONEPATH/config.yaml)"
+  [[ "${cloud_one_region}" = "null" || "${cloud_one_region}" = "" ]] && cloud_one_region="trend-us-1"
+  [[ "${cloud_one_instance}" = "null" || "${cloud_one_instance}" = "" ]] && cloud_one_instance="cloudone"
+  [[ "${cloud_one_cs_policy_id}" = "null" || "${cloud_one_cs_policy_id}" = "" ]] && cloud_one_cs_policy_id=""
+
+  # Vision One
+  vision_one_server_tenant_id="$(yq '.services.vision-one.server-workload-protection.tenant-id' $ONEPATH/config.yaml)"
+  vision_one_server_token="$(yq '.services.vision-one.server-workload-protection.token' $ONEPATH/config.yaml)"
+  vision_one_server_policy_id="$(yq '.services.vision-one.server-workload-protection.policy-id' $ONEPATH/config.yaml)"
+  [[ "${vision_one_server_tenant_id}" = "null" ]] && vision_one_server_tenant_id=""
+  [[ "${vision_one_server_token}" = "null" ]] && vision_one_server_token=""
+  [[ "${vision_one_server_policy_id}" = "null" ]] && vision_one_server_policy_id=0
+
+  return 0
+}

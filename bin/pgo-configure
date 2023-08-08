@@ -1,0 +1,251 @@
+#!/bin/bash
+
+.  $ONEPATH/bin/playground-helpers.sh
+
+if [ $(yq '.services[] | select(.name=="aws") | .region' ${ONEPATH}/config.yaml) ]; then
+  printf '%s\n' "Making backup copy of existing configuration"
+  cp ${ONEPATH}/config.yaml ${ONEPATH}/config.yaml.bak
+  printf '%s\n' "Creating config.yaml from template"
+  cp ${ONEPATH}/templates/config.yaml.template ${ONEPATH}/config.yaml
+fi
+
+
+function update_aws_config() {
+  printf '%s\n' "Please set/update your AWS configuration"
+
+  key_desc="MANDATORY: AWS Account ID"
+  read -p "${key_desc} [${aws_account_id}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    aws_account_id=${TEMP}
+  fi
+  if [[ "$aws_account_id" =~ ^[0-9]+$ && "$aws_account_id" -gt 0 ]]; then
+    target_val=${aws_account_id} \
+      yq -i '.services.aws.account-id = env(target_val)' $ONEPATH/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  key_desc="AWS region name"
+  read -p "${key_desc} [${aws_region}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    aws_region=${TEMP}
+  fi
+  if [[ "$aws_region" =~ ^[0-9a-z\-]+$ ]]; then
+    target_val=${aws_region} \
+      yq -i '.services.aws.region = env(target_val)' $ONEPATH/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  key_desc="AWS environment name"
+  read -p "${key_desc} [${aws_environment}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    aws_environment=${TEMP}
+  fi
+  if [[ "$aws_environment" =~ ^[0-9a-z\-]+$ ]]; then
+    target_val=${aws_environment} \
+      yq -i '.services.aws.environment = env(target_val)' $ONEPATH/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+}
+
+function update_pgo_config() {
+  printf '\n%s\n' "Please set/update your Playground One configuration"
+
+  key_desc="Access IPs/CIDRs"
+  read -p "${key_desc} [${pgo_access_ip}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    pgo_access_ip=${TEMP}
+  fi
+  if [[ "$pgo_access_ip" =~ ^\[\"[0-9\.\,\/\"[:space:]]+\"\]$ ]]; then
+    target_val=${pgo_access_ip} \
+      yq -i '.services.playground-one.access-ip = env(target_val)' $ONEPATH/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  key_desc="EC2 - create Linux EC2"
+  read -p "${key_desc} [${pgo_ec2_create_linux}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    pgo_ec2_create_linux=${TEMP}
+  fi
+  if [[ "$pgo_ec2_create_linux" =~ ^true|false$ ]]; then
+    target_val=${pgo_ec2_create_linux} \
+      yq -i '.services.playground-one.ec2.create-linux = env(target_val)' $ONEPATH/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  key_desc="EC2 - create Windows EC2"
+  read -p "${key_desc} [${pgo_ec2_create_windows}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    pgo_ec2_create_windows=${TEMP}
+  fi
+  if [[ "$pgo_ec2_create_windows" =~ ^true|false$ ]]; then
+    target_val=${pgo_ec2_create_windows} \
+      yq -i '.services.playground-one.ec2.create-windows = env(target_val)' $ONEPATH/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  key_desc="EKS - create Fargate profile"
+  read -p "${key_desc} [${pgo_eks_create_fargate_profile}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    pgo_eks_create_fargate_profile=${TEMP}
+  fi
+  if [[ "$pgo_eks_create_fargate_profile" =~ ^true|false$ ]]; then
+    target_val=${pgo_eks_create_fargate_profile} \
+      yq -i '.services.playground-one.eks.create-fargate-profile = env(target_val)' $ONEPATH/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  key_desc="ECS - utilize EC2 nodes"
+  read -p "${key_desc} [${pgo_ecs_create_ec2}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    pgo_ecs_create_ec2=${TEMP}
+  fi
+  if [[ "$pgo_ecs_create_ec2" =~ ^true|false$ ]]; then
+    target_val=${pgo_ecs_create_ec2} \
+      yq -i '.services.playground-one.ecs.create-ec2 = env(target_val)' $ONEPATH/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  key_desc="ECS - utilize Fargate nodes"
+  read -p "${key_desc} [${pgo_ecs_create_fargate}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    pgo_ecs_create_fargate=${TEMP}
+  fi
+  if [[ "$pgo_ecs_create_fargate" =~ ^true|false$ ]]; then
+    target_val=${pgo_ecs_create_fargate} \
+      yq -i '.services.playground-one.ecs.create-fargate = env(target_val)' $ONEPATH/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+}
+
+function update_cloud_one_config() {
+  printf '\n%s\n' "Please set/update your Cloud One configuration"
+
+  key_desc="Cloud One region name"
+  read -p "${key_desc} [${cloud_one_region}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    cloud_one_region=${TEMP}
+  fi
+  if [[ "$cloud_one_region" =~ ^[0-9a-z\-]+$ ]]; then
+    target_val=${cloud_one_region} \
+      yq -i '.services.cloud-one.region = env(target_val)' $ONEPATH/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  key_desc="Cloud One instance"
+  # read -p "${key_desc} [${cloud_one_instance}]: " TEMP
+  # if [[ ! -z "${TEMP}" ]]; then
+  #   cloud_one_instance=${TEMP}
+  # fi
+  if [[ "$cloud_one_instance" =~ ^cloudone|staging-cloudone|dev-cloudone$ ]]; then
+    target_val=${cloud_one_instance} \
+      yq -i '.services.cloud-one.instance = env(target_val)' $ONEPATH/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  key_desc="MANDATORY: Cloud One API Key"
+  read -p "${key_desc} [${cloud_one_api_key:0:10}...]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    cloud_one_api_key=${TEMP}
+  fi
+  if [[ "$cloud_one_api_key" =~ ^tmc[0-9a-zA-Z\:]+$ ]]; then
+    target_val=${cloud_one_api_key} \
+      yq -i '.services.cloud-one.api-key = env(target_val)' $ONEPATH/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  printf '\n%s\n' "Please set/update your Container Security configuration"
+
+  key_desc="Container Security policy ID"
+  read -p "${key_desc} [${cloud_one_cs_policy_id}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    cloud_one_cs_policy_id=${TEMP}
+  fi
+  if [[ "$cloud_one_cs_policy_id" =~ ^[0-9a-zA-Z_\-]+\-[0-9a-zA-Z]+$ ]]; then
+    target_val=${cloud_one_cs_policy_id} \
+      yq -i '.services.cloud-one.container-security.policy-id = env(target_val)' $ONEPATH/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+}
+
+function update_vision_one_config() {
+  printf '\n%s\n' "Please set/update your Server & Workload Protection configuration"
+
+  key_desc="Server & Workload Protection tenant ID"
+  read -p "${key_desc} [${vision_one_server_tenant_id:0:9}...]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    vision_one_server_tenant_id=${TEMP}
+  fi
+  if [ ! -z "$vision_one_server_tenant_id" ]; then
+    if [[ "$vision_one_server_tenant_id" =~ ^[0-9A-Z\-]+\-[0-9A-Z\-]+\-[0-9A-Z\-]+\-[0-9A-Z\-]+\-[0-9A-Z\-]+$ ]]; then
+      target_val=${vision_one_server_tenant_id}"" \
+        yq -i '.services.vision-one.server-workload-protection.tenant-id = env(target_val)' $ONEPATH/config.yaml
+    else
+      echo "Error: Invalid ${key_desc} input."
+      exit 0
+    fi
+  fi
+
+  key_desc="Server & Workload Protection token"
+  read -p "${key_desc} [${vision_one_server_token:0:9}...]: " TEMP
+  if [ ! -z "$vision_one_server_token" ]; then
+    if [[ ! -z "${TEMP}" ]]; then
+      vision_one_server_token=${TEMP}
+    fi
+    if [[ "$vision_one_server_token" =~ ^[0-9A-Z\-]+\-[0-9A-Z\-]+\-[0-9A-Z\-]+\-[0-9A-Z\-]+\-[0-9A-Z\-]+$ ]]; then
+      target_val=${vision_one_server_token} \
+        yq -i '.services.vision-one.server-workload-protection.token = env(target_val)' $ONEPATH/config.yaml
+    else
+      echo "Error: Invalid ${key_desc} input."
+      exit 0
+    fi
+  fi
+
+  key_desc="Server & Workload Protection policy ID"
+  read -p "${key_desc} [${vision_one_server_policy_id}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    vision_one_server_policy_id=${TEMP}
+  fi
+  if [ ! -z "$vision_one_server_policy_id" ]; then
+    if [[ "$vision_one_server_policy_id" =~ ^[0-9]+$ && "$vision_one_server_policy_id" -ge 0 ]]; then
+      target_val=${vision_one_server_policy_id} \
+        yq -i '.services.vision-one.server-workload-protection.policy-id = env(target_val)' $ONEPATH/config.yaml
+    else
+      echo "Error: Invalid ${key_desc} input."
+      exit 0
+    fi
+  fi
+}
+
+
+get_config
+
+update_aws_config
+update_pgo_config
+update_cloud_one_config
+update_vision_one_config

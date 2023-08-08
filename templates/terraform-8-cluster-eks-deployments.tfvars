@@ -1,13 +1,13 @@
 # Allow access to the environment from any location or restrict it to your public ip
 # Example:
 #   access_ip      = "<YOUR IP>/32"
-access_ip = "${ACCESS_IP}"
+access_ip = "${pgo_access_ip}"
 
 # Environment Name
-environment = "${AWS_ENVIRONMENT}"
+environment = "${aws_environment}"
 
 # Cloud One
-api_key            = "${CLOUD_ONE_API_KEY}"
-cluster_policy     = "${CLOUD_ONE_POLICY_ID}"
-cloud_one_region   = "${CLOUD_ONE_REGION}"
-cloud_one_instance = "${CLOUD_ONE_INSTANCE}"
+api_key            = "${cloud_one_api_key}"
+cluster_policy     = "${cloud_one_cs_policy_id}"
+cloud_one_region   = "${cloud_one_region}"
+cloud_one_instance = "${cloud_one_instance}"

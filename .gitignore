@@ -8,6 +8,7 @@ log/*
 
 # Config
 config.yaml
+config.yaml.bak
 env.sh
 venv
 

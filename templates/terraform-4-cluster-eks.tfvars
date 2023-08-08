@@ -1,11 +1,11 @@
 # AWS Account ID
-account_id = "${AWS_ACCOUNT_ID}"
+account_id = "${aws_account_id}"
 
 # AWS Region
-aws_region = "${AWS_REGION}"
+aws_region = "${aws_region}"
 
 # Environment Name
-environment = "${AWS_ENVIRONMENT}"
+environment = "${aws_environment}"
 
 # Create Fargate Profile
-create_fargate_profile = ${EKS_CREATE_FARGATE_PROFILE}
+create_fargate_profile = ${pgo_eks_create_fargate_profile}

@@ -1,15 +1,15 @@
 # AWS Account ID
-account_id = "${AWS_ACCOUNT_ID}"
+account_id = "${aws_account_id}"
 
 # AWS Region
-aws_region = "${AWS_REGION}"
+aws_region = "${aws_region}"
 
 # Allow access to the environment from any location or restrict it to your public ip
 # Example:
 #   access_ip      = "<YOUR IP>/32"
-access_ip = ${ACCESS_IP}
+access_ip = ${pgo_access_ip}
 
 # Environment Name
-environment = "${AWS_ENVIRONMENT}"
+environment = "${aws_environment}"
 
 one_path = "${ONEPATH}"
