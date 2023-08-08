@@ -4,7 +4,15 @@
 
 - Vision One Container Security
 - Playground One EKS Cluster
+- Playground One Scenarios
   - Running app: System Monitor
+
+Ensure to have the EKS Cluster including the Scenarios up and running:
+
+```sh
+$ pgo --apply eks
+$ pgo --apply scenarios
+```
 
 ## Attribution
 
@@ -144,7 +152,7 @@ $ kubectl
 bash: kubectl: command not found
 ```
 
-Trying to use the package manager `yum` will not solve the problem. But navigating to <https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-kubectl-binary-with-curl-on-linux> will help:
+Trying to use the package manager `yum` will not solve the problem. But navigating to https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-kubectl-binary-with-curl-on-linux will help:
 
 ```sh
 $ cd

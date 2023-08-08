@@ -6,6 +6,12 @@
 - Playground One ECS Cluster (Any variant)
   - Running app: Java-Goof running on vulnerable Tomcat
 
+Ensure to have an ECS Cluster up and running:
+
+```sh
+$ pgo --apply ecs
+```
+
 ## Disclaimer
 
 > ***Note:*** It is highly recommended to have the `awsone.access_ip` set to a single IP or at least a small CIDR before deploying the ECS cluster. This will prevent anonymous users playing with your environmnent. Remember: we're using vulnerable apps.

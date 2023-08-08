@@ -414,7 +414,7 @@ function helpcmd() {
   printf '%s\n' "The primary workflow commands are given first, followed by"
   printf '%s\n' "less common or more advanced commands."
   printf '%s\n' ""
-  printf '%s\n' "Available configurations: vpc, nw, ec2, eks, ecs"
+  printf '%s\n' "Available configurations: vpc, nw, ec2, eks, ecs, scenarios"
   printf '%s\n' ""
   printf '%s\n' "Main commands:"
   printf '%s\n' "  -c --config   Set/update Playground One main configuration"

@@ -1,58 +1,5 @@
 # General Life-Cycle
 
-The life-cycle of Playground One is controlled by the command line interface `pgo`.
-
-Use it to interact with the Playground One from anywhere in your terminal by running
-
-```sh
-$ pgo
-```
-
-from anywhere in your terminal.
-
-## Getting Help
-
-Run:
-
-```sh
-$ pgo --help
-```
-
-```sh
- __                 __   __   __             __      __        ___ 
-|__) |     /\  \ / / _` |__) /  \ |  | |\ | |  \    /  \ |\ | |__  
-|    |___ /~~\  |  \__> |  \ \__/ \__/ | \| |__/    \__/ | \| |___ 
-                                                                   
-Usage: pgo <command> <configuration> ...
-
-The available commands for execution are listed below.
-The primary workflow commands are given first, followed by
-less common or more advanced commands.
-
-Main commands:
-  -i --init     Prepare a configuration for other commands
-  -a --apply    Create of update infrastructure
-  -d --destroy  Destroy previously-created infrastructure
-  -o --output   Show output values
-  -s --state    Show the current state
-  -h --help     Show this help
-
-Other commands:
-  -S --show     Show advanced state
-  -v --validate Check whether the configuration is valid
-
-Available configurations:
-  nw            Network configuration
-  ec2           EC2 configuration
-  eks           EKS configuration
-  ecs           ECS configurations
-  all           All configurations
-
-Examples:
-  pgo --apply nw
-  pgo --state all
-```
-
 ## Create the Environment
 
 1. Initialize with
@@ -62,6 +9,8 @@ Examples:
     ```
 
     This will prepare all available configurations. No changes done in the clouds yet. You only need to init once after cloning the repository.
+
+    If you have changed Playground Ones main configuration using `pgo --config` please rerun `pgo --init all` again to apply eventual changes to the configurations.
 
 2. To create the VPC and Network run
 
@@ -89,7 +38,7 @@ Examples:
     $ pgo --apply eks
     ```
 
-    The default workload (Container Security, Trivy, and vulnerable apps) are deployed automatically.
+    The default workload (Container Security and Trivy) are deployed automatically.
 
     ECS cluster(s):
 

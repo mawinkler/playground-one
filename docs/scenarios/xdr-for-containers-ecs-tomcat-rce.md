@@ -7,6 +7,12 @@
   - Running app: Java-Goof running on vulnerable Tomcat
 - Extracted contents of `exploit.zip`
 
+Ensure to have an ECS Cluster up and running:
+
+```sh
+$ pgo --apply ecs
+```
+
 If you need to extract the exploits unzip with the password `virus`:
 
 ```sh
