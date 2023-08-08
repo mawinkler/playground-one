@@ -6,12 +6,12 @@ module "container_security" {
   api_key          = var.api_key
 }
 
-module "victims" {
-  source      = "./victims"
-  environment = var.environment
-  access_ip   = var.access_ip
-  namespace   = "victims"
-}
+# module "victims" {
+#   source      = "./victims"
+#   environment = var.environment
+#   access_ip   = var.access_ip
+#   namespace   = "victims"
+# }
 
 module "trivy" {
   source      = "./trivy"
@@ -19,9 +19,9 @@ module "trivy" {
   namespace   = "trivy-system"
 }
 
-module "goat" {
-  source      = "./goat"
-  environment = var.environment
-  access_ip   = var.access_ip
-  namespace   = "goat"
-}
+# module "goat" {
+#   source      = "./goat"
+#   environment = var.environment
+#   access_ip   = var.access_ip
+#   namespace   = "goat"
+# }
