@@ -77,7 +77,7 @@ module "autoscaling" {
           if [[ $isRPM == 1 ]]; then package='agent.rpm'
               else package='agent.deb'
           fi
-          curl -H "Agent-Version-Control: on" -L $MANAGERURL/software/agent/$runningPlatform$majorVersion/$archType/$package?tenantID=112725 -o /tmp/$package $CURLOPTIONS
+          curl -H "Agent-Version-Control: on" -L $MANAGERURL/software/agent/$runningPlatform$majorVersion/$archType/$package?tenantID=131196 -o /tmp/$package $CURLOPTIONS
 
           echo Installing agent package...
           rc=1
@@ -196,7 +196,7 @@ module "autoscaling" {
           if [[ $isRPM == 1 ]]; then package='agent.rpm'
               else package='agent.deb'
           fi
-          curl -H "Agent-Version-Control: on" -L $MANAGERURL/software/agent/$runningPlatform$majorVersion/$archType/$package?tenantID=112725 -o /tmp/$package $CURLOPTIONS
+          curl -H "Agent-Version-Control: on" -L $MANAGERURL/software/agent/$runningPlatform$majorVersion/$archType/$package?tenantID=131196 -o /tmp/$package $CURLOPTIONS
 
           echo Installing agent package...
           rc=1
