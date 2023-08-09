@@ -31,6 +31,7 @@ theme:
   features:
   #   - navigation.tabs
     - content.tabs.link
+    - content.code.copy
   # favicon: images/kubecon_logo.jpeg
   palette:
     - scheme: slate

@@ -7,7 +7,8 @@ awsone
 └── network (2-network)
     ├── ec2 (3-instances)
     ├── eks (4-cluster-eks)
-    |   └── eks-deployments (8-cluster-eks-deployments)
+    |   ├── eks-deployments (8-cluster-eks-deployments)
+    |   └── scenarios (7-scenarios)
     └── ecs (5-cluster-ecs)
 ```
 
