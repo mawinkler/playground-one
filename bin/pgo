@@ -449,7 +449,9 @@ function helpcmd() {
 #######################################
 [ -z "$1" ] && helpcmd
 
-get_config
+if [ -f ${ONEPATH}/config.yaml ]; then
+  get_config
+fi
 
 TEMP=$(getopt -o ci:a:d:o:s:S:v:h --long config,init:,apply:,destroy:,output:,state:,show:,validate:,help -- "$@")
 if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi

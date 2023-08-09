@@ -2,13 +2,16 @@
 
 .  $ONEPATH/bin/playground-helpers.sh
 
-if [ $(yq '.services[] | select(.name=="aws") | .region' ${ONEPATH}/config.yaml) ]; then
-  printf '%s\n' "Making backup copy of existing configuration"
-  cp ${ONEPATH}/config.yaml ${ONEPATH}/config.yaml.bak
-  printf '%s\n' "Creating config.yaml from template"
+if [ -f ${ONEPATH}/config.yaml ]; then
+  if [ $(yq '.services[] | select(.name=="aws") | .region' ${ONEPATH}/config.yaml) ]; then
+    printf '%s\n' "Making backup copy of existing configuration"
+    cp ${ONEPATH}/config.yaml ${ONEPATH}/config.yaml.bak
+    printf '%s\n' "Creating config.yaml from template"
+    cp ${ONEPATH}/templates/config.yaml.template ${ONEPATH}/config.yaml
+  fi
+else
   cp ${ONEPATH}/templates/config.yaml.template ${ONEPATH}/config.yaml
 fi
-
 
 function update_aws_config() {
   printf '%s\n' "Please set/update your AWS configuration"
@@ -211,33 +214,37 @@ function update_vision_one_config() {
     fi
   fi
 
-  key_desc="Server & Workload Protection token"
-  read -p "${key_desc} [${vision_one_server_token:0:9}...]: " TEMP
-  if [ ! -z "$vision_one_server_token" ]; then
+  if [ ! -z "vision_one_server_tenant_id" ]; then
+    key_desc="Server & Workload Protection token"
+    read -p "${key_desc} [${vision_one_server_token:0:9}...]: " TEMP
     if [[ ! -z "${TEMP}" ]]; then
       vision_one_server_token=${TEMP}
     fi
-    if [[ "$vision_one_server_token" =~ ^[0-9A-Z\-]+\-[0-9A-Z\-]+\-[0-9A-Z\-]+\-[0-9A-Z\-]+\-[0-9A-Z\-]+$ ]]; then
-      target_val=${vision_one_server_token} \
-        yq -i '.services.vision-one.server-workload-protection.token = env(target_val)' $ONEPATH/config.yaml
-    else
-      echo "Error: Invalid ${key_desc} input."
-      exit 0
+    if [ ! -z "vision_one_server_token" ]; then
+      if [[ "$vision_one_server_token" =~ ^[0-9A-Z\-]+\-[0-9A-Z\-]+\-[0-9A-Z\-]+\-[0-9A-Z\-]+\-[0-9A-Z\-]+$ ]]; then
+        target_val=${vision_one_server_token} \
+          yq -i '.services.vision-one.server-workload-protection.token = env(target_val)' $ONEPATH/config.yaml
+      else
+        echo "Error: Invalid ${key_desc} input."
+        exit 0
+      fi
     fi
   fi
 
-  key_desc="Server & Workload Protection policy ID"
-  read -p "${key_desc} [${vision_one_server_policy_id}]: " TEMP
-  if [[ ! -z "${TEMP}" ]]; then
-    vision_one_server_policy_id=${TEMP}
-  fi
-  if [ ! -z "$vision_one_server_policy_id" ]; then
-    if [[ "$vision_one_server_policy_id" =~ ^[0-9]+$ && "$vision_one_server_policy_id" -ge 0 ]]; then
-      target_val=${vision_one_server_policy_id} \
-        yq -i '.services.vision-one.server-workload-protection.policy-id = env(target_val)' $ONEPATH/config.yaml
-    else
-      echo "Error: Invalid ${key_desc} input."
-      exit 0
+  if [ ! -z "vision_one_server_tenant_id" ]; then
+    key_desc="Server & Workload Protection policy ID"
+    read -p "${key_desc} [${vision_one_server_policy_id}]: " TEMP
+    if [[ ! -z "${TEMP}" ]]; then
+      vision_one_server_policy_id=${TEMP}
+    fi
+    if [ ! -z "$vision_one_server_policy_id" ]; then
+      if [[ "$vision_one_server_policy_id" =~ ^[0-9]+$ && "$vision_one_server_policy_id" -ge 0 ]]; then
+        target_val=${vision_one_server_policy_id} \
+          yq -i '.services.vision-one.server-workload-protection.policy-id = env(target_val)' $ONEPATH/config.yaml
+      else
+        echo "Error: Invalid ${key_desc} input."
+        exit 0
+      fi
     fi
   fi
 }
