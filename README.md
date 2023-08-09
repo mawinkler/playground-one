@@ -17,19 +17,19 @@ The Playground One has a modular structure as shown in the following tree:
 
 ```
 awsone
-├── vpc
-│   ├── ec2
-│   ├── eks
-│   |   └── eks-deployments
-│   └── ecs
+└── network (2-network)
+    ├── ec2 (3-instances)
+    ├── eks (4-cluster-eks)
+    |   ├── eks-deployments (8-cluster-eks-deployments)
+    |   └── scenarios (7-scenarios)
+    └── ecs (5-cluster-ecs)
 ```
 
-As we can see, the configuration `vpc` is the base for the other configurations. One can choose to only create the EC2 instances, EKS cluster or ECS cluster, or even the full stack. Everything will reside in the same VPC.
+As we can see, the configuration `network` is the base for the other configurations. It creates the VPC, Subnets, Route Tables, Security Groups, etc. One can choose to only create the EKS cluster, or ECS cluster, or even the full stack. Everything will reside in the same VPC.
 
-*Architecture:*
-
-![alt text](docs/images/architecture.png "Architecture diagram")
+![alt text](docs/how-it-works/images/architecture.png "Architecture diagram")
+*Architecture: Example environment name `pgo8`*
 
 ***Documentation***
 
-Full documentation: ***[Playground One Pages](https://mawinkler.github.io/playground-one-pages/)***
+Please read and follow the documentation: ***[Playground One Pages](https://mawinkler.github.io/playground-one-pages/)***
