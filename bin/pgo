@@ -150,6 +150,14 @@ function init() {
 
       cd ${ONEPATH}/awsone/7-scenarios
       terraform init
+      ;;&
+    kind|all)
+      printf '%s\n' "Create terraform.tfvars for cluster-eks"
+      aws_environment=${aws_environment} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-6-cluster-kind.tfvars >$ONEPATH/awsone/6-cluster-kind/terraform.tfvars
+      cd ${ONEPATH}/awsone/6-cluster-kind
+      terraform init
       ;;
   esac
   printf '%s\n' "💬 Terraform terraform.tfvars dropped to configurations"
@@ -196,6 +204,10 @@ function apply() {
       cd ${ONEPATH}/awsone/7-scenarios
       terraform apply -auto-approve
       ;;
+    kind)
+      cd ${ONEPATH}/awsone/6-cluster-kind
+      terraform apply -auto-approve
+      ;;
   esac
 }
 
@@ -235,8 +247,12 @@ function destroy() {
       terraform destroy -auto-approve
       unlock ecs
       ;;
-    scenarios|all)
+    scenarios)
       cd ${ONEPATH}/awsone/7-scenarios
+      terraform destroy -auto-approve
+      ;;
+    kind)
+      cd ${ONEPATH}/awsone/6-cluster-kind
       terraform destroy -auto-approve
       ;;
     all)
@@ -292,6 +308,10 @@ function output() {
       cd ${ONEPATH}/awsone/7-scenarios
       terraform output
       ;;
+    kind)
+      cd ${ONEPATH}/awsone/6-cluster-kind
+      terraform output
+      ;;
   esac
 }
 
@@ -327,6 +347,10 @@ function state() {
       ;;&
     scenarios|all)
       cd ${ONEPATH}/awsone/7-scenarios
+      terraform state list
+      ;;
+    kind)
+      cd ${ONEPATH}/awsone/6-cluster-kind
       terraform state list
       ;;
   esac
@@ -367,6 +391,10 @@ function show() {
       cd ${ONEPATH}/awsone/7-scenarios
       terraform show
       ;;
+    kind)
+      cd ${ONEPATH}/awsone/6-cluster-kind
+      terraform show
+      ;;
   esac
 }
 
@@ -402,6 +430,10 @@ function validate() {
       ;;&
     scenarios|all)
       cd ${ONEPATH}/awsone/7-scenarios
+      terraform validate
+      ;;
+    kind)
+      cd ${ONEPATH}/awsone/6-cluster-kind
       terraform validate
       ;;
   esac
