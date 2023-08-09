@@ -10,14 +10,14 @@
 Ensure to have an ECS Cluster up and running:
 
 ```sh
-$ pgo --apply ecs
+pgo --apply ecs
 ```
 
 If you need to extract the exploits unzip with the password `virus`:
 
 ```sh
-$ cd ${ONEPATH}
-$ unzip exploits.zip
+cd ${ONEPATH}
+unzip exploits.zip
 ```
 
 ## Disclaimer
@@ -29,7 +29,7 @@ $ unzip exploits.zip
 First, retrieve the load balancer DNS name
 
 ```sh
-$ pgo -o ecs
+pgo -o ecs
 ```
 
 Example output with ECS EC2:
@@ -47,8 +47,8 @@ Now you can check to see if the tomcat server is vulnerable.
 If it is you should see something similar to the following:
 
 ```sh
-$ cd ${ONEPATH}/exploits/tomcat-rce/
-$ python3 exploit.py -u http://playground-ecs-ec2-135067951.eu-central-1.elb.amazonaws.com
+cd ${ONEPATH}/exploits/tomcat-rce/
+python3 exploit.py -u http://playground-ecs-ec2-135067951.eu-central-1.elb.amazonaws.com
 ```
 
 ```ascii
@@ -83,7 +83,7 @@ Vision One Observed Attack Techniques:
 Next, inject the exploit and just hit `ENTER` at the shell prompt that comes up. (Ignore the error afterward)
 
 ```sh
-$ python3 exploit.py -u http://playground-ecs-ec2-135067951.eu-central-1.elb.amazonaws.com -p pwn
+python3 exploit.py -u http://playground-ecs-ec2-135067951.eu-central-1.elb.amazonaws.com -p pwn
 ```
 
 ```ascii

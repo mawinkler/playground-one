@@ -9,7 +9,7 @@
 Ensure to have an ECS Cluster up and running:
 
 ```sh
-$ pgo --apply ecs
+pgo --apply ecs
 ```
 
 ## Disclaimer
@@ -21,7 +21,7 @@ $ pgo --apply ecs
 First, retrieve the load balancer DNS name
 
 ```sh
-$ pgo -o ecs
+pgo -o ecs
 ```
 
 Example output with ECS EC2:

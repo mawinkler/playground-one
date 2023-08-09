@@ -7,7 +7,7 @@ Playground One is controlled by the command line interface `pgo`.
 Use it to interact with the Playground One by running
 
 ```sh
-$ pgo
+pgo
 ```
 
 from anywhere in your terminal.
@@ -17,7 +17,7 @@ from anywhere in your terminal.
 Run:
 
 ```sh
-$ pgo --help
+pgo --help
 ```
 
 ```sh
@@ -64,7 +64,7 @@ Examples:
 After bootstrapping you need to configure Playground One. To simplify the process use the built in configuration tool. An eventually already existing `config.yaml` will be saved as `config.yaml.bak`. Run
 
 ```sh
-$ pgo --config
+pgo --config
 ```
 
 This process will create or update your personal `config.yaml`. Eventually existing setting will be shown in square brackets. To accept them just press enter.

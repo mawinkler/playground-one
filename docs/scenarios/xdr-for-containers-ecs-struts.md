@@ -10,14 +10,14 @@
 Ensure to have an ECS Cluster up and running:
 
 ```sh
-$ pgo --apply ecs
+pgo --apply ecs
 ```
 
 If you need to extract the exploits unzip with the password `virus`:
 
 ```sh
-$ cd ${ONEPATH}
-$ unzip exploits.zip
+cd ${ONEPATH}
+unzip exploits.zip
 ```
 
 ## Disclaimer
@@ -29,7 +29,7 @@ $ unzip exploits.zip
 First, retrieve the load balancer DNS name
 
 ```sh
-$ pgo -o ecs
+pgo -o ecs
 ```
 
 Example output with ECS EC2:
@@ -46,8 +46,8 @@ If you are using ECS Fargate, the variable is named `loadbalancer_dns_fargate`.
 Run:
 
 ```sh
-$ cd ${ONEPATH}/exploits/struts/
-$ struts-exploit.sh playground-ecs-ec2-135067951.eu-central-1.elb.amazonaws.com
+cd ${ONEPATH}/exploits/struts/
+struts-exploit.sh playground-ecs-ec2-135067951.eu-central-1.elb.amazonaws.com
 ```
 
 Expexted result:

@@ -11,7 +11,7 @@ Follow this chapter if...
 Test if `sudo` requires a password by running `sudo ls /etc`. If you don't get a password prompt you're fine, otherwise run.
 
 ```sh
-$ sudo visudo -f /etc/sudoers.d/custom-users
+sudo visudo -f /etc/sudoers.d/custom-users
 ```
 
 Add the following line:
@@ -25,7 +25,7 @@ Add the following line:
 Now, run the Playground
 
 ```sh
-$ curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/pgo | bash && exit
+curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/pgo | bash && exit
 ```
 
 The bootstrapping process will exit your current terminal or shell after it has done it's work. Depending on your environment just create a new terminal session and continue with [Configuration](configuration.md).
@@ -57,7 +57,7 @@ Update IAM Settings for the Workspace
 Now, run the Playground
 
 ```sh
-$ curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/pgo | bash && exit
+curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/pgo | bash && exit
 ```
 
 If you run the above command on a newly created or rebooted Cloud9 instance and are receiving the following error, just wait a minute or two and rerun the curl command. The reason for this error is, that directly after starting the machine some update processes are running in the background causing the lock to the package manager process.

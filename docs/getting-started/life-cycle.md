@@ -5,7 +5,7 @@
 1. Initialize with
 
     ```sh
-    $ pgo --init all
+    pgo --init all
     ```
 
     This will prepare all available configurations. No changes done in the clouds yet. You only need to init once after cloning the repository.
@@ -15,7 +15,7 @@
 2. To create the VPC and Network run
 
     ```sh
-    $ pgo --apply nw
+    pgo --apply nw
     ```
 
     This will create your VPC and network in the configured region (see `config.yaml`)
@@ -29,13 +29,13 @@
     EC2 instances:
 
     ```sh
-    $ pgo --apply ec2
+    pgo --apply ec2
     ```
 
     EKS cluster:
 
     ```sh
-    $ pgo --apply eks
+    pgo --apply eks
     ```
 
     The default workload (Container Security and Trivy) are deployed automatically.
@@ -43,7 +43,7 @@
     ECS cluster(s):
 
     ```sh
-    $ pgo --apply ecs
+    pgo --apply ecs
     ```
 
     A vulnerable default workload is deployed automatically.
@@ -53,7 +53,7 @@
 The most relevant information on your configuration can be queried by running
 
 ```sh
-$ pgo --output <configuration>
+pgo --output <configuration>
 ```
 
 Example: `pgo --output ec2`:
@@ -84,13 +84,13 @@ It's a playground, or? Experiment and hopefully learn a few things. For your gui
 If you want to destroy your environment completely or only parts of it
 
 ```sh
-$ pgo --destroy <configuration>
+pgo --destroy <configuration>
 ```
 
 If you want to tear down everything run
 
 ```sh
-$ pgo --destroy all
+pgo --destroy all
 ```
 
 > ***Note:*** The network and VPC are not automatically destroyed. You can do this manually by running `pgo --destroy nw`. Be sure to have the CloudFormation stack of XDR for Containers deleted before doing so. Otherwise it will be in a fail (blackhole) state.
