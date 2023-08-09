@@ -54,3 +54,12 @@ This causes terraform to destroy the ECS cluster before the autoscaling group, w
 This leads to Terraform error out with the cluster partly alive and the capacity providers fully alive.
 
 I don't have a proper fix for that, yet. For now, initiate the `destroy` process via `pgo -d ecs` and head over to the AWS EC2 console --> Auto Scaling groups. Select the two groups with the prefix of your environment name and choose the Action `Delete`.
+
+## I don't find the `todolist`-app of Java-Goof
+
+To access the `todolist` application append `/todolist` to the loadbalancer DNS name in your browser.
+
+For authentication use:
+
+- Username: `foo@bar.org`
+- Password: `foobar`
