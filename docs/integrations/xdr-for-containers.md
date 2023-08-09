@@ -24,7 +24,7 @@ Required information:
 
 Follow the deployment instructions from Vision One. You can query your `AWS VPC ID` by running `pgo --output nw`.
 
-Make sure to deploy the stack in the region of the VPC when pressing `[Launch Stack]`.
+> ***Note:*** Make sure to deploy the stack in the region of the VPC when pressing `[Launch Stack]`.
 
 ![alt text](images/xdr-for-containers-01.png "Connect VPC")
 

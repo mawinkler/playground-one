@@ -156,3 +156,9 @@ The `*` in `path` is important :-)
 ## XDR for Containers
 
 Initially, I thought I just need to leave the VPC alone when changing/destroying part of the network configuration. This was a failure...
+
+## Misc commands which helped at some point
+
+```sh
+aws kms delete-alias --alias-name alias/eks/playground-one-eks
+```

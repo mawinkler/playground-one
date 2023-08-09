@@ -49,12 +49,12 @@ The goal of this scenario is to escape out of the running docker container on th
 <details>
 <summary>Click here</summary>
 
-*✨ Are you still in the container?*<br>
-
-See the mounted file systems, also look the capabilities available for the container using capsh 🙌<br>
-<br>
-*✨ Escaped container?*<br>
-
+✨ Are you still in the container?
+<br><br>
+See the mounted file systems, also look the capabilities available for the container using capsh 🙌<
+<br><br>
+✨ Escaped container?
+<br><br>
 You can recon the system, some interesting places to obtain the node level configuration are `/var/lib/kubelet/kubeconfig` and I hope you know how to query Kubernetes API for nodes? 🎉<br>
 
 </details>

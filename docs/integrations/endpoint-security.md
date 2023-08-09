@@ -25,6 +25,10 @@ The instances are created within a public subnet of Playground One's VPC. They a
 
 All instances including the Windows Server are accessible via ssh and key authentication. RDP for Windows is supported in addition to this.
 
+*Server & Workload Protection: Example with full stack deployment*
+
+![alt text](images/server-and-workload-protection.png "Security Groups")
+
 ## Optional: Drop Vision One Installer Packages
 
 If you want the instances automatically to be activated against your Server and Workload Protection Manager instance you need to download the installer packages for Vision One Endpoint Security for Windows and/or Linux from your Vision One instance. You need to do this manually since these installers are specific to your environment.

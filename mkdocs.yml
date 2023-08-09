@@ -19,6 +19,7 @@ nav:
       - Apache Struts Multipart Encoding Command Injection: scenarios/xdr-for-containers-ecs-struts.md
     - Container Security:
       - Escape to Host System: scenarios/container-security-eks-escape.md
+      - ContainerD Abuse: scenarios/container-security-eks-dind-exploitation.md
       # - Runtime Vulnerability Scan: scenarios/container-security-eks-runtime-vulnerability.md
       # - Runtime Violations: scenarios/container-security-eks-runtime-violations.md
       # - Privileged Shell: scenarios/container-security-eks-privileged-shell.md

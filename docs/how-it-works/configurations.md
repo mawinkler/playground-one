@@ -13,11 +13,11 @@ awsone
 
 As we can see, the configuration `network` is the base for the other configurations. It creates the VPC, Subnets, Route Tables, Security Groups, etc. One can choose to only create the EKS cluster, or ECS cluster, or even the full stack. Everything will reside in the same VPC.
 
-*Architecture:*
+*Architecture: Example environment name `pgo8`*
 
 ![alt text](images/architecture.png "Architecture diagram")
 
-*Security Groups:* TODO: UPDATE
+*Security Groups: Example environment name `pgo8`*
 
 ![alt text](images/security-groups.png "Security Groups")
 
@@ -66,8 +66,19 @@ Currently, the following deployments are defined:
 
 - Container Security
 - Trivy
-- Vulnerable Java-Goof
-- Vulnerable Web App (openssl)
+
+### Scenarios
+
+*Configuration located in `awsone/7-scenarios`*
+
+*Depends on `awsone/4-cluster-eks`*
+
+Currently, the following (vulnerable) deployments are defined:
+
+- WebApp System-Monitor (see [Escape to the Host System](../scenarios/container-security-eks-escape.md))
+- WebApp Health-Check (see [ContainerD Abuse](../scenarios/container-security-eks-dind-exploitation.md))
+- Java-Goof
+- WebApp OpenSSL3
 
 ## ECS Clusters
 
@@ -82,3 +93,7 @@ Here we're building an ECS cluster using EC2 instances and/or Fargate profile. K
 - ALB Load Balancer
 - Located in the private subnets
 - Automatic deployment of a vulnerable service (Java-Goof)
+
+Currently, the following (vulnerable) service is defined:
+
+- Java-Goof
