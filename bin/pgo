@@ -222,6 +222,8 @@ function destroy() {
       unlock ec2
       ;;
     eks)
+      cd ${ONEPATH}/awsone/7-scenarios
+      terraform destroy -auto-approve
       cd ${ONEPATH}/awsone/8-cluster-eks-deployments
       terraform destroy -auto-approve
       cd ${ONEPATH}/awsone/4-cluster-eks
@@ -234,7 +236,6 @@ function destroy() {
       unlock ecs
       ;;
     scenarios|all)
-      lock eks
       cd ${ONEPATH}/awsone/7-scenarios
       terraform destroy -auto-approve
       ;;

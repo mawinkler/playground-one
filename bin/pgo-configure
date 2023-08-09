@@ -1,12 +1,12 @@
 #!/bin/bash
 
-.  $ONEPATH/bin/playground-helpers.sh
+. $ONEPATH/bin/playground-helpers.sh
 
 if [ -f ${ONEPATH}/config.yaml ]; then
   if [ $(yq '.services[] | select(.name=="aws") | .region' ${ONEPATH}/config.yaml) ]; then
     printf '%s\n' "Making backup copy of existing configuration"
     cp ${ONEPATH}/config.yaml ${ONEPATH}/config.yaml.bak
-    printf '%s\n' "Creating config.yaml from template"
+    printf '%s\n\n' "Creating config.yaml from template"
     cp ${ONEPATH}/templates/config.yaml.template ${ONEPATH}/config.yaml
   fi
 else
@@ -172,7 +172,7 @@ function update_cloud_one_config() {
   if [[ ! -z "${TEMP}" ]]; then
     cloud_one_api_key=${TEMP}
   fi
-  if [[ "$cloud_one_api_key" =~ ^tmc[0-9a-zA-Z\:]+$ ]]; then
+  if [[ "$cloud_one_api_key" =~ ^[0-9a-zA-Z\:]+$ ]]; then
     target_val=${cloud_one_api_key} \
       yq -i '.services.cloud-one.api-key = env(target_val)' $ONEPATH/config.yaml
   else
