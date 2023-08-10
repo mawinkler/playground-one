@@ -3,6 +3,7 @@
 # #############################################################################
 resource "kubernetes_deployment_v1" "health_check_deployment" {
   depends_on = [kubernetes_namespace_v1.goat_namespace]
+
   metadata {
     name = "health-check"
     labels = {
@@ -70,6 +71,8 @@ resource "kubernetes_deployment_v1" "health_check_deployment" {
 }
 
 resource "kubernetes_service_v1" "health_check_service" {
+  depends_on = [kubernetes_namespace_v1.goat_namespace]
+
   metadata {
     labels = {
       app = "health-check"
@@ -92,6 +95,7 @@ resource "kubernetes_service_v1" "health_check_service" {
 }
 
 resource "kubernetes_ingress_v1" "health_check_ingress" {
+  depends_on = [kubernetes_namespace_v1.goat_namespace]
   wait_for_load_balancer = true
 
   metadata {

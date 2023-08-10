@@ -3,6 +3,7 @@
 # #############################################################################
 resource "kubernetes_secret_v1" "goatvault" {
   depends_on = [kubernetes_namespace_v1.goat_namespace]
+
   metadata {
     name = "goatvault"
     labels = {
@@ -93,6 +94,8 @@ resource "kubernetes_deployment_v1" "system_monitor_deployment" {
 }
 
 resource "kubernetes_service_v1" "system_monitor_service" {
+  depends_on = [kubernetes_namespace_v1.goat_namespace]
+
   metadata {
     labels = {
       app = "system-monitor"
@@ -115,6 +118,7 @@ resource "kubernetes_service_v1" "system_monitor_service" {
 }
 
 resource "kubernetes_ingress_v1" "system_monitor_ingress" {
+  depends_on = [kubernetes_namespace_v1.goat_namespace]
   wait_for_load_balancer = true
 
   metadata {

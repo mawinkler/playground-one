@@ -20,9 +20,12 @@ nav:
     - Container Security:
       - Escape to Host System: scenarios/container-security-eks-escape.md
       - ContainerD Abuse: scenarios/container-security-eks-dind-exploitation.md
-      # - Runtime Vulnerability Scan: scenarios/container-security-eks-runtime-vulnerability.md
-      # - Runtime Violations: scenarios/container-security-eks-runtime-violations.md
+      - Runtime Vulnerability Scan on EKS: scenarios/container-security-eks-runtime-vulnerability.md
+      - Runtime Vulnerability Scan on ECS: scenarios/container-security-ecs-runtime-vulnerability.md
+      - Runtime Violations: scenarios/container-security-eks-runtime-violations.md
       # - Privileged Shell: scenarios/container-security-eks-privileged-shell.md
+    - Server & Workload Protection:
+      - Malware Upload: scenarios/server-workload-ecs-ec2-malware-upload.md
     - Sentry:
       - Sentry: scenarios/sentry.md
   - FAQ: faq.md
@@ -32,7 +35,7 @@ theme:
   #   - navigation.tabs
     - content.tabs.link
     - content.code.copy
-  # favicon: images/kubecon_logo.jpeg
+  favicon: images/playground-icon.png
   palette:
     - scheme: slate
       toggle:
@@ -42,10 +45,10 @@ theme:
 #   # logo: 'images/kubecon_logo.jpeg'
 extra_css:
     - css/extra.css
-# extra:
-#   social:
-#     - icon: fontawesome/brands/twitter
-#       link: https://twitter.com/cloudnativeca
+extra:
+  social:
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/in/markus-winkler-785baa34/
 markdown_extensions:
   - admonition
   - pymdownx.details

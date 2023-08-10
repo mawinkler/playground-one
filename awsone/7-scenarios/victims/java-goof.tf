@@ -3,6 +3,7 @@
 # #############################################################################
 resource "kubernetes_deployment_v1" "java_goof_deployment" {
   depends_on = [kubernetes_namespace_v1.victims_namespace]
+
   metadata {
     name = "java-goof"
     labels = {
@@ -33,7 +34,7 @@ resource "kubernetes_deployment_v1" "java_goof_deployment" {
       }
       spec {
         container {
-          image             = "mawinkler/goof"
+          image             = "mawinkler/java-goof"
           image_pull_policy = "Always"
           name              = "java-goof"
           port {
@@ -47,6 +48,8 @@ resource "kubernetes_deployment_v1" "java_goof_deployment" {
 }
 
 resource "kubernetes_service_v1" "java_goof_service" {
+  depends_on = [kubernetes_namespace_v1.victims_namespace]
+
   metadata {
     labels = {
       app = "java-goof"
@@ -69,6 +72,7 @@ resource "kubernetes_service_v1" "java_goof_service" {
 }
 
 resource "kubernetes_ingress_v1" "java_goof_ingress" {
+  depends_on = [kubernetes_namespace_v1.victims_namespace]
   wait_for_load_balancer = true
 
   metadata {

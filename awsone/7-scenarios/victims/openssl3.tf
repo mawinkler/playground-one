@@ -3,6 +3,7 @@
 # #############################################################################
 resource "kubernetes_deployment_v1" "openssl3_deployment" {
   depends_on = [kubernetes_namespace_v1.victims_namespace]
+
   metadata {
     name = "web-app"
     labels = {
@@ -47,6 +48,8 @@ resource "kubernetes_deployment_v1" "openssl3_deployment" {
 }
 
 resource "kubernetes_service_v1" "openssl3_service" {
+  depends_on = [kubernetes_namespace_v1.victims_namespace]
+
   metadata {
     labels = {
       app = "web-app"
@@ -69,6 +72,7 @@ resource "kubernetes_service_v1" "openssl3_service" {
 }
 
 resource "kubernetes_ingress_v1" "openssl3_ingress" {
+  depends_on = [kubernetes_namespace_v1.victims_namespace]
   wait_for_load_balancer = true
 
   metadata {
