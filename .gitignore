@@ -2,6 +2,9 @@
 
 # Directories
 infrastructure
+log/containers
+log/pods
+log/*.log
 
 # Config
 config.yaml

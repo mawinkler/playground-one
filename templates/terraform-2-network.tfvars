@@ -12,4 +12,8 @@ access_ip = ${pgo_access_ip}
 # Environment Name
 environment = "${aws_environment}"
 
+# Path to Playground One
 one_path = "${ONEPATH}"
+
+# XDR for Containers deployed
+xdr_for_containers = ${xdr_for_containers}

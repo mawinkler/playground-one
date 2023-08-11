@@ -17,3 +17,7 @@ variable "environment" {
 variable "one_path" {
   type = string
 }
+
+variable "xdr_for_containers" {
+  type = bool
+}

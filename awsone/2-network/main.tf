@@ -5,6 +5,7 @@ module "vpc" {
   vpc_cidr             = local.vpc_cidr
   public_subnets_cidr  = local.public_subnets_cidr
   private_subnets_cidr = local.private_subnets_cidr
+  xdr_for_containers   = var.xdr_for_containers
 }
 
 module "ec2" {

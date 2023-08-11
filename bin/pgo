@@ -47,8 +47,40 @@ function unlock() {
   rm -f ${ONEPATH}/awsone/2-network/.pgo.$1.lock
 }
 
+function check_cdr_for_containers() {
+
+  # Checking if XDR for Containers is deployed
+  tf_state_vpc=$(terraform state list | grep "module.vpc.aws_vpc.vpc")
+  if [[ ! -z "${tf_state_vpc}" ]] ; then
+    vpc_id=$(terraform output -raw vpc_id)
+    subnets_createdby=$(aws ec2 describe-subnets | \
+      jq -r --arg vpc_id "$vpc_id" '.Subnets[] |
+        select(.VpcId==$vpc_id) | .Tags[] | select(.Key=="CreatedBy") | .Value' | head -n1)
+    if [ "${subnets_createdby}" == "VisionOneXdrForContainer" ] ; then
+      printf '%s\n' "XDR for Containers is deployed in VPC ${vpc_id}"
+      return
+    fi
+  fi
+  false
+}
+
 function check_network() {
 
+  # Checking if XDR for Containers is deployed and update tfvars
+  if check_cdr_for_containers ; then
+    xdr_for_containers=true
+  else
+    xdr_for_containers=false
+  fi
+  aws_account_id=${aws_account_id} \
+  aws_region=${aws_region} \
+  aws_environment=${aws_environment} \
+  pgo_access_ip=${pgo_access_ip} \
+  xdr_for_containers=${xdr_for_containers} \
+  ONEPATH=${ONEPATH} \
+    envsubst <$ONEPATH/templates/terraform-2-network.tfvars >$ONEPATH/awsone/2-network/terraform.tfvars
+
+  # Check locks
   if [[ -f ${ONEPATH}/awsone/2-network/.pgo.ec2.lock ]] ; then
     echo Destroy EC2 configuration first
     exit 0
@@ -78,10 +110,16 @@ function init() {
   case $1 in
     nw|network|all)
       printf '%s\n' "Create terraform.tfvars for network"
+      if check_cdr_for_containers ; then
+        xdr_for_containers=true
+      else
+        xdr_for_containers=false
+      fi
       aws_account_id=${aws_account_id} \
       aws_region=${aws_region} \
       aws_environment=${aws_environment} \
       pgo_access_ip=${pgo_access_ip} \
+      xdr_for_containers=${xdr_for_containers} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-2-network.tfvars >$ONEPATH/awsone/2-network/terraform.tfvars
       

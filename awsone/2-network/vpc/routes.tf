@@ -37,7 +37,9 @@ resource "aws_route" "private_nat_gateway" {
 
 # Route table associations
 resource "aws_route_table_association" "public" {
-  count          = length(var.public_subnets_cidr)
+  # If XDR for Containers is deployed we don't modify the route table associations
+  count          = var.xdr_for_containers ? 0 : length(var.public_subnets_cidr)
+
   subnet_id      = element(aws_subnet.public_subnet.*.id, count.index)
   route_table_id = aws_route_table.public.id
 }
