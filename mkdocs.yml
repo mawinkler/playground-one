@@ -9,7 +9,7 @@ nav:
     - Configuration: getting-started/configuration.md
     - General Life-Cycle: getting-started/life-cycle.md
   - Integrations:
-    - Vision One Endpoint Security: integrations/endpoint-security.md
+    - Server & Workload Protection: integrations/endpoint-security.md
     - XDR for Containers: integrations/xdr-for-containers.md
     - Container Security: integrations/container-security.md
   - Scenarios:

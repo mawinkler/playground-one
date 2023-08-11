@@ -19,11 +19,11 @@ pgo --apply scenarios
 
 ## Overview
 
+Automated malicious actions are executed every full hour on your cluster which lead to detections in Container Security.
+
 ## The story
 
 There is no real story here :-)
-
-Automated malicious actions are executed every full hour on your cluster which lead to detections in Container Security.
 
 ## Goals
 
