@@ -1,0 +1,47 @@
+#!/bin/bash
+
+DIALOG_CANCEL=1
+DIALOG_ESC=255
+HEIGHT=12
+WIDTH=60
+
+exec 3>&1
+
+items=($(kubectl config get-contexts -o name | \
+    awk -v current=$(kubectl config current-context) '
+        {
+            onoff="off"
+            if (current == $0) onoff="on"
+            printf("%s %s %s\n", $0, onoff, onoff)
+        }
+    '))
+
+echo $items
+TITLE="Select a Context"
+BACKTITLE="Playground One: Select cluster context"
+while choice=$(dialog --title "${TITLE}" \
+                --backtitle "${BACKTITLE}" \
+                --cancel-label "Back" \
+                --separate-widget "Widget" \
+                --radiolist "Please select" ${HEIGHT} ${WIDTH} 12 "${items[@]}" \
+                2>&1 1>&3)
+do
+    exit_status=$?
+    case $exit_status in
+        $DIALOG_CANCEL)
+        clear
+        echo "Going back."
+        break
+        ;;
+        $DIALOG_ESC)
+        clear
+        echo "Program aborted." >&2
+        exec 3>&-
+        exit 1
+        ;;
+    esac
+    kubectl config use-context $choice
+    break
+done
+
+exec 3>&-
