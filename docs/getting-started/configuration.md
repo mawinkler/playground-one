@@ -44,7 +44,7 @@ Main commands:
 
 Other commands:
   -S --show     Show advanced state
-  -u --udateip  Update access IP(s)
+  -u --updateip Update access IP(s)
   -v --validate Check whether the configuration is valid
 
 Available configurations:

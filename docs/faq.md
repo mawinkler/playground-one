@@ -37,7 +37,7 @@ pgo --apply nw
 
 If you need to change the access IP later on, maybe your provider assigned you a new one, follow these steps:
 
-1. Run `pgo --udateip` and set the new IP address.
+1. Run `pgo --updateip` and set the new IP address as described in [Getting Started Configuration](getting-started/configuration.md#section-playground-one)
 2. Terraform tells you which actions will be performed when approving them. Validate that there will be only one in-place update on the resource `module.ec2.aws_security_group.sg["public"]`.
 
     ```ascii
