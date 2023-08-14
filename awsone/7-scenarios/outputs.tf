@@ -18,3 +18,8 @@ output "loadbalancer_dns_health_check" {
   description = "Loadbalancer Health Check DNS name"
   value       = module.goat.loadbalancer_dns_health_check
 }
+
+output "loadbalancer_dns_hunger_check" {
+  description = "Loadbalancer Hunger Check DNS name"
+  value       = module.goat.loadbalancer_dns_hunger_check
+}

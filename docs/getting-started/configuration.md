@@ -21,10 +21,10 @@ pgo --help
 ```
 
 ```sh
- __                 __   __   __             __      __        ___ 
-|__) |     /\  \ / / _` |__) /  \ |  | |\ | |  \    /  \ |\ | |__  
-|    |___ /~~\  |  \__> |  \ \__/ \__/ | \| |__/    \__/ | \| |___ 
-                                                                   
+ __                 __   __   __             __      __        ___
+|__) |     /\  \ / / _` |__) /  \ |  | |\ | |  \    /  \ |\ | |__
+|    |___ /~~\  |  \__> |  \ \__/ \__/ | \| |__/    \__/ | \| |___
+
 Usage: pgo -<command> <configuration> ...
 
 The available commands for execution are listed below.
@@ -44,6 +44,7 @@ Main commands:
 
 Other commands:
   -S --show     Show advanced state
+  -u --udateip  Update access IP(s)
   -v --validate Check whether the configuration is valid
 
 Available configurations:
@@ -104,9 +105,10 @@ Container Security will move to Vision One but currently requires your Cloud One
 
 Set/update:
 
+- `Container Security`: Enable or disable the Container Security deployment. If set to `false` Cloud One configuration will be skipped.
+- `Container Security policy ID`: To get the Policy ID for your Container Security deployment head over to Container Security on Cloud One and navigate to the policy. The Policy ID is the part after the last `/` in the URL: <https://cloudone.trendmicro.com/container/policies/relaxed_playground-2OxPQEiC6Jo4dbDVfebKiZMured><br>Here: `relaxed_playground-2OxPQEiC6Jo4dbDVfebKiZMured`
 - `Cloud One region name`: Set your Cloud One region here if it is not `trend-us-1`.
 - `Cloud One API Key`: Your Cloud One API Key with full access. This is mandatory.
-- `Container Security policy ID`: To get the Policy ID for your Container Security deployment head over to Container Security on Cloud One and navigate to the policy. The Policy ID is the part after the last `/` in the URL: <https://cloudone.trendmicro.com/container/policies/relaxed_playground-2OxPQEiC6Jo4dbDVfebKiZMured><br>Here: `relaxed_playground-2OxPQEiC6Jo4dbDVfebKiZMured`
 
 ### Section: Vision One
 
@@ -114,7 +116,7 @@ Vision One Server & Workload Protection does support the deployment script funct
 
 Set/update:
 
-- `Server & Workload Protection tenant ID`: The tenant ID to use
+- `Server & Workload Protection tenant ID`: The tenant ID to use. If the tenant ID is omitted the Server & Workload Protection configuration will be skipped.
 - `Server & Workload Protection token`: The token to use
 - `Server & Workload Protection policy ID`: The policy to assign
 

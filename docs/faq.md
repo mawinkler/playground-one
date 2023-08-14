@@ -35,14 +35,44 @@ pgo --apply nw
 
 ## My IP address has changed and I cannot access my apps anymore
 
-If you need to change the `awsone.access_ip` later on, maybe your provider assigned you a new one, follow these steps:
+If you need to change the access IP later on, maybe your provider assigned you a new one, follow these steps:
 
-1. change `awsone.access_ip` in the `config.yaml`
-2. run `pgo --destroy all` (this will keep the network alive)
-3. run `pgo --init all`
-4. run `pgo --apply nw`
+1. Run `pgo --udateip` and set the new IP address.
+2. Terraform tells you which actions will be performed when approving them. Validate that there will be only one in-place update on the resource `module.ec2.aws_security_group.sg["public"]`.
 
-Then reaply your eks, ecs or ec2 instances by `pgo --apply <configuration>`
+    ```ascii
+    Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+      ~ update in-place
+
+    Terraform will perform the following actions:
+
+      # module.ec2.aws_security_group.sg["public"] will be updated in-place
+      ~ resource "aws_security_group" "sg" {
+            id                     = "sg-01e76a72ffd468baa"
+          ~ ingress                = [
+    ...
+    ```
+
+3. Approve the actions by entering `yes`, otherwise press `^c`.
+
+If you have applied any of the configurations below you need to reapply them to update the IP address in the ingresses as well:
+
+Configuration | Run
+------------- | ---
+`ecs` | `pgo --init ecs`<br>`pgo --apply ecs`
+`scenarios` | `pgo --init scenarios`<br>`pgo --apply scenarios`
+
+This should be completed within seconds.
+
+If the above didn't work for you and you still need to update the IP(s) you need to run
+
+```sh
+pgo --destroy all
+pgo --init all
+pgo --apply nw
+```
+
+Then reaply your eks, ecs, ec2 or scenarios by `pgo --apply <configuration>`.
 
 ## I cannot destroy the ECS EC2 cluster
 

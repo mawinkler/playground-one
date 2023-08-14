@@ -2,10 +2,6 @@ variable "aws_region" {
   type = string
 }
 
-variable "access_ip" {
-  type = list
-}
-
 variable "s3_bucket" {
   type    = string
   default = "playground-awsone"

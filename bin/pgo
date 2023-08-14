@@ -251,6 +251,36 @@ function apply() {
 }
 
 #######################################
+# Updates the Access IP(s)
+# Globals:
+#   ONEPATH
+# Arguments:
+#   None
+# Outputs:
+#   None
+#######################################
+function update_ip() {
+  
+  key_desc="Access IPs/CIDRs"
+  read -p "${key_desc} [${pgo_access_ip}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    pgo_access_ip=${TEMP}
+  fi
+  if [[ "${pgo_access_ip}" =~ ^\[\"[0-9\.\,\/\"[:space:]]+\"\]$ ]]; then
+    target_val=${pgo_access_ip} \
+      yq -i '.services.playground-one.access-ip = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  init nw
+
+  cd ${ONEPATH}/awsone/2-network
+  terraform apply
+}
+
+#######################################
 # Destroys a Terraform configuration
 # Globals:
 #   ONEPATH
@@ -499,6 +529,7 @@ function helpcmd() {
   printf '%s\n' ""
   printf '%s\n' "Other commands:"
   printf '%s\n' "  -S --show     Show advanced state"
+  printf '%s\n' "  -u --udateip  Update access IP(s)"
   printf '%s\n' "  -v --validate Check whether the configuration is valid"
   printf '%s\n' ""
   printf '%s\n' "Available configurations:"
@@ -525,7 +556,7 @@ if [ -f ${ONEPATH}/config.yaml ]; then
   get_config
 fi
 
-TEMP=$(getopt -o ci:a:d:o:s:S:v:h --long config,init:,apply:,destroy:,output:,state:,show:,validate:,help -- "$@")
+TEMP=$(getopt -o ci:a:d:o:s:S:v:uh --long config,init:,apply:,destroy:,output:,state:,show:,validate:,udateip,help -- "$@")
 if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 
 eval set -- "$TEMP"
@@ -540,6 +571,7 @@ while true; do
     -s | --state ) state $2; shift 2 ;;
     -S | --show ) show $2; shift 2 ;;
     -v | --validate ) validate $2; shift 2 ;;
+    -u | --udateip ) update_ip; break ;;
     -h | --help ) helpcmd; break ;;
     -- ) shift; break ;;
     * ) break ;;

@@ -26,7 +26,8 @@ nav:
       # - Privileged Shell: scenarios/container-security-eks-privileged-shell.md
     - Server & Workload Protection:
       - Malware Upload: scenarios/server-workload-ecs-ec2-malware-upload.md
-    - Sentry:
+    - Miscellaneous:
+      - Hunger Check: scenarios/hunger-check.md
       - Sentry: scenarios/sentry.md
   - FAQ: faq.md
   - Bloopers: bloopers.md
