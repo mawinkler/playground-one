@@ -89,8 +89,16 @@ You don't necessarily need to change anything here if you're satisfied with the 
 Set/update:
 
 - `Access IPs/CIDRs`:
-  - If you're running on a local Ubuntu server (not Cloud9), get your public IP and set the value to `["<YOUR IP>/32"]`.
-  - If you're working on a Cloud9, get your public IP from home AND from the Cloud9 instance. Set the value to `["<YOUR IP>/32","<YOUR CLOUD9 IP>/32"]`
+  - If you're running on a local Ubuntu server (not Cloud9), get your public IP and set the value to `<YOUR IP>/32` or type `pub` and let the config tool detect your public IP.
+  - If you're working on a Cloud9 you need enter two public IP/CIDRs separated by `,`.
+    1. Public IP from your Cloud9 or type `pub`.
+    2. Public IP from your local client.  
+  - If you want someone else grant access to your environment just add another IP/CIDR.
+  - Examples:
+    - `pub`
+    - `pub, 86.120.222.205`
+    - `3.121.226.247/32, 86.120.222.20/32`
+    - `0.0.0.0/0` *Dangerous!*
 - `EC2 - create Linux EC2`: Enable/disable Linux instances in the `ec2` configuration.
 - `EC2 - create Windows EC2`: Enable/disable Windows instances in the `ec2` configuration.
 - `EKS - create Fargate profile`: Enable/disable the Fargate profile on the EKS cluster.
