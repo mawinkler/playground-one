@@ -67,6 +67,10 @@ services:
     ## Default value: ''
     api-key: ''
     container-security:
+      ## Enable or disable Container Security
+      ##
+      ## Default value: true
+      enabled: true
       ## The id of the policy for use with AWSONE
       ## 
       ## Default value: ''

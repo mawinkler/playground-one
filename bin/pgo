@@ -50,7 +50,7 @@ function unlock() {
 function check_cdr_for_containers() {
 
   # Checking if XDR for Containers is deployed
-  tf_state_vpc=$(terraform state list | grep "module.vpc.aws_vpc.vpc")
+  tf_state_vpc=$(terraform state list 2>/dev/null | grep "module.vpc.aws_vpc.vpc")
   if [[ ! -z "${tf_state_vpc}" ]] ; then
     vpc_id=$(terraform output -raw vpc_id)
     subnets_createdby=$(aws ec2 describe-subnets | \
@@ -150,10 +150,11 @@ function init() {
       printf '%s\n' "Create terraform.tfvars for cluster-eks deployments"
       aws_environment=${aws_environment} \
       pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
+      cloud_one_cs_enabled=${cloud_one_cs_enabled} \
+      cloud_one_cs_policy_id=${cloud_one_cs_policy_id} \
       cloud_one_api_key=${cloud_one_api_key} \
       cloud_one_region=${cloud_one_region} \
       cloud_one_instance=${cloud_one_instance} \
-      cloud_one_cs_policy_id=${cloud_one_cs_policy_id} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-8-cluster-eks-deployments.tfvars >$ONEPATH/awsone/8-cluster-eks-deployments/terraform.tfvars
 

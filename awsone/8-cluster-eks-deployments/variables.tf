@@ -6,6 +6,10 @@ variable "access_ip" {
 }
 
 # Container Security
+variable "container_security" {
+  type = bool
+}
+
 variable "cluster_policy" {
   type = string
 }
@@ -25,4 +29,9 @@ variable "cloud_one_instance" {
 
 variable "api_key" {
   type = string
+}
+
+# Trivy
+variable "trivy" {
+  type = bool
 }

@@ -383,9 +383,11 @@ function get_config() {
     cloud_one_api_key="$(yq '.services.cloud-one.api-key' $ONEPATH/config.yaml)"
     cloud_one_region="$(yq '.services.cloud-one.region' $ONEPATH/config.yaml)"
     cloud_one_instance="$(yq '.services.cloud-one.instance' $ONEPATH/config.yaml)"
+    cloud_one_cs_enabled="$(yq '.services.cloud-one.container-security.enabled' $ONEPATH/config.yaml)"
     cloud_one_cs_policy_id="$(yq '.services.cloud-one.container-security.policy-id' $ONEPATH/config.yaml)"
     [[ "${cloud_one_region}" = "null" || "${cloud_one_region}" = "" ]] && cloud_one_region="trend-us-1"
     [[ "${cloud_one_instance}" = "null" || "${cloud_one_instance}" = "" ]] && cloud_one_instance="cloudone"
+    [[ "${cloud_one_cs_enabled}" = "null" || "${cloud_one_cs_enabled}" = "" ]] && cloud_one_cs_enabled=true
     [[ "${cloud_one_cs_policy_id}" = "null" || "${cloud_one_cs_policy_id}" = "" ]] && cloud_one_cs_policy_id=""
 
     # Vision One

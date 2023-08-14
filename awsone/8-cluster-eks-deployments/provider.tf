@@ -32,3 +32,29 @@ provider "helm" {
     }
   }
 }
+
+# ####################################
+# Container Security API Configuration
+# ####################################
+terraform {
+  required_providers {
+    restapi = {
+      source  = "Mastercard/restapi"
+      version = "~> 1.18.0"
+    }
+  }
+  required_version = ">= 1.3.5"
+}
+
+provider "restapi" {
+  alias                = "clusters"
+  uri                  = "https://container.${var.cloud_one_region}.${var.cloud_one_instance}.trendmicro.com/api/clusters"
+  debug                = true
+  write_returns_object = true
+
+  headers = {
+    Authorization = "ApiKey ${var.api_key}"
+    Content-Type  = "application/json"
+    api-version   = "v1"
+  }
+}
