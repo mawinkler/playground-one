@@ -47,6 +47,12 @@ locals {
           protocol    = "tcp"
           cidr_blocks = var.access_ip
         }
+        http = {
+          from        = 7860
+          to          = 7860
+          protocol    = "tcp"
+          cidr_blocks = var.access_ip
+        }
       }
     }
 
