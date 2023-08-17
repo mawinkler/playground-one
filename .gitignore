@@ -26,6 +26,7 @@ terraform.tfvars
 0-files-park
 TMServerAgent_Windows_auto_64_Server_-_Workload_Protection_Manager.zip
 TMServerAgent_Linux_auto_64_Server_-_Workload_Protection_Manager.tar
+3-instances-sd
 8-cluster-eks-deployments-repo
 9-cluster-ecs-services-repo
 9-cluster-ecs-services

@@ -351,6 +351,13 @@ function destroy() {
       unlock eks
       ;;
     ecs)
+      # Workaround for Terraform bug described in FAQ
+      asg_groups=$(aws autoscaling describe-auto-scaling-groups | \
+        jq -r --arg aws_environment "$aws_environment-ecs-" '.AutoScalingGroups[] | select(.AutoScalingGroupName | startswith($aws_environment)) | .AutoScalingGroupName')
+      for group in ${asg_groups} ; do
+        printf '%s\n' "Deleting auto scaling group ${group}"
+        aws autoscaling delete-auto-scaling-group --auto-scaling-group-name ${group} --force-delete
+      done
       cd ${ONEPATH}/awsone/5-cluster-ecs
       terraform destroy -auto-approve
       unlock ecs

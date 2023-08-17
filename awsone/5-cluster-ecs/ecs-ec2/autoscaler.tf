@@ -263,7 +263,7 @@ module "autoscaling" {
   mixed_instances_policy     = each.value.mixed_instances_policy
 
   # Key name
-  key_name = "${var.key_name}"
+  key_name = var.key_name
 
   # Tags
   tags = local.tags
