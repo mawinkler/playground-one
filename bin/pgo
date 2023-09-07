@@ -239,7 +239,7 @@ function apply() {
       terraform apply -auto-approve
       ;;&
     scenarios|all)
-      lock eks
+      lock scenarios
       cd ${ONEPATH}/awsone/7-scenarios
       terraform apply -auto-approve
       ;;
@@ -365,6 +365,7 @@ function destroy() {
     scenarios)
       cd ${ONEPATH}/awsone/7-scenarios
       terraform destroy -auto-approve
+      unlock scenarios
       ;;
     kind)
       cd ${ONEPATH}/awsone/6-cluster-kind
@@ -376,6 +377,7 @@ function destroy() {
       unlock ec2
       cd ${ONEPATH}/awsone/7-scenarios
       terraform destroy -auto-approve
+      unlock scenarios
       cd ${ONEPATH}/awsone/8-cluster-eks-deployments
       terraform destroy -auto-approve
       cd ${ONEPATH}/awsone/4-cluster-eks
@@ -405,23 +407,39 @@ function output() {
       terraform output
       ;;&
     ec2|all)
-      cd ${ONEPATH}/awsone/3-instances
-      terraform output
-      printf '%s\n' "public_instance_password_srv1 = \"$(terraform output -raw public_instance_password_srv1)\""
+      if [[ -f ${ONEPATH}/awsone/2-network/.pgo.ec2.lock ]] ; then
+        cd ${ONEPATH}/awsone/3-instances
+        terraform output
+        printf '%s\n' "public_instance_password_srv1 = \"$(terraform output -raw public_instance_password_srv1)\""
+      else
+        printf '%s\n' "Configuration ec2 not applied"
+      fi
       ;;&
     eks|all)
-      cd ${ONEPATH}/awsone/8-cluster-eks-deployments
-      terraform output
-      cd ${ONEPATH}/awsone/4-cluster-eks
-      terraform output
+      if [[ -f ${ONEPATH}/awsone/2-network/.pgo.eks.lock ]] ; then
+        # cd ${ONEPATH}/awsone/8-cluster-eks-deployments
+        # terraform output
+        cd ${ONEPATH}/awsone/4-cluster-eks
+        terraform output
+      else
+        printf '%s\n' "Configuration eks not applied"
+      fi
       ;;&
     ecs|all)
-      cd ${ONEPATH}/awsone/5-cluster-ecs
-      terraform output
+      if [[ -f ${ONEPATH}/awsone/2-network/.pgo.ecs.lock ]] ; then
+        cd ${ONEPATH}/awsone/5-cluster-ecs
+        terraform output
+      else
+        printf '%s\n' "Configuration ecs not applied"
+      fi
       ;;&
     scenarios|all)
-      cd ${ONEPATH}/awsone/7-scenarios
-      terraform output
+      if [[ -f ${ONEPATH}/awsone/2-network/.pgo.scenarios.lock ]] ; then
+        cd ${ONEPATH}/awsone/7-scenarios
+        terraform output
+      else
+        printf '%s\n' "Configuration scenarios not applied"
+      fi
       ;;
     kind)
       cd ${ONEPATH}/awsone/6-cluster-kind

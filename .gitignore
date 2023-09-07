@@ -26,6 +26,7 @@ terraform.tfvars
 0-files-park
 TMServerAgent_Windows_auto_64_Server_-_Workload_Protection_Manager.zip
 TMServerAgent_Linux_auto_64_Server_-_Workload_Protection_Manager.tar
+0-files-sd
 3-instances-sd
 8-cluster-eks-deployments-repo
 9-cluster-ecs-services-repo
@@ -38,7 +39,9 @@ TMServerAgent_Linux.tar
 TMServerAgent_Windows.zip
 .pgo.ec2.lock
 .pgo.eks.lock
+.pgo.scenarios.lock
 .pgo.ecs.lock
+overrides.yaml
 
 # Exploits
 exploits
