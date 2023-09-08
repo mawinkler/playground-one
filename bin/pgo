@@ -50,6 +50,7 @@ function unlock() {
 function check_xdr_for_containers() {
 
   # Checking if XDR for Containers is deployed
+  cd ${ONEPATH}/awsone/2-network
   tf_state_vpc=$(terraform state list 2>/dev/null | grep "module.vpc.aws_vpc.vpc")
   if [[ ! -z "${tf_state_vpc}" ]] ; then
     vpc_id=$(terraform output -raw vpc_id)
@@ -59,6 +60,8 @@ function check_xdr_for_containers() {
     if [ "${subnets_createdby}" == "VisionOneXdrForContainer" ] ; then
       printf '%s\n' "XDR for Containers is deployed in VPC ${vpc_id}"
       return
+    else
+      printf '%s\n' "XDR for Containers is NOT deployed in VPC ${vpc_id}"
     fi
   fi
   false
