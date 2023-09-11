@@ -1,4 +1,4 @@
-# Scenario: Detect Log4j
+# Scenario: Detect Apache Struts RCE Vulnerability Exploitation (ECS)
 
 ## Prerequisites
 
@@ -47,7 +47,7 @@ Run:
 
 ```sh
 cd ${ONEPATH}/exploits/struts/
-struts-exploit.sh playground-ecs-ec2-135067951.eu-central-1.elb.amazonaws.com
+./struts-exploit.sh playground-ecs-ec2-135067951.eu-central-1.elb.amazonaws.com
 ```
 
 Expexted result:
