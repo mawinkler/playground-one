@@ -24,7 +24,7 @@ function update_aws_config() {
   if [[ ! -z "${TEMP}" ]]; then
     aws_account_id=${TEMP}
   fi
-  if [[ "${aws_account_id}" =~ ^[0-9]+$ && "$aws_account_id" -gt 0 ]]; then
+  if [[ "${aws_account_id}" =~ ^[0-9]+$ && "${aws_account_id#0}" -gt 0 ]]; then
     target_val=${aws_account_id} \
       yq -i '.services.aws.account-id = env(target_val)' ${ONEPATH}/config.yaml
   else
