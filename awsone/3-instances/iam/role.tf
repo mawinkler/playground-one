@@ -23,19 +23,24 @@ resource "aws_iam_policy" "ec2_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        "Effect": "Allow",
-        "Action": [
-            "s3:GetObject",
-            "s3:GetObjectVersion",
-            "s3:List*"
+        "Effect" : "Allow",
+        "Action" : [
+          "s3:GetObject",
+          "s3:GetObjectVersion",
+          "s3:List*"
         ],
-        "Resource": [
-            "arn:aws:s3:::${var.s3_bucket}",
-            "arn:aws:s3:::${var.s3_bucket}/*"
+        "Resource" : [
+          "arn:aws:s3:::${var.s3_bucket}",
+          "arn:aws:s3:::${var.s3_bucket}/*"
         ]
       }
     ]
   })
+
+  tags = {
+    Name        = "${var.environment}-ec2-policy"
+    Environment = "${var.environment}"
+  }
 }
 
 # Create a role
@@ -57,6 +62,11 @@ resource "aws_iam_role" "ec2_role" {
       },
     ]
   })
+
+  tags = {
+    Name        = "${var.environment}-ec2-role"
+    Environment = "${var.environment}"
+  }
 }
 
 # Attach role to policy
@@ -72,4 +82,9 @@ resource "aws_iam_policy_attachment" "ec2_policy_role" {
 resource "aws_iam_instance_profile" "ec2_profile" {
   name = "${var.environment}-ec2-profile"
   role = aws_iam_role.ec2_role.name
+
+  tags = {
+    Name        = "${var.environment}-ec2-profile"
+    Environment = "${var.environment}"
+  }
 }
