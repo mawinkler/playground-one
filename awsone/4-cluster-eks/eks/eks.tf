@@ -104,7 +104,7 @@ module "eks" {
       taints = {
       }
       tags = {
-        Name        = "${var.environment}-eks"
+        Name        = "${var.environment}-eks-node-group"
         Environment = "${var.environment}"
       }
     }

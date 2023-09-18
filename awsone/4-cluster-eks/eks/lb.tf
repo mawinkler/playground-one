@@ -15,6 +15,11 @@ module "aws_load_balancer_controller_irsa_role" {
       namespace_service_accounts = ["kube-system:aws-load-balancer-controller"]
     }
   }
+
+  tags = {
+    Name        = "${var.environment}-irsa-role-aws-load-balancer-controller"
+    Environment = "${var.environment}"
+  }
 }
 
 resource "helm_release" "aws_load_balancer_controller" {

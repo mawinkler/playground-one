@@ -6,21 +6,23 @@ module "fargate_profile" {
 
   source = "terraform-aws-modules/eks/aws//modules/fargate-profile"
 
-  name         = "fargate-profile"
-  cluster_name = module.eks.cluster_name
-
-  subnet_ids = var.private_subnet_ids
+  name            = "fargate-profile"
+  cluster_name    = module.eks.cluster_name
+  create_iam_role = true
+  iam_role_name   = "${module.eks.cluster_name}-fargate-role"
+  subnet_ids      = var.private_subnet_ids
   selectors = [
     {
       namespace = "fargate"
-    },
-    {
-      labels = "fargate=true"
     }
   ]
 
   tags = {
-    Environment = "dev"
-    Terraform   = "true"
+    Name        = "${var.environment}-fargate-profile"
+    Environment = "${var.environment}"
+  }
+  iam_role_tags = {
+    Name        = "${var.environment}-fargate-profile"
+    Environment = "${var.environment}"
   }
 }

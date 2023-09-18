@@ -1,8 +1,8 @@
-variable "aws_region" {
+variable "account_id" {
   type = string
 }
 
-variable "account_id" {
+variable "aws_region" {
   type = string
 }
 

@@ -20,6 +20,11 @@ module "allow_eks_access_iam_policy" {
       },
     ]
   })
+
+  tags = {
+    Name        = "${var.environment}-allow-eks-access"
+    Environment = "${var.environment}"
+  }
 }
 
 module "eks_admins_iam_role" {
@@ -35,6 +40,11 @@ module "eks_admins_iam_role" {
   trusted_role_arns = [
     "arn:aws:iam::${var.account_id}:root"
   ]
+
+  tags = {
+    Name        = "${var.environment}-iam-role-eks-admin"
+    Environment = "${var.environment}"
+  }
 }
 
 module "user1_iam_user" {
@@ -67,6 +77,11 @@ module "allow_assume_eks_admins_iam_policy" {
       },
     ]
   })
+
+  tags = {
+    Name        = "${var.environment}-allow-eks-admin-assume-role"
+    Environment = "${var.environment}"
+  }
 }
 
 module "eks_admins_iam_group" {
@@ -94,5 +109,10 @@ module "cluster_autoscaler_irsa_role" {
       provider_arn               = module.eks.oidc_provider_arn
       namespace_service_accounts = ["kube-system:cluster-autoscaler"]
     }
+  }
+
+  tags = {
+    Name        = "${var.environment}-irsa-role-cluster-autoscaler"
+    Environment = "${var.environment}"
   }
 }
