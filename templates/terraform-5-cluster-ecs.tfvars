@@ -18,7 +18,7 @@ ecs_ec2 = ${pgo_ecs_create_ec2}
 # Create Fargate Profile
 ecs_fargate = ${pgo_ecs_create_fargate}
 
-# Workload Security
-ws_tenantid = "${vision_one_server_tenant_id}"
-ws_token    = "${vision_one_server_token}"
-ws_policyid = ${vision_one_server_policy_id}
+# # Workload Security
+# ws_tenantid = "${vision_one_server_tenant_id}"
+# ws_token    = "${vision_one_server_token}"
+# ws_policyid = ${vision_one_server_policy_id}

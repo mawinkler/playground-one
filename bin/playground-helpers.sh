@@ -390,13 +390,13 @@ function get_config() {
     [[ "${cloud_one_cs_enabled}" = "null" || "${cloud_one_cs_enabled}" = "" ]] && cloud_one_cs_enabled=true
     [[ "${cloud_one_cs_policy_id}" = "null" || "${cloud_one_cs_policy_id}" = "" ]] && cloud_one_cs_policy_id=""
 
-    # Vision One
-    vision_one_server_tenant_id="$(yq '.services.vision-one.server-workload-protection.tenant-id' $ONEPATH/config.yaml)"
-    vision_one_server_token="$(yq '.services.vision-one.server-workload-protection.token' $ONEPATH/config.yaml)"
-    vision_one_server_policy_id="$(yq '.services.vision-one.server-workload-protection.policy-id' $ONEPATH/config.yaml)"
-    [[ "${vision_one_server_tenant_id}" = "null" ]] && vision_one_server_tenant_id=""
-    [[ "${vision_one_server_token}" = "null" ]] && vision_one_server_token=""
-    [[ "${vision_one_server_policy_id}" = "null" ]] && vision_one_server_policy_id=0
+    # # Vision One
+    # vision_one_server_tenant_id="$(yq '.services.vision-one.server-workload-protection.tenant-id' $ONEPATH/config.yaml)"
+    # vision_one_server_token="$(yq '.services.vision-one.server-workload-protection.token' $ONEPATH/config.yaml)"
+    # vision_one_server_policy_id="$(yq '.services.vision-one.server-workload-protection.policy-id' $ONEPATH/config.yaml)"
+    # [[ "${vision_one_server_tenant_id}" = "null" ]] && vision_one_server_tenant_id=""
+    # [[ "${vision_one_server_token}" = "null" ]] && vision_one_server_token=""
+    # [[ "${vision_one_server_policy_id}" = "null" ]] && vision_one_server_policy_id=0
   fi
 
   return 0

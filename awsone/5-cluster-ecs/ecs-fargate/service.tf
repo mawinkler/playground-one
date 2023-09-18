@@ -96,11 +96,18 @@ module "ecs_service" {
     }
   }
 
-  tags = local.tags
+  tags = {
+    Name        = "${var.environment}-ecs-fargate-service"
+    Environment = "${var.environment}"
+  }
 }
 
 resource "aws_service_discovery_http_namespace" "this" {
   name        = module.ecs.cluster_name
   description = "CloudMap namespace for ${module.ecs.cluster_name}"
-  tags        = local.tags
+
+  tags = {
+    Name        = "${var.environment}-ecs-fargate-service-discovery-namespace"
+    Environment = "${var.environment}"
+  }
 }

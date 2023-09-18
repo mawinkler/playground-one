@@ -92,5 +92,8 @@ module "ecs_service" {
     }
   }
 
-  tags = local.tags
+  tags = {
+    Name        = "${var.environment}-ecs-ec2-service"
+    Environment = "${var.environment}"
+  }
 }

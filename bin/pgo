@@ -174,9 +174,6 @@ function init() {
       pgo_access_ip=${pgo_access_ip} \
       pgo_ecs_create_ec2=${pgo_ecs_create_ec2} \
       pgo_ecs_create_fargate=${pgo_ecs_create_fargate} \
-      vision_one_server_tenant_id=${vision_one_server_tenant_id} \
-      vision_one_server_token=${vision_one_server_token} \
-      vision_one_server_policy_id=${vision_one_server_policy_id} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-5-cluster-ecs.tfvars >$ONEPATH/awsone/5-cluster-ecs/terraform.tfvars
 

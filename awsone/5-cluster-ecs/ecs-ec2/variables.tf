@@ -22,9 +22,3 @@ variable "public_subnet_cidr_blocks" {}
 variable "private_subnet_cidr_blocks" {}
 
 variable "private_security_group_id" {}
-
-variable "ws_tenantid" {}
-
-variable "ws_token" {}
-
-variable "ws_policyid" {}

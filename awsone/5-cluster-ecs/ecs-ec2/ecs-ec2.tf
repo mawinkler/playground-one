@@ -44,5 +44,8 @@ module "ecs" {
     }
   }
 
-  tags = local.tags
+  tags = {
+    Name        = "${var.environment}-ecs-ec2"
+    Environment = "${var.environment}"
+  }
 }

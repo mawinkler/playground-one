@@ -15,7 +15,10 @@ module "alb_sg" {
   egress_rules       = ["all-all"]
   egress_cidr_blocks = var.private_subnet_cidr_blocks
 
-  tags = local.tags
+  tags = {
+    Name        = "${var.environment}-ecs-fargate-alb-security-group"
+    Environment = "${var.environment}"
+  }
 }
 
 module "alb" {
@@ -47,5 +50,8 @@ module "alb" {
     },
   ]
 
-  tags = local.tags
+  tags = {
+    Name        = "${var.environment}-ecs-fargate-alb"
+    Environment = "${var.environment}"
+  }
 }
