@@ -2,28 +2,41 @@
 
 ## I'm running the Playground on a Cloud9 and want to restrict access to my home IP
 
-There is no issue if you want to play with EKS and/or ECS. If you apply the EC2 configuration the provisioning process of the EC2 instances require that your Cloud9 can access the instances as well. For this to work you need to define two `access_ip`s.
+If you work on a Cloud9 you need to take care on two public IP addresses instead of one when having the playground locally. These are the public IP of your own network (where your own computer is located) and the public IP of your Cloud9.
 
-Example:
+Your own IP is required since you likely want to access the applications provided by the Playground One running on EKS, ECS and connect to the EC2 instances.
+
+The public IP of the Cloud9 is required to allow your Cloud9 access the EC2 instances while provisioning.
+
+For this to work you need to define two `Access IPs/CIDRs` in the configuration workflow with `pgo --configure`.
+
+**Example:**
 
 Public IP address of your
 
 - Cloud 9 instance: `3.123.18.11` (get it from the EC2 console), and
 - Client at home: `87.170.6.193`
 
-Within your `config.yaml` set `awsone.access_ip` to `["87.170.6.193/32","3.123.18.11/32"]`
+```sh
+ __                 __   __   __             __      __        ___ 
+|__) |     /\  \ / / _` |__) /  \ |  | |\ | |  \    /  \ |\ | |__  
+|    |___ /~~\  |  \__> |  \ \__/ \__/ | \| |__/    \__/ | \| |___ 
+                                                                   
+...
+Please set/update your Playground One configuration
+Access IPs/CIDRs []: 3.123.18.11, 87.170.6.193
+...
+```
 
-```yaml
-services:
-  ...
-  - name: awsone
-    ## Restrict access to AWS One
-    ## 
-    ## To define multipe IPs/CIDRs do something like
-    ## ["87.170.6.193/32","3.123.18.11/32"]
-    ##
-    ## Default value: ["0.0.0.0/0"]
-    access_ip: ["87.170.6.193/32","3.123.18.11/32"]
+The above will automatically be converted into the correct CIDRs `3.123.18.11/32, 87.170.6.193/32`
+
+To simplify this process you can easily let the config tool determine the Cloud9 public IP address by entering the keyword `pub`.
+
+```sh
+...
+Please set/update your Playground One configuration
+Access IPs/CIDRs []: pub, 87.170.6.193
+...
 ```
 
 Then run
@@ -55,12 +68,17 @@ If you need to change the access IP later on, maybe your provider assigned you a
 
 3. Approve the actions by entering `yes`, otherwise press `^c`.
 
-If you have applied any of the configurations below you need to reapply them to update the IP address in the ingresses as well:
+If you have applied the ecs and/or scenarios configuration(s) you need to init and apply them again. This will update the IP address(es) in the ingresses:
 
-Configuration | Run
-------------- | ---
-`ecs` | `pgo --init ecs`<br>`pgo --apply ecs`
-`scenarios` | `pgo --init scenarios`<br>`pgo --apply scenarios`
+```sh
+# ecs
+pgo --init ecs
+pgo --apply ecs
+
+# scenarios
+pgo --init scenarios
+pgo --apply scenarios
+```
 
 This should be completed within seconds.
 
@@ -74,7 +92,7 @@ pgo --apply nw
 
 Then reaply your eks, ecs, ec2 or scenarios by `pgo --apply <configuration>`.
 
-## I cannot destroy the ECS EC2 cluster
+## I cannot destroy the ECS EC2 cluster with `terraform destroy`
 
 The problem is that this new capacity_provider property on the aws_ecs_cluster introduces a new dependency:
 aws_ecs_cluster depends on aws_ecs_capacity_provider depends on aws_autoscaling_group.
@@ -83,7 +101,7 @@ This causes terraform to destroy the ECS cluster before the autoscaling group, w
 
 This leads to Terraform error out with the cluster partly alive and the capacity providers fully alive.
 
-I don't have a proper fix for that, yet. For now, initiate the `destroy` process via `pgo -d ecs` and head over to the AWS EC2 console --> Auto Scaling groups. Select the two groups with the prefix of your environment name and choose the Action `Delete`.
+The `pgo` CLI solves this problem by running `aws` CLI commands to delete the capacity providers before doing `terraform destroy`. Not nice but works.
 
 ## I don't find the `todolist`-app of Java-Goof
 

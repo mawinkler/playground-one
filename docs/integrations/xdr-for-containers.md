@@ -34,4 +34,5 @@ All provided clusters from Playground One can be used with XDR for Containers.
 
 - [Tomcat Remote Code Execution](../scenarios/xdr-for-containers-ecs-tomcat-rce.md)
 - [JNDI Injection in HTTP Request](../scenarios/xdr-for-containers-ecs-log4j.md)
-- [Apache Struts Multipart Encoding Command Injection](../scenarios/xdr-for-containers-ecs-struts.md)
+- [Apache Struts Multipart Encoding Command Injection (ECS)](../scenarios/xdr-for-containers-ecs-struts.md)
+- [Apache Struts Multipart Encoding Command Injection (EKS)](../scenarios/xdr-for-containers-eks-struts.md)

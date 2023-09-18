@@ -118,14 +118,4 @@ Set/update:
 - `Cloud One region name`: Set your Cloud One region here if it is not `trend-us-1`.
 - `Cloud One API Key`: Your Cloud One API Key with full access. This is mandatory.
 
-### Section: Vision One
-
-Vision One Server & Workload Protection does support the deployment script functionality from Cloud One Workload Security. The ECS EC2 cluster can optionally deploy the agent using this mechanism. To enable this
-
-Set/update:
-
-- `Server & Workload Protection tenant ID`: The tenant ID to use. If the tenant ID is omitted the Server & Workload Protection configuration will be skipped.
-- `Server & Workload Protection token`: The token to use
-- `Server & Workload Protection policy ID`: The policy to assign
-
 Now, continue with the chapter [General Life-Cycle](life-cycle.md).
