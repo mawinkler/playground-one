@@ -151,6 +151,7 @@ function init() {
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-4-cluster-eks.tfvars >$ONEPATH/awsone/4-cluster-eks/terraform.tfvars
       printf '%s\n' "Create terraform.tfvars for cluster-eks deployments"
+      aws_region=${aws_region} \
       aws_environment=${aws_environment} \
       pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
       cloud_one_cs_enabled=${cloud_one_cs_enabled} \
@@ -182,6 +183,7 @@ function init() {
       ;;&
     scenarios|all)
       printf '%s\n' "Create terraform.tfvars for scenario deployments"
+      aws_region=${aws_region} \
       aws_environment=${aws_environment} \
       pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
       ONEPATH=${ONEPATH} \
