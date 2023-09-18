@@ -1,10 +1,8 @@
 # #############################################################################
-# Variables
+# Create a Namespace
 # #############################################################################
-variable "aws_region" {}
-
-variable "access_ip" {}
-
-variable "environment" {}
-
-variable "namespace" {}
+resource "kubernetes_namespace_v1" "fargate_namespace" {
+  metadata {
+    name = var.namespace
+  }
+}
