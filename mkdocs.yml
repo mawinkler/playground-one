@@ -12,6 +12,7 @@ nav:
     - Server & Workload Protection: integrations/endpoint-security.md
     - XDR for Containers: integrations/xdr-for-containers.md
     - Container Security: integrations/container-security.md
+    - Prometheus & Grafana: integrations/prometheus-grafana.md
   - Scenarios:
     - XDR for Containers:
       - Tomcat Remote Code Execution: scenarios/xdr-for-containers-ecs-tomcat-rce.md

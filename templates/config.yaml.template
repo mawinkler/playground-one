@@ -98,3 +98,18 @@ services:
       ##
       ## Default value: 0
       policy-id: 0
+  integrations:
+    prometheus:
+      ## Enable or disable Prometheus & Grafana
+      ##
+      ## Default value: true
+      enabled: true
+      ## Grafana administrator password
+      ## 
+      ## Default value: playground
+      grafana-password: ''
+    trivy:
+      ## Enable or disable Trivy
+      ##
+      ## Default value: false
+      enabled: true

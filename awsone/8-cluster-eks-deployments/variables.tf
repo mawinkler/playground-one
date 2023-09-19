@@ -39,3 +39,12 @@ variable "api_key" {
 variable "trivy" {
   type = bool
 }
+
+# Prometheus & Grafana
+variable "prometheus" {
+  type = bool
+}
+
+variable "grafana_admin_password" {
+  type = string
+}

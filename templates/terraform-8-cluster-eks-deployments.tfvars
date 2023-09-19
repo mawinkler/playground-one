@@ -17,4 +17,8 @@ cloud_one_region   = "${cloud_one_region}"
 cloud_one_instance = "${cloud_one_instance}"
 
 # Trivy
-trivy = true
+trivy = ${integrations_trivy_enabled}
+
+# Prometheus
+prometheus = ${integrations_prometheus_enabled}
+grafana_admin_password = "${integrations_prometheus_grafana_password}"

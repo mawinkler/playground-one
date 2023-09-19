@@ -7,7 +7,7 @@ resource "kubernetes_deployment" "nginx_deployment" {
     namespace = var.namespace
   }
   spec {
-    replicas = 1
+    replicas = 2
     selector {
       match_labels = {
         app = "nginx"

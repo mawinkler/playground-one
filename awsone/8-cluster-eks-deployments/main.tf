@@ -19,3 +19,13 @@ module "trivy" {
   environment = var.environment
   namespace   = "trivy-system"
 }
+
+module "prometheus" {
+  count = var.prometheus ? 1 : 0
+
+  source                 = "./prometheus"
+  environment            = var.environment
+  access_ip              = var.access_ip
+  namespace              = "prometheus"
+  grafana_admin_password = var.grafana_admin_password
+}

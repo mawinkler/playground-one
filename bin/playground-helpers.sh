@@ -397,6 +397,14 @@ function get_config() {
     # [[ "${vision_one_server_tenant_id}" = "null" ]] && vision_one_server_tenant_id=""
     # [[ "${vision_one_server_token}" = "null" ]] && vision_one_server_token=""
     # [[ "${vision_one_server_policy_id}" = "null" ]] && vision_one_server_policy_id=0
+
+    # Integrations
+    integrations_prometheus_enabled="$(yq '.services.integrations.prometheus.enabled' $ONEPATH/config.yaml)"
+    integrations_prometheus_grafana_password="$(yq '.services.integrations.prometheus.grafana-password' $ONEPATH/config.yaml)"
+    [[ "${integrations_prometheus_enabled}" = "null" || "${integrations_prometheus_enabled}" = "" ]] && integrations_prometheus_enabled=true
+    [[ "${integrations_prometheus_grafana_password}" = "null" || "${integrations_prometheus_grafana_password}" = "" ]] && integrations_prometheus_grafana_password="playground"
+    integrations_trivy_enabled="$(yq '.services.integrations.trivy.enabled' $ONEPATH/config.yaml)"
+    [[ "${integrations_trivy_enabled}" = "null" || "${integrations_trivy_enabled}" = "" ]] && integrations_trivy_enabled=false
   fi
 
   return 0

@@ -323,6 +323,59 @@ function update_cloud_one_config() {
 #   fi
 # }
 
+function update_integrations_config() {
+  printf '\n%s\n' "Please set/update your Cloud One configuration"
+
+  ##
+  ## Prometheus & Grafana
+  ##
+  key_desc="Prometheus & Grafana"
+  read -p "${key_desc} [${integrations_prometheus_enabled}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    integrations_prometheus_enabled=${TEMP}
+  fi
+  if [[ "${integrations_prometheus_enabled}" =~ ^true|false$ ]]; then
+    target_val=${integrations_prometheus_enabled} \
+      yq -i '.services.integrations.prometheus.enabled = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  if ${integrations_prometheus_enabled} ; then
+    key_desc="Grafana Administrator Password"
+    read -p "${key_desc} [${integrations_prometheus_grafana_password}]: " TEMP
+    if [[ ! -z "${TEMP}" ]]; then
+      integrations_prometheus_grafana_password=${TEMP}
+    fi
+    if [[ "${integrations_prometheus_grafana_password}" =~ ^[0-9a-zA-Z\:]+$ ]]; then
+      target_val=${integrations_prometheus_grafana_password} \
+        yq -i '.services.integrations.prometheus.grafana-password = env(target_val)' ${ONEPATH}/config.yaml
+    else
+      echo "Error: Invalid ${key_desc} input."
+      exit 0
+    fi
+  else
+    printf '%s\n' "Skipping Prometheus & Grafana configuration"
+  fi
+
+  ##
+  ## Trivy
+  ##
+  key_desc="Trivy"
+  read -p "${key_desc} [${integrations_trivy_enabled}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    integrations_trivy_enabled=${TEMP}
+  fi
+  if [[ "${integrations_trivy_enabled}" =~ ^true|false$ ]]; then
+    target_val=${integrations_trivy_enabled} \
+      yq -i '.services.integrations.trivy.enabled = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+}
+
 
 get_config
 
@@ -330,6 +383,7 @@ update_aws_config
 update_pgo_config
 update_cloud_one_config
 # update_vision_one_config
+update_integrations_config
 
 printf '\n%s\n' "Done."
 printf '%s\n' "If you changed anything run: pgo --init all"

@@ -1,7 +1,5 @@
 # Vision One Container Security
 
-
-
 ## Setup of Container Security with the Playground One
 
 This guide provides step-by-step instructions on how to deploy Vision One Container Security on a Playground One EKS cluster.
