@@ -6,21 +6,24 @@ module "autoscaling" {
   version = "~> 6.5"
 
   for_each = {
+    # On-demand instances currently disabled
+    # See ecs-ec2.tf and service.tf to reenable
+    #
     # On-demand instances
-    asg-ondemand = {
-      instance_type              = "t3.large"
-      use_mixed_instances_policy = false
-      mixed_instances_policy     = {}
-      user_data                  = <<-EOT
-        #!/bin/bash
-        cat <<'EOF' >> /etc/ecs/ecs.config
-        ECS_CLUSTER=${module.ecs.cluster_name}
-        ECS_LOGLEVEL=debug
-        ECS_CONTAINER_INSTANCE_TAGS=${jsonencode(local.tags)}
-        ECS_ENABLE_TASK_IAM_ROLE=true
-        EOF
-      EOT
-    }
+    # asg-ondemand = {
+    #   instance_type              = "t3.medium"
+    #   use_mixed_instances_policy = false
+    #   mixed_instances_policy     = {}
+    #   user_data                  = <<-EOT
+    #     #!/bin/bash
+    #     cat <<'EOF' >> /etc/ecs/ecs.config
+    #     ECS_CLUSTER=${module.ecs.cluster_name}
+    #     ECS_LOGLEVEL=debug
+    #     ECS_CONTAINER_INSTANCE_TAGS=${jsonencode(local.tags)}
+    #     ECS_ENABLE_TASK_IAM_ROLE=true
+    #     EOF
+    #   EOT
+    # }
 
     # Spot instances
     asg-spot = {
@@ -34,10 +37,11 @@ module "autoscaling" {
         }
 
         override = [
-          {
-            instance_type     = "t3.large"
-            weighted_capacity = "2"
-          },
+          # Only using t4.medium, below would be an example to use mixed instances
+          # {
+          #   instance_type     = "t3.large"
+          #   weighted_capacity = "2"
+          # },
           {
             instance_type     = "t3.medium"
             weighted_capacity = "1"

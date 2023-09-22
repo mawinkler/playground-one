@@ -18,43 +18,20 @@ module "ecs_service" {
       weight            = 2
       base              = 0
     }
-    # ondemand instances
-    asg-ondemand = {
-      capacity_provider = module.ecs.autoscaling_capacity_providers["asg-ondemand"].name
-      weight            = 1
-      base              = 1
-    }
+    # On-demand instances currently disabled
+    # See ecs-ec2.tf and autoscaler.tf to reenable
+    #
+    # # On-demand instances
+    # asg-ondemand = {
+    #   capacity_provider = module.ecs.autoscaling_capacity_providers["asg-ondemand"].name
+    #   weight            = 1
+    #   base              = 1
+    # }
   }
 
   volume = {
     my-vol = {}
   }
-
-  # Container definition(s)
-  # container_definitions = {
-  #   (local.container_name) = {
-  #     image = "public.ecr.aws/ecs-sample-image/amazon-ecs-sample:latest"
-  #     port_mappings = [
-  #       {
-  #         name          = local.container_name
-  #         containerPort = local.container_port
-  #         protocol      = "tcp"
-  #       }
-  #     ]
-
-  #     mount_points = [
-  #       {
-  #         sourceVolume  = "my-vol",
-  #         containerPath = "/var/www/my-vol"
-  #       }
-  #     ]
-
-  #     entry_point = ["/usr/sbin/apache2", "-D", "FOREGROUND"]
-
-  #     # Example image used requires access to write to root filesystem
-  #     readonly_root_filesystem = false
-  #   }
-  # }
 
   container_definitions = {
     (local.container_name) = {
@@ -66,8 +43,6 @@ module "ecs_service" {
           protocol      = "tcp"
         }
       ]
-
-      # Example image used requires access to write to root filesystem
       readonly_root_filesystem = false
     }
   }
