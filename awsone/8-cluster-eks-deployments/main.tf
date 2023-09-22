@@ -1,3 +1,11 @@
+data "terraform_remote_state" "eks" {
+  backend = "local"
+
+  config = {
+    path = "../4-cluster-eks/terraform.tfstate"
+  }
+}
+
 module "container_security" {
   count = var.container_security ? 1 : 0
 

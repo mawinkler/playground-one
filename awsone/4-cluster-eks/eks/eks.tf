@@ -1,11 +1,19 @@
 # #############################################################################
 # Create an EKS Cluster
 # #############################################################################
+resource "random_string" "suffix" {
+  length  = 8
+  lower   = true
+  upper   = false
+  numeric = true
+  special = false
+}
+
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "19.15.3"
 
-  cluster_name    = "${var.environment}-eks"
+  cluster_name    = "${var.environment}-eks-${random_string.suffix.result}"
   cluster_version = var.kubernetes_version
 
   cluster_endpoint_private_access = true
@@ -15,6 +23,9 @@ module "eks" {
   subnet_ids = var.private_subnet_ids
 
   enable_irsa = true
+
+  # kms_key_aliases = ["${var.environment}-eks-${random_string.suffix.result}"]
+  kms_key_deletion_window_in_days = 7
 
   cluster_addons = {
     coredns = {
@@ -86,6 +97,15 @@ module "eks" {
       type        = "egress"
       self        = true
     }
+
+    # ingress_allow_access_from_control_plane = {
+    #   type                          = "ingress"
+    #   protocol                      = "tcp"
+    #   from_port                     = 9443
+    #   to_port                       = 9443
+    #   source_cluster_security_group = true
+    #   description                   = "Allow access from control plane to webhook port of AWS load balancer controller"
+    # }
   }
 
   eks_managed_node_groups = {

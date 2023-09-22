@@ -10,3 +10,8 @@ output "cluster_arn" {
   description = "Cluster ARN"
   value       = data.aws_eks_cluster.eks.arn
 }
+
+output "cluster_name" {
+  description = "Cluster Name"
+  value       = data.aws_eks_cluster.eks.name
+}

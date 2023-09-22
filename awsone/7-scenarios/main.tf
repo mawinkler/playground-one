@@ -1,3 +1,11 @@
+data "terraform_remote_state" "eks" {
+  backend = "local"
+
+  config = {
+    path = "../4-cluster-eks/terraform.tfstate"
+  }
+}
+
 module "victims" {
   source      = "./victims"
   aws_region  = var.aws_region

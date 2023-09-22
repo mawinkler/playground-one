@@ -10,3 +10,8 @@ output "cluster_arn" {
   description = "Cluster ARN"
   value       = module.eks.cluster_arn
 }
+
+output "cluster_name" {
+  description = "Cluster Name"
+  value       = module.eks.cluster_name
+}

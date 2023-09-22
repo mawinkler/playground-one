@@ -66,6 +66,7 @@ So, this is my favorite part. This configuration creates an EKS cluster with som
 Currently, the following deployments are defined:
 
 - Container Security
+- Prometheus & Grafana
 - Trivy
 
 ### Scenarios

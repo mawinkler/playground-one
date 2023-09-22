@@ -26,9 +26,7 @@ Query, visualize, alert on, and understand your data no matter where it’s stor
 
 ## Playground One Integration
 
-As soon as you create your EKS cluster with Playground One and have Prometheus enabled it Grafana and Prometheus will get deployed. They are already preconfigured for your convenience.
-
-To enable/disable the Prometheus & Grafana combo and set the administrator password run `pgo --configure`
+To enable/disable the Prometheus & Grafana combo and to set the administrator password run `pgo --configure`. The package comes preconfigured and ready for use.
 
 To get the DNS names of Prometheus and Grafana check the outputs of the EKS configuraiton with `pgo -o eks`
 
@@ -38,7 +36,7 @@ loadbalancer_dns_grafana = "k8s-promethe-promethe-95d61839fe-676288571.eu-centra
 loadbalancer_dns_prometheus = "k8s-promethe-promethe-a040b2a261-633411715.eu-central-1.elb.amazonaws.com"
 ```
 
-Copy the Grafana URL to your browser and authenticate with `admin/playground`.
+Copy the Grafana URL to your browser and authenticate with `admin` and the password you have set.
 
 Then head over to Dashboards 
 
@@ -51,3 +49,5 @@ and search for `kubernetes`:
 Select any of the dashboards and start playing.
 
 ![alt text](images/grafana-cluster.png "Cluster")
+
+If you want to use PromQL directly, head over to the Prometheus frontend.
