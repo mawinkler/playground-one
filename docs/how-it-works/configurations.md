@@ -79,8 +79,10 @@ Currently, the following (vulnerable) deployments are defined:
 
 - WebApp System-Monitor (see [Escape to the Host System](../scenarios/container-security-eks-escape.md))
 - WebApp Health-Check (see [ContainerD Abuse](../scenarios/container-security-eks-dind-exploitation.md))
+- WebApp Hunger-Check (see [Hunger Check](../scenarios/hunger-check.md))
 - Java-Goof
 - WebApp OpenSSL3
+- Nginx
 
 ## ECS Clusters
 
@@ -90,12 +92,7 @@ Currently, the following (vulnerable) deployments are defined:
 
 Here we're building an ECS cluster using EC2 instances and/or Fargate profile. Key features:
 
-- Two autoscaling groups (on-demand and spot) when using the EC2 variant
-- Fargate profile with a mix of on-demand and spot instances
+- Autoscaling group for spot instances when using the EC2 variant. On-demand autoscaler can be enabled in Terraform script.
+- Fargate profile with spot instances. Fargate with on-demand instances can be enabled in Terraform script.
 - ALB Load Balancer
-- Located in the private subnets
 - Automatic deployment of a vulnerable service (Java-Goof)
-
-Currently, the following (vulnerable) service is defined:
-
-- Java-Goof

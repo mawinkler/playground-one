@@ -147,6 +147,7 @@ function init() {
       aws_account_id=${aws_account_id} \
       aws_region=${aws_region} \
       aws_environment=${aws_environment} \
+      pgo_access_ip=${pgo_access_ip} \
       pgo_eks_create_fargate_profile=${pgo_eks_create_fargate_profile} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-4-cluster-eks.tfvars >$ONEPATH/awsone/4-cluster-eks/terraform.tfvars
@@ -221,6 +222,7 @@ function apply() {
   case $1 in
     nw|network|all)
       check_network
+      lock nw
       cd ${ONEPATH}/awsone/2-network
       terraform apply -auto-approve
       ;;&
@@ -342,6 +344,7 @@ function destroy() {
       check_network
       cd ${ONEPATH}/awsone/2-network
       terraform destroy -auto-approve
+      unlock nw
       ;;
     ec2)
       cd ${ONEPATH}/awsone/3-instances
@@ -411,11 +414,17 @@ function output() {
 
   case $1 in
     nw|network|all)
-      cd ${ONEPATH}/awsone/2-network
-      terraform output
+      if [[ -f ${ONEPATH}/awsone/2-network/.pgo.nw.lock ]] ; then
+        printf '%s\n' "Output - Network:"
+        cd ${ONEPATH}/awsone/2-network
+        terraform output
+      else
+        printf '%s\n' "Configuration nw not applied"
+      fi
       ;;&
     ec2|all)
       if [[ -f ${ONEPATH}/awsone/2-network/.pgo.ec2.lock ]] ; then
+        printf '%s\n' "Output - EC2:"
         cd ${ONEPATH}/awsone/3-instances
         terraform output
         printf '%s\n' "public_instance_password_srv1 = \"$(terraform output -raw public_instance_password_srv1)\""
@@ -425,9 +434,11 @@ function output() {
       ;;&
     eks|all)
       if [[ -f ${ONEPATH}/awsone/2-network/.pgo.eks.lock ]] ; then
-        cd ${ONEPATH}/awsone/8-cluster-eks-deployments
-        terraform output
+        printf '%s\n' "Output - Cluster EKS:"
         cd ${ONEPATH}/awsone/4-cluster-eks
+        terraform output
+        printf '%s\n' "Output - Cluster EKS Deployments:"
+        cd ${ONEPATH}/awsone/8-cluster-eks-deployments
         terraform output
       else
         printf '%s\n' "Configuration eks not applied"
@@ -435,6 +446,7 @@ function output() {
       ;;&
     ecs|all)
       if [[ -f ${ONEPATH}/awsone/2-network/.pgo.ecs.lock ]] ; then
+        printf '%s\n' "Output - Cluster ECS:"
         cd ${ONEPATH}/awsone/5-cluster-ecs
         terraform output
       else
@@ -443,6 +455,7 @@ function output() {
       ;;&
     scenarios|all)
       if [[ -f ${ONEPATH}/awsone/2-network/.pgo.scenarios.lock ]] ; then
+        printf '%s\n' "Output - Scenarios:"
         cd ${ONEPATH}/awsone/7-scenarios
         terraform output
       else
@@ -450,6 +463,7 @@ function output() {
       fi
       ;;
     kind)
+      printf '%s\n' "Output - Cluster Kind:"
       cd ${ONEPATH}/awsone/6-cluster-kind
       terraform output
       ;;
@@ -469,28 +483,35 @@ function state() {
 
   case $1 in
     nw|network|all)
+      printf '%s\n' "State - Network:"
       cd ${ONEPATH}/awsone/2-network
       terraform state list
       ;;&
     ec2|all)
+      printf '%s\n' "State - EC2:"
       cd ${ONEPATH}/awsone/3-instances
       terraform state list
       ;;&
     eks|all)
-      cd ${ONEPATH}/awsone/8-cluster-eks-deployments
-      terraform state list
+      printf '%s\n' "State - Cluster EKS:"
       cd ${ONEPATH}/awsone/4-cluster-eks
+      terraform state list
+      printf '%s\n' "State - Cluster EKS Deployments:"
+      cd ${ONEPATH}/awsone/8-cluster-eks-deployments
       terraform state list
       ;;&
     ecs|all)
+      printf '%s\n' "State - Cluster ECS:"
       cd ${ONEPATH}/awsone/5-cluster-ecs
       terraform state list
       ;;&
     scenarios|all)
+      printf '%s\n' "State - Scenarios:"
       cd ${ONEPATH}/awsone/7-scenarios
       terraform state list
       ;;
     kind)
+      printf '%s\n' "State - Cluster Kind:"
       cd ${ONEPATH}/awsone/6-cluster-kind
       terraform state list
       ;;
@@ -511,28 +532,35 @@ function show() {
 
   case $1 in
     nw|network|all)
+      printf '%s\n' "Full State - Network:"
       cd ${ONEPATH}/awsone/2-network
       terraform show
       ;;&
     ec2|all)
+      printf '%s\n' "Full State - EC2:"
       cd ${ONEPATH}/awsone/3-instances
       terraform show
       ;;&
     eks|all)
-      cd ${ONEPATH}/awsone/8-cluster-eks-deployments
-      terraform show
+      printf '%s\n' "Full State - Cluster EKS:"
       cd ${ONEPATH}/awsone/4-cluster-eks
+      terraform show
+      printf '%s\n' "Full State - Cluster EKS Deployments:"
+      cd ${ONEPATH}/awsone/8-cluster-eks-deployments
       terraform show
       ;;&
     ecs|all)
+      printf '%s\n' "Full State - Cluster ECS:"
       cd ${ONEPATH}/awsone/5-cluster-ecs
       terraform show
       ;;&
     scenarios|all)
+      printf '%s\n' "Full State - Scenarios:"
       cd ${ONEPATH}/awsone/7-scenarios
       terraform show
       ;;
     kind)
+      printf '%s\n' "Full State - Cluster Kind:"
       cd ${ONEPATH}/awsone/6-cluster-kind
       terraform show
       ;;
@@ -552,28 +580,35 @@ function validate() {
 
   case $1 in
     nw|network|all)
+      printf '%s\n' "Validate - Network:"
       cd ${ONEPATH}/awsone/2-network
       terraform validate
       ;;&
     ec2|all)
+      printf '%s\n' "Validate - EC2:"
       cd ${ONEPATH}/awsone/3-instances
       terraform validate
       ;;&
     eks|all)
+      printf '%s\n' "Validate - Cluster EKS:"
       cd ${ONEPATH}/awsone/4-cluster-eks
       terraform validate
+      printf '%s\n' "Validate - Cluster EKS Deployments:"
       cd ${ONEPATH}/awsone/8-cluster-eks-deployments
       terraform validate
       ;;&
     ecs|all)
+      printf '%s\n' "Validate - Cluster ECS:"
       cd ${ONEPATH}/awsone/5-cluster-ecs
       terraform validate
       ;;&
     scenarios|all)
+      printf '%s\n' "Validate - Scenarios:"
       cd ${ONEPATH}/awsone/7-scenarios
       terraform validate
       ;;
     kind)
+      printf '%s\n' "Validate - Cluster Kind:"
       cd ${ONEPATH}/awsone/6-cluster-kind
       terraform validate
       ;;

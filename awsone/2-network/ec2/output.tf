@@ -15,8 +15,10 @@ output "private_key_path" {
 
 output "public_security_group_id" {
   value = aws_security_group.sg["public"].id
+  # value = aws_security_group.sg_public.id
 }
 
 output "private_security_group_id" {
   value = aws_security_group.sg["private"].id
+  # value = aws_security_group.sg_private.id
 }

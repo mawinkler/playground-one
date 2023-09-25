@@ -3,10 +3,10 @@
 # #############################################################################
 output "loadbalancer_dns_prometheus" {
   description = "Loadbalancer Prometheus DNS name"
-  value       = module.prometheus[0].loadbalancer_dns_prometheus
+  value       = var.prometheus ? module.prometheus[0].loadbalancer_dns_prometheus : null
 }
 
 output "loadbalancer_dns_grafana" {
   description = "Loadbalancer Grafana DNS name"
-  value       = module.prometheus[0].loadbalancer_dns_grafana
+  value       = var.prometheus ? module.prometheus[0].loadbalancer_dns_grafana : null
 }
