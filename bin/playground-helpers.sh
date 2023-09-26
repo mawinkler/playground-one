@@ -400,7 +400,7 @@ function get_config() {
 
     # Integrations
     integrations_calico_enabled="$(yq '.services.integrations.calico.enabled' $ONEPATH/config.yaml)"
-    [[ "${integrations_calico_enabled}" = "null" || "${integrations_calico_enabled}" = "" ]] && integrations_calico_enabled=true
+    [[ "${integrations_calico_enabled}" = "null" || "${integrations_calico_enabled}" = "" ]] && integrations_calico_enabled=false
     integrations_prometheus_enabled="$(yq '.services.integrations.prometheus.enabled' $ONEPATH/config.yaml)"
     integrations_prometheus_grafana_password="$(yq '.services.integrations.prometheus.grafana-password' $ONEPATH/config.yaml)"
     [[ "${integrations_prometheus_enabled}" = "null" || "${integrations_prometheus_enabled}" = "" ]] && integrations_prometheus_enabled=true
