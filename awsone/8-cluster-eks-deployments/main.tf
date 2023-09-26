@@ -20,6 +20,13 @@ module "container_security" {
   }
 }
 
+module "calico" {
+  count = var.calico ? 1 : 0
+
+  source      = "./calico"
+  namespace   = "tigera-operator"
+}
+
 module "trivy" {
   count = var.trivy ? 1 : 0
 

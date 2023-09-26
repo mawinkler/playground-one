@@ -160,6 +160,7 @@ function init() {
       cloud_one_api_key=${cloud_one_api_key} \
       cloud_one_region=${cloud_one_region} \
       cloud_one_instance=${cloud_one_instance} \
+      integrations_calico_enabled=${integrations_calico_enabled} \
       integrations_prometheus_enabled=${integrations_prometheus_enabled} \
       integrations_prometheus_grafana_password=${integrations_prometheus_grafana_password} \
       integrations_trivy_enabled=${integrations_trivy_enabled} \

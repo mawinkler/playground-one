@@ -35,6 +35,11 @@ variable "api_key" {
   type = string
 }
 
+# Calico
+variable "calico" {
+  type = bool
+}
+
 # Trivy
 variable "trivy" {
   type = bool

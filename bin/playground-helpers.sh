@@ -399,6 +399,8 @@ function get_config() {
     # [[ "${vision_one_server_policy_id}" = "null" ]] && vision_one_server_policy_id=0
 
     # Integrations
+    integrations_calico_enabled="$(yq '.services.integrations.calico.enabled' $ONEPATH/config.yaml)"
+    [[ "${integrations_calico_enabled}" = "null" || "${integrations_calico_enabled}" = "" ]] && integrations_calico_enabled=true
     integrations_prometheus_enabled="$(yq '.services.integrations.prometheus.enabled' $ONEPATH/config.yaml)"
     integrations_prometheus_grafana_password="$(yq '.services.integrations.prometheus.grafana-password' $ONEPATH/config.yaml)"
     [[ "${integrations_prometheus_enabled}" = "null" || "${integrations_prometheus_enabled}" = "" ]] && integrations_prometheus_enabled=true

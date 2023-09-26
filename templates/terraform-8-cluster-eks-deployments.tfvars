@@ -16,6 +16,9 @@ cluster_policy     = "${cloud_one_cs_policy_id}"
 cloud_one_region   = "${cloud_one_region}"
 cloud_one_instance = "${cloud_one_instance}"
 
+# Calico
+calico = ${integrations_calico_enabled}
+
 # Trivy
 trivy = ${integrations_trivy_enabled}
 

@@ -326,6 +326,23 @@ function update_cloud_one_config() {
 function update_integrations_config() {
   printf '\n%s\n' "Please set/update your Cloud One configuration"
 
+
+  ##
+  ## Calico
+  ##
+  key_desc="Calico"
+  read -p "${key_desc} [${integrations_calico_enabled}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    integrations_calico_enabled=${TEMP}
+  fi
+  if [[ "${integrations_calico_enabled}" =~ ^true|false$ ]]; then
+    target_val=${integrations_calico_enabled} \
+      yq -i '.services.integrations.calico.enabled = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
   ##
   ## Prometheus & Grafana
   ##
@@ -355,8 +372,8 @@ function update_integrations_config() {
       echo "Error: Invalid ${key_desc} input."
       exit 0
     fi
-  else
-    printf '%s\n' "Skipping Prometheus & Grafana configuration"
+  # else
+  #   printf '%s\n' "Skipping Prometheus & Grafana configuration"
   fi
 
   ##
