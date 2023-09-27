@@ -8,10 +8,25 @@ resource "helm_release" "calico" {
   name         = "projectcalico"
   namespace    = var.namespace
   reuse_values = true
+  version      = "v3.25.0"
 
   set {
     name  = "installation.kubernetesProvider"
     value = "EKS"
   }
 }
-# --version v3.25.0
+
+resource "null_resource" "remove_finalizers" {
+  depends_on = [helm_release.calico]
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = <<-EOT
+      kubectl delete installations.operator.tigera.io default
+    EOT
+  }
+
+  triggers = {
+    helm_tigera = helm_release.calico.status
+  }
+}
