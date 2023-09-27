@@ -11,7 +11,7 @@ resource "helm_release" "prometheus" {
   force_update = true
 
   values = [
-    "${file("prometheus/overrides.yaml")}"
+    "${file("prometheus/prometheus-overrides.yaml")}"
   ]
 
   # Prometheus
