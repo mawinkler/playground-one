@@ -253,6 +253,10 @@ function apply() {
       cd ${ONEPATH}/awsone/7-scenarios
       terraform apply -auto-approve
       ;;
+    eksdep)
+      cd ${ONEPATH}/awsone/8-cluster-eks-deployments
+      terraform apply -auto-approve
+      ;;
     kind)
       cd ${ONEPATH}/awsone/6-cluster-kind
       terraform apply -auto-approve
@@ -378,6 +382,10 @@ function destroy() {
       cd ${ONEPATH}/awsone/7-scenarios
       terraform destroy -auto-approve
       unlock scenarios
+      ;;
+    eksdep)
+      cd ${ONEPATH}/awsone/8-cluster-eks-deployments
+      terraform destroy -auto-approve
       ;;
     kind)
       cd ${ONEPATH}/awsone/6-cluster-kind
@@ -645,7 +653,9 @@ function helpcmd() {
   printf '%s\n' "  ec2           EC2 configuration"
   printf '%s\n' "  eks           EKS configuration"
   printf '%s\n' "  ecs           ECS configurations"
+  printf '%s\n' "  kind          Kind configurations"
   printf '%s\n' "  scenarios     Scenario configurations"
+  printf '%s\n' "  eksdep        EKS deployment configurations"
   printf '%s\n' "  all           All configurations"
   printf '%s\n' ""
   printf '%s\n' "Examples:"
