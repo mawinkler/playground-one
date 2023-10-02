@@ -1,7 +1,5 @@
 # Getting Started Configuration
 
-If you didn't create a new shell, then do so now.
-
 Playground One is controlled by the command line interface `pgo`.
 
 Use it to interact with the Playground One by running
@@ -11,6 +9,8 @@ pgo
 ```
 
 from anywhere in your terminal.
+
+> ***Note:*** If `pgo` is not found create a new shell to load the environment or run `. ~/.bashrc`.
 
 ## Getting Help
 
@@ -107,9 +107,9 @@ Set/update:
 
 > If your IP address has changed see [FAQ](../faq.md#my-ip-address-has-changed-and-i-cannot-access-my-apps-anymore).
 
-### Section: Cloud One
+### Section: Container Security ***(currently disabled)***
 
-Container Security will move to Vision One but currently requires your Cloud One environment. With GA availability of Vision One Container Security the following will change.
+> ***Note:*** Configuration and automated deployment currently disabled due to missing APIs.
 
 Set/update:
 

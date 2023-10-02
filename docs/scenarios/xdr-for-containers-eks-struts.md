@@ -1,9 +1,9 @@
-# Scenario: Detect Apache Struts RCE Vulnerability Exploitation (EKS)
+# Scenario: Detect Apache Struts RCE Vulnerability Exploitation
 
 ## Prerequisites
 
-- Vision One XDR for Containers linked with Playground One VPC
 - Playground One EKS Cluster
+- Vision One Container Security
 - Playground One Scenarios
   - Running app: Java-Goof running on vulnerable Tomcat
 - Extracted contents of `exploit.zip`

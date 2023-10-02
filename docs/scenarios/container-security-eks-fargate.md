@@ -1,11 +1,11 @@
-# Scenario: Runtime Vulnerability Scanning on EKS Fargate
+# Scenario: Runtime Vulnerability Scanning on Fargate
 
 ***DRAFT***
 
 ## Prerequisites
 
-- Vision One Container Security
 - Playground One EKS Cluster with Fargate Profile
+- Vision One Container Security
 - Playground One Scenarios
   - Running app: Nginx
 

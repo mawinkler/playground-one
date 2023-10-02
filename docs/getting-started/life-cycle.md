@@ -20,11 +20,9 @@
 
     This will create your VPC and network in the configured region (see `config.yaml`)
 
-3. If you want to connect with Vision One XDR for Containers head over to [Vision One XDR for Containers](../integrations/xdr-for-containers.md) and come back afterwards.
+3. If you want your EC2 instances to be connected to Vision One Endpoint Security head over to [Vision One Endpoint Security Server & Workload Protection](../integrations/endpoint-security.md) and come back afterwards.
 
-4. If you want your EC2 instances to be connected to Vision One Endpoint Security head over to [Vision One Endpoint Security Server & Workload Protection](../integrations/endpoint-security.md) and come back afterwards.
-
-5. Create Virtual Instances and/or Kubernetes Clusters with demo workload.
+4. Create Virtual Instances and/or Kubernetes Clusters with demo workload.
 
     EC2 instances:
 
@@ -37,8 +35,6 @@
     ```sh
     pgo --apply eks
     ```
-
-    The default workload (Container Security and Trivy) are deployed automatically.
 
     ECS cluster(s):
 
@@ -94,4 +90,3 @@ pgo --destroy all
 ```
 
 > ***Note:*** The network and VPC are not automatically destroyed. You can do this manually by running `pgo --destroy nw`. Be sure to have the CloudFormation stack of XDR for Containers deleted before doing so. Otherwise it will be in a fail (blackhole) state.
-

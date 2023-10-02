@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- Vision One XDR for Containers linked with Playground One VPC
+- Vision One connected to your AWS Account
 - Playground One ECS Cluster (Any variant)
   - Running app: Java-Goof running on vulnerable Tomcat
 - Extracted contents of `exploit.zip`

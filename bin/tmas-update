@@ -1,0 +1,5 @@
+#!/bin/bash
+tmasdir=/usr/local/bin
+[ -f ${tmasdir}/tmas ] && [ -z "$(tmas version 2>&1 | grep 'A new version is available')" ] && \
+  { echo tmas is latest; } || \
+  { rm -rf tmas; echo updating tmas; curl -Ls https://cli.artifactscan.cloudone.trendmicro.com/tmas-cli/latest/tmas-cli_Linux_x86_64.tar.gz | tar -xz tmas && sudo mv tmas ${tmasdir}/tmas; }

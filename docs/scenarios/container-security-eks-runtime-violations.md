@@ -2,8 +2,8 @@
 
 ## Prerequisites
 
-- Vision One Container Security
 - Playground One EKS Cluster
+- Vision One Container Security
 - Playground One Scenarios
 
 Ensure to have the EKS Cluster including the Scenarios up and running:
