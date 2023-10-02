@@ -396,11 +396,21 @@ function update_integrations_config() {
 
 get_config
 
-update_aws_config
+# We dont want to change AWS config while having deployments
+if [[ ! -f ${ONEPATH}/awsone/2-network/.pgo.nw.lock && \
+      ! -f ${ONEPATH}/awsone/2-network/.pgo.ec2.lock && \
+      ! -f ${ONEPATH}/awsone/2-network/.pgo.eks.lock && \
+      ! -f ${ONEPATH}/awsone/2-network/.pgo.ecs.lock ]] ; then
+  update_aws_config
+else
+  printf '%s\n' "Skipping AWS configuration."
+fi
 update_pgo_config
-update_cloud_one_config
+# update_cloud_one_config
 # update_vision_one_config
 update_integrations_config
 
+printf '%s\n' "Applying configuration..."
+pgo --init all
+# printf '%s\n' "If you changed anything run: pgo --init all"
 printf '\n%s\n' "Done."
-printf '%s\n' "If you changed anything run: pgo --init all"

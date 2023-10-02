@@ -331,6 +331,19 @@ function update_ip() {
 
   cd ${ONEPATH}/awsone/2-network
   terraform apply
+
+  init eks
+  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.eks.lock ]] ; then
+    apply eks
+  fi
+  init ecs
+  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.ecs.lock ]] ; then
+    apply ecs
+  fi
+  init scenarios
+  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.scenarios.lock ]] ; then
+    apply scenarios
+  fi
 }
 
 #######################################
@@ -368,12 +381,27 @@ function destroy() {
       ;;
     ecs)
       # Workaround for Terraform bug described in FAQ
+      # Delete eventually existing autoscaling groups belonging to the ecs clusters
       asg_groups=$(aws autoscaling describe-auto-scaling-groups | \
         jq -r --arg aws_environment "$aws_environment-ecs-" '.AutoScalingGroups[] | select(.AutoScalingGroupName | startswith($aws_environment)) | .AutoScalingGroupName')
       for group in ${asg_groups} ; do
         printf '%s\n' "Deleting auto scaling group ${group}"
         aws autoscaling delete-auto-scaling-group --auto-scaling-group-name ${group} --force-delete
       done
+      
+      # Delete eventually existing trendmicro scout service before cluster destroy
+      ecs_fargate_cluster=$(aws ecs list-clusters | jq -r --arg aws_environment "$aws_environment-ecs-fargate" '.clusterArns[]' | sed 's:.*/::')
+      if [[ "${ecs_fargate_cluster}" != "" ]] ; then
+        ecs_services=$(aws ecs list-services --cluster $ecs_fargate_cluster | \
+          jq -r --arg aws_environment "$aws_environment-ecs-fargate" '.serviceArns[] | select(. | endswith($aws_environment) | not)' | sed 's:.*/::')
+      fi
+      for service in "${ecs_services}" ; do
+        if [[ "${service}" != "" ]] ; then
+          printf '%s\n' "Deleting Scout service ${service}"
+          aws ecs delete-service --service ${service} --cluster ${ecs_fargate_cluster} --force
+        fi
+      done
+
       cd ${ONEPATH}/awsone/5-cluster-ecs
       terraform destroy -auto-approve
       unlock ecs
