@@ -3,8 +3,10 @@
 # #############################################################################
 variable "environment" {}
 
+variable "access_ip" {}
+
 variable "one_path" {}
 
 variable "vpc_id" {}
 
-variable "security_groups" {}
+variable "public_subnets_cidr" {}

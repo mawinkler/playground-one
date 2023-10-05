@@ -1,9 +1,6 @@
-locals {
-  vpc_cidr             = "10.0.0.0/16"
-  public_subnets_cidr  = ["10.0.0.0/19", "10.0.32.0/19", "10.0.64.0/19"]
-  private_subnets_cidr = ["10.0.96.0/19", "10.0.128.0/19", "10.0.160.0/19"]
-}
-
+################################################################################
+# Locals
+################################################################################
 locals {
   security_groups = {
     public = {
@@ -64,25 +61,25 @@ locals {
           from        = 22
           to          = 22
           protocol    = "tcp"
-          cidr_blocks = local.public_subnets_cidr
+          cidr_blocks = var.public_subnets_cidr
         }
         http = {
           from        = 80
           to          = 80
           protocol    = "tcp"
-          cidr_blocks = local.public_subnets_cidr
+          cidr_blocks = var.public_subnets_cidr
         }
         https = {
           from        = 443
           to          = 443
           protocol    = "tcp"
-          cidr_blocks = local.public_subnets_cidr
+          cidr_blocks = var.public_subnets_cidr
         }
         http = {
           from        = 8080
           to          = 8080
           protocol    = "tcp"
-          cidr_blocks = local.public_subnets_cidr
+          cidr_blocks = var.public_subnets_cidr
         }
       }
     }
