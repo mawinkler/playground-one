@@ -92,9 +92,15 @@ pgo --apply nw
 
 Then reaply your eks, ecs, ec2 or scenarios by `pgo --apply <configuration>`.
 
-## I cannot destroy the ECS EC2 cluster with `terraform destroy`
+## I cannot destroy the ECS cluster(s)
 
-The problem is that this new capacity_provider property on the aws_ecs_cluster introduces a new dependency:
+If you have enabled `Runtime Scanning` and/or `Runtime Security` in your Vision One console for your ECS clusters disable them and press `[Save]`. The clusters should then be successfully destroyed.
+
+***Background:*** Vision One injects addisional tasks to the ECS clusters which are not known by the playground. Even if you delete the task in the AWS console they are injected again by Vision One. This causes a remaining dependency on the AWS side which prevents the destruction of ECS.
+
+***Special case for ECS EC2***
+
+There's a known bug in Terraform. The problem is that this new capacity_provider property on the aws_ecs_cluster introduces a new dependency:
 aws_ecs_cluster depends on aws_ecs_capacity_provider depends on aws_autoscaling_group.
 
 This causes terraform to destroy the ECS cluster before the autoscaling group, which is the wrong way around: the autoscaling group must be destroyed first because the cluster must contain zero instances before it can be destroyed.

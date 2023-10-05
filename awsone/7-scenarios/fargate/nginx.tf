@@ -2,7 +2,7 @@ resource "kubernetes_deployment" "nginx_deployment" {
   metadata {
     name = "nginx"
     labels = {
-      app = "nginx"
+      app = "fargate"
     }
     namespace = var.namespace
   }
@@ -10,13 +10,13 @@ resource "kubernetes_deployment" "nginx_deployment" {
     replicas = 2
     selector {
       match_labels = {
-        app = "nginx"
+        app = "fargate"
       }
     }
     template {
       metadata {
         labels = {
-          app = "nginx"
+          app = "fargate"
         }
       }
       spec {
@@ -29,8 +29,8 @@ resource "kubernetes_deployment" "nginx_deployment" {
           }
           resources {
             limits = {
-              cpu    = "50m"
-              memory = "100Mi"
+              cpu    = "200m"
+              memory = "256Mi"
             }
           }
         }
