@@ -13,4 +13,6 @@ access_ip = ${pgo_access_ip}
 environment = "${aws_environment}"
 
 # Create Fargate Profile
-create_fargate_profile = ${pgo_eks_create_fargate_profile}
+# create_fargate_profile = ${pgo_eks_create_fargate_profile}
+# temporarily disabled fargate profile
+create_fargate_profile = false
