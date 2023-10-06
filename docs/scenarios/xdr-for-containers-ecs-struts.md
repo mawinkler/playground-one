@@ -1,5 +1,7 @@
 # Scenario: Detect Apache Struts RCE Vulnerability Exploitation
 
+***DRAFT***
+
 ## Prerequisites
 
 - Vision One connected to your AWS Account

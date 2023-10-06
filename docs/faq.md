@@ -68,19 +68,7 @@ If you need to change the access IP later on, maybe your provider assigned you a
 
 3. Approve the actions by entering `yes`, otherwise press `^c`.
 
-If you have applied the ecs and/or scenarios configuration(s) you need to init and apply them again. This will update the IP address(es) in the ingresses:
-
-```sh
-# ecs
-pgo --init ecs
-pgo --apply ecs
-
-# scenarios
-pgo --init scenarios
-pgo --apply scenarios
-```
-
-This should be completed within seconds.
+This should be completed within a minute.
 
 If the above didn't work for you and you still need to update the IP(s) you need to run
 
@@ -90,7 +78,7 @@ pgo --init all
 pgo --apply nw
 ```
 
-Then reaply your eks, ecs, ec2 or scenarios by `pgo --apply <configuration>`.
+Then reapply your eks, ecs, ec2 or scenarios by `pgo --apply <configuration>`.
 
 ## I cannot destroy the ECS cluster(s)
 

@@ -27,4 +27,4 @@ There is no real story here :-)
 
 ## Goals
 
-Review the detection in Vision One.
+Review the detections in Vision One. Check Observed Attack Techniques and Workbenches.

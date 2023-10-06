@@ -1,5 +1,7 @@
 # Scenario: Detect Apache Struts RCE Vulnerability Exploitation
 
+***DRAFT***
+
 ## Prerequisites
 
 - Playground One EKS Cluster

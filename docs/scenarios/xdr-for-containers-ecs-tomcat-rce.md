@@ -1,5 +1,7 @@
 # Scenario: Detect Tomcat RCE
 
+***DRAFT***
+
 ## Prerequisites
 
 - Vision One connected to your AWS Account
