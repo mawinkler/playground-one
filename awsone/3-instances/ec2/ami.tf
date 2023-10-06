@@ -2,7 +2,7 @@
 # Look up the latest Ubuntu Focal 20.04 AMI
 # #############################################################################
 data "aws_ami" "ubuntu" {
-    most_recent            = true
+    most_recent            = false
     owners                 = ["099720109477"] # Canonical
 
     filter {
@@ -20,9 +20,13 @@ data "aws_ami" "ubuntu" {
         values = ["machine"]
     }
 
+    # filter {
+    #     name = "kernel-id"
+    #     values = ["5.15.0-1045"]
+    # }
     filter {
         name   = "name"
-        values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+        values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-20230517"]
     }
 }
 

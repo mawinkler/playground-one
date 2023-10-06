@@ -386,9 +386,10 @@ function get_config() {
     cloud_one_cs_enabled="$(yq '.services.cloud-one.container-security.enabled' $ONEPATH/config.yaml)"
     cloud_one_cs_policy_id="$(yq '.services.cloud-one.container-security.policy-id' $ONEPATH/config.yaml)"
     [[ "${cloud_one_region}" = "null" || "${cloud_one_region}" = "" ]] && cloud_one_region="trend-us-1"
+    [[ "${cloud_one_api_key}" = "null" || "${cloud_one_api_key}" = "" ]] && cloud_one_api_key="apikey"
     [[ "${cloud_one_instance}" = "null" || "${cloud_one_instance}" = "" ]] && cloud_one_instance="cloudone"
     [[ "${cloud_one_cs_enabled}" = "null" || "${cloud_one_cs_enabled}" = "" ]] && cloud_one_cs_enabled=false
-    [[ "${cloud_one_cs_policy_id}" = "null" || "${cloud_one_cs_policy_id}" = "" ]] && cloud_one_cs_policy_id=""
+    [[ "${cloud_one_cs_policy_id}" = "null" || "${cloud_one_cs_policy_id}" = "" ]] && cloud_one_cs_policy_id="policy"
 
     # # Vision One
     # vision_one_server_tenant_id="$(yq '.services.vision-one.server-workload-protection.tenant-id' $ONEPATH/config.yaml)"
@@ -403,7 +404,7 @@ function get_config() {
     [[ "${integrations_calico_enabled}" = "null" || "${integrations_calico_enabled}" = "" ]] && integrations_calico_enabled=false
     integrations_prometheus_enabled="$(yq '.services.integrations.prometheus.enabled' $ONEPATH/config.yaml)"
     integrations_prometheus_grafana_password="$(yq '.services.integrations.prometheus.grafana-password' $ONEPATH/config.yaml)"
-    [[ "${integrations_prometheus_enabled}" = "null" || "${integrations_prometheus_enabled}" = "" ]] && integrations_prometheus_enabled=true
+    [[ "${integrations_prometheus_enabled}" = "null" || "${integrations_prometheus_enabled}" = "" ]] && integrations_prometheus_enabled=false
     [[ "${integrations_prometheus_grafana_password}" = "null" || "${integrations_prometheus_grafana_password}" = "" ]] && integrations_prometheus_grafana_password="playground"
     integrations_trivy_enabled="$(yq '.services.integrations.trivy.enabled' $ONEPATH/config.yaml)"
     [[ "${integrations_trivy_enabled}" = "null" || "${integrations_trivy_enabled}" = "" ]] && integrations_trivy_enabled=false
