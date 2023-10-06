@@ -1,5 +1,26 @@
 # Frequently asked Questions
 
+## How to update the Playgounr One?
+
+The Playground is under contiuous development. Even if I try to not implement breaking changes please follow the steps below ***before*** updating it to the latest version:
+
+```sh
+# Destroy your deployments
+pgo --destroy all
+
+# Destroy your network
+pgo --destroy nw
+
+# Do the update
+cd ${ONEPATH}
+git pull
+
+# Run config
+pgo --config
+```
+
+If everything went well you should be able to recreate your environment. If you run into trouble please open an [issue](https://github.com/mawinkler/playground-one/issues/new).
+
 ## I'm running the Playground on a Cloud9 and want to restrict access to my home IP
 
 If you work on a Cloud9 you need to take care on two public IP addresses instead of one when having the playground locally. These are the public IP of your own network (where your own computer is located) and the public IP of your Cloud9.

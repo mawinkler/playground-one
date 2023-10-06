@@ -393,6 +393,12 @@ function update_integrations_config() {
   fi
 }
 
+# Overrides for in development features
+function stickies() {
+  yq -i '.services.playground-one.eks.create-fargate-profile = false' ${ONEPATH}/config.yaml
+  yq -i '.services.cloud-one.container-security.enabled = false' ${ONEPATH}/config.yaml
+  yq -i '.services.integrations.calico.enabled = false' ${ONEPATH}/config.yaml
+}
 
 get_config
 
@@ -409,6 +415,8 @@ update_pgo_config
 # update_cloud_one_config
 # update_vision_one_config
 update_integrations_config
+
+stickies
 
 printf '%s\n' "Applying configuration..."
 pgo --init all
