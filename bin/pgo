@@ -390,17 +390,17 @@ function destroy() {
       done
       
       # Delete eventually existing trendmicro scout service before cluster destroy
-      ecs_fargate_cluster=$(aws ecs list-clusters | jq -r --arg aws_environment "$aws_environment-ecs-fargate" '.clusterArns[]' | sed 's:.*/::')
-      if [[ "${ecs_fargate_cluster}" != "" ]] ; then
-        ecs_services=$(aws ecs list-services --cluster $ecs_fargate_cluster | \
-          jq -r --arg aws_environment "$aws_environment-ecs-fargate" '.serviceArns[] | select(. | endswith($aws_environment) | not)' | sed 's:.*/::')
-      fi
-      for service in "${ecs_services}" ; do
-        if [[ "${service}" != "" ]] ; then
-          printf '%s\n' "Deleting Scout service ${service}"
-          aws ecs delete-service --service ${service} --cluster ${ecs_fargate_cluster} --force
-        fi
-      done
+      # ecs_fargate_cluster=$(aws ecs list-clusters | jq -r --arg aws_environment "$aws_environment-ecs-fargate" '.clusterArns[]' | sed 's:.*/::')
+      # if [[ "${ecs_fargate_cluster}" != "" ]] ; then
+      #   ecs_services=$(aws ecs list-services --cluster $ecs_fargate_cluster | \
+      #     jq -r --arg aws_environment "$aws_environment-ecs-fargate" '.serviceArns[] | select(. | endswith($aws_environment) | not)' | sed 's:.*/::')
+      # fi
+      # for service in "${ecs_services}" ; do
+      #   if [[ "${service}" != "" ]] ; then
+      #     printf '%s\n' "Deleting Scout service ${service}"
+      #     aws ecs delete-service --service ${service} --cluster ${ecs_fargate_cluster} --force
+      #   fi
+      # done
 
       cd ${ONEPATH}/awsone/5-cluster-ecs
       terraform destroy -auto-approve
