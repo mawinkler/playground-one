@@ -63,7 +63,8 @@ module "autoscaling" {
 
   name = "${module.ecs.cluster_name}-${each.key}"
 
-  image_id      = jsondecode(data.aws_ssm_parameter.ecs_optimized_ami.value)["image_id"]
+  # image_id      = jsondecode(data.aws_ssm_parameter.ecs_optimized_ami.value)["image_id"]
+  image_id      = data.aws_ami.ecs_ami.id
   instance_type = each.value.instance_type
 
   security_groups                 = [module.autoscaling_sg.security_group_id]
