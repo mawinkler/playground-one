@@ -1,6 +1,6 @@
 # Scenario: Detect JNDI Injection in HTTP Request (Log4j)
 
-***DRAFT***
+***Requires XDR for Containers***
 
 ## Prerequisites
 

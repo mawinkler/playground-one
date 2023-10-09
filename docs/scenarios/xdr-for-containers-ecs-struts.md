@@ -1,6 +1,6 @@
 # Scenario: Detect Apache Struts RCE Vulnerability Exploitation
 
-***DRAFT***
+***Requires XDR for Containers***
 
 ## Prerequisites
 

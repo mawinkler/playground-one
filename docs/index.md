@@ -19,21 +19,37 @@ In a nutshell:
 
 ## Change Log
 
+10/10/2023
+
+- Playground One goes public
+
 08/07/2023
 
-- Initial release (planned)
+- Initial release
 
-## Currently Work in Progress
-
-- Fine-tuning and fixing bugs :-)
-- Documentation of playbooks
-
-## Requirements and Support Matrix
+## Requirements
 
 The Playground One is designed to work with AWS and is tested these operating systems
 
 - Ubuntu Bionic and newer
 - Cloud9 with Ubuntu
+
+## System Health
+
+Configuration | Operational | Known Issues | Vision One Cloud Security
+------------- | ----------- | ------------ | ----------------------------------------------------------------
+EC2 Linux     | Yes         | None         | V1 Server & Workload Protection
+EC2 Windows   | Yes         | None         | V1 Server & Workload Protection
+EKS EC2       | Yes         | None         | V1CS Runtime Scanning<br>V1CS Runtime Security<br>OAT Generation
+EKS Fargate   | WIP         | None         |
+EKS Calico    | WIP         | Unstable     |
+EKS Prometheus| Yes         | None         |
+EKS Trivy     | Yes         | None         |
+ECS EC2       | Yes         | See 1)       | V1CS Runtime Scanning<br>V1CS Runtime Security
+ECS Fargate   | Yes         | See 2)       | V1CS Runtime Scanning<br>V1CS Runtime Security
+
+1) Deleting the cluster requires the deactivation runtime scanning and runtime security before destroying the cluster. If destroy process `module.ecs-ec2[0].module.ecs_service.aws_ecs_service.this[0]: Still destroying...` hangs for a couple of minutes manually terminate the autoscaling group `pgo4-ecs-ec2-asg-spot-...` in AWS.
+2) Activating Runtime Security requires some manual steps, see [documentation](https://docs.trendmicro.com/en-us/enterprise/trend-vision-one/cloudsecurityoperati/about-container-secu/next-steps/containerinventory/ecs-fargate-deployme/ecs-fargate-add.aspx). Deleting the cluster requires the deactivation of runtime scanning and runtime security before destroying the cluster.
 
 ## CLI Commands of the Playground
 

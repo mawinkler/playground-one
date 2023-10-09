@@ -1,6 +1,6 @@
 # Frequently asked Questions
 
-## How to update the Playgounr One?
+## How to update the Playgound One?
 
 The Playground is under contiuous development. Even if I try to not implement breaking changes please follow the steps below ***before*** updating it to the latest version:
 
@@ -67,7 +67,7 @@ pgo --init nw
 pgo --apply nw
 ```
 
-## My IP address has changed and I cannot access my apps anymore
+## My IP address has changed and I cannot access my environment anymore
 
 If you need to change the access IP later on, maybe your provider assigned you a new one, follow these steps:
 
@@ -100,6 +100,10 @@ pgo --apply nw
 ```
 
 Then reapply your eks, ecs, ec2 or scenarios by `pgo --apply <configuration>`.
+
+## I restarted my Cloud9 instance and I cannot access my environment anymore
+
+See above.
 
 ## I cannot destroy the ECS cluster(s)
 

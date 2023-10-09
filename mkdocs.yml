@@ -23,7 +23,7 @@ nav:
       - Apache Struts Multipart Encoding Command Injection: scenarios/xdr-for-containers-eks-struts.md
       - Hunger Check: scenarios/hunger-check.md
     - ECS:
-      - Runtime Vulnerability Scan on ECS: scenarios/container-security-ecs-runtime-vulnerability.md
+      # - Runtime Vulnerability Scan on ECS: scenarios/container-security-ecs-runtime-vulnerability.md
       - Tomcat Remote Code Execution: scenarios/xdr-for-containers-ecs-tomcat-rce.md
       - JNDI Injection in HTTP Request: scenarios/xdr-for-containers-ecs-log4j.md
       - Apache Struts Multipart Encoding Command Injection: scenarios/xdr-for-containers-ecs-struts.md

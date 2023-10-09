@@ -1,6 +1,6 @@
 # Scenario: Detect Tomcat RCE
 
-***DRAFT***
+***Requires XDR for Containers***
 
 ## Prerequisites
 
