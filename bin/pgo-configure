@@ -324,13 +324,13 @@ function update_cloud_one_config() {
 # }
 
 function update_integrations_config() {
-  printf '\n%s\n' "Please set/update your Cloud One configuration"
+  printf '\n%s\n' "Please set/update your Integrations configuration"
 
 
   ##
   ## Calico
   ##
-  key_desc="Calico"
+  key_desc="EKS Calico"
   read -p "${key_desc} [${integrations_calico_enabled}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     integrations_calico_enabled=${TEMP}
@@ -346,7 +346,7 @@ function update_integrations_config() {
   ##
   ## Prometheus & Grafana
   ##
-  key_desc="Prometheus & Grafana"
+  key_desc="EKS Prometheus & Grafana"
   read -p "${key_desc} [${integrations_prometheus_enabled}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     integrations_prometheus_enabled=${TEMP}
@@ -379,7 +379,7 @@ function update_integrations_config() {
   ##
   ## Trivy
   ##
-  key_desc="Trivy"
+  key_desc="EKS Trivy"
   read -p "${key_desc} [${integrations_trivy_enabled}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     integrations_trivy_enabled=${TEMP}
