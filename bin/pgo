@@ -54,7 +54,7 @@ function check_xdr_for_containers() {
   tf_state_vpc=$(terraform state list 2>/dev/null | grep "module.vpc.aws_vpc.vpc")
   if [[ ! -z "${tf_state_vpc}" ]] ; then
     vpc_id=$(terraform output -raw vpc_id)
-    subnets_createdby=$(aws ec2 describe-subnets | \
+    subnets_createdby=$(aws ec2 describe-subnets --region ${aws_region} | \
       jq -r --arg vpc_id "$vpc_id" '.Subnets[] |
         select(.VpcId==$vpc_id) | .Tags[] | select(.Key=="CreatedBy") | .Value' | head -n1)
     if [ "${subnets_createdby}" == "VisionOneXdrForContainer" ] ; then
@@ -382,11 +382,11 @@ function destroy() {
     ecs)
       # Workaround for Terraform bug described in FAQ
       # Delete eventually existing autoscaling groups belonging to the ecs clusters
-      asg_groups=$(aws autoscaling describe-auto-scaling-groups | \
+      asg_groups=$(aws autoscaling describe-auto-scaling-groups --region ${aws_region} | \
         jq -r --arg aws_environment "$aws_environment-ecs-" '.AutoScalingGroups[] | select(.AutoScalingGroupName | startswith($aws_environment)) | .AutoScalingGroupName')
       for group in ${asg_groups} ; do
         printf '%s\n' "Deleting auto scaling group ${group}"
-        aws autoscaling delete-auto-scaling-group --auto-scaling-group-name ${group} --force-delete
+        aws autoscaling delete-auto-scaling-group --auto-scaling-group-name ${group} --region ${aws_region} --force-delete
       done
       
       # Delete eventually existing trendmicro scout service before cluster destroy
