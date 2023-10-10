@@ -74,6 +74,8 @@ The configuration tool is devided into sections. The following chapters walk you
 
 ### Section: AWS
 
+> ***Note:*** This section is skipped when you have any configuration applied.
+
 Set/update:
 
 - `AWS Account ID`: The ID of your AWS subscription (just numbers no `-`). This is mandatory.
@@ -84,7 +86,7 @@ Set/update:
 
 You don't necessarily need to change anything here if you're satisfied with the defaults, but
 
-> ***note:*** It is highly recommended to change the `Access IPs/CIDRs` to (a) single IP(s) or at least a small CIDR to prevent anonymous users playing with your environmnent. Remember: we might deploy vulnerable applications.
+> ***Note:*** It is highly recommended to change the `Access IPs/CIDRs` to (a) single IP(s) or at least a small CIDR to prevent anonymous users playing with your environmnent. Remember: we might deploy vulnerable applications.
 
 Set/update:
 
@@ -117,5 +119,13 @@ Set/update:
 - `Container Security policy ID`: To get the Policy ID for your Container Security deployment head over to Container Security on Cloud One and navigate to the policy. The Policy ID is the part after the last `/` in the URL: <https://cloudone.trendmicro.com/container/policies/relaxed_playground-2OxPQEiC6Jo4dbDVfebKiZMured><br>Here: `relaxed_playground-2OxPQEiC6Jo4dbDVfebKiZMured`
 - `Cloud One region name`: Set your Cloud One region here if it is not `trend-us-1`.
 - `Cloud One API Key`: Your Cloud One API Key with full access. This is mandatory.
+
+### Section: Integrations Configuration
+
+Set/update:
+
+- `EKS Calico`: Enable/disable the most used Pod network on your EKS cluster. It's currently disabled by default but will come shortly
+- `EKS Prometheus & Grafana`: Enable/disable Prometheus. It is an open-source systems monitoring and alerting toolkit integrated with a preconfigured Grafana.
+- `EKS Trivy`: Enable/disable Trivy vulnerability scanning for comparison.
 
 Now, continue with the chapter [General Life-Cycle](life-cycle.md).
