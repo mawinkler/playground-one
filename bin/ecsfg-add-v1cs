@@ -1,0 +1,90 @@
+#!/bin/bash
+[ -z "$1" ] && { printf '%s\n' "Clustername required"; exit 0; }
+
+cluster=${1}
+service=${cluster}
+aws_account_id="$(yq '.services.aws.account-id' $ONEPATH/config.yaml)"
+aws_region="$(yq '.services.aws.region' $ONEPATH/config.yaml)"
+
+# Remind on runtime security enabled
+printf '%s\n' "Runtime Security enabled?"
+sleep 3
+
+mkdir -p ${ONEPATH}/.ecsfg
+
+# Patch task role
+printf '%s\n' "Patching task role..."
+task_arn=$(aws ecs list-tasks \
+             --cluster ${cluster} | \
+             jq -r '.taskArns[]')
+definition_arn=$(aws ecs describe-tasks \
+                   --cluster ${cluster} \
+                   --task ${task_arn} | \
+                   jq -r '.tasks[].taskDefinitionArn')
+task_role_arn=$(aws ecs describe-task-definition \
+                  --task-definition ${definition_arn} | \
+                  jq -r '.taskDefinition.taskRoleArn')
+task_role_name=${task_role_arn##*/}
+printf '%s\n' "  Role name: ${task_role_name}"
+
+printf '%s\n' "  Creating role policy."
+cat <<EOF >${ONEPATH}/.ecsfg/ecsfg-iam-policy.json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ssm:GetParameter"
+            ],
+            "Resource": "arn:aws:ssm:${aws_region}:${aws_account_id}:parameter/V1CS/*"
+        }
+    ]
+}
+EOF
+
+policy_arn=$(aws iam create-policy \
+               --policy-name ${task_role_name} \
+               --policy-document file://${ONEPATH}/.ecsfg/ecsfg-iam-policy.json | \
+               jq -r '.Policy.Arn')
+
+printf '%s\n' "  Attaching role policy."
+aws iam attach-role-policy \
+  --role-name ${task_role_name} \
+  --policy-arn ${policy_arn}
+
+# Get task definition
+printf '%s\n' "Getting task definition..."
+task_definition_arn=$(aws ecs describe-tasks \
+                        --cluster ${cluster} \
+                        --tasks ${task_arn} | \
+                        jq -r '.tasks[].taskDefinitionArn')
+task_definition_name=${task_definition_arn##*/}
+aws ecs describe-task-definition \
+  --task-definition ${task_definition_name} | \
+  jq '.taskDefinition' > ${ONEPATH}/.ecsfg/task-definition.json
+
+# Patch task definition
+printf '%s\n' "  Patching task definition..."
+docker run -ti \
+  -v ${ONEPATH}/.ecsfg:/mnt/input \
+  -v ${ONEPATH}/.ecsfg:/mnt/output \
+  trendmicrocloudone/ecs-taskdef-patcher:2.3.21 \
+  -i /mnt/input/task-definition.json \
+  -o /mnt/output/task-definition-patched.json
+printf '%s\n' "  Patched task definition written to .ecsfg"
+
+# Create new task revision
+printf '%s\n' "Create new task revision"
+task_new_revision=$(aws ecs register-task-definition \
+  --cli-input-json file://${ONEPATH}/.ecsfg/task-definition-patched.json | \
+  jq -r '.taskDefinition.revision')
+
+# Update Service to use new revision and force redeployment
+printf '%s\n' "Update Service to use new revision and force redeployment"
+aws ecs update-service \
+  --cluster ${cluster} \
+  --service ${service} \
+  --task-definition ${task_definition_name%%:*}:${task_new_revision} \
+  --force-new-deployment | \
+  jq -r '.service.taskDefinition'

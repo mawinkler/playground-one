@@ -1,6 +1,9 @@
 # #############################################################################
 # Create IAM roles, admin and user
 # #############################################################################
+#
+# EKS Cluster
+#
 module "allow_eks_access_iam_policy" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-policy"
   version = "5.27.0"
@@ -95,24 +98,76 @@ module "eks_admins_iam_group" {
   custom_group_policy_arns          = [module.allow_assume_eks_admins_iam_policy.arn]
 }
 
-# Autoscaler Role
-module "cluster_autoscaler_irsa_role" {
-  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "5.27.0"
+#
+# EC2 Autoscaler
+#
+# Policy
+data "aws_iam_policy_document" "kubernetes_cluster_autoscaler" {
+  count = var.autoscaler_enabled ? 1 : 0
 
-  role_name                        = "${var.environment}-cluster-autoscaler"
-  attach_cluster_autoscaler_policy = true
-  cluster_autoscaler_cluster_ids   = [module.eks.cluster_name]
+  statement {
+    actions = [
+      "autoscaling:DescribeAutoScalingGroups",
+      "autoscaling:DescribeAutoScalingInstances",
+      "autoscaling:DescribeLaunchConfigurations",
+      "autoscaling:DescribeTags",
+      "autoscaling:SetDesiredCapacity",
+      "autoscaling:TerminateInstanceInAutoScalingGroup",
+      "ec2:DescribeLaunchTemplateVersions",
+      "ec2:DescribeInstanceTypes"
+    ]
+    resources = [
+      "*",
+    ]
+    effect = "Allow"
+  }
 
-  oidc_providers = {
-    ex = {
-      provider_arn               = module.eks.oidc_provider_arn
-      namespace_service_accounts = ["kube-system:cluster-autoscaler"]
+}
+
+resource "aws_iam_policy" "kubernetes_cluster_autoscaler" {
+  # depends_on  = [var.autoscaler_dependency]
+  count       = var.autoscaler_enabled ? 1 : 0
+  name        = "${module.eks.cluster_name}-cluster-autoscaler"
+  path        = "/"
+  description = "Policy for cluster autoscaler service"
+
+  policy = data.aws_iam_policy_document.kubernetes_cluster_autoscaler[0].json
+}
+
+# Role
+data "aws_iam_policy_document" "kubernetes_cluster_autoscaler_assume" {
+  count = var.autoscaler_enabled ? 1 : 0
+
+  statement {
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+
+    principals {
+      type        = "Federated"
+      identifiers = [module.eks.oidc_provider_arn]
+      
     }
-  }
 
-  tags = {
-    Name        = "${var.environment}-irsa-role-cluster-autoscaler"
-    Environment = "${var.environment}"
+    condition {
+      test     = "StringEquals"
+      variable = "${replace(module.eks.oidc_provider, "https://", "")}:sub"
+
+      values = [
+        "system:serviceaccount:${var.autoscaler_namespace}:${var.autoscaler_service_account_name}",
+      ]
+    }
+
+    effect = "Allow"
   }
+}
+
+resource "aws_iam_role" "kubernetes_cluster_autoscaler" {
+  count              = var.autoscaler_enabled ? 1 : 0
+  name               = "${module.eks.cluster_name}-cluster-autoscaler"
+  assume_role_policy = data.aws_iam_policy_document.kubernetes_cluster_autoscaler_assume[0].json
+}
+
+resource "aws_iam_role_policy_attachment" "kubernetes_cluster_autoscaler" {
+  count      = var.autoscaler_enabled ? 1 : 0
+  role       = aws_iam_role.kubernetes_cluster_autoscaler[0].name
+  policy_arn = aws_iam_policy.kubernetes_cluster_autoscaler[0].arn
 }

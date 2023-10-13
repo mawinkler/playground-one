@@ -1,11 +1,19 @@
 # #############################################################################
-# Create an EKS Cluster
+# ECS Cluster
 # #############################################################################
+resource "random_string" "suffix" {
+  length  = 8
+  lower   = true
+  upper   = false
+  numeric = true
+  special = false
+}
+
 module "ecs" {
   source  = "terraform-aws-modules/ecs/aws"
   version = "5.2.0"
 
-  cluster_name = "${var.environment}-ecs-fargate"
+  cluster_name = "${var.environment}-ecs-${random_string.suffix.result}"
 
   fargate_capacity_providers = {
     # On-demand instances currently disabled

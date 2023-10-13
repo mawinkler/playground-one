@@ -1,6 +1,6 @@
 # Vision One Container Security
 
-## Setup of Container Security with the Playground One
+## Container Security with the Playground One EKS
 
 This guide provides step-by-step instructions on how to deploy Vision One Container Security on a Playground One EKS cluster.
 
@@ -23,4 +23,29 @@ Steps:
 5. Click the `Runtime Scanning` switch to enable Runtime Vulnerability Scanning.
 6. Click the `Runtime Security` switch to enable Runtime Security protection.
 7. Clich `[Next]` to create the cluster in the inventory view.
-8. Download the generated `overrides.yaml` and copy/paste the `helm install` command to your terminal. This will deploy Vision One Container Security to your EKS cluster.
+8. Download the generated `overrides.yaml`, copy/paste the `helm install` command to your terminal, and run the command. This will deploy Vision One Container Security to your EKS cluster.
+
+Done.
+
+## Container Security with the Playground One ECS Fargate
+
+If you are using deploying Container Security in an ECS Fargate environment, you have to carry out some additional steps after adding the instance. See official [documentation](https://docs.trendmicro.com/en-us/enterprise/trend-vision-one/cloudsecurityoperati/about-container-secu/next-steps/containerinventory/ecs-fargate-deployme/ecs-fargate-add.aspx) for the details.
+
+Playground One simplifies the necessary steps.
+
+Prerequisites:
+
+- Deployed ECS Fargate cluster configuration (`pgo -a ecs`).
+
+Required information:
+
+- ECS Fargate Cluster name from ecs outputs (`pgo -o ecs`).
+
+1. Head over to `Cloud Security Operations --> Container Security --> Container Inventory`.
+2. Select `[Amazon ECS] --> [Account ID] --> [Region] --> [Your ECS Fargate Cluster]`.
+3. Select a Policy and enable Runtime Security.
+4. Run `ecsfg-add-v1cs <CLUSTER NAME>`
+
+Done.
+
+> ***Note:*** Deletion of the cluster via `pgo -d ecs` will fail until you manually delete the `trendmicro-scout`-service in the ECS console. Then delete the cluster in the console. There will be an IAM policy starting with your cluster name not being deleted automatically.

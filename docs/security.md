@@ -32,7 +32,7 @@ aws eks update-cluster-config --region ${aws_region} --name ${cluster_name} --re
 Audit - Playground One:
 
 ```sh
-cd ${ONEPATH}/awsone/4-cluster-eks
+cd ${ONEPATH}/awsone/4-cluster-eks-ec2
 cluster_name=$(terraform output -raw cluster_name)
 
 echo Cluster private access enpoint enabled:
@@ -107,7 +107,7 @@ CIS Controls:
 ***Ensure Network Policy is Enabled and set as appropriate***
 
 ```sh
-cd ${ONEPATH}/awsone/4-cluster-eks
+cd ${ONEPATH}/awsone/4-cluster-eks-ec2
 cluster_name=$(terraform output -raw cluster_name)
 
 echo Cluster security group id:

@@ -1,8 +1,19 @@
+# #############################################################################
+# ECS Cluster
+# #############################################################################
+resource "random_string" "suffix" {
+  length  = 8
+  lower   = true
+  upper   = false
+  numeric = true
+  special = false
+}
+
 module "ecs" {
   source  = "terraform-aws-modules/ecs/aws"
   version = "5.2.0"
 
-  cluster_name = "${var.environment}-ecs-ec2"
+  cluster_name = "${var.environment}-ecs-${random_string.suffix.result}"
 
   # Capacity provider - autoscaling groups
   default_capacity_provider_use_fargate = false

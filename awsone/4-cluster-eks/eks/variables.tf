@@ -22,14 +22,66 @@ variable "kubernetes_version" {
   default     = "1.25"
 }
 
-# Autoscaler version need to match kubernetes version
-# Get available versions from:
-# https://console.cloud.google.com/gcr/images/k8s-artifacts-prod/EU/autoscaling/cluster-autoscaler?pli=1
-variable "autoscaler_version" {
-  description = "Cluster Kubernetes Autoscaler version"
-  default     = "1.25.1"
-}
-
+# Fargate
 variable "create_fargate_profile" {
   default = false
+}
+
+# Autoscaler
+variable "autoscaler_enabled" {
+  type        = bool
+  default     = true
+  description = "Variable indicating whether deployment is enabled."
+}
+
+variable "autoscaler_service_account_name" {
+  type        = string
+  default     = "cluster-autoscaler"
+  description = "Cluster Autoscaler service account name"
+}
+
+variable "autoscaler_helm_chart_name" {
+  type        = string
+  default     = "cluster-autoscaler"
+  description = "Cluster Autoscaler Helm chart name to be installed"
+}
+
+variable "autoscaler_helm_chart_release_name" {
+  type        = string
+  default     = "cluster-autoscaler"
+  description = "Helm release name"
+}
+
+variable "autoscaler_helm_chart_version" {
+  type        = string
+  default     = "9.29.3"
+  description = "Cluster Autoscaler Helm chart version."
+}
+
+variable "autoscaler_helm_chart_repo" {
+  type        = string
+  default     = "https://kubernetes.github.io/autoscaler"
+  description = "Cluster Autoscaler repository name."
+}
+
+variable "autoscaler_create_namespace" {
+  type        = bool
+  default     = true
+  description = "Whether to create Kubernetes namespace with name defined by `namespace`."
+}
+
+variable "autoscaler_namespace" {
+  type        = string
+  default     = "kube-system"
+  description = "Kubernetes namespace to deploy Cluster Autoscaler Helm chart."
+}
+
+# variable "autoscaler_dependency" {
+#   default     = "autoscaler"
+#   description = "Dependence variable binds all AWS resources allocated by this module, dependent modules reference this variable."
+# }
+
+variable "autoscaler_additional_settings" {
+  default     = {}
+  description = "Additional settings which will be passed to the Helm chart values."
 }

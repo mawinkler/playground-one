@@ -49,6 +49,8 @@ overrides.yaml
 exploits
 exploits-archive
 v1demo
+temp
+.ecsfg
 
 # In development
 4-cluster-eks-fargate
