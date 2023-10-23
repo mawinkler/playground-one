@@ -412,3 +412,32 @@ function get_config() {
 
   return 0
 }
+
+function telemetry() {
+
+  api_url=https://telemetry.collectingphotons.space/v1
+
+  telemetry_action=$1
+  telemetry_configuration=$2
+
+  curl -X POST "${api_url}/telemetry" \
+    -H 'Content-Type: application/json' \
+    -d '
+  {
+      "exec_time": "'$(date --utc +%s)'",
+      "account_id": "'$(echo -n ${aws_account_id} | sha256sum | cut -d " " -f1)'",
+      "environment": "'${aws_environment}'",
+      "region": "'${aws_region}'",
+      "action": "'${telemetry_action}'",
+      "configuration": "'${telemetry_configuration}'",
+      "config_ec2_linux": "'${pgo_ec2_create_linux}'",
+      "config_ec2_windows": "'${pgo_ec2_create_windows}'",
+      "config_eks_fargate": "'${pgo_eks_create_fargate_profile}'",
+      "config_ecs_ec2": "'${pgo_ecs_create_ec2}'",
+      "config_ecs_fargate": "'${pgo_ecs_create_fargate}'",
+      "integrations_eks_calico": "'${integrations_calico_enabled}'",
+      "integrations_eks_prometheus": "'${integrations_prometheus_enabled}'",
+      "integrations_eks_trivy": "'${integrations_trivy_enabled}'"
+  }
+      '
+}

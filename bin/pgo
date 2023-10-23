@@ -36,7 +36,6 @@ if [ ! -f "$ONEPATH/.pghome" ]; then
     exit 0
 fi
 
-
 function lock() {
 
   touch ${ONEPATH}/awsone/2-network/.pgo.$1.lock
@@ -109,6 +108,8 @@ function check_network() {
 #   None
 #######################################
 function init() {
+
+  telemetry "init" $1
 
   case $1 in
     nw|network|all)
@@ -219,6 +220,8 @@ function init() {
 #   None
 #######################################
 function apply() {
+
+  telemetry "apply" $1
 
   case $1 in
     nw|network|all)
@@ -357,6 +360,8 @@ function update_ip() {
 #######################################
 function destroy() {
 
+  telemetry "destroy" $1
+
   case $1 in
     nw|network)
       check_network
@@ -449,6 +454,8 @@ function destroy() {
 #######################################
 function output() {
 
+  telemetry "output" $1
+
   case $1 in
     nw|network|all)
       if [[ -f ${ONEPATH}/awsone/2-network/.pgo.nw.lock ]] ; then
@@ -518,6 +525,8 @@ function output() {
 #######################################
 function state() {
 
+  telemetry "state" $1
+
   case $1 in
     nw|network|all)
       printf '%s\n' "State - Network:"
@@ -567,6 +576,8 @@ function state() {
 #######################################
 function show() {
 
+  telemetry "show" $1
+
   case $1 in
     nw|network|all)
       printf '%s\n' "Full State - Network:"
@@ -614,6 +625,8 @@ function show() {
 #   None
 #######################################
 function validate() {
+
+  telemetry "validate" $1
 
   case $1 in
     nw|network|all)
