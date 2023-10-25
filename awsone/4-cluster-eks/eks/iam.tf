@@ -6,9 +6,9 @@
 #
 module "allow_eks_access_iam_policy" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-policy"
-  version = "5.27.0"
+  version = "5.30.0"
 
-  name          = "${var.environment}-allow-eks-access"
+  name          = "${module.eks.cluster_name}-allow-eks-access"
   create_policy = true
 
   policy = jsonencode({
@@ -25,16 +25,16 @@ module "allow_eks_access_iam_policy" {
   })
 
   tags = {
-    Name        = "${var.environment}-allow-eks-access"
-    Environment = "${var.environment}"
+    Name        = "${module.eks.cluster_name}-allow-eks-access"
+    Environment = "${module.eks.cluster_name}"
   }
 }
 
 module "eks_admins_iam_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role"
-  version = "5.27.0"
+  version = "5.30.0"
 
-  role_name         = "${var.environment}-eks-admin"
+  role_name         = "${module.eks.cluster_name}-eks-admin"
   create_role       = true
   role_requires_mfa = false
 
@@ -45,16 +45,16 @@ module "eks_admins_iam_role" {
   ]
 
   tags = {
-    Name        = "${var.environment}-iam-role-eks-admin"
-    Environment = "${var.environment}"
+    Name        = "${module.eks.cluster_name}-iam-role-eks-admin"
+    Environment = "${module.eks.cluster_name}"
   }
 }
 
 module "clusteradmin_iam_user" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-user"
-  version = "5.27.0"
+  version = "5.30.0"
 
-  name                          = "${var.environment}-clusteradmin"
+  name                          = "${module.eks.cluster_name}-clusteradmin"
   create_iam_access_key         = false
   create_iam_user_login_profile = false
 
@@ -63,9 +63,9 @@ module "clusteradmin_iam_user" {
 
 module "allow_assume_eks_admins_iam_policy" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-policy"
-  version = "5.27.0"
+  version = "5.30.0"
 
-  name          = "${var.environment}-allow-assume-eks-admin-iam-role"
+  name          = "${module.eks.cluster_name}-allow-assume-eks-admin-iam-role"
   create_policy = true
 
   policy = jsonencode({
@@ -82,16 +82,16 @@ module "allow_assume_eks_admins_iam_policy" {
   })
 
   tags = {
-    Name        = "${var.environment}-allow-eks-admin-assume-role"
-    Environment = "${var.environment}"
+    Name        = "${module.eks.cluster_name}-allow-eks-admin-assume-role"
+    Environment = "${module.eks.cluster_name}"
   }
 }
 
 module "eks_admins_iam_group" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-group-with-policies"
-  version = "5.27.0"
+  version = "5.30.0"
 
-  name                              = "${var.environment}-eks-admin"
+  name                              = "${module.eks.cluster_name}-eks-admin"
   attach_iam_self_management_policy = false
   create_group                      = true
   group_users                       = [module.clusteradmin_iam_user.iam_user_name]
@@ -126,7 +126,8 @@ data "aws_iam_policy_document" "kubernetes_cluster_autoscaler" {
 
 resource "aws_iam_policy" "kubernetes_cluster_autoscaler" {
   # depends_on  = [var.autoscaler_dependency]
-  count       = var.autoscaler_enabled ? 1 : 0
+  count = var.autoscaler_enabled ? 1 : 0
+
   name        = "${module.eks.cluster_name}-cluster-autoscaler"
   path        = "/"
   description = "Policy for cluster autoscaler service"
@@ -144,7 +145,7 @@ data "aws_iam_policy_document" "kubernetes_cluster_autoscaler_assume" {
     principals {
       type        = "Federated"
       identifiers = [module.eks.oidc_provider_arn]
-      
+
     }
 
     condition {
@@ -152,7 +153,7 @@ data "aws_iam_policy_document" "kubernetes_cluster_autoscaler_assume" {
       variable = "${replace(module.eks.oidc_provider, "https://", "")}:sub"
 
       values = [
-        "system:serviceaccount:${var.autoscaler_namespace}:${var.autoscaler_service_account_name}",
+        "system:serviceaccount:${local.autoscaler_namespace}:${local.autoscaler_service_account_name}",
       ]
     }
 
@@ -161,13 +162,15 @@ data "aws_iam_policy_document" "kubernetes_cluster_autoscaler_assume" {
 }
 
 resource "aws_iam_role" "kubernetes_cluster_autoscaler" {
-  count              = var.autoscaler_enabled ? 1 : 0
+  count = var.autoscaler_enabled ? 1 : 0
+
   name               = "${module.eks.cluster_name}-cluster-autoscaler"
   assume_role_policy = data.aws_iam_policy_document.kubernetes_cluster_autoscaler_assume[0].json
 }
 
 resource "aws_iam_role_policy_attachment" "kubernetes_cluster_autoscaler" {
-  count      = var.autoscaler_enabled ? 1 : 0
+  count = var.autoscaler_enabled ? 1 : 0
+
   role       = aws_iam_role.kubernetes_cluster_autoscaler[0].name
   policy_arn = aws_iam_policy.kubernetes_cluster_autoscaler[0].arn
 }

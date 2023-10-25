@@ -3,9 +3,9 @@
 # #############################################################################
 module "aws_load_balancer_controller_irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "5.27.0"
+  version = "5.30.0"
 
-  role_name = "${var.environment}-aws-load-balancer-controller"
+  role_name = "${module.eks.cluster_name}-aws-load-balancer-controller"
 
   attach_load_balancer_controller_policy = true
 
@@ -17,8 +17,8 @@ module "aws_load_balancer_controller_irsa_role" {
   }
 
   tags = {
-    Name        = "${var.environment}-irsa-role-aws-load-balancer-controller"
-    Environment = "${var.environment}"
+    Name        = "${module.eks.cluster_name}-irsa-role-aws-load-balancer-controller"
+    Environment = "${module.eks.cluster_name}"
   }
 }
 

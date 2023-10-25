@@ -29,9 +29,9 @@ Done.
 
 ## Container Security with the Playground One ECS Fargate
 
-If you are using deploying Container Security in an ECS Fargate environment, you have to carry out some additional steps after adding the instance. See official [documentation](https://docs.trendmicro.com/en-us/enterprise/trend-vision-one/cloudsecurityoperati/about-container-secu/next-steps/containerinventory/ecs-fargate-deployme/ecs-fargate-add.aspx) for the details.
+If you are deploying Container Security in an ECS Fargate environment, you have to carry out some additional steps after adding the instance. See official [documentation](https://docs.trendmicro.com/en-us/enterprise/trend-vision-one/cloudsecurityoperati/about-container-secu/next-steps/containerinventory/ecs-fargate-deployme/ecs-fargate-add.aspx) for the details.
 
-Playground One simplifies the necessary steps.
+Playground One simplifies these steps.
 
 Prerequisites:
 
@@ -41,7 +41,9 @@ Required information:
 
 - ECS Fargate Cluster name from ecs outputs (`pgo -o ecs`).
 
-1. Head over to `Cloud Security Operations --> Container Security --> Container Inventory`.
+Steps:
+
+1. On Vision One, head over to `Cloud Security Operations --> Container Security --> Container Inventory`.
 2. Select `[Amazon ECS] --> [Account ID] --> [Region] --> [Your ECS Fargate Cluster]`.
 3. Select a Policy and enable Runtime Security.
 4. Run `ecsfg-add-v1cs <CLUSTER NAME>`

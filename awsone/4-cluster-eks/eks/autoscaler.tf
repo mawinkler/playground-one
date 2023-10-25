@@ -15,22 +15,23 @@ provider "helm" {
 
 resource "kubernetes_namespace" "cluster_autoscaler" {
   # depends_on = [var.autoscaler_dependency]
-  count      = (var.autoscaler_enabled && var.autoscaler_create_namespace && var.autoscaler_namespace != "kube-system") ? 1 : 0
+  count = (var.autoscaler_enabled && local.autoscaler_create_namespace && local.autoscaler_namespace != "kube-system") ? 1 : 0
 
   metadata {
-    name = var.autoscaler_namespace
+    name = local.autoscaler_namespace
   }
 }
 
 resource "helm_release" "cluster_autoscaler" {
   # depends_on = [var.autoscaler_dependency, kubernetes_namespace.cluster_autoscaler]
+  # depends_on = [kubernetes_namespace.cluster_autoscaler, module.fargate_profile]
   depends_on = [kubernetes_namespace.cluster_autoscaler]
   count      = var.autoscaler_enabled ? 1 : 0
-  name       = var.autoscaler_helm_chart_name
-  chart      = var.autoscaler_helm_chart_release_name
-  repository = var.autoscaler_helm_chart_repo
-  version    = var.autoscaler_helm_chart_version
-  namespace  = var.autoscaler_namespace
+  name       = local.autoscaler_helm_chart_name
+  chart      = local.autoscaler_helm_chart_release_name
+  repository = local.autoscaler_helm_chart_repo
+  version    = local.autoscaler_helm_chart_version
+  namespace  = local.autoscaler_namespace
 
   set {
     name  = "autoDiscovery.clusterName"
@@ -44,7 +45,7 @@ resource "helm_release" "cluster_autoscaler" {
 
   set {
     name  = "rbac.serviceAccount.name"
-    value = var.autoscaler_service_account_name
+    value = local.autoscaler_service_account_name
   }
 
   set {

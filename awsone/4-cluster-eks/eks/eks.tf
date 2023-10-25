@@ -11,13 +11,13 @@ resource "random_string" "suffix" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "19.15.3"
+  version = "19.17.2"
 
   cluster_name    = "${var.environment}-eks-${random_string.suffix.result}"
-  cluster_version = var.kubernetes_version
+  cluster_version = local.kubernetes_version
 
-  cluster_endpoint_private_access      = true
-  cluster_endpoint_public_access       = true
+  cluster_endpoint_private_access = true
+  cluster_endpoint_public_access  = true
   # cluster_endpoint_public_access_cidrs = var.access_ip
 
   vpc_id     = var.vpc_id
@@ -60,13 +60,11 @@ module "eks" {
   ]
 
   eks_managed_node_group_defaults = {
-    ami_type = "AL2_x86_64"
-    # cluster_additional_security_group_ids = [aws_security_group.eks.id]
+    ami_type                              = "AL2_x86_64"
     cluster_additional_security_group_ids = [var.private_security_group_id]
     disk_size                             = 50
     instance_types                        = ["t3.medium", "t3.large"]
-    # vpc_security_group_ids                = [aws_security_group.eks.id]
-    vpc_security_group_ids = [var.private_security_group_id]
+    vpc_security_group_ids                = [var.private_security_group_id]
   }
 
   cluster_security_group_additional_rules = {
@@ -98,15 +96,6 @@ module "eks" {
       type        = "egress"
       self        = true
     }
-
-    # ingress_allow_access_from_control_plane = {
-    #   type                          = "ingress"
-    #   protocol                      = "tcp"
-    #   from_port                     = 9443
-    #   to_port                       = 9443
-    #   source_cluster_security_group = true
-    #   description                   = "Allow access from control plane to webhook port of AWS load balancer controller"
-    # }
   }
 
   eks_managed_node_groups = {
