@@ -55,7 +55,7 @@ module "ecs_service" {
     }
   }
 
-  subnet_ids = var.private_subnet_ids
+  subnet_ids = var.private_subnets
   security_group_rules = {
     alb_http_ingress = {
       type                     = "ingress"

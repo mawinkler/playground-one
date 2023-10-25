@@ -5,7 +5,7 @@ variable "environment" {}
 
 variable "public_security_group_id" {}
 
-variable "public_subnet_ids" {}
+variable "public_subnets" {}
 
 variable "key_name" {}
 

@@ -30,7 +30,7 @@ module "alb" {
   load_balancer_type = "application"
 
   vpc_id          = var.vpc_id
-  subnets         = var.public_subnet_ids
+  subnets         = var.public_subnets
   security_groups = [module.alb_sg.security_group_id]
 
   http_tcp_listeners = [

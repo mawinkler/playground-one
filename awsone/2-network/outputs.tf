@@ -10,24 +10,24 @@ output "private_security_group_id" {
   value = module.ec2.private_security_group_id
 }
 
-output "public_subnet_ids" {
-  value = module.vpc.public_subnet_ids
+output "public_subnets" {
+  value = module.vpc.public_subnets
 }
 
 output "public_subnet_cidr_blocks" {
   value = module.vpc.public_subnet_cidr_blocks
 }
 
-output "private_subnet_ids" {
-  value = module.vpc.private_subnet_ids
+output "private_subnets" {
+  value = module.vpc.private_subnets
 }
 
 output "private_subnet_cidr_blocks" {
   value = module.vpc.private_subnet_cidr_blocks
 }
 
-output "intra_subnet_ids" {
-  value = module.vpc.intra_subnet_ids
+output "intra_subnets" {
+  value = module.vpc.intra_subnets
 }
 
 output "intra_subnet_cidr_blocks" {

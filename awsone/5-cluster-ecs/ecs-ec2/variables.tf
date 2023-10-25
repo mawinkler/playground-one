@@ -13,9 +13,9 @@ variable "access_ip" {}
 
 variable "key_name" {}
 
-variable "public_subnet_ids" {}
+variable "public_subnets" {}
 
-variable "private_subnet_ids" {}
+variable "private_subnets" {}
 
 variable "public_subnet_cidr_blocks" {}
 

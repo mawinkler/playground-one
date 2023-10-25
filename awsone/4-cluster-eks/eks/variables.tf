@@ -13,7 +13,7 @@ variable "access_ip" {}
 
 variable "key_name" {}
 
-variable "private_subnet_ids" {}
+variable "private_subnets" {}
 
 variable "private_security_group_id" {}
 

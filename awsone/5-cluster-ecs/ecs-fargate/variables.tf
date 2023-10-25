@@ -11,9 +11,9 @@ variable "aws_region" {}
 
 variable "access_ip" {}
 
-variable "private_subnet_ids" {}
+variable "private_subnets" {}
 
-variable "public_subnet_ids" {}
+variable "public_subnets" {}
 
 variable "private_security_group_id" {}
 

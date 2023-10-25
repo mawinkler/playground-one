@@ -2,7 +2,7 @@ resource "kubernetes_deployment" "nginx_deployment" {
   metadata {
     name = "nginx"
     labels = {
-      app = "fargate"
+      workertype = "fargate"
     }
     namespace = var.namespace
   }
@@ -10,19 +10,18 @@ resource "kubernetes_deployment" "nginx_deployment" {
     replicas = 2
     selector {
       match_labels = {
-        app = "fargate"
+        workertype = "fargate"
       }
     }
     template {
       metadata {
         labels = {
-          app = "fargate"
+          workertype = "fargate"
         }
       }
       spec {
         container {
           image = "nginx:1.18.0-alpine"
-          # image = "nginx"
           name  = "nginx"
           port {
             container_port = 80

@@ -10,7 +10,7 @@ module "ec2" {
   source                   = "./ec2"
   environment              = var.environment
   public_security_group_id = data.terraform_remote_state.vpc.outputs.public_security_group_id
-  public_subnet_ids        = data.terraform_remote_state.vpc.outputs.public_subnet_ids.*
+  public_subnets           = data.terraform_remote_state.vpc.outputs.public_subnets.*
   key_name                 = data.terraform_remote_state.vpc.outputs.key_name
   public_key               = data.terraform_remote_state.vpc.outputs.public_key
   private_key_path         = data.terraform_remote_state.vpc.outputs.private_key_path
@@ -29,6 +29,6 @@ module "iam" {
 }
 
 module "s3" {
-  source = "./s3"
+  source      = "./s3"
   environment = var.environment
 }
