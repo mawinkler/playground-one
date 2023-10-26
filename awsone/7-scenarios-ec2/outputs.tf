@@ -2,10 +2,12 @@
 # Outputs
 # #############################################################################
 output "loadbalancer_dns_java_goof" {
+  description = "Loadbalancer Java-Goof DNS name"
   value = module.victims.loadbalancer_dns_java_goof
 }
 
 output "loadbalancer_dns_openssl3" {
+  description = "Loadbalancer OpenSSL DNS name"
   value = module.victims.loadbalancer_dns_openssl3
 }
 

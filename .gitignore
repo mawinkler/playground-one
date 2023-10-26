@@ -40,8 +40,10 @@ TMServerAgent_Linux.tar
 TMServerAgent_Windows.zip
 .pgo.nw.lock
 .pgo.ec2.lock
-.pgo.eks.lock
-.pgo.scenarios.lock
+.pgo.eks-ec2.lock
+.pgo.eks-fg.lock
+.pgo.scenarios-ec2.lock
+.pgo.scenarios-fg.lock
 .pgo.ecs.lock
 overrides.yaml
 
@@ -53,4 +55,4 @@ temp
 .ecsfg
 
 # In development
-4-cluster-eks-fargate
+4-cluster-eks-redesign

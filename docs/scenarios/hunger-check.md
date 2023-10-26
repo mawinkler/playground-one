@@ -2,15 +2,15 @@
 
 ## Prerequisites
 
-- Playground One EKS Cluster
+- Playground One EKS EC2 Cluster
 - Playground One Scenarios
   - Running app: Hunger Check
 
-Ensure to have the EKS Cluster including the Scenarios up and running:
+Ensure to have the EKS EC2 Cluster including the Scenarios up and running:
 
 ```sh
-pgo --apply eks
-pgo --apply scenarios
+pgo --apply eks-ec2
+pgo --apply scenarios-ec2
 ```
 
 We will use the Kubernetes Metrics Server which is an aggregator of resource usage data in our cluster. The Metrics Server isn't deployed by default in Amazon EKS clusters. To deploy it run

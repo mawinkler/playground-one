@@ -369,13 +369,15 @@ function get_config() {
     pgo_access_ip="$(yq '.services.playground-one.access-ip' $ONEPATH/config.yaml)"
     pgo_ec2_create_linux="$(yq '.services.playground-one.ec2.create-linux' $ONEPATH/config.yaml)"
     pgo_ec2_create_windows="$(yq '.services.playground-one.ec2.create-windows' $ONEPATH/config.yaml)"
-    pgo_eks_create_fargate_profile="$(yq '.services.playground-one.eks.create-fargate-profile' $ONEPATH/config.yaml)"
+    # pgo_eks_create_ec2="$(yq '.services.playground-one.eks.create-ec2' $ONEPATH/config.yaml)"
+    # pgo_eks_create_fargate="$(yq '.services.playground-one.eks.create-fargate' $ONEPATH/config.yaml)"
     pgo_ecs_create_ec2="$(yq '.services.playground-one.ecs.create-ec2' $ONEPATH/config.yaml)"
     pgo_ecs_create_fargate="$(yq '.services.playground-one.ecs.create-fargate' $ONEPATH/config.yaml)"
     [[ "${pgo_access_ip}" = "null" || "${pgo_access_ip}" = "" ]] && pgo_access_ip=[\"0.0.0.0/0\"]
     [[ "${pgo_ec2_create_linux}" = "null" || "${pgo_ec2_create_linux}" = "" ]] && pgo_ec2_create_linux=true
     [[ "${pgo_ec2_create_windows}" = "null" || "${pgo_ec2_create_windows}" = "" ]] && pgo_ec2_create_windows=true
-    [[ "${pgo_eks_create_fargate_profile}" = "null" || "${pgo_eks_create_fargate_profile}" = "" ]] && pgo_eks_create_fargate_profile=false
+    # [[ "${pgo_eks_create_ec2}" = "null" || "${pgo_eks_create_ec2}" = "" ]] && pgo_eks_create_ec2=false
+    # [[ "${pgo_eks_create_fargate}" = "null" || "${pgo_eks_create_fargate}" = "" ]] && pgo_eks_create_fargate=false
     [[ "${pgo_ecs_create_ec2}" = "null" || "${pgo_ecs_create_ec2}" = "" ]] && pgo_ecs_create_ec2=true
     [[ "${pgo_ecs_create_fargate}" = "null" || "${pgo_ecs_create_fargate}" = "" ]] && pgo_ecs_create_fargate=true
 
@@ -432,7 +434,6 @@ function telemetry() {
       "configuration": "'${telemetry_configuration}'",
       "config_ec2_linux": "'${pgo_ec2_create_linux}'",
       "config_ec2_windows": "'${pgo_ec2_create_windows}'",
-      "config_eks_fargate": "'${pgo_eks_create_fargate_profile}'",
       "config_ecs_ec2": "'${pgo_ecs_create_ec2}'",
       "config_ecs_fargate": "'${pgo_ecs_create_fargate}'",
       "integrations_eks_calico": "'${integrations_calico_enabled}'",

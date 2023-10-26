@@ -17,11 +17,6 @@ variable "private_subnets" {}
 
 variable "private_security_group_id" {}
 
-# Fargate
-variable "create_fargate_profile" {
-  default = false
-}
-
 # Autoscaler
 variable "autoscaler_enabled" {
   type        = bool

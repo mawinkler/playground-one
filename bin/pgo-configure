@@ -50,7 +50,7 @@ function update_aws_config() {
   if [[ ! -z "${TEMP}" ]]; then
     aws_environment=${TEMP}
   fi
-  if [[ "${aws_environment}" =~ ^[0-9a-z\-]+$ && ${#aws_environment} -le 16 ]]; then
+  if [[ "${aws_environment}" =~ ^[0-9a-z\-]+$ && ${#aws_environment} -le 12 ]]; then
     target_val=${aws_environment} \
       yq -i '.services.aws.environment = env(target_val)' ${ONEPATH}/config.yaml
   else
@@ -146,18 +146,31 @@ function update_pgo_config() {
     exit 0
   fi
 
-  key_desc="EKS - create Fargate profile"
-  read -p "${key_desc} [${pgo_eks_create_fargate_profile}]: " TEMP
-  if [[ ! -z "${TEMP}" ]]; then
-    pgo_eks_create_fargate_profile=${TEMP}
-  fi
-  if [[ "${pgo_eks_create_fargate_profile}" =~ ^true|false$ ]]; then
-    target_val=${pgo_eks_create_fargate_profile} \
-      yq -i '.services.playground-one.eks.create-fargate-profile = env(target_val)' ${ONEPATH}/config.yaml
-  else
-    echo "Error: Invalid ${key_desc} input."
-    exit 0
-  fi
+  # key_desc="EKS - utilize EC2 nodes"
+  # read -p "${key_desc} [${pgo_eks_create_ec2}]: " TEMP
+  # if [[ ! -z "${TEMP}" ]]; then
+  #   pgo_eks_create_ec2=${TEMP}
+  # fi
+  # if [[ "${pgo_eks_create_ec2}" =~ ^true|false$ ]]; then
+  #   target_val=${pgo_eks_create_ec2} \
+  #     yq -i '.services.playground-one.eks.create-ec2 = env(target_val)' ${ONEPATH}/config.yaml
+  # else
+  #   echo "Error: Invalid ${key_desc} input."
+  #   exit 0
+  # fi
+
+  # key_desc="EKS - utilize Fargate nodes"
+  # read -p "${key_desc} [${pgo_eks_create_fargate}]: " TEMP
+  # if [[ ! -z "${TEMP}" ]]; then
+  #   pgo_eks_create_fargate=${TEMP}
+  # fi
+  # if [[ "${pgo_eks_create_fargate}" =~ ^true|false$ ]]; then
+  #   target_val=${pgo_eks_create_fargate} \
+  #     yq -i '.services.playground-one.eks.create-fargate = env(target_val)' ${ONEPATH}/config.yaml
+  # else
+  #   echo "Error: Invalid ${key_desc} input."
+  #   exit 0
+  # fi
 
   key_desc="ECS - utilize EC2 nodes"
   read -p "${key_desc} [${pgo_ecs_create_ec2}]: " TEMP
@@ -395,7 +408,6 @@ function update_integrations_config() {
 
 # Overrides for in development features
 function stickies() {
-  yq -i '.services.playground-one.eks.create-fargate-profile = false' ${ONEPATH}/config.yaml
   yq -i '.services.cloud-one.container-security.enabled = false' ${ONEPATH}/config.yaml
   yq -i '.services.integrations.calico.enabled = false' ${ONEPATH}/config.yaml
 }
@@ -405,7 +417,8 @@ get_config
 # We dont want to change AWS config while having deployments
 if [[ ! -f ${ONEPATH}/awsone/2-network/.pgo.nw.lock && \
       ! -f ${ONEPATH}/awsone/2-network/.pgo.ec2.lock && \
-      ! -f ${ONEPATH}/awsone/2-network/.pgo.eks.lock && \
+      ! -f ${ONEPATH}/awsone/2-network/.pgo.eks-ec2.lock && \
+      ! -f ${ONEPATH}/awsone/2-network/.pgo.eks-fg.lock && \
       ! -f ${ONEPATH}/awsone/2-network/.pgo.ecs.lock ]] ; then
   update_aws_config
 else

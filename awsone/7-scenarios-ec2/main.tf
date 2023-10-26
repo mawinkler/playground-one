@@ -2,7 +2,7 @@ data "terraform_remote_state" "eks" {
   backend = "local"
 
   config = {
-    path = "../4-cluster-eks/terraform.tfstate"
+    path = "../4-cluster-eks-ec2/terraform.tfstate"
   }
 }
 
@@ -14,11 +14,11 @@ module "victims" {
   namespace   = "victims"
 }
 
-module "fargate" {
-  source      = "./fargate"
+module "default" {
+  source      = "./default"
   aws_region  = var.aws_region
   environment = var.environment
-  namespace   = "fargate"
+  namespace   = "default"
 }
 
 module "goat" {

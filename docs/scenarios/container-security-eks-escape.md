@@ -2,16 +2,16 @@
 
 ## Prerequisites
 
-- Playground One EKS Cluster
+- Playground One EKS EC2 Cluster
 - Vision One Container Security
 - Playground One Scenarios
   - Running app: System Monitor
 
-Ensure to have the EKS Cluster including the Scenarios up and running:
+Ensure to have the EKS EC2 Cluster including the Scenarios up and running:
 
 ```sh
-pgo --apply eks
-pgo --apply scenarios
+pgo --apply eks-ec2
+pgo --apply scenarios-ec2
 ```
 
 ## Attribution

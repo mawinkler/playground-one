@@ -6,12 +6,13 @@ resource "kubernetes_cron_job_v1" "demo" {
   depends_on = [kubernetes_namespace_v1.attackers_namespace]
   metadata {
     name = "atomic-red-falco"
+    namespace = var.namespace
   }
 
   spec {
     concurrency_policy            = "Replace"
     failed_jobs_history_limit     = 5
-    schedule                      = "0 * * * *"
+    schedule                      = "*/60 * * * *"
     timezone                      = "Etc/UTC"
     starting_deadline_seconds     = 10
     successful_jobs_history_limit = 10

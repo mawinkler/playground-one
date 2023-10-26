@@ -13,19 +13,20 @@ In a nutshell:
 - Management of the environment with the help of an easy to use command line interface `pgo`.
 - Based on Terraform >1.5
 
-The Playground One has a modular structure as shown in the following tree:
+The Playground One has a modular structure and supports the following services:
 
-```
-awsone
-└── network (2-network)
-    ├── ec2 (3-instances)
-    ├── eks (4-cluster-eks)
-    |   ├── eks-deployments (8-cluster-eks-deployments)
-    |   └── scenarios (7-scenarios)
-    └── ecs (5-cluster-ecs)
-```
-
-As we can see, the configuration `network` is the base for the other configurations. It creates the VPC, Subnets, Route Tables, Security Groups, etc. One can choose to only create the EKS cluster, or ECS cluster, or even the full stack. Everything will reside in the same VPC.
+Component     | Operational | Vision One Cloud Security
+------------- | ----------- | ----------------------------------------------------------------
+EC2 Linux     | Yes         | V1 Server & Workload Protection
+EC2 Windows   | Yes         | V1 Server & Workload Protection
+EKS EC2       | Yes         | V1CS Runtime Scanning<br>V1CS Runtime Security<br>OAT&WB Generation
+EKS Fargate   | Yes         | V1CS Runtime Scanning<br>V1CS Runtime Security<br>OAT&WB Generation
+EKS Calico    | WIP         | 
+EKS Prometheus| Yes         | 
+EKS Trivy     | Yes         | 
+ECS EC2       | Yes         | V1CS Runtime Scanning<br>V1CS Runtime Security
+ECS Fargate   | Yes         | V1CS Runtime Scanning<br>V1CS Runtime Security
+TMAS          | Yes         | Artifact Scanning for Vulnerabilities and Malware
 
 ![alt text](docs/how-it-works/images/architecture.png "Architecture diagram")
 *Architecture: Example environment name `pgo8`*

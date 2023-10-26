@@ -21,17 +21,17 @@ pgo --help
 ```
 
 ```sh
- __                 __   __   __             __      __        ___
-|__) |     /\  \ / / _` |__) /  \ |  | |\ | |  \    /  \ |\ | |__
-|    |___ /~~\  |  \__> |  \ \__/ \__/ | \| |__/    \__/ | \| |___
-
+ __                 __   __   __             __      __        ___ 
+|__) |     /\  \ / / _` |__) /  \ |  | |\ | |  \    /  \ |\ | |__  
+|    |___ /~~\  |  \__> |  \ \__/ \__/ | \| |__/    \__/ | \| |___ 
+                                                                   
 Usage: pgo -<command> <configuration> ...
 
 The available commands for execution are listed below.
 The primary workflow commands are given first, followed by
 less common or more advanced commands.
 
-Available configurations: vpc, nw, ec2, eks, ecs, scenarios
+Available configurations: vpc, nw, ec2, eks-ec2, eks-fg, ecs, scenarios-ec2, scenarios-fg
 
 Main commands:
   -c --config   Set/update Playground One main configuration
@@ -50,9 +50,12 @@ Other commands:
 Available configurations:
   nw            Network configuration
   ec2           EC2 configuration
-  eks           EKS configuration
+  eks-ec2       EKS configuration
+  eks-fg        EKS configuration
   ecs           ECS configurations
-  scenarios     Scenario configurations
+  kind          Kind configurations
+  scenarios-ec2 Scenario configurations
+  scenarios-fg  Scenario configurations
   all           All configurations
 
 Examples:
@@ -80,7 +83,7 @@ Set/update:
 
 - `AWS Account ID`: The ID of your AWS subscription (just numbers no `-`). This is mandatory.
 - `AWS region name`: If you want to use another region as `eu-central-1`.
-- `AWS environment name`: Your to be built environment name. It MUST NOT be longer than 15 characters.
+- `AWS environment name`: Your to be built environment name. It MUST NOT be longer than 12 characters.
 
 ### Section: Playground One
 
@@ -103,7 +106,6 @@ Set/update:
     - `0.0.0.0/0` *Dangerous!*
 - `EC2 - create Linux EC2`: Enable/disable Linux instances in the `ec2` configuration.
 - `EC2 - create Windows EC2`: Enable/disable Windows instances in the `ec2` configuration.
-- `EKS - create Fargate profile`: Enable/disable the Fargate profile on the EKS cluster.
 - `ECS - utilize EC2 nodes`: Enable/disable ECS cluster with EC2 nodes.
 - `ECS - utilize Fargate nodes`: Enable/disable ECS cluster with Fargate nodes.
 

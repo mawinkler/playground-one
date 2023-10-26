@@ -40,8 +40,8 @@ Component     | Operational | Known Issues | Vision One Cloud Security
 ------------- | ----------- | ------------ | ----------------------------------------------------------------
 EC2 Linux     | Yes         | None         | V1 Server & Workload Protection
 EC2 Windows   | Yes         | None         | V1 Server & Workload Protection
-EKS EC2       | Yes         | None         | V1CS Runtime Scanning<br>V1CS Runtime Security<br>OAT Generation
-EKS Fargate   | WIP         | None         |
+EKS EC2       | Yes         | None         | V1CS Runtime Scanning<br>V1CS Runtime Security<br>OAT&WB Generation
+EKS Fargate   | Yes         | None         | V1CS Runtime Scanning<br>V1CS Runtime Security<br>OAT&WB Generation
 EKS Calico    | WIP         | Unstable     |
 EKS Prometheus| Yes         | None         |
 EKS Trivy     | Yes         | None         |

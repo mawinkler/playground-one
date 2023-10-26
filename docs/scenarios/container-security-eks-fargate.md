@@ -4,26 +4,16 @@
 
 ## Prerequisites
 
-- Playground One EKS Cluster with Fargate Profile
+- Playground One EKS Fargate Cluster 
 - Vision One Container Security
 - Playground One Scenarios
   - Running app: Nginx
 
-Ensure to have the EKS Cluster with the Fargate profile enabled up and running:
+Ensure to have the EKS Fargate Cluster up and running:
 
 ```sh
-pgo --config
-# verify that:
-# EKS - create Fargate profile [true]:
-# is true, otherwise set it to true
-
-# If you changed the config for Fargate run
-pgo --init eks
-pgo --init scenarios
-
-# Ensure to have eks and the scenarios deployed
-pgo --apply eks
-pgo --apply scenarios
+pgo --apply eks-fg
+pgo --apply scenarios-fg
 ```
 
 ## Disclaimer

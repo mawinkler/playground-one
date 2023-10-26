@@ -1,19 +1,14 @@
-variable "account_id" {
-  type = string
-}
-
+# ####################################
+# Variables
+# ####################################
 variable "aws_region" {
   type = string
 }
 
 variable "access_ip" {
-  type = list
+  type = string
 }
 
 variable "environment" {
   type = string
-}
-
-variable "create_fargate_profile" {
-  type = bool
 }

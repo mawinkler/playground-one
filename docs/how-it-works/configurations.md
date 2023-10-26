@@ -6,9 +6,11 @@ The Playground One has a modular structure as shown in the following tree:
 awsone
 └── network (2-network)
     ├── ec2 (3-instances)
-    ├── eks (4-cluster-eks)
-    |   ├── eks-deployments (8-cluster-eks-deployments)
-    |   └── scenarios (7-scenarios)
+    ├── eks (4-cluster-eks-ec2)
+    |   ├── eks-deployments (8-cluster-eks-ec2-deployments)
+    |   └── scenarios (7-scenarios-ec2)
+    ├── eks (4-cluster-eks-fargate)
+    |   └── scenarios (7-scenarios-fargate)
     └── ecs (5-cluster-ecs)
 ```
 
@@ -42,9 +44,9 @@ If you store the agent installers for Server and Workload Security in `0-files` 
 
 You can optionally drop any file or installer in the `0-files` directory which will then be available in the ec2 instances download folder.
 
-## EKS Cluster
+## EKS EC2 Cluster
 
-*Configuration located in `awsone/4-cluster-eks`*
+*Configuration located in `awsone/4-cluster-eks-ec2`*
 
 *Depends on `awsone/2-network`*
 
@@ -54,26 +56,39 @@ So, this is my favorite part. This configuration creates an EKS cluster with som
 - Nodes running as Spot instances to save money :-)
 - ALB Load Balancer controller
 - Kubernetes Autoscaler
-- Optional Fargate profile
+- Cluster is located in the private subnets
+
+## EKS Fargate Cluster
+
+*Configuration located in `awsone/4-cluster-eks-fargate`*
+
+*Depends on `awsone/2-network`*
+
+This configuration creates a Fargate EKS cluster with some nice key features:
+
+- 100% Fargate
+- Nodes running as Spot instances to save money :-)
+- An additional AWS managed node group
 - Cluster is located in the private subnets
 
 ### Cluster Deployments
 
-*Configuration located in `awsone/8-cluster-deployments`*
+*Configuration located in `awsone/8-cluster-ec2-deployments`*
 
-*Depends on `awsone/4-cluster-eks`*
+*Depends on `awsone/4-cluster-eks-ec2`*
 
 Currently, the following deployments are defined:
 
 - Container Security
+- Calico
 - Prometheus & Grafana
 - Trivy
 
-### Scenarios
+### Scenarios for EKS EC2
 
-*Configuration located in `awsone/7-scenarios`*
+*Configuration located in `awsone/7-scenarios-ec2`*
 
-*Depends on `awsone/4-cluster-eks`*
+*Depends on `awsone/4-cluster-eks-ec2`*
 
 Currently, the following (vulnerable) deployments are defined:
 
@@ -83,6 +98,20 @@ Currently, the following (vulnerable) deployments are defined:
 - Java-Goof
 - WebApp OpenSSL3
 - Nginx
+
+Automated attacks are running every full hour.
+
+### Scenarios for EKS Fargate
+
+*Configuration located in `awsone/7-scenarios-fargate`*
+
+*Depends on `awsone/4-cluster-eks-fargate`*
+
+Currently, the following (vulnerable) deployments are defined:
+
+- Nginx
+
+Automated attacks are running every full hour.
 
 ## ECS Clusters
 

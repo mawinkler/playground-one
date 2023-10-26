@@ -30,10 +30,16 @@
     pgo --apply ec2
     ```
 
-    EKS cluster:
+    EKS EC2 cluster:
 
     ```sh
-    pgo --apply eks
+    pgo --apply eks-ec2
+    ```
+
+    EKS Fargate cluster:
+
+    ```sh
+    pgo --apply eks-fg
     ```
 
     ECS cluster(s):
@@ -42,7 +48,9 @@
     pgo --apply ecs
     ```
 
-    A vulnerable default workload is deployed automatically.
+> ***Note***: If you're using both EKS cluster variants simultaneously you can easily switch in between the clusters using the command `pgo-context`.
+
+![alt text](images/pgo-context.png "Context")
 
 ## Query Outputs and State
 

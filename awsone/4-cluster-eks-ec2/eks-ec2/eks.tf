@@ -13,7 +13,7 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "19.17.2"
 
-  cluster_name    = "${var.environment}-eks-${random_string.suffix.result}"
+  cluster_name    = "${var.environment}-eks-ec2-${random_string.suffix.result}"
   cluster_version = local.kubernetes_version
 
   cluster_endpoint_private_access = true
@@ -25,7 +25,7 @@ module "eks" {
 
   enable_irsa = true
 
-  # kms_key_aliases = ["${var.environment}-eks-${random_string.suffix.result}"]
+  # kms_key_aliases = ["${var.environment}-eks-ec2-${random_string.suffix.result}"]
   kms_key_deletion_window_in_days = 7
 
   cluster_addons = {

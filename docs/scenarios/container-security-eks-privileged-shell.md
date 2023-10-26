@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - Vision One Container Security
-- Playground One EKS Cluster
+- Playground One EKS EC2 Cluster
   - Running app: 
 
 ## Exploiting
