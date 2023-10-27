@@ -19,6 +19,10 @@ In a nutshell:
 
 ## Change Log
 
+10/27/2023
+
+- EKS Fargate & EKS Calico on EC2 operational
+
 10/10/2023
 
 - Playground One goes public
@@ -42,7 +46,7 @@ EC2 Linux     | Yes         | None         | V1 Server & Workload Protection
 EC2 Windows   | Yes         | None         | V1 Server & Workload Protection
 EKS EC2       | Yes         | None         | V1CS Runtime Scanning<br>V1CS Runtime Security<br>OAT&WB Generation
 EKS Fargate   | Yes         | None         | V1CS Runtime Scanning<br>V1CS Runtime Security<br>OAT&WB Generation
-EKS Calico    | WIP         | Unstable     |
+EKS Calico    | WIP         | EKS EC2 only     |
 EKS Prometheus| Yes         | None         |
 EKS Trivy     | Yes         | None         |
 ECS EC2       | Yes         | See 1)       | V1CS Runtime Scanning<br>V1CS Runtime Security

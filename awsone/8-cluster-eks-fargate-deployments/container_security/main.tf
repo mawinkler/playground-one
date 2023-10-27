@@ -8,10 +8,6 @@ resource "helm_release" "container_security" {
   namespace    = var.namespace
   reuse_values = true
 
-  values = [
-    "${file("container_security/overrides.yaml")}"
-  ]
-
   set {
     name  = "cloudOne.apiKey"
     value = local.cluster_apikey
@@ -54,7 +50,7 @@ resource "helm_release" "container_security" {
 
   set {
     name  = "cloudOne.fargateInjector.enabled"
-    value = false
+    value = true
   }
 
   set {

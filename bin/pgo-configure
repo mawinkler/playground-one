@@ -409,7 +409,7 @@ function update_integrations_config() {
 # Overrides for in development features
 function stickies() {
   yq -i '.services.cloud-one.container-security.enabled = false' ${ONEPATH}/config.yaml
-  yq -i '.services.integrations.calico.enabled = false' ${ONEPATH}/config.yaml
+  # yq -i '.services.integrations.calico.enabled = false' ${ONEPATH}/config.yaml
 }
 
 get_config

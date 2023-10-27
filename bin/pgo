@@ -186,8 +186,25 @@ function init() {
       pgo_eks_create_ec2=${pgo_eks_create_ec2} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-4-cluster-eks-fargate.tfvars >$ONEPATH/awsone/4-cluster-eks-fargate/terraform.tfvars
+      printf '%s\n' "Create terraform.tfvars for cluster-eks deployments"
+      aws_region=${aws_region} \
+      aws_environment=${aws_environment} \
+      pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
+      cloud_one_cs_enabled=${cloud_one_cs_enabled} \
+      cloud_one_cs_policy_id=${cloud_one_cs_policy_id} \
+      cloud_one_api_key=${cloud_one_api_key} \
+      cloud_one_region=${cloud_one_region} \
+      cloud_one_instance=${cloud_one_instance} \
+      integrations_calico_enabled=${integrations_calico_enabled} \
+      integrations_prometheus_enabled=${integrations_prometheus_enabled} \
+      integrations_prometheus_grafana_password=${integrations_prometheus_grafana_password} \
+      integrations_trivy_enabled=${integrations_trivy_enabled} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-8-cluster-eks-fargate-deployments.tfvars >$ONEPATH/awsone/8-cluster-eks-fargate-deployments/terraform.tfvars
 
       cd ${ONEPATH}/awsone/4-cluster-eks-fargate
+      terraform init
+      cd ${ONEPATH}/awsone/8-cluster-eks-fargate-deployments
       terraform init
       ;;&
     ecs|all)
@@ -277,6 +294,8 @@ function apply() {
       cd ${ONEPATH}/awsone/4-cluster-eks-fargate
       terraform apply -auto-approve
       $(terraform output -raw update_local_context_command)
+      cd ${ONEPATH}/awsone/8-cluster-eks-fargate-deployments
+      terraform apply -auto-approve
       ;;&
     ecs|all)
       lock ecs
@@ -425,16 +444,18 @@ function destroy() {
       unlock ec2
       ;;
     eks|eks-ec2)
+      cd ${ONEPATH}/awsone/8-cluster-eks-ec2-deployments
+      terraform destroy -auto-approve
       cd ${ONEPATH}/awsone/7-scenarios-ec2
       terraform destroy -auto-approve
       unlock scenarios-ec2
-      cd ${ONEPATH}/awsone/8-cluster-eks-ec2-deployments
-      terraform destroy -auto-approve
       cd ${ONEPATH}/awsone/4-cluster-eks-ec2
       terraform destroy -auto-approve
       unlock eks-ec2
       ;;
     eks-fg)
+      cd ${ONEPATH}/awsone/8-cluster-eks-fargate-deployments
+      terraform destroy -auto-approve
       cd ${ONEPATH}/awsone/7-scenarios-fargate
       terraform destroy -auto-approve
       unlock scenarios-fg
