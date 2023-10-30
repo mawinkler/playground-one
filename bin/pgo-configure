@@ -359,7 +359,7 @@ function update_integrations_config() {
   ##
   ## Prometheus & Grafana
   ##
-  key_desc="EKS Prometheus & Grafana"
+  key_desc="EKS Prometheus & Grafana (EC2 only)"
   read -p "${key_desc} [${integrations_prometheus_enabled}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     integrations_prometheus_enabled=${TEMP}
@@ -392,7 +392,7 @@ function update_integrations_config() {
   ##
   ## Trivy
   ##
-  key_desc="EKS Trivy"
+  key_desc="EKS Trivy (EC2 only)"
   read -p "${key_desc} [${integrations_trivy_enabled}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     integrations_trivy_enabled=${TEMP}

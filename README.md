@@ -21,9 +21,9 @@ EC2 Linux     | Yes         | V1 Server & Workload Protection
 EC2 Windows   | Yes         | V1 Server & Workload Protection
 EKS EC2       | Yes         | V1CS Runtime Scanning<br>V1CS Runtime Security<br>OAT&WB Generation
 EKS Fargate   | Yes         | V1CS Runtime Scanning<br>V1CS Runtime Security<br>OAT&WB Generation
-EKS Calico    | WIP         | KS EC2 only
-EKS Prometheus| Yes         | 
-EKS Trivy     | Yes         | 
+EKS Calico    | Yes         | EKS EC2 only
+EKS Prometheus| Yes         | EKS EC2 only
+EKS Trivy     | Yes         | EKS EC2 only
 ECS EC2       | Yes         | V1CS Runtime Scanning<br>V1CS Runtime Security
 ECS Fargate   | Yes         | V1CS Runtime Scanning<br>V1CS Runtime Security
 TMAS          | Yes         | Artifact Scanning for Vulnerabilities and Malware
