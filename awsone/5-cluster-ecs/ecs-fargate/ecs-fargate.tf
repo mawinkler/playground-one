@@ -20,15 +20,23 @@ module "ecs" {
     #
     # FARGATE = {
     #   default_capacity_provider_strategy = {
-    #     weight = 50
-    #     base   = 20
+    #     weight = 1
+    #     base   = 2
     #   }
     # }
     FARGATE_SPOT = {
       default_capacity_provider_strategy = {
-        weight = 50
+        weight = 2
       }
     }
+    # Weight setting means that for each Fargate task (weight=1)
+    # it will place 2 Fargate Spot tasks (weight=2), however
+    # specifying the base as well has a higher priority and 
+    # enforces having at least 2 Fargate tasks before launching 
+    # any Fargate Spot tasks. Any additional tasks on top of the 
+    # base number would be split between Fargate and Fargate-Spot 
+    # in 1:2 ratio. In this example we will have 2 Fargate and 
+    # 1 Fargate-Spot tasks.
   }
 
   tags = {

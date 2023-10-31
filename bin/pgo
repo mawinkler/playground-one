@@ -614,6 +614,42 @@ function output() {
 }
 
 #######################################
+# Lists applied Terraform configurations
+# Globals:
+#   ONEPATH
+# Arguments:
+#   Configuration name or all
+# Outputs:
+#   None
+#######################################
+function list() {
+
+  telemetry "list"
+
+  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.nw.lock ]] ; then
+    printf '%s\n' "Configuration nw is applied"
+  fi
+  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.ec2.lock ]] ; then
+    printf '%s\n' "Configuration ec2 is applied"
+  fi
+  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.eks-ec2.lock ]] ; then
+    printf '%s\n' "Configuration eks-ec2 is applied"
+  fi
+  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.eks-fg.lock ]] ; then
+    printf '%s\n' "Configuration eks-fargate is applied"
+  fi
+  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.ecs.lock ]] ; then
+    printf '%s\n' "Configuration ecs is applied"
+  fi
+  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.scenarios-ec2.lock ]] ; then
+    printf '%s\n' "Configuration scenarios-ec2 is applied"
+  fi
+  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.scenarios-fg.lock ]] ; then
+    printf '%s\n' "Configuration scenarios-fg is applied"
+  fi
+}
+
+#######################################
 # Shows a Terraform configuration state
 # Globals:
 #   ONEPATH
@@ -780,8 +816,9 @@ function helpcmd() {
   printf '%s\n' "Main commands:"
   printf '%s\n' "  -c --config   Set/update Playground One main configuration"
   printf '%s\n' "  -i --init     Prepare a configuration for other commands"
-  printf '%s\n' "  -a --apply    Create of update infrastructure"
-  printf '%s\n' "  -d --destroy  Destroy previously-created infrastructure"
+  printf '%s\n' "  -a --apply    Create or update a configuration"
+  printf '%s\n' "  -l --list     List applied configurations"
+  printf '%s\n' "  -d --destroy  Destroy previously-created configuration"
   printf '%s\n' "  -o --output   Show output values"
   printf '%s\n' "  -s --state    Show the current state"
   printf '%s\n' "  -h --help     Show this help"
@@ -818,7 +855,7 @@ if [ -f ${ONEPATH}/config.yaml ]; then
   get_config
 fi
 
-TEMP=$(getopt -o ci:a:d:o:s:S:v:uh --long config,init:,apply:,destroy:,output:,state:,show:,validate:,updateip,help -- "$@")
+TEMP=$(getopt -o ci:a:ld:o:s:S:v:uh --long config,init:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help -- "$@")
 if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 
 eval set -- "$TEMP"
@@ -828,6 +865,7 @@ while true; do
     -c | --config ) pgo-configure; break ;;
     -i | --init ) init $2; shift 2 ;;
     -a | --apply ) apply $2; shift 2 ;;
+    -l | --list ) list; break ;;
     -d | --destroy ) destroy $2; shift 2 ;;
     -o | --output ) output $2; shift 2 ;;
     -s | --state ) state $2; shift 2 ;;

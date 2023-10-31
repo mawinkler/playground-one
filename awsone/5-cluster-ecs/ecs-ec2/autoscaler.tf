@@ -37,7 +37,7 @@ module "autoscaling" {
         }
 
         override = [
-          # Only using t4.medium, below would be an example to use mixed instances
+          # Only using t3.medium, below would be an example to use mixed instances
           # {
           #   instance_type     = "t3.large"
           #   weighted_capacity = "2"

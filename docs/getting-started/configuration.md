@@ -36,8 +36,9 @@ Available configurations: vpc, nw, ec2, eks-ec2, eks-fg, ecs, scenarios-ec2, sce
 Main commands:
   -c --config   Set/update Playground One main configuration
   -i --init     Prepare a configuration for other commands
-  -a --apply    Create of update infrastructure
-  -d --destroy  Destroy previously-created infrastructure
+  -a --apply    Create or update a configuration
+  -l --list     List applied configurations
+  -d --destroy  Destroy previously-created configuration
   -o --output   Show output values
   -s --state    Show the current state
   -h --help     Show this help
