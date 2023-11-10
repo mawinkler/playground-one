@@ -20,10 +20,18 @@ First, set the Artifact Scanner API-Key as an environment variable:
 export TMAS_API_KEY=<YOUR API-Key>
 ```
 
+> ***Note:*** tmas defaults to the Vision One service region `us-east-1`. If your Vision One is serviced from any other region you need to add the `--region` flag to the scan request.
+> 
+> Valid regions: `[ap-southeast-2 eu-central-1 ap-south-1 ap-northeast-1 ap-southeast-1 us-east-1]`
+
 To easily scan an image for vulnerabililies run
 
 ```sh
+# Service region us-east-1
 tmas scan docker:nginx:latest
+
+# Service region eu-central-1
+tmas scan docker:nginx:latest --region eu-central-1
 ```
 
 Scanning an image for vulnerabilities and malware simultaneously is as easy as above

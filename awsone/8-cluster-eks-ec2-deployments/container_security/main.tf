@@ -15,7 +15,7 @@ resource "helm_release" "container_security" {
 
   set {
     name  = "cloudOne.exclusion.namespaces"
-    value = "kube-system, calico-system"
+    value = "kube-system, calico-system, calico-apiserver"
   }
 
   set {

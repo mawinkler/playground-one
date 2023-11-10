@@ -92,9 +92,9 @@ Currently, the following deployments are defined:
 
 Currently, the following (vulnerable) deployments are defined:
 
-- WebApp System-Monitor (see [Escape to the Host System](../scenarios/container-security-eks-escape.md))
-- WebApp Health-Check (see [ContainerD Abuse](../scenarios/container-security-eks-dind-exploitation.md))
-- WebApp Hunger-Check (see [Hunger Check](../scenarios/hunger-check.md))
+- WebApp System-Monitor (see [Escape to the Host System](../scenarios/eks/escape.md))
+- WebApp Health-Check (see [ContainerD Abuse](../scenarios/eks/dind-exploitation.md))
+- WebApp Hunger-Check (see [Hunger Check](../scenarios/eks/hunger-check.md))
 - Java-Goof
 - WebApp OpenSSL3
 - Nginx

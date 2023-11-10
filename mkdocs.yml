@@ -15,22 +15,23 @@ nav:
     - Prometheus & Grafana: integrations/prometheus-grafana.md
   - Scenarios:
     - EKS:
-      - Escape to Host System: scenarios/container-security-eks-escape.md
-      - ContainerD Abuse: scenarios/container-security-eks-dind-exploitation.md
-      - Runtime Vulnerability Scan: scenarios/container-security-eks-runtime-vulnerability.md
-      - Runtime Vulnerability Scan on Fargate: scenarios/container-security-eks-fargate.md
-      - Runtime Violations: scenarios/container-security-eks-runtime-violations.md
-      - Apache Struts Multipart Encoding Command Injection: scenarios/xdr-for-containers-eks-struts.md
-      - Hunger Check: scenarios/hunger-check.md
+      - Escape to Host System: scenarios/eks/escape.md
+      - ContainerD Abuse: scenarios/eks/dind-exploitation.md
+      - Runtime Vulnerability Scan: scenarios/eks/runtime-vulnerability-ec2.md
+      - Runtime Vulnerability Scan on Fargate: scenarios/eks/runtime-vulnerability-fargate.md
+      - Runtime Violations: scenarios/eks/runtime-violations.md
+      - Hunger Check: scenarios/eks/hunger-check.md
     - ECS:
-      - Apache Struts Multipart Encoding Command Injection: scenarios/v1cs-ecs-struts.md
-      - Runtime Vulnerability Scan on ECS: scenarios/v1cs-ecs-runtime-vulnerability.md
-      - Tomcat Remote Code Execution: scenarios/xdr-for-containers-ecs-tomcat-rce.md
-      - JNDI Injection in HTTP Request: scenarios/xdr-for-containers-ecs-log4j.md
-      - Apache Struts Multipart Encoding Command Injection: scenarios/xdr-for-containers-ecs-struts.md
-      # - Privileged Shell: scenarios/container-security-eks-privileged-shell.md
+      - Apache Struts Multipart Encoding Command Injection (Runtime Security): scenarios/ecs/apache-struts-rce.md
+      - Runtime Vulnerability Scan: scenarios/ecs/runtime-vulnerability.md
+    # - XDR4C:
+    #   - Tomcat Remote Code Execution (XDR for Containers): scenarios/xdr4c/ecs-tomcat-rce.md
+    #   - JNDI Injection in HTTP Request (XDR for Containers): scenarios/xdr4c/ecs-log4j.md
+    #   - Apache Struts Multipart Encoding Command Injection (XDR for Containers): scenarios/xdr4c/ecs-struts.md
+      # - Apache Struts Multipart Encoding Command Injection: scenarios/xdr4c/eks-struts.md
     - Artifact Scanning:
-      - Scan for Vulnerabilities and Malware: scenarios/tmas-artifact-scanning.md
+      - Scan for Vulnerabilities and Malware: scenarios/as/tmas-artifact-scanning.md
+    # - Privileged Shell: scenarios/container-security-eks-privileged-shell.md
     # - Server & Workload Protection:
     #   - Malware Upload: scenarios/server-workload-ecs-ec2-malware-upload.md
   - FAQ: faq.md

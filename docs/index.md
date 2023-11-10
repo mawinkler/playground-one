@@ -2,6 +2,12 @@
 
 Ultra fast and slim playground in the clouds designed for educational and demoing purposes.
 
+!!! danger "Under construction!"
+
+    Hello dear Playground One fan. Nice that you found the documentation.
+    This is currently under construction!
+    The contents are therefore to be enjoyed with caution and can still change at any time.
+
 ## Latest News
 
 !!! ***Playground integrated with Vision One*** !!!
