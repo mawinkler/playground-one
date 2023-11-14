@@ -4,14 +4,15 @@ The Playground One has a modular structure as shown in the following tree:
 
 ```
 awsone
-└── network (2-network)
-    ├── ec2 (3-instances)
-    ├── eks (4-cluster-eks-ec2)
-    |   ├── eks-deployments (8-cluster-eks-ec2-deployments)
-    |   └── scenarios (7-scenarios-ec2)
-    ├── eks (4-cluster-eks-fargate)
-    |   └── scenarios (7-scenarios-fargate)
-    └── ecs (5-cluster-ecs)
+├── network (2-network)
+|   ├── ec2 (3-instances)
+|   ├── eks (4-cluster-eks-ec2)
+|   |   ├── eks-deployments (8-cluster-eks-ec2-deployments)
+|   |   └── scenarios (7-scenarios-ec2)
+|   ├── eks (4-cluster-eks-fargate)
+|   |   └── scenarios (7-scenarios-fargate)
+|   └── ecs (5-cluster-ecs)
+└── dsm (9-deep-security)
 ```
 
 As we can see, the configuration `network` is the base for the other configurations. It creates the VPC, Subnets, Route Tables, Security Groups, etc. One can choose to only create the EKS cluster, or ECS cluster, or even the full stack. Everything will reside in the same VPC.
@@ -125,3 +126,26 @@ Here we're building an ECS cluster using EC2 instances and/or Fargate profile. K
 - Fargate profile with spot instances. Fargate with on-demand instances can be enabled in Terraform script.
 - ALB Load Balancer
 - Automatic deployment of a vulnerable service (Java-Goof)
+
+## Deep Security
+
+*Configuration located in `awsone/9-deep-security`*
+
+This configuration is to simulate an on-premise Deep Security environment meant to be used in migration scenarios. For simulation purposes it creates a dedicated VPC with the most commonly used architecture, private and public subnets accross two availability zones. It includes everything what a VPC should have, this is amongst others an internet gateway, NAT gateway, security groups, etc.
+
+The Deep Security Manager is currently deployed to the public subnet with port `4119` exposed. It uses an AWS RDS PostgreSQL in the private subnet.
+
+Current state of implementation:
+
+- VPC, network implemented.
+- Database setup done.
+- Deep Security installation and bootstrap done.
+
+To come:
+
+- Documentation of migration scenarios.
+  - DS --> WS --> V1ES
+  - DS --> V1ES
+  - WS --> V1ES
+- Creation of protected instances.
+- Move DSM to private subnet and add load balancer.

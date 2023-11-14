@@ -54,9 +54,10 @@ Available configurations:
   eks-ec2       EKS configuration
   eks-fg        EKS configuration
   ecs           ECS configurations
-  kind          Kind configurations
-  scenarios-ec2 Scenario configurations
-  scenarios-fg  Scenario configurations
+  kind          Kind configuration
+  scenarios-ec2 Scenario configuration
+  scenarios-fg  Scenario configuration
+  dsm           Deep Security configuration
   all           All configurations
 
 Examples:
@@ -130,5 +131,14 @@ Set/update:
 - `EKS Calico`: Enable/disable the most used Pod network on your EKS cluster. It's currently disabled by default but will come shortly
 - `EKS Prometheus & Grafana`: Enable/disable Prometheus. It is an open-source systems monitoring and alerting toolkit integrated with a preconfigured Grafana.
 - `EKS Trivy`: Enable/disable Trivy vulnerability scanning for comparison.
+
+### Section: Deep Security
+
+Set/update:
+
+- `Deep Security`: Enable or disable the Deep Security deployment. If set to `false` Deep Security configuration will be skipped.
+- `Deep Security License`: Your Deep Security license key.
+- `Deep Security Username`: Username of the MasterAdmin.
+- `Deep Security Password`: Password of the MasterAdmin.
 
 Now, continue with the chapter [General Life-Cycle](life-cycle.md).

@@ -25,21 +25,25 @@ In a nutshell:
 
 ## Change Log
 
+11/14/2023
+
+- Deep Security integrated for use in migration scenarios.
+
 10/27/2023
 
-- EKS Fargate & EKS Calico on EC2 operational
+- EKS Fargate & EKS Calico on EC2 operational.
 
 10/10/2023
 
-- Playground One goes public
+- Playground One goes public.
 
 08/07/2023
 
-- Initial release
+- Initial release.
 
 ## Requirements
 
-The Playground One is designed to work with AWS and is tested these operating systems
+The Playground One is designed to work with AWS and is tested these operating systems:
 
 - Ubuntu Bionic and newer
 - Cloud9 with Ubuntu
@@ -58,6 +62,7 @@ EKS Trivy     | Yes         | EKS EC2 only |
 ECS EC2       | Yes         | See 1)       | V1CS Runtime Scanning<br>V1CS Runtime Security
 ECS Fargate   | Yes         | See 2)       | V1CS Runtime Scanning<br>V1CS Runtime Security
 TMAS          | Yes         | None         | Artifact Scanning for Vulnerabilities and Malware
+Deep Security | Yes         | None         | tbd
 
 1) Deleting the cluster requires the deactivation runtime scanning and runtime security before destroying the cluster. If destroy process `module.ecs-ec2[0].module.ecs_service.aws_ecs_service.this[0]: Still destroying...` hangs for a couple of minutes manually terminate the autoscaling group `pgo4-ecs-ec2-asg-spot-...` in AWS.
 

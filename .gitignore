@@ -25,6 +25,7 @@ terraform.tfvars
 
 # Terraform
 0-files-park
+files-park
 TMServerAgent_Windows_auto_64_Server_-_Workload_Protection_Manager.zip
 TMServerAgent_Linux_auto_64_Server_-_Workload_Protection_Manager.tar
 0-files-sd
@@ -46,6 +47,7 @@ TMServerAgent_Windows.zip
 .pgo.scenarios-fg.lock
 .pgo.ecs.lock
 overrides.yaml
+dsm.properties
 
 # Exploits
 exploits
