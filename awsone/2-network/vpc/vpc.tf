@@ -37,9 +37,13 @@ module "vpc" {
   # create_flow_log_cloudwatch_iam_role  = true
   # flow_log_max_aggregation_interval    = 60
 
-  tags = local.tags
+  tags = {
+    Name          = "${var.environment}-vpc"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "nw"
+  }
   intra_subnet_tags = {
-
   }
   private_subnet_tags = {
     "kubernetes.io/role/internal-elb" = 1

@@ -21,8 +21,10 @@ resource "aws_instance" "srv1" {
   key_name               = var.key_name
 
   tags = {
-    Name        = "${var.environment}-srv1"
-    Environment = "${var.environment}"
+    Name          = "${var.environment}-srv1"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "ec2"
   }
 
   user_data = data.template_file.windows_userdata.rendered

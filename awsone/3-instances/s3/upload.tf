@@ -8,7 +8,9 @@ resource "aws_s3_object" "object" {
   source   = "../0-files/${each.value}"
 
   tags = {
-    Name        = "${var.environment}-s3-object"
-    Environment = "${var.environment}"
+    Name          = "${var.environment}-s3-object"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "ec2"
   }
 }

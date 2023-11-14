@@ -16,8 +16,10 @@ resource "aws_instance" "db1" {
   key_name               = var.key_name
 
   tags = {
-    Name        = "${var.environment}-db1"
-    Environment = "${var.environment}"
+    Name          = "${var.environment}-db1"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "ec2"
   }
 
   user_data = data.template_file.linux_userdata.rendered

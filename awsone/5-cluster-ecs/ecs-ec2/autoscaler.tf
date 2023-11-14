@@ -102,8 +102,10 @@ module "autoscaling" {
 
   # Tags
   tags = {
-    Name        = "${var.environment}-ecs-ec2-autoscaler"
-    Environment = "${var.environment}"
+    Name          = "${var.environment}-ecs-ec2-autoscaler"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "ecs-ec2"
   }
 }
 
@@ -132,7 +134,9 @@ module "autoscaling_sg" {
   egress_rules = ["all-all"]
 
   tags = {
-    Name        = "${var.environment}-ecs-ec2-autoscaler-security-group"
-    Environment = "${var.environment}"
+    Name          = "${var.environment}-ecs-ec2-autoscaler-security-group"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "ecs-ec2"
   }
 }

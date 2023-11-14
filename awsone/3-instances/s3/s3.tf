@@ -11,8 +11,10 @@ resource "aws_s3_bucket" "playground_awsone" {
   bucket = "playground-awsone-${random_string.random_suffix.result}"
 
   tags = {
-    Name        = "${var.environment}-s3-bucket"
-    Environment = "${var.environment}"
+    Name          = "${var.environment}-s3-bucket"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "ec2"
   }
 }
 

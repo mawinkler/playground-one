@@ -40,7 +40,9 @@ module "ecs" {
   }
 
   tags = {
-    Name        = "${var.environment}-ecs-fargate"
-    Environment = "${var.environment}"
+    Name          = "${var.environment}-ecs-fargate"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "ecs-fg"
   }
 }

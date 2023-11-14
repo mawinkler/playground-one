@@ -38,8 +38,10 @@ resource "aws_iam_policy" "ec2_policy" {
   })
 
   tags = {
-    Name        = "${var.environment}-ec2-policy"
-    Environment = "${var.environment}"
+    Name          = "${var.environment}-ec2-policy"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "ec2"
   }
 }
 
@@ -64,8 +66,10 @@ resource "aws_iam_role" "ec2_role" {
   })
 
   tags = {
-    Name        = "${var.environment}-ec2-role"
-    Environment = "${var.environment}"
+    Name          = "${var.environment}-ec2-role"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "ec2"
   }
 }
 
@@ -84,7 +88,9 @@ resource "aws_iam_instance_profile" "ec2_profile" {
   role = aws_iam_role.ec2_role.name
 
   tags = {
-    Name        = "${var.environment}-ec2-profile"
-    Environment = "${var.environment}"
+    Name          = "${var.environment}-ec2-profile"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "ec2"
   }
 }

@@ -114,15 +114,19 @@ module "eks" {
       taints = {
       }
       tags = {
-        Name        = "${var.environment}-eks-node-group"
-        Environment = "${var.environment}"
+        Name          = "${var.environment}-eks-node-group"
+        Environment   = "${var.environment}"
+        Product       = "playground-one"
+        Configuration = "eks-ec2"
       }
     }
   }
 
   tags = {
-    Name        = "${var.environment}-eks"
-    Environment = "${var.environment}"
+    Name          = "${var.environment}-eks"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "eks-ec2"
   }
 }
 

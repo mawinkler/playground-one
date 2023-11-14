@@ -68,7 +68,9 @@ module "ecs_service" {
   }
 
   tags = {
-    Name        = "${var.environment}-ecs-ec2-service"
-    Environment = "${var.environment}"
+    Name          = "${var.environment}-ecs-ec2-service"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "ecs-ec2"
   }
 }

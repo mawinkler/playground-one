@@ -28,3 +28,7 @@ output "intra_subnets" {
 output "intra_subnet_cidr_blocks" {
   value = module.vpc.intra_subnets_cidr_blocks
 }
+
+output "nat_public_ip" {
+  value = module.vpc.nat_public_ips[0]
+}

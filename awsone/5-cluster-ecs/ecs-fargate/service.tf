@@ -97,8 +97,10 @@ module "ecs_service" {
   }
 
   tags = {
-    Name        = "${var.environment}-ecs-fargate-service"
-    Environment = "${var.environment}"
+    Name          = "${var.environment}-ecs-fargate-service"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "ecs-fg"
   }
 }
 
@@ -107,7 +109,9 @@ resource "aws_service_discovery_http_namespace" "this" {
   description = "CloudMap namespace for ${module.ecs.cluster_name}"
 
   tags = {
-    Name        = "${var.environment}-ecs-fargate-service-discovery-namespace"
-    Environment = "${var.environment}"
+    Name          = "${var.environment}-ecs-fargate-service-discovery-namespace"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "ecs-fg"
   }
 }

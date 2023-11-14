@@ -45,3 +45,7 @@ output "public_key" {
 output "private_key_path" {
   value = module.ec2.private_key_path
 }
+
+output "nat_public_ip" {
+  value = module.vpc.nat_public_ip
+}

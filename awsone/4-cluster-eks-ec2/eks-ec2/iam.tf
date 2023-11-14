@@ -25,8 +25,10 @@ module "allow_eks_access_iam_policy" {
   })
 
   tags = {
-    Name        = "${module.eks.cluster_name}-allow-eks-access"
-    Environment = "${module.eks.cluster_name}"
+    Name          = "${module.eks.cluster_name}-allow-eks-access"
+    Environment   = "${module.eks.cluster_name}"
+    Product       = "playground-one"
+    Configuration = "eks-ec2"
   }
 }
 
@@ -45,8 +47,10 @@ module "eks_admins_iam_role" {
   ]
 
   tags = {
-    Name        = "${module.eks.cluster_name}-iam-role-eks-admin"
-    Environment = "${module.eks.cluster_name}"
+    Name          = "${module.eks.cluster_name}-iam-role-eks-admin"
+    Environment   = "${module.eks.cluster_name}"
+    Product       = "playground-one"
+    Configuration = "eks-ec2"
   }
 }
 
@@ -82,8 +86,10 @@ module "allow_assume_eks_admins_iam_policy" {
   })
 
   tags = {
-    Name        = "${module.eks.cluster_name}-allow-eks-admin-assume-role"
-    Environment = "${module.eks.cluster_name}"
+    Name          = "${module.eks.cluster_name}-allow-eks-admin-assume-role"
+    Environment   = "${module.eks.cluster_name}"
+    Product       = "playground-one"
+    Configuration = "eks-ec2"
   }
 }
 

@@ -17,8 +17,10 @@ module "aws_load_balancer_controller_irsa_role" {
   }
 
   tags = {
-    Name        = "${module.eks.cluster_name}-irsa-role-aws-load-balancer-controller"
-    Environment = "${module.eks.cluster_name}"
+    Name          = "${module.eks.cluster_name}-irsa-role-aws-load-balancer-controller"
+    Environment   = "${module.eks.cluster_name}"
+    Product       = "playground-one"
+    Configuration = "eks-ec2"
   }
 }
 

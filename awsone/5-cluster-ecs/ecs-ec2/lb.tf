@@ -16,8 +16,10 @@ module "alb_sg" {
   egress_cidr_blocks = var.private_subnet_cidr_blocks
 
   tags = {
-    Name        = "${var.environment}-ecs-ec2-alb-security-group"
-    Environment = "${var.environment}"
+    Name          = "${var.environment}-ecs-ec2-alb-security-group"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "ecs-ec2"
   }
 }
 
@@ -51,7 +53,9 @@ module "alb" {
   ]
 
   tags = {
-    Name        = "${var.environment}-ecs-ec2-alb"
-    Environment = "${var.environment}"
+    Name          = "${var.environment}-ecs-ec2-alb"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "ecs-ec2"
   }
 }

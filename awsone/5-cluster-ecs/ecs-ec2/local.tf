@@ -6,7 +6,9 @@ locals {
   load_balancer_port = 80
 
   tags = {
-    Name        = "${var.environment}-ecs-ec2"
-    Environment = "${var.environment}"
+    Name          = "${var.environment}-ecs-ec2"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "ecs-ec2"
   }
 }
