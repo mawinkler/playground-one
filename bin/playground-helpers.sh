@@ -393,6 +393,16 @@ function get_config() {
     [[ "${cloud_one_cs_enabled}" = "null" || "${cloud_one_cs_enabled}" = "" ]] && cloud_one_cs_enabled=false
     [[ "${cloud_one_cs_policy_id}" = "null" || "${cloud_one_cs_policy_id}" = "" ]] && cloud_one_cs_policy_id="policy"
 
+    # Deep Security
+    deep_security_license="$(yq '.services.deep-security.license' $ONEPATH/config.yaml)"
+    deep_security_username="$(yq '.services.deep-security.username' $ONEPATH/config.yaml)"
+    deep_security_password="$(yq '.services.deep-security.password' $ONEPATH/config.yaml)"
+    deep_security_enabled="$(yq '.services.deep-security.enabled' $ONEPATH/config.yaml)"
+    [[ "${deep_security_license}" = "null" || "${deep_security_license}" = "" ]] && deep_security_license=""
+    [[ "${deep_security_username}" = "null" || "${deep_security_username}" = "" ]] && deep_security_username="masteradmin"
+    [[ "${deep_security_password}" = "null" || "${deep_security_password}" = "" ]] && deep_security_password="trendmicro"
+    [[ "${deep_security_enabled}" = "null" || "${deep_security_enabled}" = "" ]] && deep_security_enabled=false
+
     # # Vision One
     # vision_one_server_tenant_id="$(yq '.services.vision-one.server-workload-protection.tenant-id' $ONEPATH/config.yaml)"
     # vision_one_server_token="$(yq '.services.vision-one.server-workload-protection.token' $ONEPATH/config.yaml)"

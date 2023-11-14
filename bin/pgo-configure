@@ -278,6 +278,69 @@ function update_cloud_one_config() {
   fi
 }
 
+function update_deep_security_config() {
+  printf '\n%s\n' "Please set/update your Deep Security configuration"
+
+  ##
+  ## Deep Security
+  ##
+  key_desc="Deep Security"
+  read -p "${key_desc} [${deep_security_enabled}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    deep_security_enabled=${TEMP}
+  fi
+  if [[ "${deep_security_enabled}" =~ ^true|false$ ]]; then
+    target_val=${deep_security_enabled} \
+      yq -i '.services.deep-security.enabled = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  if ${deep_security_enabled} ; then
+    key_desc="Deep Security License"
+    read -p "${key_desc} [${deep_security_license}]: " TEMP
+    if [[ ! -z "${TEMP}" ]]; then
+      deep_security_license=${TEMP}
+    fi
+    if [[ "${deep_security_license}" =~ ^[0-9A-Z\-]+$ ]]; then
+      target_val=${deep_security_license} \
+        yq -i '.services.deep-security.license = env(target_val)' ${ONEPATH}/config.yaml
+    else
+      echo "Error: Invalid ${key_desc} input."
+      exit 0
+    fi
+
+    key_desc="Deep Security Username"
+    read -p "${key_desc} [${deep_security_username}]: " TEMP
+    if [[ ! -z "${TEMP}" ]]; then
+      deep_security_username=${TEMP}
+    fi
+    if [[ "${deep_security_username}" =~ ^[a-zA-Z]+$ ]]; then
+      target_val=${deep_security_username} \
+        yq -i '.services.deep-security.username = env(target_val)' ${ONEPATH}/config.yaml
+    else
+      echo "Error: Invalid ${key_desc} input."
+      exit 0
+    fi
+
+    key_desc="Deep Security Password"
+    read -p "${key_desc} [${deep_security_password}]: " TEMP
+    if [[ ! -z "${TEMP}" ]]; then
+      deep_security_password=${TEMP}
+    fi
+    if [[ "${deep_security_password}" =~ ^[0-9a-zA-Z]+$ ]]; then
+      target_val=${deep_security_password} \
+        yq -i '.services.deep-security.password = env(target_val)' ${ONEPATH}/config.yaml
+    else
+      echo "Error: Invalid ${key_desc} input."
+      exit 0
+    fi
+  else
+    printf '%s\n' "Skipping Deep Security configuration"
+  fi
+}
+
 # function update_vision_one_config() {
 #   printf '\n%s\n' "Please set/update your Server & Workload Protection configuration"
 
@@ -428,6 +491,7 @@ update_pgo_config
 # update_cloud_one_config
 # update_vision_one_config
 update_integrations_config
+update_deep_security_config
 
 stickies
 

@@ -243,8 +243,23 @@ function init() {
       cd ${ONEPATH}/awsone/7-scenarios-fargate
       terraform init
       ;;&
+    dsm|deepsecurity|all)
+      printf '%s\n' "Create terraform.tfvars for deep security"
+      aws_account_id=${aws_account_id} \
+      aws_region=${aws_region} \
+      aws_environment=${aws_environment} \
+      pgo_access_ip=${pgo_access_ip} \
+      deep_security_license=${deep_security_license} \
+      deep_security_username=${deep_security_username} \
+      deep_security_password=${deep_security_password} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-9-deep-security.tfvars >$ONEPATH/awsone/9-deep-security/terraform.tfvars
+      
+      cd ${ONEPATH}/awsone/9-deep-security
+      terraform init
+      ;;&
     kind|all)
-      printf '%s\n' "Create terraform.tfvars for cluster-eks"
+      printf '%s\n' "Create terraform.tfvars for cluster-kind"
       aws_environment=${aws_environment} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-6-cluster-kind.tfvars >$ONEPATH/awsone/6-cluster-kind/terraform.tfvars
@@ -315,9 +330,10 @@ function apply() {
       # kubectl create namespace fargate --dry-run=client -o yaml | kubectl apply -f -
       cd ${ONEPATH}/awsone/7-scenarios-fargate
       terraform apply -auto-approve
-      ;;
-    eksdep)
-      cd ${ONEPATH}/awsone/8-cluster-eks-ec2-deployments
+      ;;&
+    dsm|deepsecurity|all)
+      lock dsm
+      cd ${ONEPATH}/awsone/9-deep-security
       terraform apply -auto-approve
       ;;
     kind)
@@ -415,6 +431,10 @@ function update_ip() {
   if [[ -f ${ONEPATH}/awsone/2-network/.pgo.scenarios-fg.lock ]] ; then
     apply scenarios-fg
   fi
+  init dsm
+  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.dsm.lock ]] ; then
+    apply dsm
+  fi
   # TODO: Add eks deployments
 }
 
@@ -500,9 +520,10 @@ function destroy() {
       terraform destroy -auto-approve
       unlock scenarios-fg
       ;;
-    eksdep)
-      cd ${ONEPATH}/awsone/8-cluster-eks-ec2-deployments
+    dsm|deepsecurity)
+      cd ${ONEPATH}/awsone/9-deep-security
       terraform destroy -auto-approve
+      unlock dsm
       ;;
     kind)
       cd ${ONEPATH}/awsone/6-cluster-kind
@@ -529,6 +550,9 @@ function destroy() {
       cd ${ONEPATH}/awsone/5-cluster-ecs
       terraform destroy -auto-approve
       unlock ecs
+      cd ${ONEPATH}/awsone/9-deep-security
+      terraform destroy -auto-approve
+      unlock dsm
       ;;
   esac
 }
@@ -605,6 +629,14 @@ function output() {
       else
         printf '%s\n' "Configuration scenarios-fg not applied"
       fi
+      ;;&
+    dsm|deepsecurity|all)
+      if [[ -f ${ONEPATH}/awsone/2-network/.pgo.dsm.lock ]] ; then
+        cd ${ONEPATH}/awsone/9-deep-security
+        terraform output
+      else
+        printf '%s\n' "Configuration dsm not applied"
+      fi
       ;;
     kind)
       cd ${ONEPATH}/awsone/6-cluster-kind
@@ -646,6 +678,9 @@ function list() {
   fi
   if [[ -f ${ONEPATH}/awsone/2-network/.pgo.scenarios-fg.lock ]] ; then
     printf '%s\n' "Configuration scenarios-fg is applied"
+  fi
+  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.dsm.lock ]] ; then
+    printf '%s\n' "Configuration dsm is applied"
   fi
 }
 
@@ -691,6 +726,10 @@ function state() {
       ;;&
     scenarios-fg|all)
       cd ${ONEPATH}/awsone/7-scenarios-fargate
+      terraform state list
+      ;;&
+    dsm|deepsecurity|all)
+      cd ${ONEPATH}/awsone/9-deep-security
       terraform state list
       ;;
     kind)
@@ -744,6 +783,10 @@ function show() {
     scenarios-fg|all)
       cd ${ONEPATH}/awsone/7-scenarios-fargate
       terraform show
+      ;;&
+    dsm|deepsecurity|all)
+      cd ${ONEPATH}/awsone/9-deep-security
+      terraform show
       ;;
     kind)
       cd ${ONEPATH}/awsone/6-cluster-kind
@@ -795,6 +838,10 @@ function validate() {
     scenarios-fg|all)
       cd ${ONEPATH}/awsone/7-scenarios-fargate
       terraform validate
+      ;;&
+    dsm|deepsecurity|all)
+      cd ${ONEPATH}/awsone/9-deep-security
+      terraform validate
       ;;
     kind)
       cd ${ONEPATH}/awsone/6-cluster-kind
@@ -834,9 +881,10 @@ function helpcmd() {
   printf '%s\n' "  eks-ec2       EKS configuration"
   printf '%s\n' "  eks-fg        EKS configuration"
   printf '%s\n' "  ecs           ECS configurations"
-  printf '%s\n' "  kind          Kind configurations"
-  printf '%s\n' "  scenarios-ec2 Scenario configurations"
-  printf '%s\n' "  scenarios-fg  Scenario configurations"
+  printf '%s\n' "  kind          Kind configuration"
+  printf '%s\n' "  scenarios-ec2 Scenario configuration"
+  printf '%s\n' "  scenarios-fg  Scenario configuration"
+  printf '%s\n' "  dsm           Deep Security configuration"
   printf '%s\n' "  all           All configurations"
   printf '%s\n' ""
   printf '%s\n' "Examples:"
