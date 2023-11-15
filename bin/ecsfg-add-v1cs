@@ -69,7 +69,7 @@ printf '%s\n' "  Patching task definition..."
 docker run -ti \
   -v ${ONEPATH}/.ecsfg:/mnt/input \
   -v ${ONEPATH}/.ecsfg:/mnt/output \
-  trendmicrocloudone/ecs-taskdef-patcher:2.3.21 \
+  trendmicrocloudone/ecs-taskdef-patcher:2.3.24 \
   -i /mnt/input/task-definition.json \
   -o /mnt/output/task-definition-patched.json
 printf '%s\n' "  Patched task definition written to .ecsfg"
