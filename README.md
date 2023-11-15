@@ -27,6 +27,7 @@ EKS Trivy     | Yes         | EKS EC2 only
 ECS EC2       | Yes         | V1CS Runtime Scanning<br>V1CS Runtime Security
 ECS Fargate   | Yes         | V1CS Runtime Scanning<br>V1CS Runtime Security
 TMAS          | Yes         | Artifact Scanning for Vulnerabilities and Malware
+Deep Security | Yes         | tbd
 
 ![alt text](docs/how-it-works/images/architecture.png "Architecture diagram")
 *Architecture: Example environment name `pgo8`*
