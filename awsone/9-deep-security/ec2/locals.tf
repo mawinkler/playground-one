@@ -46,6 +46,13 @@ locals {
           protocol    = "tcp"
           cidr_blocks = var.public_subnets_cidr
         }
+        # dsm = {
+        #   description = "Deep Security Manager"
+        #   from        = 4119
+        #   to          = 4119
+        #   protocol    = "tcp"
+        #   cidr_blocks = var.public_subnets_cidr
+        # }
         postgres = {
           from   = 5432
           to     = 5432

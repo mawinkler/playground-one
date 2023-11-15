@@ -76,3 +76,15 @@ output "ssh_instance_dsm" {
 output "dsm_url" {
   value = module.dsm.dsm_url
 }
+
+output "bastion_instance_id" {
+  value = module.bastion.bastion_instance_id
+}
+
+output "bastion_instance_ip" {
+  value = module.bastion.bastion_instance_ip
+}
+
+output "ssh_instance_bastion" {
+  value = module.bastion.ssh_instance_bastion
+}

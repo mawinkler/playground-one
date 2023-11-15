@@ -46,6 +46,7 @@ TMServerAgent_Windows.zip
 .pgo.scenarios-ec2.lock
 .pgo.scenarios-fg.lock
 .pgo.ecs.lock
+.pgo.dsm.lock
 overrides.yaml
 dsm.properties
 
@@ -58,3 +59,4 @@ temp
 
 # In development
 4-cluster-eks-redesign
+9-deep-security-bastion

@@ -26,6 +26,9 @@ resource "aws_instance" "dsm" {
     user        = var.linux_username
     host        = self.public_ip
     private_key = file("${var.private_key_path}")
+    # bastion_host     = var.bastion_instance_ip
+    # bastion_user     = "ubuntu"
+    # bastion_host_key = var.public_key
   }
 
   # DSM properties file
