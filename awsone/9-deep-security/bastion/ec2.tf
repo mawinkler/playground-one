@@ -1,8 +1,7 @@
 # #############################################################################
-# Linux Instance
-#   MYSQL
-#   Vision One Server & Workload Protection
-#   Atomic Launcher
+# Bastion Host
+#   SSH tunnel
+#   NGINX upstream proxy
 # #############################################################################
 resource "aws_instance" "bastion" {
 
@@ -26,5 +25,20 @@ resource "aws_instance" "bastion" {
     user        = var.linux_username
     host        = self.public_ip
     private_key = file("${var.private_key_path}")
+  }
+
+  provisioner "file" {
+    content     = local.passthrough_conf
+    destination = "/tmp/passthrough.conf"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "/bin/bash -c \"timeout 300 sed '/finished-user-data/q' <(tail -f /var/log/cloud-init-output.log)\"",
+      "sudo mv /tmp/passthrough.conf /etc/nginx/passthrough.conf",
+      "sudo chown root.root /etc/nginx/passthrough.conf",
+      "sudo nginx -t",
+      "sudo service nginx restart"
+    ]
   }
 }

@@ -4,15 +4,20 @@
 data "template_file" "linux_userdata" {
     template = <<EOF
 #!/bin/bash
+set -euxo pipefail
 
 # install essential packages
 apt-get update
-apt-get install -y unzip
+apt-get install -y unzip nginx
 
 # install aws cli
 curl -fsSL https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o /tmp/awscliv2.zip
-unzip /tmp/awscliv2.zip -d /tmp
+unzip -q /tmp/awscliv2.zip -d /tmp
 /tmp/aws/install --update
 rm -Rf /tmp/aws /tmp/awscliv2.zip
+
+echo "include /etc/nginx/passthrough.conf;" | tee -a /etc/nginx/nginx.conf
+
+touch /tmp/finished-user-data
     EOF
 }

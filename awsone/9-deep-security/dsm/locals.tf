@@ -38,7 +38,8 @@ locals {
   dsm_bootstrap = <<-EOT
     #!/bin/bash
 
-    sed -i '/^AddressAndPortsScreen.ManagerAddress=/ s/$/&'$(curl -s http://169.254.169.254/latest/meta-data/public-hostname)'/' /home/ec2-user/dsm.properties
+    # sed -i '/^AddressAndPortsScreen.ManagerAddress=/ s/$/&'$(curl -s http://169.254.169.254/latest/meta-data/public-hostname)'/' /home/ec2-user/dsm.properties
+    sed -i '/^AddressAndPortsScreen.ManagerAddress=/ s/$/&'$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)'/' /home/ec2-user/dsm.properties
 
     sudo /home/ec2-user/dsm_install.sh -q -varfile /home/ec2-user/dsm.properties
   EOT
