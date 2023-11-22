@@ -55,7 +55,7 @@ locals {
 
     private = {
       name        = "${var.environment}-private-sg"
-      description = "Security group"
+      description = "Security group for Private Access"
       ingress = {
         ssh = {
           from        = 22

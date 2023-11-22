@@ -12,9 +12,9 @@ module "vpc" {
   public_subnets  = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 4)]
   intra_subnets   = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 20)]
 
-  private_subnet_names = [] #[for value in local.azs : join("-", [value, var.environment, "private"])]
-  public_subnet_names  = [] #[for value in local.azs : join("-", [value, var.environment, "public"])]
-  intra_subnet_names   = [] #[for value in local.azs : join("-", [value, var.environment, "intra"])]
+  private_subnet_names = [for i in local.azs : "${var.environment}-private-subnet-${i}"]
+  public_subnet_names  = [for i in local.azs : "${var.environment}-public-subnet-${i}"]
+  intra_subnet_names  = [for i in local.azs : "${var.environment}-intra-subnet-${i}"]
 
   manage_default_network_acl    = false
   manage_default_route_table    = false
@@ -38,7 +38,7 @@ module "vpc" {
   # flow_log_max_aggregation_interval    = 60
 
   tags = {
-    Name          = "${var.environment}-vpc"
+    # Name          = "${var.environment}-vpc"
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "nw"

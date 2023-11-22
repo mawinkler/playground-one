@@ -27,7 +27,7 @@ resource "aws_security_group" "sg" {
   }
 
   tags = {
-    Name          = "${var.environment}-security-group"
+    Name          = "${each.value.name}"
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "nw"
