@@ -133,7 +133,7 @@ Here we're building an ECS cluster using EC2 instances and/or Fargate profile. K
 
 This configuration is to simulate an on-premise Deep Security environment meant to be used in migration scenarios. For simulation purposes it creates a dedicated VPC with the most commonly used architecture, private and public subnets accross two availability zones. It includes everything what a VPC should have, this is amongst others an internet gateway, NAT gateway, security groups, etc.
 
-The Deep Security Manager is currently deployed to the public subnet with port `4119` exposed. It uses an AWS RDS PostgreSQL in the private subnet.
+The Deep Security Manager is deployed to the private subnet with port `4119` exposed. It uses an AWS RDS PostgreSQL in the private subnet. Access to Deep Security is granted by the help of a bastion host in the public subnet. This host supports ssh tunneling and an upstream proxy on port 4119.
 
 Current state of implementation:
 
@@ -141,11 +141,14 @@ Current state of implementation:
 - Database setup done.
 - Deep Security installation and bootstrap done.
 
+An applied dsm configuration can be quickly stopped and started via the commands `dsm stop` and `dsm start` without losing any configurations within Deep Security.
+
 To come:
 
-- Documentation of migration scenarios.
-  - DS --> WS --> V1ES
+- Documentation of integraion scenarios:
+  - DS with V1ES
+  - WS with V1ES
+- Documentation of migration scenarios:
   - DS --> V1ES
   - WS --> V1ES
-- Creation of protected instances.
-- Move DSM to private subnet and add load balancer.
+- Creation of protected instances and policies.

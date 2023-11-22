@@ -35,6 +35,12 @@ nav:
     # - Privileged Shell: scenarios/container-security-eks-privileged-shell.md
     # - Server & Workload Protection:
     #   - Malware Upload: scenarios/server-workload-ecs-ec2-malware-upload.md
+    - Integrations:
+      - Integrate Deep Security with Vision One: scenarios/ds/ds-integrate.md
+      - Integrate Workload Security with Vision One: scenarios/ds/ws-integrate.md
+    - Migration:
+      - Migrate Deep Security to Vision One: scenarios/ds/ds-migrate.md
+      - Migrate Workload Security to Vision One: scenarios/ds/ws-migrate.md
   - FAQ: faq.md
   - Bloopers: bloopers.md
 theme:

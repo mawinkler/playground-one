@@ -1,0 +1,47 @@
+#!/bin/bash
+
+cd ${ONEPATH}/awsone/9-deep-security
+
+function check_dsm() {
+  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.dsm.lock ]] ; then
+    rds_identifier=$(terraform output -raw rds_identifier)
+    bastion_instance_id=$(terraform output -raw bastion_instance_id)
+    dsm_instance_id=$(terraform output -raw dsm_instance_id)
+  else
+    printf 'Configuration dsm not deployed\n'
+    break
+  fi
+}
+
+case "$1" in
+  start)
+    check_dsm
+    db_status=$(aws rds describe-db-instances --db-instance-identifier ${rds_identifier} | jq -r '.DBInstances[0].DBInstanceStatus')
+    if [ "${db_status}" == "stopped" ] ; then
+      printf 'State database: %s\n' "$(aws rds start-db-instance --db-instance-identifier ${rds_identifier} | jq -r '.DBInstance.DBInstanceStatus')"
+    fi
+    printf 'State bastion host: %s\n' "$(aws ec2 start-instances --instance-ids ${bastion_instance_id} | jq -r '.StartingInstances[0].CurrentState.Name')"
+    printf 'State deep security manager: %s\n' "$(aws ec2 start-instances --instance-ids ${dsm_instance_id} | jq -r '.StartingInstances[0].CurrentState.Name')"
+    for i in {1..600} ; do
+      sleep 2
+      db_status=$(aws rds describe-db-instances --db-instance-identifier ${rds_identifier} | jq -r '.DBInstances[0].DBInstanceStatus')
+      printf '.'
+      if [ "${db_status}" == "available" ] ; then
+        printf '\nNow run pgo -a dsm\n'
+        break
+      fi
+    done
+    ;;
+  stop)
+    check_dsm
+    printf 'State bastion host: %s\n' "$(aws ec2 stop-instances --instance-ids ${bastion_instance_id} | jq -r '.StoppingInstances[0].CurrentState.Name')"
+    printf 'State deep security manager: %s\n' "$(aws ec2 stop-instances --instance-ids ${dsm_instance_id} | jq -r '.StoppingInstances[0].CurrentState.Name')"
+    db_status=$(aws rds describe-db-instances --db-instance-identifier ${rds_identifier} | jq -r '.DBInstances[0].DBInstanceStatus')
+    if [ "${db_status}" == "available" ] ; then
+      printf 'State database: %s\n' "$(aws rds stop-db-instance --db-instance-identifier ${rds_identifier} | jq -r '.DBInstance.DBInstanceStatus')"
+    fi
+    ;;
+  *)
+    printf 'Parameter start or stop required\n'
+    ;;
+esac

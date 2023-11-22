@@ -168,3 +168,38 @@ Initially, I thought I just need to leave the VPC alone when changing/destroying
 ```sh
 aws kms delete-alias --alias-name alias/eks/playground-one-eks
 ```
+
+## EKS EC2 Autoscaler
+
+In some cases creating the EKS cluster with EC2 instances failes just before finishing with the following error:
+
+```sh
+╷
+│ Warning: Helm release "cluster-autoscaler" was created but has a failed status. Use the `helm` command to investigate the error, correct it, then run Terraform again.
+│ 
+│   with module.eks.helm_release.cluster_autoscaler[0],
+│   on eks-ec2/autoscaler.tf line 25, in resource "helm_release" "cluster_autoscaler":
+│   25: resource "helm_release" "cluster_autoscaler" {
+│ 
+╵
+...
+╷
+│ Error: 1 error occurred:
+│       * Internal error occurred: failed calling webhook "mservice.elbv2.k8s.aws": failed to call webhook: Post "https://aws-load-balancer-webhook-service.kube-system.svc:443/mutate-v1-service?timeout=10s": no endpoints available for service "aws-load-balancer-webhook-service"
+│ 
+│ 
+│ 
+│   with module.eks.helm_release.cluster_autoscaler[0],
+│   on eks-ec2/autoscaler.tf line 25, in resource "helm_release" "cluster_autoscaler":
+│   25: resource "helm_release" "cluster_autoscaler" {
+│ 
+╵
+```
+
+This looks like a timing issue for me which I need to investigate further. If you run into this problem just rerun
+
+```sh
+pgo --apply eks-ec2
+```
+
+This should complete the cluster creation within seconds then.
