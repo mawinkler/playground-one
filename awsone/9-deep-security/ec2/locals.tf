@@ -8,12 +8,14 @@ locals {
       description = "Security group for Public Access"
       ingress = {
         ssh = {
+          description = "SSH Access"
           from        = 22
           to          = 22
           protocol    = "tcp"
           cidr_blocks = var.access_ip
         }
         rdp = {
+          description = "RDP Access"
           from        = 3389
           to          = 3389
           protocol    = "tcp"
@@ -38,7 +40,7 @@ locals {
 
     private = {
       name        = "${var.environment}-private-sg"
-      description = "Security group"
+      description = "Security group for Private Access"
       ingress = {
         ssh = {
           from        = 22

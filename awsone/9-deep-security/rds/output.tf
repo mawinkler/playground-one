@@ -1,8 +1,8 @@
 # #############################################################################
 # Outputs
 # #############################################################################
-output "rds_name" {
-  value = module.db.db_instance_name
+output "rds_identifier" {
+  value = module.db.db_instance_identifier
 }
 
 output "rds_address" {

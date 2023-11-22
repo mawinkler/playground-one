@@ -44,25 +44,13 @@ output "private_key_path" {
 ################################################################################
 # Deep Security RDS Database
 ################################################################################
-output "rds_name" {
-  value = module.rds.rds_name
+output "rds_identifier" {
+  value = module.rds.rds_identifier
 }
 
 output "rds_address" {
   value = module.rds.rds_address
 }
-
-# output "database_subnets" {
-#   value = module.vpc.database_subnets
-# }
-
-# output "database_subnet_cidr_blocks" {
-#   value = module.vpc.database_subnet_cidr_blocks
-# }
-
-# output "database_subnet_group" {
-#   value = module.vpc.database_subnet_group
-# }
 
 ################################################################################
 # Bastion
