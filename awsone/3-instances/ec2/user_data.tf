@@ -255,8 +255,6 @@ rm -Rf /tmp/aws /tmp/awscliv2.zip
 
 # download from s3
 mkdir -p /home/ubuntu/download
-echo aws s3 cp s3://${var.s3_bucket}/download /home/ubuntu/download --recursive
-
 aws s3 cp s3://${var.s3_bucket}/download /home/ubuntu/download --recursive
 chown ubuntu.ubuntu -R /home/ubuntu/download
     EOF

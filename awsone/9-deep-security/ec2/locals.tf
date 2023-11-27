@@ -35,6 +35,13 @@ locals {
           protocol    = "tcp"
           cidr_blocks = var.access_ip
         }
+        activation = {
+          description = "Deep Security Activation"
+          from        = 4120
+          to          = 4120
+          protocol    = "tcp"
+          cidr_blocks = var.access_ip
+        }
       }
     }
 
@@ -52,6 +59,13 @@ locals {
           description = "Deep Security Manager"
           from        = 4119
           to          = 4119
+          protocol    = "tcp"
+          cidr_blocks = var.public_subnets_cidr
+        }
+        activation = {
+          description = "Deep Security Activation"
+          from        = 4120
+          to          = 4120
           protocol    = "tcp"
           cidr_blocks = var.public_subnets_cidr
         }

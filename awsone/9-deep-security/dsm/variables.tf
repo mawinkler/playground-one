@@ -26,7 +26,7 @@ variable "linux_username" {}
 variable "vpc_id" {}
 
 # Bastion
-variable "bastion_instance_ip" {}
+variable "bastion_public_ip" {}
 
 variable "bastion_private_key" {}
 

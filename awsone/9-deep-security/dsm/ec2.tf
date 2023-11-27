@@ -40,7 +40,7 @@ resource "aws_instance" "dsm" {
     user             = var.linux_username
     host             = self.private_ip
     private_key      = file("${var.private_key_path}")
-    bastion_host     = var.bastion_instance_ip
+    bastion_host     = var.bastion_public_ip
     bastion_user     = "ubuntu"
     bastion_host_key = var.public_key
   }
@@ -65,4 +65,36 @@ resource "aws_instance" "dsm" {
       "/home/ec2-user/dsm_bootstrap.sh"
     ]
   }
+}
+
+resource "null_resource" "create_apikey" {
+  provisioner "local-exec" {
+    command = <<-EOT
+      rid=$(curl --insecure -X POST https://${var.bastion_public_ip}:4119/api/sessions \
+        -H 'Cache-Control: no-cache' \
+        -H 'Content-Type: application/json' \
+        -H 'api-version: v1' \
+        -c cookie.txt -d '{"userName": "${var.dsm_username}", "password": "${var.dsm_password}"}' | \
+        jq -r '.RID')
+      
+      curl --insecure -X POST https://${var.bastion_public_ip}:4119/api/apikeys \
+        -H 'Content-Type: application/json' \
+        -H 'api-version: v1' \
+        -H 'rID: '$rid \
+        -b cookie.txt \
+        -d '{"keyName": "Full Access", "roleID": 1}' | \
+        jq -r -c '.secretKey' | tr -d '\n' > ${path.module}/apikey
+    EOT
+  }
+  # triggers  =  { always_run = "${timestamp()}" }
+  depends_on = [ aws_instance.dsm ]
+}
+
+data "local_file" "apikey" {
+  filename = "${path.module}/apikey"
+  depends_on = [ null_resource.create_apikey ]
+}
+
+output "ds_apikey" {
+  value = data.local_file.apikey.content
 }

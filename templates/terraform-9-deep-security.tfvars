@@ -26,3 +26,9 @@ dsm_password = "${deep_security_password}"
 # Deep Security Database
 rds_name = "deepsecurity"
 rds_username = "dsm"
+
+# Create Linux instance(s)
+create_linux = ${pgo_ec2_create_linux}
+
+# Create Windows instance(s)
+create_windows = ${pgo_ec2_create_windows}

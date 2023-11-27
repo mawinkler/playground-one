@@ -6,7 +6,7 @@ data "template_file" "linux_userdata" {
 #!/bin/bash
 
 # install essential packages
-yum install -y unzip
+yum install -y unzip jq
 
 # install aws cli
 curl -fsSL https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o /tmp/awscliv2.zip

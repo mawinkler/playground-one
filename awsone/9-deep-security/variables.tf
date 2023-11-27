@@ -50,3 +50,14 @@ variable "rds_name" {
 variable "rds_username" {
   type = string
 }
+
+################################################################################
+# Computers
+################################################################################
+variable "create_linux" {
+  type = bool
+}
+
+variable "create_windows" {
+  type = bool
+}

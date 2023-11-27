@@ -252,6 +252,8 @@ function init() {
       deep_security_license=${deep_security_license} \
       deep_security_username=${deep_security_username} \
       deep_security_password=${deep_security_password} \
+      pgo_ec2_create_linux=${pgo_ec2_create_linux} \
+      pgo_ec2_create_windows=${pgo_ec2_create_windows} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-9-deep-security.tfvars >$ONEPATH/awsone/9-deep-security/terraform.tfvars
       
