@@ -14,11 +14,8 @@ resource "aws_network_interface" "dsm" {
 }
 
 resource "aws_instance" "dsm" {
-
-  ami           = data.aws_ami.rhel.id
-  instance_type = "t3.medium"
-  # subnet_id              = var.private_subnets[0]
-  # vpc_security_group_ids = [var.private_security_group_id]
+  ami                  = data.aws_ami.rhel.id
+  instance_type        = "t3.xlarge"
   iam_instance_profile = var.ec2_profile
   key_name             = var.key_name
 
@@ -67,6 +64,14 @@ resource "aws_instance" "dsm" {
   }
 }
 
+resource "random_string" "apikey_suffix" {
+  length  = 8
+  lower   = true
+  upper   = false
+  numeric = true
+  special = false
+}
+
 resource "null_resource" "create_apikey" {
   provisioner "local-exec" {
     command = <<-EOT
@@ -82,19 +87,14 @@ resource "null_resource" "create_apikey" {
         -H 'api-version: v1' \
         -H 'rID: '$rid \
         -b cookie.txt \
-        -d '{"keyName": "Full Access", "roleID": 1}' | \
+        -d '{"keyName": "Full Access ${random_string.apikey_suffix.result}", "roleID": 1}' | \
         jq -r -c '.secretKey' | tr -d '\n' > ${path.module}/apikey
     EOT
   }
-  # triggers  =  { always_run = "${timestamp()}" }
-  depends_on = [ aws_instance.dsm ]
+  depends_on = [aws_instance.dsm]
 }
 
 data "local_file" "apikey" {
-  filename = "${path.module}/apikey"
-  depends_on = [ null_resource.create_apikey ]
-}
-
-output "ds_apikey" {
-  value = data.local_file.apikey.content
+  filename   = "${path.module}/apikey"
+  depends_on = [null_resource.create_apikey]
 }

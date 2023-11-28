@@ -42,6 +42,7 @@ module "dsm" {
   source = "./dsm"
 
   environment               = var.environment
+  vpc_id                    = module.vpc.vpc_id
   public_subnets            = module.vpc.public_subnets.*
   private_subnets           = module.vpc.private_subnets.*
   public_security_group_id  = module.ec2.public_security_group_id
@@ -49,7 +50,6 @@ module "dsm" {
   key_name                  = module.ec2.key_name
   public_key                = module.ec2.public_key
   private_key_path          = module.ec2.private_key_path
-  vpc_id                    = module.vpc.vpc_id
   ec2_profile               = module.iam.ec2_profile
   s3_bucket                 = module.s3.s3_bucket
   linux_username            = var.linux_username
@@ -65,10 +65,6 @@ module "dsm" {
 
   bastion_public_ip   = module.bastion.bastion_public_ip
   bastion_private_key = module.ec2.private_key
-
-  providers = {
-    restapi.dsrest = restapi.dsrest
-  }
 }
 
 module "iam" {
@@ -80,20 +76,4 @@ module "iam" {
 module "s3" {
   source      = "./s3"
   environment = var.environment
-}
-
-module "computers" {
-  source = "./computers"
-
-  environment              = var.environment
-  public_subnets           = module.vpc.public_subnets.*
-  public_security_group_id = module.ec2.public_security_group_id
-  key_name                 = module.ec2.key_name
-  private_key_path         = module.ec2.private_key_path
-  ec2_profile              = module.iam.ec2_profile
-  s3_bucket                = module.s3.s3_bucket
-  create_linux             = var.create_linux
-  create_windows           = var.create_windows
-  linux_username           = var.linux_username
-  bastion_private_ip       = module.bastion.bastion_private_ip
 }

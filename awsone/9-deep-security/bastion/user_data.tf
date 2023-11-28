@@ -2,7 +2,7 @@
 # Linux userdata
 # #############################################################################
 data "template_file" "linux_userdata" {
-    template = <<EOF
+  template = <<EOF
 #!/bin/bash
 set -euxo pipefail
 
@@ -19,5 +19,5 @@ rm -Rf /tmp/aws /tmp/awscliv2.zip
 echo "include /etc/nginx/passthrough.conf;" | tee -a /etc/nginx/nginx.conf
 
 touch /tmp/finished-user-data
-    EOF
+  EOF
 }

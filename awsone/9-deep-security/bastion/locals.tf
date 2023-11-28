@@ -1,5 +1,5 @@
 locals {
-  passthrough_conf= <<-EOT
+  passthrough_conf = <<-EOT
     stream {
       log_format basic '$remote_addr [$time_local] '
                   '$protocol $status $bytes_sent $bytes_received '

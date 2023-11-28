@@ -8,15 +8,45 @@ output "vpc_id" {
   value = module.vpc.vpc_id
 }
 
+output "public_subnets" {
+  value = module.vpc.public_subnets
+}
+
+output "private_subnets" {
+  value = module.vpc.private_subnets
+}
+
 #
-# Key
+# EC2
 #
+output "public_security_group_id" {
+  value = module.ec2.public_security_group_id
+}
+
+output "private_security_group_id" {
+  value = module.ec2.private_security_group_id
+}
+
 output "key_name" {
   value = module.ec2.key_name
 }
 
 output "private_key_path" {
   value = module.ec2.private_key_path
+}
+
+#
+# IAM
+#
+output "ec2_profile" {
+  value = module.iam.ec2_profile
+}
+
+#
+# S3
+#
+output "s3_bucket" {
+  value = module.s3.s3_bucket
 }
 
 #
@@ -41,6 +71,10 @@ output "bastion_public_ip" {
   value = module.bastion.bastion_public_ip
 }
 
+output "bastion_private_ip" {
+  value = module.bastion.bastion_private_ip
+}
+
 output "ssh_instance_bastion" {
   value = module.bastion.ssh_instance_bastion
 }
@@ -58,17 +92,6 @@ output "ssh_instance_dsm" {
 
 output "dsm_url" {
   value = module.dsm.dsm_url
-}
-
-#
-# Computers
-#
-output "public_instance_ip_linux1" {
-  value = module.computers.public_instance_ip_linux1
-}
-
-output "ssh_instance_linux1" {
-  value = module.computers.ssh_instance_linux1
 }
 
 output "ds_apikey" {
