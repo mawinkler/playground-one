@@ -252,12 +252,25 @@ function init() {
       deep_security_license=${deep_security_license} \
       deep_security_username=${deep_security_username} \
       deep_security_password=${deep_security_password} \
-      pgo_ec2_create_linux=${pgo_ec2_create_linux} \
-      pgo_ec2_create_windows=${pgo_ec2_create_windows} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-9-deep-security.tfvars >$ONEPATH/awsone/9-deep-security/terraform.tfvars
       
+      printf '%s\n' "Create terraform.tfvars for deep security"
+      aws_account_id=${aws_account_id} \
+      aws_region=${aws_region} \
+      aws_environment=${aws_environment} \
+      pgo_access_ip=${pgo_access_ip} \
+      deep_security_license=${deep_security_license} \
+      deep_security_username=${deep_security_username} \
+      deep_security_password=${deep_security_password} \
+      pgo_ec2_create_linux=${pgo_ec2_create_linux} \
+      pgo_ec2_create_windows=${pgo_ec2_create_windows} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-9-deep-security-workload.tfvars >$ONEPATH/awsone/9-deep-security-workload/terraform.tfvars
+
       cd ${ONEPATH}/awsone/9-deep-security
+      terraform init
+      cd ${ONEPATH}/awsone/9-deep-security-workload
       terraform init
       ;;&
     kind|all)
@@ -336,6 +349,8 @@ function apply() {
     dsm|deepsecurity|all)
       lock dsm
       cd ${ONEPATH}/awsone/9-deep-security
+      terraform apply -auto-approve
+      cd ${ONEPATH}/awsone/9-deep-security-workload
       terraform apply -auto-approve
       ;;
     kind)
@@ -523,6 +538,8 @@ function destroy() {
       unlock scenarios-fg
       ;;
     dsm|deepsecurity)
+      cd ${ONEPATH}/awsone/9-deep-security-workload
+      terraform destroy -auto-approve
       cd ${ONEPATH}/awsone/9-deep-security
       terraform destroy -auto-approve
       unlock dsm
@@ -552,6 +569,8 @@ function destroy() {
       cd ${ONEPATH}/awsone/5-cluster-ecs
       terraform destroy -auto-approve
       unlock ecs
+      cd ${ONEPATH}/awsone/9-deep-security-workload
+      terraform destroy -auto-approve
       cd ${ONEPATH}/awsone/9-deep-security
       terraform destroy -auto-approve
       unlock dsm
@@ -635,6 +654,8 @@ function output() {
     dsm|deepsecurity|all)
       if [[ -f ${ONEPATH}/awsone/2-network/.pgo.dsm.lock ]] ; then
         cd ${ONEPATH}/awsone/9-deep-security
+        terraform output
+        cd ${ONEPATH}/awsone/9-deep-security-workload
         terraform output
       else
         printf '%s\n' "Configuration dsm not applied"
@@ -733,6 +754,8 @@ function state() {
     dsm|deepsecurity|all)
       cd ${ONEPATH}/awsone/9-deep-security
       terraform state list
+      cd ${ONEPATH}/awsone/9-deep-security-workload
+      terraform state list
       ;;
     kind)
       cd ${ONEPATH}/awsone/6-cluster-kind
@@ -789,6 +812,8 @@ function show() {
     dsm|deepsecurity|all)
       cd ${ONEPATH}/awsone/9-deep-security
       terraform show
+      cd ${ONEPATH}/awsone/9-deep-security-workload
+      terraform show
       ;;
     kind)
       cd ${ONEPATH}/awsone/6-cluster-kind
@@ -843,6 +868,8 @@ function validate() {
       ;;&
     dsm|deepsecurity|all)
       cd ${ONEPATH}/awsone/9-deep-security
+      terraform validate
+      cd ${ONEPATH}/awsone/9-deep-security-workload
       terraform validate
       ;;
     kind)
