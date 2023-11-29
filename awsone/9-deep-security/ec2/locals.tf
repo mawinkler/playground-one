@@ -35,6 +35,13 @@ locals {
           protocol    = "tcp"
           cidr_blocks = var.access_ip
         }
+        dsm_private = {
+          description = "Deep Security Manager"
+          from        = 4118
+          to          = 4122
+          protocol    = "tcp"
+          cidr_blocks = var.private_subnets_cidr
+        }
       }
     }
 

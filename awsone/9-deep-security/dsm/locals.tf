@@ -32,6 +32,7 @@ locals {
     SoftwareUpdateScreen.ProxyUsername=
     SoftwareUpdateScreen.ProxyPassword=
     RelayScreen.Install=True
+    RelayScreen.AntiMalware=True
     SmartProtectionNetworkScreen.EnableFeedback=False
   EOT
 

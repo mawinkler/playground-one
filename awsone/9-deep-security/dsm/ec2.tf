@@ -54,9 +54,13 @@ resource "aws_instance" "dsm" {
   }
 
   # Download DSM installer, add public dns name to properties and install
+      # "curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/20.0/KernelSupport-amzn2-20.0.0-8268.x86_64.zip",
+      # "curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/12.5/Agent-amzn2-12.5.0-814.x86_64.zip -o /home/ec2-user/Agent-amzn2-12.5.0-814.x86_64.zip",
+      # "curl -fsSL http://files.trendmicro.com/products/deepsecurity/en/12.5/KernelSupport-amzn2-12.5.0-827.x86_64.zip -o /home/ec2-user/KernelSupport-amzn2-12.5.0-827.x86_64.zip",
   provisioner "remote-exec" {
     inline = [
       "curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/20.0/Manager-Linux-20.0.844.x64.sh -o /home/ec2-user/dsm_install.sh",
+      "curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2-20.0.0-8268.x86_64.zip -o /home/ec2-user/Agent-amzn2-20.0.0-8268.x86_64.zip",
       "chmod +x /home/ec2-user/dsm_install.sh",
       "chmod +x /home/ec2-user/dsm_bootstrap.sh",
       "/home/ec2-user/dsm_bootstrap.sh"
