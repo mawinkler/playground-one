@@ -255,7 +255,7 @@ function init() {
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-9-deep-security.tfvars >$ONEPATH/awsone/9-deep-security/terraform.tfvars
       
-      printf '%s\n' "Create terraform.tfvars for deep security"
+      printf '%s\n' "Create terraform.tfvars for deep security workload"
       aws_account_id=${aws_account_id} \
       aws_region=${aws_region} \
       aws_environment=${aws_environment} \
@@ -936,6 +936,15 @@ TEMP=$(getopt -o ci:a:ld:o:s:S:v:uh --long config,init:,apply:,list,destroy:,out
 if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 
 eval set -- "$TEMP"
+
+# # Check if IP address changed
+# configured_cidr=${pgo_access_ip//[\[\]\"]/}
+# current_cidr=$(curl -s ifconfig.me && echo)'/32'
+# if [[ ${configured_cidr} != *"$current_cidr"* ]] ; then
+#   printf '%s\n' "!!! Access IP mismatch !!!"
+#   sleep 3
+#   exit 0
+# fi
 
 while true; do
   case "$1" in
