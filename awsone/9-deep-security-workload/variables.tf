@@ -20,6 +20,10 @@ variable "create_windows" {
   type = bool
 }
 
-variable "linux_username" {
+variable "linux_username_amzn" {
+  type = string
+}
+
+variable "linux_username_ubnt" {
   type = string
 }

@@ -26,7 +26,7 @@ resource "aws_instance" "linux1" {
   user_data = data.template_file.linux_userdata_amzn.rendered
 
   connection {
-    user        = var.linux_username
+    user        = var.linux_username_amzn
     host        = self.public_ip
     private_key = file("${var.private_key_path}")
   }
@@ -53,7 +53,7 @@ resource "aws_instance" "linux2" {
   user_data = data.template_file.linux_userdata_deb.rendered
 
   connection {
-    user        = var.linux_username
+    user        = var.linux_username_ubnt
     host        = self.public_ip
     private_key = file("${var.private_key_path}")
   }

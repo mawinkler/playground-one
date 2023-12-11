@@ -5,7 +5,8 @@ aws_region = "${aws_region}"
 environment = "${aws_environment}-dsm"
 
 # Linux Username (Do not change)
-linux_username = "ec2-user"
+linux_username_amzn = "ec2-user"
+linux_username_ubnt = "ubuntu"
 
 # Create Linux instance(s)
 create_linux = ${pgo_ec2_create_linux}

@@ -34,7 +34,9 @@ variable "create_linux" {}
 
 variable "create_windows" {}
 
-variable "linux_username" {}
+variable "linux_username_amzn" {}
+
+variable "linux_username_ubnt" {}
 
 #
 # Bastion
