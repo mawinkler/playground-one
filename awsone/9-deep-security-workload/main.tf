@@ -32,5 +32,6 @@ module "computers" {
   create_windows      = var.create_windows
   linux_username_amzn = var.linux_username_amzn
   linux_username_ubnt = var.linux_username_ubnt
+  linux_policy_id     = module.dsm.linux_policy_id
   bastion_private_ip  = data.terraform_remote_state.deep_security.outputs.bastion_private_ip
 }

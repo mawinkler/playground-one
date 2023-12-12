@@ -107,7 +107,7 @@ echo Install the agent package successfully
 
 sleep 15
 /opt/ds_agent/dsa_control -r
-/opt/ds_agent/dsa_control -a $ACTIVATIONURL "policyid:9"
+/opt/ds_agent/dsa_control -a $ACTIVATIONURL "policyid:${var.linux_policy_id}"
   EOF
 }
 
@@ -218,6 +218,6 @@ echo Install the agent package successfully
 
 sleep 15
 /opt/ds_agent/dsa_control -r
-/opt/ds_agent/dsa_control -a $ACTIVATIONURL "policyid:9"
+/opt/ds_agent/dsa_control -a $ACTIVATIONURL "policyid:${var.linux_policy_id}"
   EOF
 }

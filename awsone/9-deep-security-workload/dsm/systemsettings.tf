@@ -1,12 +1,6 @@
 # ####################################
 # Container Security Cluster API
 # ####################################
-resource "null_resource" "always_run" {
-  triggers = {
-    timestamp = "${timestamp()}"
-  }
-}
-
 resource "restapi_object" "systemsettings" {
 
   provider       = restapi.dsrest

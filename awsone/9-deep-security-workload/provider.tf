@@ -17,8 +17,16 @@ terraform {
       source  = "Mastercard/restapi"
       version = "~> 1.18.0"
     }
+    time = {
+      source  = "hashicorp/time"
+      version = "0.10.0"
+    }
   }
   required_version = ">= 1.3.5"
+}
+
+provider "time" {
+  # Configuration options
 }
 
 provider "restapi" {

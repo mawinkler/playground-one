@@ -38,6 +38,8 @@ variable "linux_username_amzn" {}
 
 variable "linux_username_ubnt" {}
 
+variable "linux_policy_id" {}
+
 #
 # Bastion
 #
