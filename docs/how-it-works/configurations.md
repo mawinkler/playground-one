@@ -13,6 +13,7 @@ awsone
 |   |   └── scenarios (7-scenarios-fargate)
 |   └── ecs (5-cluster-ecs)
 └── dsm (9-deep-security)
+    └── workload (9-deep-security-workload) 
 ```
 
 As we can see, the configuration `network` is the base for the other configurations. It creates the VPC, Subnets, Route Tables, Security Groups, etc. One can choose to only create the EKS cluster, or ECS cluster, or even the full stack. Everything will reside in the same VPC.
@@ -129,26 +130,17 @@ Here we're building an ECS cluster using EC2 instances and/or Fargate profile. K
 
 ## Deep Security
 
-*Configuration located in `awsone/9-deep-security`*
+*Configuration located in `awsone/9-deep-security` and `awsone/9-deep-security-workload`*
 
-This configuration is to simulate an on-premise Deep Security environment meant to be used in migration scenarios. For simulation purposes it creates a dedicated VPC with the most commonly used architecture, private and public subnets accross two availability zones. It includes everything what a VPC should have, this is amongst others an internet gateway, NAT gateway, security groups, etc.
+This configuration is to simulate an on-premise Deep Security environment meant to be used in integration and migration scenarios. For simulation purposes it creates a dedicated VPC with the most commonly used architecture, private and public subnets accross two availability zones. It includes everything what a VPC should have, this is amongst others an internet gateway, NAT gateway, security groups, etc.
 
-The Deep Security Manager is deployed to the private subnet with port `4119` exposed. It uses an AWS RDS PostgreSQL in the private subnet. Access to Deep Security is granted by the help of a bastion host in the public subnet. This host supports ssh tunneling and an upstream proxy on port 4119.
-
-Current state of implementation:
-
-- VPC, network implemented.
-- Database setup done.
-- Deep Security installation and bootstrap done.
-
-An applied dsm configuration can be quickly stopped and started via the commands `dsm stop` and `dsm start` without losing any configurations within Deep Security.
+The workload configuration creates a demo configuration for Deep Security and two custom policies. Two linux and one windows instances are created and activated with Deep Security. Some minutes after instance creation the activated computers will run a recommendation scan.
 
 To come:
 
-- Documentation of integraion scenarios:
+- Documentation of integration scenarios:
   - DS with V1ES
   - WS with V1ES
 - Documentation of migration scenarios:
   - DS --> V1ES
   - WS --> V1ES
-- Creation of protected instances and policies.
