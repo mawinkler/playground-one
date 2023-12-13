@@ -553,7 +553,7 @@ resource "restapi_object" "linux_policy" {
             "value": "Deny"
         },
         "platformSettingHeartbeatInterval": {
-            "value": "1 Minutes"
+            "value": "1 Minute"
         },
         "firewallSettingEngineOptionFragmentSizeMin": {
             "value": "120"
