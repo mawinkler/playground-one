@@ -25,6 +25,7 @@ module "computers" {
   public_security_group_id = data.terraform_remote_state.deep_security.outputs.public_security_group_id
   key_name                 = data.terraform_remote_state.deep_security.outputs.key_name
   private_key_path         = data.terraform_remote_state.deep_security.outputs.private_key_path
+  public_key               = data.terraform_remote_state.deep_security.outputs.public_key
   ec2_profile              = data.terraform_remote_state.deep_security.outputs.ec2_profile
   s3_bucket                = data.terraform_remote_state.deep_security.outputs.s3_bucket
 
@@ -33,5 +34,7 @@ module "computers" {
   linux_username_amzn = var.linux_username_amzn
   linux_username_ubnt = var.linux_username_ubnt
   linux_policy_id     = module.dsm.linux_policy_id
+  windows_username    = var.windows_username
+  windows_policy_id   = module.dsm.windows_policy_id
   bastion_private_ip  = data.terraform_remote_state.deep_security.outputs.bastion_private_ip
 }

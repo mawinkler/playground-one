@@ -27,3 +27,7 @@ variable "linux_username_amzn" {
 variable "linux_username_ubnt" {
   type = string
 }
+
+variable "windows_username" {
+  type = string
+}

@@ -17,6 +17,8 @@ variable "key_name" {}
 
 variable "private_key_path" {}
 
+variable "public_key" {}
+
 #
 # IAM
 #
@@ -38,7 +40,11 @@ variable "linux_username_amzn" {}
 
 variable "linux_username_ubnt" {}
 
+variable "windows_username" {}
+
 variable "linux_policy_id" {}
+
+variable "windows_policy_id" {}
 
 #
 # Bastion

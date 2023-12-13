@@ -350,8 +350,11 @@ function apply() {
       lock dsm
       cd ${ONEPATH}/awsone/9-deep-security
       terraform apply -auto-approve
+      ;;&
+    dsw|all)
       cd ${ONEPATH}/awsone/9-deep-security-workload
       terraform apply -auto-approve
+      printf '%s\n' "public_instance_password_windows1 = \"$(terraform output -raw public_instance_password_windows1)\""
       ;;
     kind)
       cd ${ONEPATH}/awsone/6-cluster-kind
@@ -456,6 +459,70 @@ function update_ip() {
 }
 
 #######################################
+# Deletes computers from Deep Security
+# with Playground policy assigned
+# Globals:
+#   ONEPATH
+# Arguments:
+#   None
+# Outputs:
+#   None
+#######################################
+function deep_security_delete_computers() {
+
+  cd ${ONEPATH}/awsone/9-deep-security-workload
+  dsm_url=$(terraform output -raw dsm_url)
+  api_key=$(terraform output -raw ds_apikey)
+  linux_policy_id=$(terraform output -raw linux_policy_id)
+  windows_policy_id=$(terraform output -raw windows_policy_id)
+  computer_ids=$(curl --location -ks ${dsm_url}/api/computers/search \
+    --header 'api-version: v1' \
+    --header 'Content-Type: application/json' \
+    --header 'Accept: application/json' \
+    --header 'api-secret-key: '${api_key} \
+    --data '{
+      "searchCriteria": [
+        {
+          "fieldName": "policyID",
+          "numericTest": "equal",
+          "numericValue": "'${linux_policy_id}'"
+        }
+      ]
+    }' | jq -r '.computers[].ID')
+  for id in ${computer_ids}; do
+    printf 'Deleting Computer with ID: %s\n' "${id}"
+    curl --location -ks --request DELETE ${dsm_url}/api/computers/${id} \
+      --header 'api-version: v1' \
+      --header 'Content-Type: application/json' \
+      --header 'Accept: application/json' \
+      --header 'api-secret-key: '${api_key}
+  done
+
+  computer_ids=$(curl --location -ks ${dsm_url}/api/computers/search \
+    --header 'api-version: v1' \
+    --header 'Content-Type: application/json' \
+    --header 'Accept: application/json' \
+    --header 'api-secret-key: '${api_key} \
+    --data '{
+      "searchCriteria": [
+        {
+          "fieldName": "policyID",
+          "numericTest": "equal",
+          "numericValue": "'${windows_policy_id}'"
+        }
+      ]
+    }' | jq -r '.computers[].ID')
+  for id in ${computer_ids}; do
+    printf 'Deleting Computer with ID: %s\n' "${id}"
+    curl --location -ks --request DELETE ${dsm_url}/api/computers/${id} \
+      --header 'api-version: v1' \
+      --header 'Content-Type: application/json' \
+      --header 'Accept: application/json' \
+      --header 'api-secret-key: '${api_key}
+  done
+}
+
+#######################################
 # Destroys a Terraform configuration
 # Globals:
 #   ONEPATH
@@ -538,11 +605,14 @@ function destroy() {
       unlock scenarios-fg
       ;;
     dsm|deepsecurity)
-      cd ${ONEPATH}/awsone/9-deep-security-workload
-      terraform destroy -auto-approve
       cd ${ONEPATH}/awsone/9-deep-security
       terraform destroy -auto-approve
       unlock dsm
+      ;;
+    dsw)
+      deep_security_delete_computers
+      cd ${ONEPATH}/awsone/9-deep-security-workload
+      terraform destroy -auto-approve
       ;;
     kind)
       cd ${ONEPATH}/awsone/6-cluster-kind
@@ -569,6 +639,7 @@ function destroy() {
       cd ${ONEPATH}/awsone/5-cluster-ecs
       terraform destroy -auto-approve
       unlock ecs
+      deep_security_delete_computers
       cd ${ONEPATH}/awsone/9-deep-security-workload
       terraform destroy -auto-approve
       cd ${ONEPATH}/awsone/9-deep-security
@@ -914,6 +985,7 @@ function helpcmd() {
   printf '%s\n' "  scenarios-ec2 Scenario configuration"
   printf '%s\n' "  scenarios-fg  Scenario configuration"
   printf '%s\n' "  dsm           Deep Security configuration"
+  printf '%s\n' "  dsw           Deep Security Workload configuration"
   printf '%s\n' "  all           All configurations"
   printf '%s\n' ""
   printf '%s\n' "Examples:"
