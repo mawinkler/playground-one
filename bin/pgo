@@ -254,7 +254,11 @@ function init() {
       deep_security_password=${deep_security_password} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-9-deep-security.tfvars >$ONEPATH/awsone/9-deep-security/terraform.tfvars
-      
+
+      cd ${ONEPATH}/awsone/9-deep-security
+      terraform init
+      ;;&
+    dsw|all)
       printf '%s\n' "Create terraform.tfvars for deep security workload"
       aws_account_id=${aws_account_id} \
       aws_region=${aws_region} \
@@ -268,8 +272,6 @@ function init() {
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-9-deep-security-workload.tfvars >$ONEPATH/awsone/9-deep-security-workload/terraform.tfvars
 
-      cd ${ONEPATH}/awsone/9-deep-security
-      terraform init
       cd ${ONEPATH}/awsone/9-deep-security-workload
       terraform init
       ;;&
@@ -278,6 +280,7 @@ function init() {
       aws_environment=${aws_environment} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-6-cluster-kind.tfvars >$ONEPATH/awsone/6-cluster-kind/terraform.tfvars
+
       cd ${ONEPATH}/awsone/6-cluster-kind
       terraform init
       ;;
@@ -548,6 +551,9 @@ function destroy() {
       unlock ec2
       ;;
     eks|eks-ec2)
+      cd ${ONEPATH}/awsone/4-cluster-eks-ec2
+      cluster_name=$(terraform output -raw cluster_name)
+      kubectl config use-context ${cluster_name}
       cd ${ONEPATH}/awsone/8-cluster-eks-ec2-deployments
       terraform destroy -auto-approve
       cd ${ONEPATH}/awsone/7-scenarios-ec2
@@ -556,8 +562,12 @@ function destroy() {
       cd ${ONEPATH}/awsone/4-cluster-eks-ec2
       terraform destroy -auto-approve
       unlock eks-ec2
+      kubectl config delete-context ${cluster_name}
       ;;
     eks-fg)
+      cd ${ONEPATH}/awsone/4-cluster-eks-fargate
+      cluster_name=$(terraform output -raw cluster_name)
+      kubectl config use-context ${cluster_name}
       cd ${ONEPATH}/awsone/8-cluster-eks-fargate-deployments
       terraform destroy -auto-approve
       cd ${ONEPATH}/awsone/7-scenarios-fargate
@@ -566,6 +576,7 @@ function destroy() {
       cd ${ONEPATH}/awsone/4-cluster-eks-fargate
       terraform destroy -auto-approve
       unlock eks-fg
+      kubectl config delete-context ${cluster_name}
       ;;
     ecs)
       # Workaround for Terraform bug described in FAQ
@@ -726,6 +737,12 @@ function output() {
       if [[ -f ${ONEPATH}/awsone/2-network/.pgo.dsm.lock ]] ; then
         cd ${ONEPATH}/awsone/9-deep-security
         terraform output
+      else
+        printf '%s\n' "Configuration dsm not applied"
+      fi
+      ;;&
+    dsw|all)
+      if [[ -f ${ONEPATH}/awsone/2-network/.pgo.dsm.lock ]] ; then
         cd ${ONEPATH}/awsone/9-deep-security-workload
         terraform output
       else
@@ -825,6 +842,8 @@ function state() {
     dsm|deepsecurity|all)
       cd ${ONEPATH}/awsone/9-deep-security
       terraform state list
+      ;;&
+    dsw|all)
       cd ${ONEPATH}/awsone/9-deep-security-workload
       terraform state list
       ;;
@@ -883,6 +902,8 @@ function show() {
     dsm|deepsecurity|all)
       cd ${ONEPATH}/awsone/9-deep-security
       terraform show
+      ;;&
+    dsw|all)
       cd ${ONEPATH}/awsone/9-deep-security-workload
       terraform show
       ;;
@@ -940,6 +961,8 @@ function validate() {
     dsm|deepsecurity|all)
       cd ${ONEPATH}/awsone/9-deep-security
       terraform validate
+      ;;&
+    dsw|all)
       cd ${ONEPATH}/awsone/9-deep-security-workload
       terraform validate
       ;;

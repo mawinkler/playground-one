@@ -9,5 +9,5 @@ terraform {
       configuration_aliases = [ restapi.dsrest ]
     }
   }
-  required_version = ">= 1.3.5"
+  required_version = ">= 1.6"
 }

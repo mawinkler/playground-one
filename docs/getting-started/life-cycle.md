@@ -52,6 +52,20 @@
 
 ![alt text](images/pgo-context.png "Context")
 
+5. Create a dedicated (on-prem like) Deep Security environment with activated Computers.
+
+    VPC and Deep Security:
+
+    ```sh
+    pgo --apply dsm
+    ```
+
+    Activated Linux & Windows Computers:
+
+    ```sh
+    pgo --apply dsw
+    ```
+
 ## Query Outputs and State
 
 The most relevant information on your configuration can be queried by running
@@ -97,4 +111,4 @@ If you want to tear down everything run
 pgo --destroy all
 ```
 
-> ***Note:*** The network and VPC are not automatically destroyed. You can do this manually by running `pgo --destroy nw`. Be sure to have the CloudFormation stack of XDR for Containers deleted before doing so. Otherwise it will be in a fail (blackhole) state.
+> ***Note:*** The network and VPC are not automatically destroyed. You can do this manually by running `pgo --destroy nw`. Be sure to have the CloudFormation stack of XDR for Containers deleted before doing so. Otherwise it will be in a failed (blackhole) state.

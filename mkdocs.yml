@@ -4,6 +4,7 @@ nav:
   - How it Works:
     - Orchestration: how-it-works/orchestration.md
     - Configurations: how-it-works/configurations.md
+    - Versions: how-it-works/versions.md
   - Getting Started:
     - Prepare: getting-started/prepare.md
     - Configuration: getting-started/configuration.md

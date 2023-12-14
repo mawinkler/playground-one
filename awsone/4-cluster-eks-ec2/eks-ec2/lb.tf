@@ -3,7 +3,7 @@
 # #############################################################################
 module "aws_load_balancer_controller_irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "5.30.0"
+  version = "5.32.1"
 
   role_name = "${module.eks.cluster_name}-aws-load-balancer-controller"
 

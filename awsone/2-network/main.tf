@@ -1,5 +1,5 @@
 module "vpc" {
-  source             = "./vpc"
+  source = "./vpc"
 
   access_ip          = var.access_ip
   environment        = var.environment
@@ -7,7 +7,7 @@ module "vpc" {
 }
 
 module "ec2" {
-  source              = "./ec2"
+  source = "./ec2"
 
   access_ip           = var.access_ip
   environment         = var.environment

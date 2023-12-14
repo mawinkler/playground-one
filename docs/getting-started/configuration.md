@@ -58,6 +58,7 @@ Available configurations:
   scenarios-ec2 Scenario configuration
   scenarios-fg  Scenario configuration
   dsm           Deep Security configuration
+  dsw           Deep Security Workload configuration
   all           All configurations
 
 Examples:

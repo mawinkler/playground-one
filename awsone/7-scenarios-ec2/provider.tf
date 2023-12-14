@@ -2,19 +2,15 @@
 # Kubernetes Configuration
 # ####################################
 provider "aws" {
-  region = var.aws_region
-  # access_key = var.aws_access_key
-  # secret_key = var.aws_secret_key
+  region  = var.aws_region
   profile = "default"
 }
 
 data "aws_eks_cluster" "eks" {
-  # name = "${var.environment}-eks"
   name = data.terraform_remote_state.eks.outputs.cluster_name
 }
 
 data "aws_eks_cluster_auth" "eks" {
-  # name = "${var.environment}-eks"
   name = data.terraform_remote_state.eks.outputs.cluster_name
 }
 
@@ -36,7 +32,6 @@ provider "helm" {
     cluster_ca_certificate = base64decode(data.aws_eks_cluster.eks.certificate_authority[0].data)
     exec {
       api_version = "client.authentication.k8s.io/v1beta1"
-      # args        = ["eks", "get-token", "--cluster-name", "${var.environment}-eks"]
       args        = ["eks", "get-token", "--cluster-name", "${data.terraform_remote_state.eks.outputs.cluster_name}"]
       command     = "aws"
     }

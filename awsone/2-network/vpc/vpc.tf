@@ -14,7 +14,7 @@ module "vpc" {
 
   private_subnet_names = [for i in local.azs : "${var.environment}-private-subnet-${i}"]
   public_subnet_names  = [for i in local.azs : "${var.environment}-public-subnet-${i}"]
-  intra_subnet_names  = [for i in local.azs : "${var.environment}-intra-subnet-${i}"]
+  intra_subnet_names   = [for i in local.azs : "${var.environment}-intra-subnet-${i}"]
 
   manage_default_network_acl    = false
   manage_default_route_table    = false

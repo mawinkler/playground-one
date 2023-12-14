@@ -53,7 +53,7 @@ terraform {
       version = "~> 1.18.0"
     }
   }
-  required_version = ">= 1.3.5"
+  required_version = ">= 1.6"
 }
 
 provider "restapi" {

@@ -6,7 +6,7 @@
 #
 module "allow_eks_access_iam_policy" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-policy"
-  version = "5.30.0"
+  version = "5.32.1"
 
   name          = "${module.eks.cluster_name}-allow-eks-access"
   create_policy = true
@@ -34,7 +34,7 @@ module "allow_eks_access_iam_policy" {
 
 module "eks_admins_iam_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role"
-  version = "5.30.0"
+  version = "5.32.1"
 
   role_name         = "${module.eks.cluster_name}-eks-admin"
   create_role       = true
@@ -56,7 +56,7 @@ module "eks_admins_iam_role" {
 
 module "clusteradmin_iam_user" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-user"
-  version = "5.30.0"
+  version = "5.32.1"
 
   name                          = "${module.eks.cluster_name}-clusteradmin"
   create_iam_access_key         = false
@@ -67,7 +67,7 @@ module "clusteradmin_iam_user" {
 
 module "allow_assume_eks_admins_iam_policy" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-policy"
-  version = "5.30.0"
+  version = "5.32.1"
 
   name          = "${module.eks.cluster_name}-allow-assume-eks-admin-iam-role"
   create_policy = true
@@ -95,7 +95,7 @@ module "allow_assume_eks_admins_iam_policy" {
 
 module "eks_admins_iam_group" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-group-with-policies"
-  version = "5.30.0"
+  version = "5.32.1"
 
   name                              = "${module.eks.cluster_name}-eks-admin"
   attach_iam_self_management_policy = false
