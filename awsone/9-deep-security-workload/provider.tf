@@ -15,7 +15,7 @@ terraform {
   required_providers {
     restapi = {
       source  = "Mastercard/restapi"
-      version = "~> 1.18.0"
+      version = "~> 1.18.2"
     }
     time = {
       source  = "hashicorp/time"
