@@ -3,7 +3,7 @@
 ################################################################################
 module "ecs_service" {
   source  = "terraform-aws-modules/ecs/aws//modules/service"
-  version = "5.2.0"
+  version = "5.7.3"
 
   # Service
   name        = module.ecs.cluster_name

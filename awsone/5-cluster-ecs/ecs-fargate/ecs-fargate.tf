@@ -11,7 +11,7 @@ resource "random_string" "suffix" {
 
 module "ecs" {
   source  = "terraform-aws-modules/ecs/aws"
-  version = "5.2.0"
+  version = "5.7.3"
 
   cluster_name = "${var.environment}-ecs-${random_string.suffix.result}"
 

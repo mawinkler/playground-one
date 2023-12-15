@@ -3,7 +3,7 @@
 ################################################################################
 module "alb_sg" {
   source  = "terraform-aws-modules/security-group/aws"
-  version = "~> 4.0"
+  version = "5.1.0"
 
   name        = "${module.ecs.cluster_name}-service"
   description = "Service security group"

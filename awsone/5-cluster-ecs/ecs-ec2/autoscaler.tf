@@ -3,7 +3,7 @@
 ################################################################################
 module "autoscaling" {
   source  = "terraform-aws-modules/autoscaling/aws"
-  version = "~> 6.5"
+  version = "~> 7.3"
 
   for_each = {
     # On-demand instances currently disabled
@@ -111,7 +111,7 @@ module "autoscaling" {
 
 module "autoscaling_sg" {
   source  = "terraform-aws-modules/security-group/aws"
-  version = "~> 4.0"
+  version = "5.1.0"
 
   name        = module.ecs.cluster_name
   description = "Autoscaling group security group"

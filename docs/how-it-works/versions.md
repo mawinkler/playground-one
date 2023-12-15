@@ -2,7 +2,7 @@
 
 **Terraform >=1.6**
 
-## Terraform Providers and Modules
+## Terraform Providers
 
 Provider | Link | Version
 -------- | ---- | -------
@@ -15,6 +15,8 @@ Random | https://registry.terraform.io/providers/hashicorp/random |3.6.0
 Template | https://registry.terraform.io/providers/hashicorp/template | 2.2.0
 Time | https://registry.terraform.io/providers/hashicorp/time | 0.10.0
 TLS | https://registry.terraform.io/providers/hashicorp/tls | 4.0.5
+
+## Terraform Modules
 
 Module | Link | Version | Latest | Used in
 ------ | ---- | ------- | ------ | -------
@@ -32,3 +34,8 @@ AWS ALB | https://registry.terraform.io/modules/terraform-aws-modules/alb/aws | 
 Chart | Link | Version
 ----- | ---- | -------
 Autoscaler | https://kubernetes.github.io/autoscaler | 9.34.0 (9.29.3)
+Calico | https://docs.tigera.io/calico/charts/tigera-operator | 3.25.0
+Load Balancer Controller | https://aws.github.io/eks-charts/aws-load-balancer-controller | latest
+Prometheus & Grafana | https://prometheus-community.github.io/helm-charts/kube-prometheus-stack | latest
+Trivy | https://aquasecurity.github.io/helm-charts/trivy-operator | latest
+Vision One Container Security | https://github.com/trendmicro/cloudone-container-security-helm | latest
