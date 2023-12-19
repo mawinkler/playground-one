@@ -25,6 +25,10 @@ In a nutshell:
 
 ## Change Log
 
+12/19/2023
+
+- Automated Vision One Container Security deployment with EKS EC2 and Fargate Profiles.
+
 11/14/2023
 
 - Deep Security integrated for use in migration scenarios.

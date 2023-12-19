@@ -8,19 +8,31 @@ resource "helm_release" "container_security" {
   namespace    = var.namespace
   reuse_values = true
 
+  # cloudOne: 
+  #     apiKey: 2Zi...
+  #     endpoint: https://container.us-1.cloudone.trendmicro.com
+  #     exclusion: 
+  #         namespaces: [calico-system, kube-system]
+  #     runtimeSecurity:
+  #         enabled: true
+  #     vulnerabilityScanning:
+  #         enabled: true
+  #     inventoryCollection:
+  #         enabled: true
+
   set {
     name  = "cloudOne.apiKey"
     value = local.cluster_apikey
   }
 
-  set {
-    name  = "cloudOne.exclusion.namespaces"
-    value = "kube-system, calico-system"
-  }
+  # set {
+  #   name  = "cloudOne.exclusion.namespaces"
+  #   value = "[calico-system, kube-system|"
+  # }
 
   set {
     name  = "cloudOne.endpoint"
-    value = "https://container.${var.cloud_one_region}.${var.cloud_one_instance}.trendmicro.com"
+    value = local.cluster_endpoint
   }
 
   set {

@@ -1,7 +1,6 @@
 # ####################################
-# Deep Security Anti Malware Configurations API
+# Deep Security Firewall Rules API
 # ####################################
-
 variable "firewall_rules" {
   type = set(string)
   default = [

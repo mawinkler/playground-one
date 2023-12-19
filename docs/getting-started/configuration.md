@@ -114,16 +114,13 @@ Set/update:
 
 > If your IP address has changed see [FAQ](../faq.md#my-ip-address-has-changed-and-i-cannot-access-my-apps-anymore).
 
-### Section: Container Security ***(currently disabled)***
-
-> ***Note:*** Configuration and automated deployment currently disabled due to missing APIs.
+### Section: Vision One Container Security
 
 Set/update:
 
-- `Container Security`: Enable or disable the Container Security deployment. If set to `false` Cloud One configuration will be skipped.
-- `Container Security policy ID`: To get the Policy ID for your Container Security deployment head over to Container Security on Cloud One and navigate to the policy. The Policy ID is the part after the last `/` in the URL: <https://cloudone.trendmicro.com/container/policies/relaxed_playground-2OxPQEiC6Jo4dbDVfebKiZMured><br>Here: `relaxed_playground-2OxPQEiC6Jo4dbDVfebKiZMured`
-- `Cloud One region name`: Set your Cloud One region here if it is not `trend-us-1`.
-- `Cloud One API Key`: Your Cloud One API Key with full access. This is mandatory.
+- `Vision One Container Security`: Enable or disable the Container Security deployment. If set to `false` Cloud One configuration will be skipped.
+- `Vision One API Key`: Your Vision One API Key.
+- `Container Security Policy Name`: The name of the Policy to assign.
 
 ### Section: Integrations Configuration
 

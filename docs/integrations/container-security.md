@@ -2,56 +2,33 @@
 
 ## Container Security with the Playground One EKS EC2 Cluster
 
-This guide provides step-by-step instructions on how to deploy Vision One Container Security on a Playground One EKS EC2 cluster.
-
-There is currently no way to fully automate the Vision One Container Security deployment the an EKS cluster. This process will be automated in the near future so that Vision One Container Security can be deployed via Terraform.
+This guide provides step-by-step instructions on how to use Vision One Container Security on a Playground One EKS EC2 cluster.
 
 Prerequisites:
 
-- Deployed eks cluster configuration (`pgo -a eks-ec2`).
+- Vision One API Key with the following permissions:
+  - Container Inventory
+    - View
+    - Configure Settings
+  - Container Protection
+    - View
 
 Required information:
 
-- EKS Cluster ARN from eks outputs (`pgo -o eks-ec2`).
+- Name of already existing Container Protection Policy to assign to the cluster installation.
 
 Steps:
 
-1. Head over to `Cloud Security Operations --> Container Security --> Container Inventory`.
-2. Select `[Kubernetes] --> [+ Add Cluster]`.
-3. Type in a name to use to identify the cluster.
-4. Set `Map to Cloud Account` to `Yes` and paste the cluster ARN from the outputs of the `eks`-configuration.
-5. Click the `Runtime Scanning` switch to enable Runtime Vulnerability Scanning.
-6. Click the `Runtime Security` switch to enable Runtime Security protection.
-7. Clich `[Next]` to create the cluster in the inventory view.
-8. Download the generated `overrides.yaml`, copy/paste the `helm install` command to your terminal, and run the command. This will deploy Vision One Container Security to your EKS cluster.
+1. Run the configuration tool with `pgo --config` to set or verify the values in the `Vision One Container Security` section.
+2. Create the EKS cluster
 
-Done.
+    ```sh
+    # EKS with EC2 nodes
+    pgo --apply eks-ec2
 
-## Container Security with the Playground One EKS Fargate Cluster
-
-This guide provides step-by-step instructions on how to deploy Vision One Container Security on a Playground One EKS Fargate cluster.
-
-There is currently no way to fully automate the Vision One Container Security deployment the an EKS cluster. This process will be automated in the near future so that Vision One Container Security can be deployed via Terraform.
-
-Prerequisites:
-
-- Deployed eks cluster configuration (`pgo -a eks-fg`).
-
-Required information:
-
-- EKS Cluster ARN from eks outputs (`pgo -o eks-fg`).
-
-Steps:
-
-1. Head over to `Cloud Security Operations --> Container Security --> Container Inventory`.
-2. Select `[Kubernetes] --> [+ Add Cluster]`.
-3. Type in a name to use to identify the cluster.
-4. Set `Map to Cloud Account` to `Yes` and paste the cluster ARN from the outputs of the `eks`-configuration.
-5. Click the `Runtime Scanning` switch to enable Runtime Vulnerability Scanning.
-6. Click the `Runtime Security` switch to enable Runtime Security protection.
-7. Clich `[Next]` to create the cluster in the inventory view.
-8. Click the `Fargate environment` switch to enable Fargate support.
-9. Download the generated `overrides.yaml`, copy/paste the `helm install` command to your terminal, and run the command. This will deploy Vision One Container Security to your EKS cluster.
+    # EKS with Fargate profiles
+    pgo --apply eks-ec2
+    ```
 
 Done.
 

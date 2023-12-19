@@ -57,13 +57,13 @@ terraform {
 }
 
 provider "restapi" {
-  alias                = "clusters"
-  uri                  = "https://container.${var.cloud_one_region}.${var.cloud_one_instance}.trendmicro.com/api/clusters"
+  alias                = "container_security"
+  uri                  = "https://api.xdr.trendmicro.com"
   debug                = true
   write_returns_object = true
 
   headers = {
-    Authorization = "ApiKey ${var.api_key}"
+    Authorization = "Bearer ${var.api_key}"
     Content-Type  = "application/json"
     api-version   = "v1"
   }

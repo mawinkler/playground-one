@@ -1,17 +1,14 @@
 # #############################################################################
 # Variables
 # #############################################################################
-# Container Security
-variable "cluster_policy" {}
-
 variable "environment" {}
 
-# Cloud One
-variable "cloud_one_region" {}
+# Container Security
+variable "cluster_arn" {}
 
-variable "cloud_one_instance" {
-  default = "cloudone"
-}
+variable "cluster_name" {}
+
+variable "cluster_policy" {}
 
 variable "api_key" {}
 
