@@ -199,82 +199,69 @@ function update_pgo_config() {
   fi
 }
 
-function update_cloud_one_config() {
-  printf '\n%s\n' "Please set/update your Cloud One configuration"
+function update_vision_one_config() {
+  printf '\n%s\n' "Please set/update your Vision One Container Security"
 
   ##
-  ## Container Security
+  ## Vision One Container Security
   ##
-  key_desc="Container Security"
-  read -p "${key_desc} [${cloud_one_cs_enabled}]: " TEMP
+  key_desc="Vision One Container Security"
+  read -p "${key_desc} [${vision_one_cs_enabled}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
-    cloud_one_cs_enabled=${TEMP}
+    vision_one_cs_enabled=${TEMP}
   fi
-  if [[ "${cloud_one_cs_enabled}" =~ ^true|false$ ]]; then
-    target_val=${cloud_one_cs_enabled} \
-      yq -i '.services.cloud-one.container-security.enabled = env(target_val)' ${ONEPATH}/config.yaml
+  if [[ "${vision_one_cs_enabled}" =~ ^true|false$ ]]; then
+    target_val=${vision_one_cs_enabled} \
+      yq -i '.services.vision-one.container-security.enabled = env(target_val)' ${ONEPATH}/config.yaml
   else
     echo "Error: Invalid ${key_desc} input."
     exit 0
   fi
 
-  if ${cloud_one_cs_enabled} ; then
-    key_desc="Container Security policy ID"
-    read -p "${key_desc} [${cloud_one_cs_policy_id}]: " TEMP
+  if ${vision_one_cs_enabled} ; then
+    key_desc="MANDATORY: Vision One API Key"
+    read -p "${key_desc} [${vision_one_api_key:0:10}...]: " TEMP
     if [[ ! -z "${TEMP}" ]]; then
-      cloud_one_cs_policy_id=${TEMP}
+      vision_one_api_key=${TEMP}
     fi
-    if [[ "${cloud_one_cs_policy_id}" =~ ^[0-9a-zA-Z_\-]+\-[0-9a-zA-Z]+$ ]]; then
-      target_val=${cloud_one_cs_policy_id} \
-        yq -i '.services.cloud-one.container-security.policy-id = env(target_val)' ${ONEPATH}/config.yaml
-    else
-      echo "Error: Invalid ${key_desc} input."
-      exit 0
-    fi
-
-    ##
-    ## Cloud One
-    ##
-    key_desc="Cloud One region name"
-    read -p "${key_desc} [${cloud_one_region}]: " TEMP
-    if [[ ! -z "${TEMP}" ]]; then
-      cloud_one_region=${TEMP}
-    fi
-    if [[ "${cloud_one_region}" =~ ^[0-9a-z\-]+$ ]]; then
-      target_val=${cloud_one_region} \
-        yq -i '.services.cloud-one.region = env(target_val)' ${ONEPATH}/config.yaml
-    else
-      echo "Error: Invalid ${key_desc} input."
-      exit 0
-    fi
-
-    key_desc="Cloud One instance"
-    # read -p "${key_desc} [${cloud_one_instance}]: " TEMP
-    # if [[ ! -z "${TEMP}" ]]; then
-    #   cloud_one_instance=${TEMP}
+    # if [[ "${vision_one_api_key}" =~ ^[0-9a-zA-Z\:]+$ ]]; then
+      target_val=${vision_one_api_key} \
+        yq -i '.services.vision-one.api-key = env(target_val)' ${ONEPATH}/config.yaml
+    # else
+    #   echo "Error: Invalid ${key_desc} input."
+    #   exit 0
     # fi
-    if [[ "${cloud_one_instance}" =~ ^cloudone|staging-cloudone|dev-cloudone$ ]]; then
-      target_val=${cloud_one_instance} \
-        yq -i '.services.cloud-one.instance = env(target_val)' ${ONEPATH}/config.yaml
+
+    key_desc="Vision One Container Security Policy Name"
+    read -p "${key_desc} [${vision_one_cs_policy}]: " TEMP
+    if [[ ! -z "${TEMP}" ]]; then
+      vision_one_cs_policy=${TEMP}
+    fi
+    if [[ "${vision_one_cs_policy}" =~ ^[0-9a-zA-Z_\-]+$ ]]; then
+      target_val=${vision_one_cs_policy} \
+        yq -i '.services.vision-one.container-security.policy = env(target_val)' ${ONEPATH}/config.yaml
     else
       echo "Error: Invalid ${key_desc} input."
       exit 0
     fi
 
-    key_desc="MANDATORY: Cloud One API Key"
-    read -p "${key_desc} [${cloud_one_api_key:0:10}...]: " TEMP
-    if [[ ! -z "${TEMP}" ]]; then
-      cloud_one_api_key=${TEMP}
-    fi
-    if [[ "${cloud_one_api_key}" =~ ^[0-9a-zA-Z\:]+$ ]]; then
-      target_val=${cloud_one_api_key} \
-        yq -i '.services.cloud-one.api-key = env(target_val)' ${ONEPATH}/config.yaml
-    else
-      echo "Error: Invalid ${key_desc} input."
-      exit 0
-    fi
+    # ##
+    # ## Vision One
+    # ##
+    # key_desc="Vision One Region Name"
+    # read -p "${key_desc} [${vision_one_region}]: " TEMP
+    # if [[ ! -z "${TEMP}" ]]; then
+    #   vision_one_region=${TEMP}
+    # fi
+    # if [[ "${vision_one_region}" =~ ^[0-9a-z\-]+$ ]]; then
+    #   target_val=${vision_one_region} \
+    #     yq -i '.services.vision-one.region = env(target_val)' ${ONEPATH}/config.yaml
+    # else
+    #   echo "Error: Invalid ${key_desc} input."
+    #   exit 0
+    # fi
   else
-    printf '%s\n' "Skipping Cloud One configuration"
+    printf '%s\n' "Skipping Vision One Container Security configuration"
   fi
 }
 
@@ -390,7 +377,7 @@ function update_deep_security_config() {
 #     if [ ! -z "${vision_one_server_policy_id}" ]; then
 #       if [[ "${vision_one_server_policy_id}" =~ ^[0-9]+$ && "${vision_one_server_policy_id}" -ge 0 ]]; then
 #         target_val=${vision_one_server_policy_id} \
-#           yq -i '.services.vision-one.server-workload-protection.policy-id = env(target_val)' ${ONEPATH}/config.yaml
+#           yq -i '.services.vision-one.server-workload-protection.policy = env(target_val)' ${ONEPATH}/config.yaml
 #       else
 #         echo "Error: Invalid ${key_desc} input."
 #         exit 0
@@ -471,7 +458,8 @@ function update_integrations_config() {
 
 # Overrides for in development features
 function stickies() {
-  yq -i '.services.cloud-one.container-security.enabled = false' ${ONEPATH}/config.yaml
+  echo
+  # yq -i '.services.vision-one.container-security.enabled = false' ${ONEPATH}/config.yaml
   # yq -i '.services.integrations.calico.enabled = false' ${ONEPATH}/config.yaml
 }
 
@@ -488,7 +476,7 @@ else
   printf '%s\n' "Skipping AWS configuration."
 fi
 update_pgo_config
-# update_cloud_one_config
+update_vision_one_config
 # update_vision_one_config
 update_integrations_config
 update_deep_security_config

@@ -17,11 +17,19 @@ resource "random_string" "suffix" {
 
 resource "restapi_object" "cluster" {
 
-  provider       = restapi.clusters
-  path           = ""
+  provider       = restapi.container_security
+  path           = "/beta/containerSecurity/kubernetesClusters"
   create_method  = "POST"
   destroy_method = "DELETE"
-  data = "{\"name\": \"${replace(var.environment, "-", "_")}_eks_${random_string.suffix.result}\",\"description\": \"Playground Cluster\",\"policyID\": \"${var.cluster_policy}\"}"
+  id_attribute   = "name"
+  data           = <<-EOT
+    {
+      "name": "${replace(var.cluster_name, "-", "_")}",
+      "description": "Playground Cluster",
+      "policyID": "${local.cluster_policy}",
+      "arn": "${var.cluster_arn}"
+    }
+  EOT
 
   lifecycle {
     replace_triggered_by = [
@@ -30,7 +38,8 @@ resource "restapi_object" "cluster" {
   }
 }
 
-# Store Cluster API Key for use in the helm installation step
+# Store Cluster API Key and endpoint for use in the helm installation step
 locals {
-  cluster_apikey = jsondecode(restapi_object.cluster.api_response).apiKey
+  cluster_apikey   = jsondecode(restapi_object.cluster.api_response).apiKey
+  cluster_endpoint = jsondecode(restapi_object.cluster.api_response).endpointUrl
 }

@@ -10,11 +10,9 @@ aws_region = "${aws_region}"
 environment = "${aws_environment}"
 
 # Cloud One
-api_key            = "${cloud_one_api_key}"
-container_security = ${cloud_one_cs_enabled}
-cluster_policy     = "${cloud_one_cs_policy_id}"
-cloud_one_region   = "${cloud_one_region}"
-cloud_one_instance = "${cloud_one_instance}"
+container_security = ${vision_one_cs_enabled}
+api_key            = "${vision_one_api_key}"
+cluster_policy     = "${vision_one_cs_policy}"
 
 # Calico
 # calico = ${integrations_calico_enabled}

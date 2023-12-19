@@ -381,17 +381,13 @@ function get_config() {
     [[ "${pgo_ecs_create_ec2}" = "null" || "${pgo_ecs_create_ec2}" = "" ]] && pgo_ecs_create_ec2=true
     [[ "${pgo_ecs_create_fargate}" = "null" || "${pgo_ecs_create_fargate}" = "" ]] && pgo_ecs_create_fargate=true
 
-    # Cloud One
-    cloud_one_api_key="$(yq '.services.cloud-one.api-key' $ONEPATH/config.yaml)"
-    cloud_one_region="$(yq '.services.cloud-one.region' $ONEPATH/config.yaml)"
-    cloud_one_instance="$(yq '.services.cloud-one.instance' $ONEPATH/config.yaml)"
-    cloud_one_cs_enabled="$(yq '.services.cloud-one.container-security.enabled' $ONEPATH/config.yaml)"
-    cloud_one_cs_policy_id="$(yq '.services.cloud-one.container-security.policy-id' $ONEPATH/config.yaml)"
-    [[ "${cloud_one_region}" = "null" || "${cloud_one_region}" = "" ]] && cloud_one_region="trend-us-1"
-    [[ "${cloud_one_api_key}" = "null" || "${cloud_one_api_key}" = "" ]] && cloud_one_api_key="apikey"
-    [[ "${cloud_one_instance}" = "null" || "${cloud_one_instance}" = "" ]] && cloud_one_instance="cloudone"
-    [[ "${cloud_one_cs_enabled}" = "null" || "${cloud_one_cs_enabled}" = "" ]] && cloud_one_cs_enabled=false
-    [[ "${cloud_one_cs_policy_id}" = "null" || "${cloud_one_cs_policy_id}" = "" ]] && cloud_one_cs_policy_id="policy"
+    # Vision One
+    vision_one_cs_enabled="$(yq '.services.vision-one.container-security.enabled' $ONEPATH/config.yaml)"
+    vision_one_api_key="$(yq '.services.vision-one.api-key' $ONEPATH/config.yaml)"
+    vision_one_cs_policy="$(yq '.services.vision-one.container-security.policy' $ONEPATH/config.yaml)"
+    [[ "${vision_one_api_key}" = "null" || "${vision_one_api_key}" = "" ]] && vision_one_api_key="apikey"
+    [[ "${vision_one_cs_enabled}" = "null" || "${vision_one_cs_enabled}" = "" ]] && vision_one_cs_enabled=false
+    [[ "${vision_one_cs_policy}" = "null" || "${vision_one_cs_policy}" = "" ]] && vision_one_cs_policy="policy"
 
     # Deep Security
     deep_security_license="$(yq '.services.deep-security.license' $ONEPATH/config.yaml)"

@@ -11,20 +11,21 @@ module "container_security" {
 
   source           = "./container_security"
   environment      = var.environment
+  cluster_arn      = data.terraform_remote_state.eks.outputs.cluster_arn
+  cluster_name     = data.terraform_remote_state.eks.outputs.cluster_name
   cluster_policy   = var.cluster_policy
-  cloud_one_region = var.cloud_one_region
   api_key          = var.api_key
 
   providers = {
-    restapi.clusters = restapi.clusters
+    restapi.container_security = restapi.container_security
   }
 }
 
 module "calico" {
   count = var.calico ? 1 : 0
 
-  source      = "./calico"
-  namespace   = "tigera-operator"
+  source    = "./calico"
+  namespace = "tigera-operator"
 }
 
 module "trivy" {

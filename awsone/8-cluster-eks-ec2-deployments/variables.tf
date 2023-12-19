@@ -5,6 +5,10 @@ variable "aws_region" {
   type = string
 }
 
+variable "environment" {
+  type = string
+}
+
 variable "access_ip" {
   type = string
 }
@@ -15,19 +19,6 @@ variable "container_security" {
 }
 
 variable "cluster_policy" {
-  type = string
-}
-
-variable "environment" {
-  type = string
-}
-
-# Cloud One
-variable "cloud_one_region" {
-  type = string
-}
-
-variable "cloud_one_instance" {
   type = string
 }
 

@@ -36,7 +36,6 @@ provider "helm" {
     cluster_ca_certificate = base64decode(data.aws_eks_cluster.eks.certificate_authority[0].data)
     exec {
       api_version = "client.authentication.k8s.io/v1beta1"
-      # args        = ["eks", "get-token", "--cluster-name", "${var.environment}-eks"]
       args        = ["eks", "get-token", "--cluster-name", "${data.terraform_remote_state.eks.outputs.cluster_name}"]
       command     = "aws"
     }
@@ -57,13 +56,13 @@ terraform {
 }
 
 provider "restapi" {
-  alias                = "clusters"
-  uri                  = "https://container.${var.cloud_one_region}.${var.cloud_one_instance}.trendmicro.com/api/clusters"
+  alias                = "container_security"
+  uri                  = "https://api.xdr.trendmicro.com"
   debug                = true
   write_returns_object = true
 
   headers = {
-    Authorization = "ApiKey ${var.api_key}"
+    Authorization = "Bearer ${var.api_key}"
     Content-Type  = "application/json"
     api-version   = "v1"
   }
