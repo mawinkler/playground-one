@@ -7,11 +7,12 @@ This guide provides step-by-step instructions on how to use Vision One Container
 Prerequisites:
 
 - Vision One API Key with the following permissions:
-  - Container Inventory
-    - View
-    - Configure Settings
-  - Container Protection
-    - View
+  - Cloud Security Operations
+    - Container Inventory
+      - View
+      - Configure Settings
+    - Container Protection
+      - View
 
 Required information:
 
@@ -27,7 +28,7 @@ Steps:
     pgo --apply eks-ec2
 
     # EKS with Fargate profiles
-    pgo --apply eks-ec2
+    pgo --apply eks-fg
     ```
 
 Done.

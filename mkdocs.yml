@@ -32,7 +32,8 @@ nav:
     #   - Apache Struts Multipart Encoding Command Injection (XDR for Containers): scenarios/xdr4c/ecs-struts.md
       # - Apache Struts Multipart Encoding Command Injection: scenarios/xdr4c/eks-struts.md
     - Artifact Scanning:
-      - Scan for Vulnerabilities and Malware: scenarios/as/tmas-artifact-scanning.md
+      - Scan Containers for Vulnerabilities and Malware: scenarios/as/tmas-artifact-scanning.md
+      - Scan Files and Directories for Malware: scenarios/as/tmfs-artifact-scanning.md
     # - Privileged Shell: scenarios/container-security-eks-privileged-shell.md
     # - Server & Workload Protection:
     #   - Malware Upload: scenarios/server-workload-ecs-ec2-malware-upload.md

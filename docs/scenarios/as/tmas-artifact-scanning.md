@@ -1,15 +1,16 @@
-# Scenario: Vulnerability and Malware Scanning
-
-***DRAFT***
+# Scenario: Container Vulnerability and Malware Scanning
 
 ## Prerequisites
 
-- Vision One Container Security Artifact Scanner API-Key
+- Vision One Container Security Artifact Scanner API-Key with the following permissions:
+  - Cloud Security Operations
+    - Container Protection
+      - Run artifact scan
 
 Ensure to have the latest `tmas` deployed:
 
 ```sh
-tmas-update
+tmcli-update
 ```
 
 ## Scan Images
