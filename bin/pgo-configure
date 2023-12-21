@@ -224,13 +224,13 @@ function update_vision_one_config() {
     if [[ ! -z "${TEMP}" ]]; then
       vision_one_api_key=${TEMP}
     fi
-    # if [[ "${vision_one_api_key}" =~ ^[0-9a-zA-Z\:]+$ ]]; then
+    if [[ "${vision_one_api_key}" =~ ^ey[0-9a-zA-Z]+\.ey[0-9a-zA-Z\.\_-]+$ ]]; then
       target_val=${vision_one_api_key} \
         yq -i '.services.vision-one.api-key = env(target_val)' ${ONEPATH}/config.yaml
-    # else
-    #   echo "Error: Invalid ${key_desc} input."
-    #   exit 0
-    # fi
+    else
+      echo "Error: Invalid ${key_desc} input."
+      exit 0
+    fi
 
     key_desc="Vision One Container Security Policy Name"
     read -p "${key_desc} [${vision_one_cs_policy}]: " TEMP
