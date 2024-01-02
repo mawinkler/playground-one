@@ -13,6 +13,9 @@ create_linux = ${pgo_ec2_create_linux}
 # Create Windows instance(s)
 create_windows = ${pgo_ec2_create_windows}
 
+# Create Database instance
+create_database = ${pgo_ec2_create_database}
+
 # Environment Name
 environment = "${aws_environment}"
 

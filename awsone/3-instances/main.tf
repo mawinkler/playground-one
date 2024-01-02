@@ -35,8 +35,9 @@ module "s3" {
 }
 
 module "rds" {
-  source = "./rds"
+  count = var.create_database ? 1 : 0
 
+  source                    = "./rds"
   environment               = var.environment
   private_security_group_id = data.terraform_remote_state.vpc.outputs.private_security_group_id
   database_subnet_group     = data.terraform_remote_state.vpc.outputs.database_subnet_group

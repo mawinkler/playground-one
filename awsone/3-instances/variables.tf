@@ -23,6 +23,10 @@ variable "create_windows" {
   type = bool
 }
 
+variable "create_database" {
+  type = bool
+}
+
 variable "environment" {
   type = string
 }

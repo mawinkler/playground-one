@@ -141,6 +141,7 @@ function init() {
       aws_environment=${aws_environment} \
       pgo_ec2_create_linux=${pgo_ec2_create_linux} \
       pgo_ec2_create_windows=${pgo_ec2_create_windows} \
+      pgo_ec2_create_database=${pgo_ec2_create_database} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-3-instances.tfvars >$ONEPATH/awsone/3-instances/terraform.tfvars
 

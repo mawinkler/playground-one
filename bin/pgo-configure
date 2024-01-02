@@ -146,6 +146,19 @@ function update_pgo_config() {
     exit 0
   fi
 
+  key_desc="EC2 - create RDS Database"
+  read -p "${key_desc} [${pgo_ec2_create_database}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    pgo_ec2_create_database=${TEMP}
+  fi
+  if [[ "${pgo_ec2_create_database}" =~ ^true|false$ ]]; then
+    target_val=${pgo_ec2_create_database} \
+      yq -i '.services.playground-one.ec2.create-database = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
   # key_desc="EKS - utilize EC2 nodes"
   # read -p "${key_desc} [${pgo_eks_create_ec2}]: " TEMP
   # if [[ ! -z "${TEMP}" ]]; then
