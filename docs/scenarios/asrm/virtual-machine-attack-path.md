@@ -2,6 +2,8 @@
 
 ***DRAFT***
 
+***To verify: Is it required to set the access IP to 0.0.0.0/0 or is a subnet sufficient?***
+
 ## Prerequisites
 
 - AWS Cloud Account integrated with Vision One
@@ -15,12 +17,26 @@ pgo --apply nw
 
 ## Setup
 
-The Playground One configuration for EC2 (ec2 or instances) creates two Linux servers when enabled in the config tool. The one of interest here is the `db1` instance since it get's an instance profile assigned which allows database read access to RDS.
+The Playground One configuration for EC2 (`ec2` or `instances`) creates two Linux servers when enabled in the config tool. The one of interest is the `db1` instance since it get's an instance profile assigned which allows read access to RDS.
 
-A (free-tier) PostgreSQL dabase is automatically created when applying the configuration. It is now actively used but required to have an endpoint of the potential attack path.
+Verify, that you have `EC2 - create RDS Database` enabled in your configuration.
 
 ```sh
-# With Linux machines enabled (verify with pgo --config)
+pgo --config
+```
+
+```sh
+...
+EC2 - create Linux EC2 [true]:
+...
+EC2 - create RDS Database [true]: 
+...
+```
+
+A (free-tier) PostgreSQL dabase is automatically created when applying the configuration. It is not actively used but required to have a target in the potential attack path.
+
+```sh
+# With Linux machines enabled
 pgo --apply ec2
 ```
 
