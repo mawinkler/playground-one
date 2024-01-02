@@ -26,7 +26,7 @@ AWS Autoscaling | https://registry.terraform.io/modules/terraform-aws-modules/au
 AWS ECS | https://registry.terraform.io/modules/terraform-aws-modules/ecs/aws | 5.7.3 | 5.7.3 | ecs
 AWS EKS | https://registry.terraform.io/modules/terraform-aws-modules/eks/aws | 19.21.0 | 19.21.0 | eks-ec2, eks-fg
 AWS IAM | https://registry.terraform.io/modules/terraform-aws-modules/iam/aws | 5.32.1 | 5.32.1 | eks-ec2
-AWS RDS | https://registry.terraform.io/modules/terraform-aws-modules/rds/aws | 6.3.0 | 6.3.0 | dsm
+AWS RDS | https://registry.terraform.io/modules/terraform-aws-modules/rds/aws | 6.3.0 | 6.3.0 | ec2, dsm
 AWS Security Group | https://registry.terraform.io/modules/terraform-aws-modules/security-group/aws | ~> 4.0 | 5.1.0 | ecs
 
 ## Kubernetes & Helm Charts

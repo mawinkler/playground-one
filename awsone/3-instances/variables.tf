@@ -26,3 +26,14 @@ variable "create_windows" {
 variable "environment" {
   type = string
 }
+
+#
+# db1 Database
+#
+variable "rds_name" {
+  type = string
+}
+
+variable "rds_username" {
+  type = string
+}

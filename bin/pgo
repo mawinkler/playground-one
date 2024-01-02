@@ -134,7 +134,7 @@ function init() {
       cd ${ONEPATH}/awsone/2-network
       terraform init
       ;;&
-    ec2|all)
+    ec2|instances|all)
       printf '%s\n' "Create terraform.tfvars for instances"
       aws_region=${aws_region} \
       pgo_access_ip=${pgo_access_ip} \
@@ -306,7 +306,7 @@ function apply() {
       cd ${ONEPATH}/awsone/2-network
       terraform apply -auto-approve
       ;;&
-    ec2|all)
+    ec2|instances|all)
       lock ec2
       cd ${ONEPATH}/awsone/3-instances
       terraform apply -auto-approve
@@ -543,7 +543,7 @@ function destroy() {
       terraform destroy -auto-approve
       unlock nw
       ;;
-    ec2)
+    ec2|instances)
       cd ${ONEPATH}/awsone/3-instances
       terraform destroy -auto-approve
       unlock ec2
@@ -680,7 +680,7 @@ function output() {
         printf '%s\n' "Configuration nw not applied"
       fi
       ;;&
-    ec2|all)
+    ec2|instances|all)
       if [[ -f ${ONEPATH}/awsone/2-network/.pgo.ec2.lock ]] ; then
         cd ${ONEPATH}/awsone/3-instances
         terraform output
@@ -811,7 +811,7 @@ function state() {
       cd ${ONEPATH}/awsone/2-network
       terraform state list
       ;;&
-    ec2|all)
+    ec2|instances|all)
       cd ${ONEPATH}/awsone/3-instances
       terraform state list
       ;;&
@@ -871,7 +871,7 @@ function show() {
       cd ${ONEPATH}/awsone/2-network
       terraform show
       ;;&
-    ec2|all)
+    ec2|instances|all)
       cd ${ONEPATH}/awsone/3-instances
       terraform show
       ;;&
@@ -930,7 +930,7 @@ function validate() {
       cd ${ONEPATH}/awsone/2-network
       terraform validate
       ;;&
-    ec2|all)
+    ec2|instances|all)
       cd ${ONEPATH}/awsone/3-instances
       terraform validate
       ;;&

@@ -34,6 +34,10 @@ output "intra_subnet_cidr_blocks" {
   value = module.vpc.intra_subnet_cidr_blocks
 }
 
+output "database_subnet_group" {
+  value = module.vpc.database_subnet_group
+}
+
 output "key_name" {
   value = module.ec2.key_name
 }

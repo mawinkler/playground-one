@@ -15,6 +15,7 @@ module "ec2" {
   public_key               = data.terraform_remote_state.vpc.outputs.public_key
   private_key_path         = data.terraform_remote_state.vpc.outputs.private_key_path
   ec2_profile              = module.iam.ec2_profile
+  ec2_profile_db           = module.iam.ec2_profile_db
   s3_bucket                = module.s3.s3_bucket
   linux_username           = var.linux_username
   windows_username         = var.windows_username
@@ -31,4 +32,14 @@ module "iam" {
 module "s3" {
   source      = "./s3"
   environment = var.environment
+}
+
+module "rds" {
+  source = "./rds"
+
+  environment               = var.environment
+  private_security_group_id = data.terraform_remote_state.vpc.outputs.private_security_group_id
+  database_subnet_group     = data.terraform_remote_state.vpc.outputs.database_subnet_group
+  rds_name                  = var.rds_name
+  rds_username              = var.rds_username
 }

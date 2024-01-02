@@ -15,6 +15,8 @@ variable "private_key_path" {}
 
 variable "ec2_profile" {}
 
+variable "ec2_profile_db" {}
+
 variable "s3_bucket" {}
 
 variable "linux_username" {}
