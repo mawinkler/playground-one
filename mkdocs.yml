@@ -39,6 +39,9 @@ nav:
     #   - Malware Upload: scenarios/server-workload-ecs-ec2-malware-upload.md
     - Attack Surface Risk Management:
       - Virtual Instance potential Attack Path: scenarios/asrm/virtual-machine-attack-path.md
+    - XDR:
+      - Automated Observed Attack Techniques Generation: scenarios/xdr/oat-generation.md
+      - Automated Workbench Generation: scenarios/xdr/workbench-generation.md
     - Integrations:
       - Integrate Deep Security with Vision One: scenarios/ds/ds-integrate.md
       - Integrate Workload Security with Vision One: scenarios/ds/ws-integrate.md
