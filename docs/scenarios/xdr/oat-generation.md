@@ -1,7 +1,5 @@
 # Scenario: Automated Observed Attack Techniques Generation
 
-***IN WORK***
-
 ## Prerequisites
 
 - Playground One EKS EC2 or Fargate Cluster

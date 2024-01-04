@@ -67,7 +67,7 @@ resource "random_password" "windows_password" {
 
 resource "aws_instance" "windows1" {
 
-  count = var.create_linux ? 1 : 0
+  count = var.create_windows ? 1 : 0
 
   ami                    = data.aws_ami.windows.id
   instance_type          = "t3.medium"

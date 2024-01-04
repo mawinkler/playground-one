@@ -21,7 +21,6 @@ nav:
       - ContainerD Abuse: scenarios/eks/dind-exploitation.md
       - Runtime Vulnerability Scan: scenarios/eks/runtime-vulnerability-ec2.md
       - Runtime Vulnerability Scan on Fargate: scenarios/eks/runtime-vulnerability-fargate.md
-      - Runtime Violations: scenarios/eks/runtime-violations.md
       - Hunger Check: scenarios/eks/hunger-check.md
     - ECS:
       - Apache Struts Multipart Encoding Command Injection (Runtime Security): scenarios/ecs/apache-struts-rce.md
@@ -38,7 +37,7 @@ nav:
     # - Server & Workload Protection:
     #   - Malware Upload: scenarios/server-workload-ecs-ec2-malware-upload.md
     - Attack Surface Risk Management:
-      - Virtual Instance potential Attack Path: scenarios/asrm/virtual-machine-attack-path.md
+      - Virtual Instance Potential Attack Path: scenarios/asrm/virtual-machine-attack-path.md
     - XDR:
       - Automated Observed Attack Techniques Generation: scenarios/xdr/oat-generation.md
       - Automated Workbench Generation: scenarios/xdr/workbench-generation.md
