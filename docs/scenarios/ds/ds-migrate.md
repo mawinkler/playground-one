@@ -39,7 +39,7 @@ pgo --apply dsw
 ## Current Situation
 
 - Deep Security is securing (simulated) on-premise instances.
-- Since you want to move to the Vision One platform you to migrate Deep Security protected computers to Vision One Server & Workload Protection.
+- Since you want to move to the Vision One platform you want to migrate Deep Security protected computers to Vision One Server & Workload Protection.
 
 ## Migration Workflow
 
@@ -53,18 +53,18 @@ Vision One
 
 Deep Security
 
-4. Go to DSM and use the feature Migrate to Workload Security. `Support --> Migrate to Workload Security`.
-5. When using this feature, it will need the API key and region. Specify them based on the result of the previous steps.
-6. In the tab `Configurations` select the Common Objects you want to migrate:
-   1. Directory Exclusions (Windows). To migrate this select is and press `[Migrate Selected]`.
-   2. Same for the other Common Objects.
-7. In the same tab click on the drop down `Migrate Policy (includes references Common Objects)` and press `[Migrate Selected]`.
-8. In the tab `Cloud Accounts` select the cloud accounts to migrate.
-9. In the tab `Agents` click on `Migrate using Computers page`.
-10. Select the agents to migrate in the Computers page. Right click on a selected Computer and go to `Actions --> Migrate to Workload Security`.
-11. In the `Cloud One Workload Security Agent Reactivation Configurations` adapt the settings when needed and check that `Security Policy --> Assign migrated policy` is activated.
-12. Press the button `[Migrate]`
-13. Review the Migration Summary.
+1. Go to DSM and use the feature Migrate to Workload Security. `Support --> Migrate to Workload Security`.
+2. When using this feature, it will need the API key and region. Specify them based on the result of the previous steps.
+3. In the tab `Configurations` select the Common Objects you want to migrate:
+4. Directory Exclusions (Windows). To migrate this select is and press `[Migrate Selected]`.
+5. Same for the other Common Objects.
+6. In the same tab click on the drop down `Migrate Policy (includes references Common Objects)` and press `[Migrate Selected]`.
+7. In the tab `Cloud Accounts` select the cloud accounts to migrate.
+8. In the tab `Agents` click on `Migrate using Computers page`.
+9.  Select the agents to migrate in the Computers page. Right click on a selected Computer and go to `Actions --> Migrate to Workload Security`.
+10. In the `Cloud One Workload Security Agent Reactivation Configurations` adapt the settings when needed and check that `Security Policy --> Assign migrated policy` is activated.
+11. Press the button `[Migrate]`
+12. Review the Migration Summary.
 
 ![alt text](images/ds-migrate-01.png "Moving")
 
@@ -88,25 +88,25 @@ The migrated policy tree shows the migrated policies including it's dependencies
 
 The migrated endpoints only have the basic Endpoint Protection agent installed. To get the full benefit and protection of Trend Vision One Endpoint Security, install the full Endpoint Agent package to enable sensor detection and response.
 
-14. Go to `Endpoint Inventory --> Select the Server & Workload Protection Manager`.
-15. Click on the `i1` marker next to the computer you want to upgrade and download the agent package.
+1. Go to `Endpoint Inventory --> Select the Server & Workload Protection Manager`.
+2. Click on the `i1` marker next to the computer you want to upgrade and download the agent package.
 
 ![alt text](images/ds-migrate-05.png "Agent Package")
 
 The downloaded package is named similar to `TMServerAgent_Linux_auto_x86_64_Server_and_Workload_Protection_Manager_-_EU.tar`. 
 
-16. Transfer the package to the computer via scp.
-   1. Get the ssh command for the instance by running `pgo --output dsw`.
+1. Transfer the package to the computer via scp.
+2. Get the ssh command for the instance by running `pgo --output dsw`.
 
-      ![alt text](images/ds-migrate-06.png "Output")
+   ![alt text](images/ds-migrate-06.png "Output")
 
-   2. Copy and paste the ssh command shown but change `ssh` to `scp`, just before the username place the filename of the downloaded agent package and append a `:`. The complete command should look like this: `scp -i /home/markus/projects/opensource/playground/playground-one/pgo-dsm-key-pair.pem -o StrictHostKeyChecking=no <DOWNLOADED TAR FILE NAME> ec2-user@18.156.83.192:`.
-17. Connect via ssh to the computer.
-   1. Now, use the `ssh` shown in the `pgo` output from above to connect to the computer. Example: `ssh -i /home/markus/projects/opensource/playground/playground-one/pgo-dsm-key-pair.pem -o StrictHostKeyChecking=no ec2-user@18.156.83.192`.
-   2. Running `ls` shows the uploaded package.
-   3. Run `tar xfv <DOWNLOADED TAR FILE NAME>`.
-   4. Run `sudo ./tmxbc install`.
-18. Sensor connectivity turns to `Connected` in the Endpoint Inventory of Vision One.
+3. Copy and paste the ssh command shown but change `ssh` to `scp`, just before the username place the filename of the downloaded agent package and append a `:`. The complete command should look like this: `scp -i /home/markus/projects/opensource/playground/playground-one/pgo-dsm-key-pair.pem -o StrictHostKeyChecking=no <DOWNLOADED TAR FILE NAME> ec2-user@18.156.83.192:`.
+4.  Connect via ssh to the computer.
+5. Now, use the `ssh` shown in the `pgo` output from above to connect to the computer. Example: `ssh -i /home/markus/projects/opensource/playground/playground-one/pgo-dsm-key-pair.pem -o StrictHostKeyChecking=no ec2-user@18.156.83.192`.
+6. Running `ls` shows the uploaded package.
+7. Run `tar xfv <DOWNLOADED TAR FILE NAME>`.
+8. Run `sudo ./tmxbc install`.
+9.  Sensor connectivity turns to `Connected` in the Endpoint Inventory of Vision One.
 
    ![alt text](images/ds-migrate-07.png "Connected")
 
@@ -114,8 +114,8 @@ The downloaded package is named similar to `TMServerAgent_Linux_auto_x86_64_Serv
 
 To activate Endpoint Sensor Detection and Response do the following:
 
-19. Go to `Endpoint Inventory --> Select the Server & Workload Protection Manager`.
-20. Click on the `i1` marker next to the computer you want to upgrade.
+1. Go to `Endpoint Inventory --> Select the Server & Workload Protection Manager`.
+2. Click on the `i1` marker next to the computer you want to upgrade.
 
 ![alt text](images/ds-migrate-08.png "Recommended Actions")
 

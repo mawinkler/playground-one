@@ -43,9 +43,9 @@ nav:
       - Automated Workbench Generation: scenarios/xdr/workbench-generation.md
     - Deep Security:
       - Integrate Deep Security with Vision One: scenarios/ds/ds-integrate.md
-      - Integrate Workload Security with Vision One: scenarios/ds/ws-integrate.md
       - Migrate Deep Security to Vision One: scenarios/ds/ds-migrate.md
-      - Migrate Workload Security to Vision One: scenarios/ds/ws-migrate.md
+      - Integrate Workload Security with Vision One: scenarios/ds/ws-integrate.md
+    #   - Migrate Workload Security to Vision One: scenarios/ds/ws-migrate.md
   - FAQ: faq.md
   - Bloopers: bloopers.md
 theme:
