@@ -15,22 +15,20 @@ In a nutshell:
 
 The Playground One has a modular structure and supports the following services:
 
-Component     | Operational | Vision One Cloud Security
-------------- | ----------- | ----------------------------------------------------------------
-EC2 Linux     | Yes         | V1 Server & Workload Protection
-EC2 Windows   | Yes         | V1 Server & Workload Protection
-EKS EC2       | Yes         | V1CS Runtime Scanning<br>V1CS Runtime Security<br>OAT&WB Generation
-EKS Fargate   | Yes         | V1CS Runtime Scanning<br>V1CS Runtime Security<br>OAT&WB Generation
-EKS Calico    | Yes         | EKS EC2 only
-EKS Prometheus| Yes         | EKS EC2 only
-EKS Trivy     | Yes         | EKS EC2 only
-ECS EC2       | Yes         | V1CS Runtime Scanning<br>V1CS Runtime Security
-ECS Fargate   | Yes         | V1CS Runtime Scanning<br>V1CS Runtime Security
-TMAS          | Yes         | Artifact Scanning for Vulnerabilities and Malware
-Deep Security | Yes         | tbd
-
-![alt text](docs/how-it-works/images/architecture.png "Architecture diagram")
-*Architecture: Example environment name `pgo8`*
+Component         | Operational | Vision One Cloud Security
+----------------- | ----------- | ----------------------------------------------------------------
+EC2 Linux         | Yes         | V1 Server & Workload Protection<br>ASRM
+EC2 Windows       | Yes         | V1 Server & Workload Protection
+EKS EC2           | Yes         | V1CS Runtime Scanning<br>V1CS Runtime Security<br>OAT&WB Generation
+EKS Fargate       | Yes         | V1CS Runtime Scanning<br>V1CS Runtime Security<br>OAT&WB Generation
+EKS Calico        | Yes         | EKS EC2 only
+EKS Prometheus    | Yes         | EKS EC2 only
+EKS Trivy         | Yes         | EKS EC2 only
+ECS EC2           | Yes         | V1CS Runtime Scanning<br>V1CS Runtime Security
+ECS Fargate       | Yes         | V1CS Runtime Scanning<br>V1CS Runtime Security
+TMAS              | Yes         | Artifact Scanning for Vulnerabilities and Malware
+Deep Security     | Yes         | V1 Server & Workload Protection
+Workload Security | Yes         | V1 Server & Workload Protection
 
 ***Documentation***
 

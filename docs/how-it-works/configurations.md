@@ -22,10 +22,6 @@ As we can see, the configuration `network` is the base for the other configurati
 
 ![alt text](images/architecture.png "Architecture diagram")
 
-*Security Groups: Example environment name `pgo8`*
-
-![alt text](images/security-groups.png "Security Groups")
-
 The following chapters describe the different configurations on a high level, refer the the dedicated documentation for more details.
 
 ## Virtual Private Cloud and Network
@@ -40,7 +36,7 @@ This configuration defines a network with the most commonly used architecture, p
 
 *Depends on `awsone/2-network`*
 
-Basically, a couple of EC2 instances are created with this configuration. Currently these are two linux and one windows instances.
+Basically, a couple of EC2 instances are created with this configuration. Currently these are two linux and one windows instances. One of the linux instances can be used to demo a potential attack path to RDS.
 
 If you store the agent installers for Server and Workload Security in `0-files` the instances will connect to Vision One.
 

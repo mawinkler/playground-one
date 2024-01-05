@@ -19,9 +19,9 @@ nav:
     - EKS:
       - Escape to Host System: scenarios/eks/escape.md
       - ContainerD Abuse: scenarios/eks/dind-exploitation.md
+      - Hunger Check: scenarios/eks/hunger-check.md
       - Runtime Vulnerability Scan: scenarios/eks/runtime-vulnerability-ec2.md
       - Runtime Vulnerability Scan on Fargate: scenarios/eks/runtime-vulnerability-fargate.md
-      - Hunger Check: scenarios/eks/hunger-check.md
     - ECS:
       - Apache Struts Multipart Encoding Command Injection (Runtime Security): scenarios/ecs/apache-struts-rce.md
       - Runtime Vulnerability Scan: scenarios/ecs/runtime-vulnerability.md
@@ -29,7 +29,7 @@ nav:
     #   - Tomcat Remote Code Execution (XDR for Containers): scenarios/xdr4c/ecs-tomcat-rce.md
     #   - JNDI Injection in HTTP Request (XDR for Containers): scenarios/xdr4c/ecs-log4j.md
     #   - Apache Struts Multipart Encoding Command Injection (XDR for Containers): scenarios/xdr4c/ecs-struts.md
-      # - Apache Struts Multipart Encoding Command Injection: scenarios/xdr4c/eks-struts.md
+    #   - Apache Struts Multipart Encoding Command Injection: scenarios/xdr4c/eks-struts.md
     - Artifact Scanning:
       - Scan Containers for Vulnerabilities and Malware: scenarios/as/tmas-artifact-scanning.md
       - Scan Files and Directories for Malware: scenarios/as/tmfs-artifact-scanning.md
@@ -41,10 +41,9 @@ nav:
     - XDR:
       - Automated Observed Attack Techniques Generation: scenarios/xdr/oat-generation.md
       - Automated Workbench Generation: scenarios/xdr/workbench-generation.md
-    - Integrations:
+    - Deep Security:
       - Integrate Deep Security with Vision One: scenarios/ds/ds-integrate.md
       - Integrate Workload Security with Vision One: scenarios/ds/ws-integrate.md
-    - Migration:
       - Migrate Deep Security to Vision One: scenarios/ds/ds-migrate.md
       - Migrate Workload Security to Vision One: scenarios/ds/ws-migrate.md
   - FAQ: faq.md
