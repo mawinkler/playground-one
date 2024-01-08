@@ -1,9 +1,5 @@
 # Scenario: ASRM to detect Potential Attack Path
 
-***DRAFT***
-
-***To verify: Is it required to set the access IP to 0.0.0.0/0 or is a subnet sufficient?***
-
 ## Prerequisites
 
 - AWS Cloud Account integrated with Vision One
@@ -40,7 +36,7 @@ A (free-tier) PostgreSQL dabase is automatically created when applying the confi
 pgo --apply ec2
 ```
 
-The Linux instances are detected by Vision One ASRM after some time when you configured your CAM stack properly. The full analysis which should lead to a potential attack path for the `db1` instance as seen in the below screenshot can take up to 24hs.
+The Linux instances are detected by Vision One ASRM after some time when you configured your CAM stack properly. The full analysis which should lead to a potential attack path for the `db1` instance as seen in the below screenshot can take up to 48hs.
 
 ![alt text](images/asrm-ec2-attack-path-01.png "Attack Path")
 
