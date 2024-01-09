@@ -1,6 +1,6 @@
 # Scenario: Migrate Deep Security to Vision One
 
-## Why Migrate to the Cloud
+## Why Migrate to Vision One SaaS
 
 - Power of the Cloud.
   - Get the latest features continuously.
