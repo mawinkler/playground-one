@@ -1,7 +1,5 @@
 # Scenario: Integrate Workload Security with Vision One
 
-***DRAFT***
-
 ## Prerequisites
 
 - Cloud One Workload Security instance

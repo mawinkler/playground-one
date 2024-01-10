@@ -1,7 +1,5 @@
 # Scenario: Integrate Deep Security with Vision One
 
-***DRAFT***
-
 ## Prerequisites
 
 - Playground One Deep Security
