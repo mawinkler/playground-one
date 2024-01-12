@@ -403,12 +403,12 @@ function ensure_kind() {
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for kind"
   if ! command -v kind &>/dev/null; then
     printf "${RED}${BOLD}%s${RESET}\n" "Installing kind on linux"
-    curl -fsSLo ./kind "https://kind.sigs.k8s.io/dl/v0.17.0/kind-$(uname)-amd64"
+    curl -fsSLo ./kind "https://kind.sigs.k8s.io/dl/v0.20.0/kind-$(uname)-amd64"
     chmod +x ./kind
     sudo mv kind /usr/local/bin/
   else
     printf "${YELLOW}%s${RESET}\n" "Kind already installed, ensuring version 0.17.0"
-    curl -fsSLo ./kind "https://kind.sigs.k8s.io/dl/v0.17.0/kind-$(uname)-amd64"
+    curl -fsSLo ./kind "https://kind.sigs.k8s.io/dl/v0.20.0/kind-$(uname)-amd64"
     chmod +x ./kind
     sudo mv kind /usr/local/bin/
   fi
