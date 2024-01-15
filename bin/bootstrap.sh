@@ -573,6 +573,8 @@ ensure_yq
 ensure_kind
 ensure_syft
 ensure_grype
+ensure_awscli
+ensure_azcli
 # if [ "${PACKAGE_MANAGER}" != "brew" ]; then
 #   ensure_krew
 # fi

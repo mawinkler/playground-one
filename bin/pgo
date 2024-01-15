@@ -24,26 +24,25 @@ if [ ! -f "$ONEPATH/.pghome" ]; then
   curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/bootstrap.sh -o /tmp/bootstrap.sh
   . /tmp/bootstrap.sh ${CURRENT_PATH}
 
-  curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
-  unzip /tmp/awscliv2.zip -d /tmp
-  sudo /tmp/aws/install --update
-  rm -Rf /tmp/aws /tmp/awscliv2.zip
-
-  curl -fsSL "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-  sudo mv /tmp/eksctl /usr/local/bin
-  rm -Rf /tmp/eksctl
-
   exit 0
 fi
 
 function lock() {
 
-  touch ${ONEPATH}/awsone/2-network/.pgo.$1.lock
+  touch ${ONEPATH}/.pgo.$1.lock
 }
 
 function unlock() {
 
-  rm -f ${ONEPATH}/awsone/2-network/.pgo.$1.lock
+  rm -f ${ONEPATH}/.pgo.$1.lock
+}
+
+function checklock() {
+
+  if [[ -f ${ONEPATH}/.pgo.$1.lock ]] ; then
+    return
+  fi
+  false
 }
 
 function check_xdr_for_containers() {
@@ -83,19 +82,19 @@ function check_network() {
     envsubst <$ONEPATH/templates/terraform-2-network.tfvars >$ONEPATH/awsone/2-network/terraform.tfvars
 
   # Check locks
-  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.ec2.lock ]] ; then
+  if checklock ec2 ; then
     echo Destroy EC2 configuration first
     exit 0
   fi
-  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.eks-ec2.lock ]] ; then
+  if checklock eks-ec2 ; then
     echo Destroy EKS EC2 configuration first
     exit 0
   fi
-  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.eks-fg.lock ]] ; then
+  if checklock eks-fg ; then
     echo Destroy EKS Fargate configuration first
     exit 0
   fi
-  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.ecs.lock ]] ; then
+  if checklock ecs ; then
     echo Destroy ECS configuration first
     exit 0
   fi
@@ -451,27 +450,27 @@ function update_ip() {
   terraform apply
 
   init eks-ec2
-  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.eks-ec2.lock ]] ; then
+  if checklock eks-ec2 ; then
     apply eks-ec2
   fi
   init eks-fg
-  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.eks-fg.lock ]] ; then
+  if checklock eks-fg ; then
     apply eks-fg
   fi
   init ecs
-  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.ecs.lock ]] ; then
+  if checklock ecs ; then
     apply ecs
   fi
   init scenarios-ec2
-  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.scenarios-ec2.lock ]] ; then
+  if checklock scenarios-ec2 ; then
     apply scenarios-ec2
   fi
   init scenarios-fg
-  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.scenarios-fg.lock ]] ; then
+  if checklock scenarios-fg ; then
     apply scenarios-fg
   fi
   init dsm
-  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.dsm.lock ]] ; then
+  if checklock pgo.dsm ; then
     apply dsm
   fi
   # TODO: Add eks deployments
@@ -696,7 +695,7 @@ function output() {
 
   case $1 in
     nw|network|all)
-      if [[ -f ${ONEPATH}/awsone/2-network/.pgo.nw.lock ]] ; then
+      if checklock nw ; then
         cd ${ONEPATH}/awsone/2-network
         terraform output
       else
@@ -704,7 +703,7 @@ function output() {
       fi
       ;;&
     ec2|instances|all)
-      if [[ -f ${ONEPATH}/awsone/2-network/.pgo.ec2.lock ]] ; then
+      if checklock ec2 ; then
         cd ${ONEPATH}/awsone/3-instances
         terraform output
         printf '%s\n' "public_instance_password_srv1 = \"$(terraform output -raw public_instance_password_srv1)\""
@@ -713,7 +712,7 @@ function output() {
       fi
       ;;&
     eks|eks-ec2|all)
-      if [[ -f ${ONEPATH}/awsone/2-network/.pgo.eks-ec2.lock ]] ; then
+      if checklock eks-ec2 ; then
         cd ${ONEPATH}/awsone/4-cluster-eks-ec2
         terraform output
         cd ${ONEPATH}/awsone/8-cluster-eks-ec2-deployments
@@ -723,7 +722,7 @@ function output() {
       fi
       ;;&
     eks-fg|all)
-      if [[ -f ${ONEPATH}/awsone/2-network/.pgo.eks-fg.lock ]] ; then
+      if checklock eks-fg ; then
         cd ${ONEPATH}/awsone/4-cluster-eks-fargate
         terraform output
       else
@@ -731,7 +730,7 @@ function output() {
       fi
       ;;&
     aks|all)
-      if [[ -f ${ONEPATH}/awsone/2-network/.pgo.aks.lock ]] ; then
+      if checklock aks ; then
         cd ${ONEPATH}/azone/4-cluster-aks
         terraform output
       else
@@ -739,7 +738,7 @@ function output() {
       fi
       ;;&
     ecs|all)
-      if [[ -f ${ONEPATH}/awsone/2-network/.pgo.ecs.lock ]] ; then
+      if checklock ecs ; then
         cd ${ONEPATH}/awsone/5-cluster-ecs
         terraform output
       else
@@ -747,7 +746,7 @@ function output() {
       fi
       ;;&
     scenarios|scenarios-ec2|all)
-      if [[ -f ${ONEPATH}/awsone/2-network/.pgo.scenarios-ec2.lock ]] ; then
+      if checklock scenarios-ec2 ; then
         cd ${ONEPATH}/awsone/7-scenarios-ec2
         terraform output
       else
@@ -755,7 +754,7 @@ function output() {
       fi
       ;;&
     scenarios-fg|all)
-      if [[ -f ${ONEPATH}/awsone/2-network/.pgo.scenarios-fg.lock ]] ; then
+      if checklock scenarios-fg ; then
         cd ${ONEPATH}/awsone/7-scenarios-fargate
         terraform output
       else
@@ -763,7 +762,7 @@ function output() {
       fi
       ;;&
     dsm|deepsecurity|all)
-      if [[ -f ${ONEPATH}/awsone/2-network/.pgo.dsm.lock ]] ; then
+      if checklock dsm ; then
         cd ${ONEPATH}/awsone/9-deep-security
         terraform output
       else
@@ -771,7 +770,7 @@ function output() {
       fi
       ;;&
     dsw|all)
-      if [[ -f ${ONEPATH}/awsone/2-network/.pgo.dsm.lock ]] ; then
+      if checklock dsm ; then
         cd ${ONEPATH}/awsone/9-deep-security-workload
         terraform output
       else
@@ -798,31 +797,31 @@ function list() {
 
   telemetry "list"
 
-  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.nw.lock ]] ; then
+  if checklock nw ; then
     printf '%s\n' "Configuration nw is applied"
   fi
-  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.ec2.lock ]] ; then
+  if checklock ec2 ; then
     printf '%s\n' "Configuration ec2 is applied"
   fi
-  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.eks-ec2.lock ]] ; then
+  if checklock eks-ec2 ; then
     printf '%s\n' "Configuration eks-ec2 is applied"
   fi
-  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.eks-fg.lock ]] ; then
+  if checklock eks-fg ; then
     printf '%s\n' "Configuration eks-fargate is applied"
   fi
-  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.aks.lock ]] ; then
+  if checklock aks ; then
     printf '%s\n' "Configuration aks is applied"
   fi
-  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.ecs.lock ]] ; then
+  if checklock ecs ; then
     printf '%s\n' "Configuration ecs is applied"
   fi
-  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.scenarios-ec2.lock ]] ; then
+  if checklock scenarios-ec2 ; then
     printf '%s\n' "Configuration scenarios-ec2 is applied"
   fi
-  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.scenarios-fg.lock ]] ; then
+  if checklock scenarios-fg ; then
     printf '%s\n' "Configuration scenarios-fg is applied"
   fi
-  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.dsm.lock ]] ; then
+  if checklock dsm ; then
     printf '%s\n' "Configuration dsm is applied"
   fi
 }
