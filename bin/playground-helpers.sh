@@ -359,11 +359,19 @@ function get_config() {
   if [ $(yq '.services[] | select(.name=="aws") | .region' ${ONEPATH}/config.yaml) ]; then
     echo Old version of config file detected
   else
+    # AWS
     aws_account_id="$(yq '.services.aws.account-id' $ONEPATH/config.yaml)"
     aws_region="$(yq '.services.aws.region' $ONEPATH/config.yaml)"
     aws_environment="$(yq '.services.aws.environment' $ONEPATH/config.yaml)"
     [[ "${aws_region}" = "null" || "${aws_region}" = "" ]] && aws_region="eu-central-1"
     [[ "${aws_environment}" = "null" || "${aws_environment}" = "" ]] && aws_environment="playground-one"
+
+    # Azure
+    azure_subscription_id="$(yq '.services.azure.subscription-id' $ONEPATH/config.yaml)"
+    azure_region="$(yq '.services.azure.region' $ONEPATH/config.yaml)"
+    azure_environment="$(yq '.services.azure.environment' $ONEPATH/config.yaml)"
+    [[ "${azure_region}" = "null" || "${azure_region}" = "" ]] && azure_region="westeurope"
+    [[ "${azure_environment}" = "null" || "${azure_environment}" = "" ]] && azure_environment="playground-one"
 
     # Playground One
     pgo_access_ip="$(yq '.services.playground-one.access-ip' $ONEPATH/config.yaml)"

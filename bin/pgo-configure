@@ -19,7 +19,7 @@ function update_aws_config() {
   ##
   ## AWS
   ##
-  key_desc="MANDATORY: AWS Account ID"
+  key_desc="AWS Account ID"
   read -p "${key_desc} [${aws_account_id}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     aws_account_id=${TEMP}
@@ -53,6 +53,52 @@ function update_aws_config() {
   if [[ "${aws_environment}" =~ ^[0-9a-z\-]+$ && ${#aws_environment} -le 12 ]]; then
     target_val=${aws_environment} \
       yq -i '.services.aws.environment = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+}
+
+function update_azure_config() {
+  printf '\n%s\n' "Please set/update your Azure configuration"
+
+  ##
+  ## AWS
+  ##
+  key_desc="Azure Subscription ID"
+  read -p "${key_desc} [${azure_subscription_id}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    azure_subscription_id=${TEMP}
+  fi
+  if [[ "${azure_subscription_id}" =~ ^[0-9a-z\-]+$ ]]; then
+    target_val=${azure_subscription_id} \
+      yq -i '.services.azure.subscription-id = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  key_desc="Azure region name"
+  read -p "${key_desc} [${azure_region}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    azure_region=${TEMP}
+  fi
+  if [[ "${azure_region}" =~ ^[0-9a-z\-]+$ ]]; then
+    target_val=${azure_region} \
+      yq -i '.services.azure.region = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  key_desc="Azure environment name"
+  read -p "${key_desc} [${azure_environment}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    azure_environment=${TEMP}
+  fi
+  if [[ "${azure_environment}" =~ ^[0-9a-z\-]+$ && ${#azure_environment} -le 12 ]]; then
+    target_val=${azure_environment} \
+      yq -i '.services.azure.environment = env(target_val)' ${ONEPATH}/config.yaml
   else
     echo "Error: Invalid ${key_desc} input."
     exit 0
@@ -232,7 +278,7 @@ function update_vision_one_config() {
   fi
 
   if ${vision_one_cs_enabled} ; then
-    key_desc="MANDATORY: Vision One API Key"
+    key_desc="Vision One API Key"
     read -p "${key_desc} [${vision_one_api_key:0:10}...]: " TEMP
     if [[ ! -z "${TEMP}" ]]; then
       vision_one_api_key=${TEMP}
@@ -488,6 +534,7 @@ if [[ ! -f ${ONEPATH}/awsone/2-network/.pgo.nw.lock && \
 else
   printf '%s\n' "Skipping AWS configuration."
 fi
+update_azure_config
 update_pgo_config
 update_vision_one_config
 # update_vision_one_config

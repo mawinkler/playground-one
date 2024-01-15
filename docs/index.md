@@ -54,24 +54,38 @@ The Playground One is designed to work with AWS and is tested these operating sy
 
 ## System Health
 
-Component     | Operational | Known Issues | Vision One Cloud Security
-------------- | ----------- | ------------ | ----------------------------------------------------------------
+### AWS
+
+Component         | Operational | Known Issues | Vision One Cloud Security
+----------------- | ----------- | ------------ | ----------------------------------------------------------------
 EC2 Linux         | Yes         | None         | V1 Server & Workload Protection<br>ASRM
 EC2 Windows       | Yes         | None         | V1 Server & Workload Protection
 EKS EC2           | Yes         | None         | V1CS Runtime Scanning<br>V1CS Runtime Security<br>OAT&WB Generation
 EKS Fargate       | Yes         | None         | V1CS Runtime Scanning<br>V1CS Runtime Security<br>OAT&WB Generation
-EKS Calico        | Yes         | EKS EC2 only |
-EKS Prometheus    | Yes         | EKS EC2 only |
-EKS Trivy         | Yes         | EKS EC2 only |
 ECS EC2           | Yes         | See 1)       | V1CS Runtime Scanning<br>V1CS Runtime Security
 ECS Fargate       | Yes         | See 2)       | V1CS Runtime Scanning<br>V1CS Runtime Security
-TMAS              | Yes         | None         | Artifact Scanning for Vulnerabilities and Malware
+Calico            | Yes         | EKS EC2 only |
+Prometheus        | Yes         | EKS EC2 only |
+Trivy             | Yes         | EKS EC2 only |
 Deep Security     | Yes         | None         | V1 Server & Workload Protection
-Workload Security | Yes         | None         | V1 Server & Workload Protection
 
 1) Deleting the cluster requires the deactivation runtime scanning and runtime security before destroying the cluster. If destroy process `module.ecs-ec2[0].module.ecs_service.aws_ecs_service.this[0]: Still destroying...` hangs for a couple of minutes manually terminate the autoscaling group `pgo4-ecs-ec2-asg-spot-...` in AWS.
 
 2) Activating Runtime Security requires some manual steps, see [documentation](https://docs.trendmicro.com/en-us/enterprise/trend-vision-one/cloudsecurityoperati/about-container-secu/next-steps/containerinventory/ecs-fargate-deployme/ecs-fargate-add.aspx). Deleting the cluster requires the deactivation of runtime scanning and runtime security before destroying the cluster. Newly created task definitions must be removed manually.
+
+### Azure
+
+Component         | Operational | Known Issues | Vision One Cloud Security
+----------------- | ----------- | ------------ | ----------------------------------------------------------------
+AKS               | In progress | None         | In progress
+
+### Other
+
+Component         | Operational | Known Issues | Vision One Cloud Security
+----------------- | ----------- | ------------ | ----------------------------------------------------------------
+TMAS              | Yes         | None         | Artifact Scanning for Vulnerabilities and Malware
+TMFS              | Yes         | None         | File and Directory Scanning for Malware
+Workload Security | Yes         | None         | V1 Server & Workload Protection
 
 ## CLI Commands of the Playground
 

@@ -15,19 +15,33 @@ In a nutshell:
 
 The Playground One has a modular structure and supports the following services:
 
+*AWS*
+
 Component         | Operational | Vision One Cloud Security
 ----------------- | ----------- | ----------------------------------------------------------------
 EC2 Linux         | Yes         | V1 Server & Workload Protection<br>ASRM
 EC2 Windows       | Yes         | V1 Server & Workload Protection
 EKS EC2           | Yes         | V1CS Runtime Scanning<br>V1CS Runtime Security<br>OAT&WB Generation
 EKS Fargate       | Yes         | V1CS Runtime Scanning<br>V1CS Runtime Security<br>OAT&WB Generation
-EKS Calico        | Yes         | EKS EC2 only
-EKS Prometheus    | Yes         | EKS EC2 only
-EKS Trivy         | Yes         | EKS EC2 only
+Calico            | Yes         | EKS EC2 only
+Prometheus        | Yes         | EKS EC2 only
+Trivy             | Yes         | EKS EC2 only
 ECS EC2           | Yes         | V1CS Runtime Scanning<br>V1CS Runtime Security
 ECS Fargate       | Yes         | V1CS Runtime Scanning<br>V1CS Runtime Security
-TMAS              | Yes         | Artifact Scanning for Vulnerabilities and Malware
 Deep Security     | Yes         | V1 Server & Workload Protection
+
+*Azure*
+
+Component         | Operational | Vision One Cloud Security
+----------------- | ----------- | ----------------------------------------------------------------
+AKS               | In progress | In progress
+
+*Other*
+
+Component         | Operational | Vision One Cloud Security
+----------------- | ----------- | ----------------------------------------------------------------
+TMAS              | Yes         | Artifact Scanning for Vulnerabilities and Malware
+TMFS              | Yes         | File and Directory Scanning for Malware
 Workload Security | Yes         | V1 Server & Workload Protection
 
 ***Documentation***

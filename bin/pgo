@@ -6,34 +6,34 @@ set -e
 
 # Source helpers
 if [ -f $ONEPATH/bin/playground-helpers.sh ]; then
-    .  $ONEPATH/bin/playground-helpers.sh
+  .  $ONEPATH/bin/playground-helpers.sh
 else
-    curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/playground-helpers.sh -o /tmp/playground-helpers.sh
-    . /tmp/playground-helpers.sh
+  curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/playground-helpers.sh -o /tmp/playground-helpers.sh
+  . /tmp/playground-helpers.sh
 fi
 
 # Check for dialog
 DIALOG_INSTALLED=$(apt -qq list dialog 2>/dev/null)
 if [[ "$DIALOG_INSTALLED" != *"installed"* ]]; then
-    sudo apt update
-    sudo apt install -y dialog
+  sudo apt update
+  sudo apt install -y dialog
 fi
 
 # Bootstrap
 if [ ! -f "$ONEPATH/.pghome" ]; then
-    curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/bootstrap.sh -o /tmp/bootstrap.sh
-    . /tmp/bootstrap.sh ${CURRENT_PATH}
+  curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/bootstrap.sh -o /tmp/bootstrap.sh
+  . /tmp/bootstrap.sh ${CURRENT_PATH}
 
-    curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
-    unzip /tmp/awscliv2.zip -d /tmp
-    sudo /tmp/aws/install --update
-    rm -Rf /tmp/aws /tmp/awscliv2.zip
+  curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
+  unzip /tmp/awscliv2.zip -d /tmp
+  sudo /tmp/aws/install --update
+  rm -Rf /tmp/aws /tmp/awscliv2.zip
 
-    curl -fsSL "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-    sudo mv /tmp/eksctl /usr/local/bin
-    rm -Rf /tmp/eksctl
+  curl -fsSL "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+  sudo mv /tmp/eksctl /usr/local/bin
+  rm -Rf /tmp/eksctl
 
-    exit 0
+  exit 0
 fi
 
 function lock() {
@@ -206,6 +206,18 @@ function init() {
       cd ${ONEPATH}/awsone/8-cluster-eks-fargate-deployments
       terraform init
       ;;&
+    aks|all)
+      printf '%s\n' "Create terraform.tfvars for cluster-aks"
+      azure_subscription_id=${azure_subscription_id} \
+      azure_region=${azure_region} \
+      azure_environment=${azure_environment} \
+      pgo_access_ip=${pgo_access_ip} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-4-cluster-aks.tfvars >$ONEPATH/azone/4-cluster-aks/terraform.tfvars
+
+      cd ${ONEPATH}/azone/4-cluster-aks
+      terraform init
+      ;;&
     ecs|all)
       printf '%s\n' "Create terraform.tfvars for cluster-ecs"
       aws_account_id=${aws_account_id} \
@@ -327,6 +339,11 @@ function apply() {
       terraform apply -auto-approve
       $(terraform output -raw update_local_context_command)
       cd ${ONEPATH}/awsone/8-cluster-eks-fargate-deployments
+      terraform apply -auto-approve
+      ;;&
+    aks|all)
+      lock aks
+      cd ${ONEPATH}/azone/4-cluster-aks
       terraform apply -auto-approve
       ;;&
     ecs|all)
@@ -577,6 +594,11 @@ function destroy() {
       unlock eks-fg
       kubectl config delete-context ${cluster_name}
       ;;
+    aks|all)
+      cd ${ONEPATH}/azone/4-cluster-aks
+      terraform destroy -auto-approve
+      unlock aks
+      ;;&
     ecs)
       # Workaround for Terraform bug described in FAQ
       # Delete eventually existing autoscaling groups belonging to the ecs clusters
@@ -708,6 +730,14 @@ function output() {
         printf '%s\n' "Configuration eks-fargate not applied"
       fi
       ;;&
+    aks|all)
+      if [[ -f ${ONEPATH}/awsone/2-network/.pgo.aks.lock ]] ; then
+        cd ${ONEPATH}/azone/4-cluster-aks
+        terraform output
+      else
+        printf '%s\n' "Configuration aks not applied"
+      fi
+      ;;&
     ecs|all)
       if [[ -f ${ONEPATH}/awsone/2-network/.pgo.ecs.lock ]] ; then
         cd ${ONEPATH}/awsone/5-cluster-ecs
@@ -780,6 +810,9 @@ function list() {
   if [[ -f ${ONEPATH}/awsone/2-network/.pgo.eks-fg.lock ]] ; then
     printf '%s\n' "Configuration eks-fargate is applied"
   fi
+  if [[ -f ${ONEPATH}/awsone/2-network/.pgo.aks.lock ]] ; then
+    printf '%s\n' "Configuration aks is applied"
+  fi
   if [[ -f ${ONEPATH}/awsone/2-network/.pgo.ecs.lock ]] ; then
     printf '%s\n' "Configuration ecs is applied"
   fi
@@ -824,6 +857,10 @@ function state() {
       ;;&
     eks-fg|all)
       cd ${ONEPATH}/awsone/4-cluster-eks-fargate
+      terraform state list
+      ;;&
+    aks|all)
+      cd ${ONEPATH}/azone/4-cluster-aks
       terraform state list
       ;;&
     ecs|all)
@@ -886,6 +923,10 @@ function show() {
       cd ${ONEPATH}/awsone/4-cluster-eks-fargate
       terraform show
       ;;&
+    aks|all)
+      cd ${ONEPATH}/azone/4-cluster-aks
+      terraform show
+      ;;&
     ecs|all)
       cd ${ONEPATH}/awsone/5-cluster-ecs
       terraform show
@@ -945,6 +986,10 @@ function validate() {
       cd ${ONEPATH}/awsone/4-cluster-eks-fargate
       terraform validate
       ;;&
+    aks|all)
+      cd ${ONEPATH}/azone/4-cluster-aks
+      terraform validate
+      ;;&
     ecs|all)
       cd ${ONEPATH}/awsone/5-cluster-ecs
       terraform validate
@@ -1002,6 +1047,7 @@ function helpcmd() {
   printf '%s\n' "  ec2           EC2 configuration"
   printf '%s\n' "  eks-ec2       EKS configuration"
   printf '%s\n' "  eks-fg        EKS configuration"
+  printf '%s\n' "  aks           AKS configuration"
   printf '%s\n' "  ecs           ECS configurations"
   printf '%s\n' "  kind          Kind configuration"
   printf '%s\n' "  scenarios-ec2 Scenario configuration"

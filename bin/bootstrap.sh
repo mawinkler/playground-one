@@ -133,6 +133,44 @@ function ensure_essentials() {
   fi
 }
 
+function ensure_awscli() {
+
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Installing aws CLI on linux"
+  curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
+  unzip /tmp/awscliv2.zip -d /tmp
+  sudo /tmp/aws/install --update
+  rm -Rf /tmp/aws /tmp/awscliv2.zip
+
+  curl -fsSL "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+  sudo mv /tmp/eksctl /usr/local/bin
+  rm -Rf /tmp/eksctl
+}
+
+function ensure_azcli() {
+
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Installing az CLI on linux"
+  sudo mkdir -p /etc/apt/keyrings
+  curl -sLS https://packages.microsoft.com/keys/microsoft.asc |
+      gpg --dearmor |
+      sudo tee /etc/apt/keyrings/microsoft.gpg > /dev/null
+  sudo chmod go+r /etc/apt/keyrings/microsoft.gpg
+
+  AZ_DIST=$(lsb_release -cs)
+  echo "deb [arch=`dpkg --print-architecture` signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/azure-cli/ $AZ_DIST main" |
+      sudo tee /etc/apt/sources.list.d/azure-cli.list
+      
+  # echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-$(lsb_release -cs)-prod $(lsb_release -cs) main" | \
+  #     sudo tee /etc/apt/sources.list.d/dotnetdev.list
+
+  sudo apt update
+  sudo apt install -y azure-cli azure-functions-core-tools-4
+
+  curl -fsSL https://aka.ms/downloadazcopy-v10-linux | tar xz --strip-components=1 -C /tmp
+  sudo mv /tmp/azcopy /usr/local/bin
+  rm -rf /tmp/azcopy*
+  sudo chmod 755 /usr/local/bin/azcopy
+}
+
 function query_aws_keys() {
 
   # In short: 3>&1 opens a new file descriptor which points to stdout,
