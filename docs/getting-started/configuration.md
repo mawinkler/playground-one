@@ -88,6 +88,14 @@ Set/update:
 - `AWS region name`: If you want to use another region as `eu-central-1`.
 - `AWS environment name`: Your to be built environment name. It MUST NOT be longer than 12 characters.
 
+### Section: Azure
+
+Set/update:
+
+- `Azure Subscription ID`: The ID of your Azure subscription. This is mandatory.
+- `Azure region name`: If you want to use another region as `westeurope`.
+- `Azure environment name`: Your to be built environment name. It MUST NOT be longer than 12 characters.
+
 ### Section: Playground One
 
 You don't necessarily need to change anything here if you're satisfied with the defaults, but

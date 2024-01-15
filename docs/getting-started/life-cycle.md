@@ -1,18 +1,36 @@
 # General Life-Cycle
 
-## Create the Environment
+## Authentication
 
-1. Initialize with
+Playground One is designed to work on Ubuntu Linux or an Ubuntu Cloud9 on AWS. If you're using Cloud9 you will get prompted for your AWS Access and Secret Key. These credentials are never stored on any disk but used to create an EC2 instance role only.
 
-    ```sh
-    pgo --init all
-    ```
+If you're using a *normal* Ubuntu server you manually need to authenticate to AWS and/or Azure by either running
 
-    This will prepare all available configurations. No changes done in the clouds yet. You only need to init once after cloning the repository.
+```ssh
+aws configure
+```
 
-    If you have changed Playground Ones main configuration using `pgo --config` please rerun `pgo --init all` again to apply eventual changes to the configurations.
+and/or
 
-2. To create the VPC and Network run
+```ssh
+az login --use-device-code
+```
+
+## Initialize
+
+Initialize with
+
+```sh
+pgo --init all
+```
+
+This will prepare all available configurations. No changes done in the clouds yet. You only need to init once after cloning the repository.
+
+If you have changed Playground Ones main configuration using `pgo --config` please rerun `pgo --init all` again to apply eventual changes to the configurations.
+
+## Create the AWS Environment
+
+1. To create the VPC and Network run
 
     ```sh
     pgo --apply nw
@@ -20,9 +38,9 @@
 
     This will create your VPC and network in the configured region (see `config.yaml`)
 
-3. If you want your EC2 instances to be connected to Vision One Endpoint Security head over to [Vision One Endpoint Security Server & Workload Protection](../integrations/endpoint-security.md) and come back afterwards.
+2. If you want your EC2 instances to be connected to Vision One Endpoint Security head over to [Vision One Endpoint Security Server & Workload Protection](../integrations/endpoint-security.md) and come back afterwards.
 
-4. Create Virtual Instances and/or Kubernetes Clusters with demo workload.
+3. Create Virtual Instances and/or Kubernetes Clusters with demo workload.
 
     EC2 instances:
 
@@ -48,11 +66,7 @@
     pgo --apply ecs
     ```
 
-> ***Note***: If you're using both EKS cluster variants simultaneously you can easily switch in between the clusters using the command `pgo-context`.
-
-![alt text](images/pgo-context.png "Context")
-
-5. Create a dedicated (on-prem like) Deep Security environment with activated Computers.
+4. Create a dedicated (on-prem like) Deep Security environment with activated Computers.
 
     VPC and Deep Security:
 
@@ -64,6 +78,16 @@
 
     ```sh
     pgo --apply dsw
+    ```
+
+## Create the Azure Environment
+
+1. Create Kubernetes Cluster with demo workload.
+
+    AKS cluster:
+
+    ```sh
+    pgo --apply aks
     ```
 
 ## Query Outputs and State
@@ -96,6 +120,12 @@ With this you can always query how to connect to your running EC2 instances. All
 ## Play with the Playground One
 
 It's a playground, or? Experiment and hopefully learn a few things. For your guidance, there are some prepared scenarios for you to go through. Find them in the navigation pane.
+
+## Switch in between multiple Kubernetes Clusters
+
+If you're using multiple cluster variants simultaneously you can easily switch in between the clusters using the command `pgo-context`.
+
+![alt text](images/pgo-context.png "Context")
 
 ## Tear Down
 
