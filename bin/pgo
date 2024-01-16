@@ -344,7 +344,10 @@ function apply() {
       lock aks
       cd ${ONEPATH}/azone/4-cluster-aks
       terraform apply -auto-approve
-      $(terraform output -raw update_local_context_command)
+      KUBECONFIG=~/.kube/config:$ONEPATH/azone/4-cluster-aks/kubeconfig \
+        kubectl config view --flatten > /tmp/config && \
+        mv /tmp/config ~/.kube/config
+      kubectl config use-context $(terraform output -raw cluster_name)
       ;;&
     ecs|all)
       lock ecs
