@@ -269,6 +269,17 @@ function init() {
       cd ${ONEPATH}/awsone/7-scenarios-fargate
       terraform init
       ;;&
+    scenarios-aks|all)
+      printf '%s\n' "Create terraform.tfvars for scenarios-aks deployments"
+      azure_subscription_id=${azure_subscription_id} \
+      azure_environment=${azure_environment} \
+      pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-7-scenarios-aks.tfvars >$ONEPATH/azone/7-scenarios-aks/terraform.tfvars
+
+      cd ${ONEPATH}/azone/7-scenarios-aks
+      terraform init
+      ;;&
     dsm|deepsecurity|all)
       printf '%s\n' "Create terraform.tfvars for deep security"
       aws_account_id=${aws_account_id} \
@@ -386,6 +397,11 @@ function apply() {
       cd ${ONEPATH}/awsone/7-scenarios-fargate
       terraform apply -auto-approve
       ;;&
+    scenarios-aks|all)
+      lock scenarios-aks
+      cd ${ONEPATH}/azone/7-scenarios-aks
+      terraform apply -auto-approve
+      ;;&
     dsm|deepsecurity|all)
       lock dsm
       cd ${ONEPATH}/awsone/9-deep-security
@@ -494,6 +510,10 @@ function update_ip() {
   init scenarios-fg
   if checklock scenarios-fg ; then
     apply scenarios-fg
+  fi
+  init scenarios-aks
+  if checklock scenarios-aks ; then
+    apply scenarios-aks
   fi
   init dsm
   if checklock dsm ; then
@@ -632,6 +652,9 @@ function destroy() {
         kubectl config use-context ${cluster_name}
         cd ${ONEPATH}/azone/8-cluster-aks-deployments
         terraform destroy -auto-approve
+        cd ${ONEPATH}/azone/7-scenarios-aks
+        terraform destroy -auto-approve
+        unlock scenarios-aks
         cd ${ONEPATH}/azone/4-cluster-aks
         terraform destroy -auto-approve
         unlock aks
@@ -708,6 +731,11 @@ function destroy() {
       cd ${ONEPATH}/awsone/7-scenarios-fargate
       terraform destroy -auto-approve
       unlock scenarios-fg
+      ;;
+    scenarios-aks)
+      cd ${ONEPATH}/azone/7-scenarios-aks
+      terraform destroy -auto-approve
+      unlock scenarios-aks
       ;;
     kind)
       cd ${ONEPATH}/awsone/6-cluster-kind
@@ -799,6 +827,14 @@ function output() {
         printf '%s\n' "Configuration scenarios-fg not applied"
       fi
       ;;&
+    scenarios-aks|all)
+      if checklock scenarios-aks ; then
+        cd ${ONEPATH}/azone/7-scenarios-aks
+        terraform output
+      else
+        printf '%s\n' "Configuration scenarios-aks not applied"
+      fi
+      ;;&
     dsm|deepsecurity|all)
       if checklock dsm ; then
         cd ${ONEPATH}/awsone/9-deep-security
@@ -859,6 +895,9 @@ function list() {
   if checklock scenarios-fg ; then
     printf '%s\n' "Configuration scenarios-fg is applied"
   fi
+  if checklock scenarios-aks ; then
+    printf '%s\n' "Configuration scenarios-aks is applied"
+  fi
   if checklock dsm ; then
     printf '%s\n' "Configuration dsm is applied"
   fi
@@ -912,6 +951,10 @@ function state() {
       ;;&
     scenarios-fg|all)
       cd ${ONEPATH}/awsone/7-scenarios-fargate
+      terraform state list
+      ;;&
+    scenarios-aks|all)
+      cd ${ONEPATH}/azone/7-scenarios-aks
       terraform state list
       ;;&
     dsm|deepsecurity|all)
@@ -980,6 +1023,10 @@ function show() {
       cd ${ONEPATH}/awsone/7-scenarios-fargate
       terraform show
       ;;&
+    scenarios-aks|all)
+      cd ${ONEPATH}/azone/7-scenarios-aks
+      terraform show
+      ;;&
     dsm|deepsecurity|all)
       cd ${ONEPATH}/awsone/9-deep-security
       terraform show
@@ -1045,6 +1092,10 @@ function validate() {
       cd ${ONEPATH}/awsone/7-scenarios-fargate
       terraform validate
       ;;&
+    scenarios-aks|all)
+      cd ${ONEPATH}/azone/7-scenarios-aks
+      terraform validate
+      ;;&
     dsm|deepsecurity|all)
       cd ${ONEPATH}/awsone/9-deep-security
       terraform validate
@@ -1095,6 +1146,7 @@ function helpcmd() {
   printf '%s\n' "  kind          Kind configuration"
   printf '%s\n' "  scenarios-ec2 Scenario configuration"
   printf '%s\n' "  scenarios-fg  Scenario configuration"
+  printf '%s\n' "  scenarios-aks  Scenario configuration"
   printf '%s\n' "  dsm           Deep Security configuration"
   printf '%s\n' "  dsw           Deep Security Workload configuration"
   printf '%s\n' "  all           All configurations"

@@ -1,6 +1,8 @@
 # #############################################################################
-# Outputs
+# Variables
 # #############################################################################
-output "policy_id" {
-  value = var.container_security ? module.container_security[0].policy_id : null
-}
+variable "access_ip" {}
+
+variable "environment" {}
+
+variable "namespace" {}

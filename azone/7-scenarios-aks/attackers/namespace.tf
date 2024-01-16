@@ -1,6 +1,8 @@
 # #############################################################################
-# Outputs
+# Create a Namespace
 # #############################################################################
-output "policy_id" {
-  value = var.container_security ? module.container_security[0].policy_id : null
+resource "kubernetes_namespace_v1" "attackers_namespace" {
+  metadata {
+    name = var.namespace
+  }
 }

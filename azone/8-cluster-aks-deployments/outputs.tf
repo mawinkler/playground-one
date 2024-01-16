@@ -12,5 +12,5 @@ output "loadbalancer_dns_grafana" {
 }
 
 output "policy_id" {
-  value = module.container_security[0].policy_id
+  value = var.container_security ? module.container_security[0].policy_id : null
 }
