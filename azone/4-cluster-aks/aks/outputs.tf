@@ -6,9 +6,14 @@ output "cluster_name" {
   value = azurerm_kubernetes_cluster.aks.name
 }
 
+output "kube_config" {
+  value     = azurerm_kubernetes_cluster.aks.kube_config
+  sensitive = true
+}
+
 output "update_local_context_command" {
   description = "Command to update local kube context"
-  value       = "cp ~/.kube/config ~/.kube/config.bak && KUBECONFIG=~/.kube/config:$ONEPATH/azone/4-cluster-aks/kubeconfig kubectl config view --flatten > /tmp/config && mv /tmp/config ~/.kube/config"
+  value       = "KUBECONFIG=~/.kube/config:$ONEPATH/azone/4-cluster-aks/kubeconfig kubectl config view --flatten > /tmp/config && mv /tmp/config ~/.kube/config"
 }
 
 resource "local_file" "kubeconfig" {

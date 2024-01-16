@@ -25,6 +25,10 @@ In a nutshell:
 
 ## Change Log
 
+01/16/2024
+
+- Playground One starts to support AKS and V1CS on Azure.
+
 12/19/2023
 
 - Automated Vision One Container Security deployment with EKS EC2 and Fargate Profiles.
@@ -77,7 +81,7 @@ Deep Security     | Yes         | None         | V1 Server & Workload Protection
 
 Component         | Operational | Known Issues | Vision One Cloud Security
 ----------------- | ----------- | ------------ | ----------------------------------------------------------------
-AKS               | In progress | None         | In progress
+AKS               | In progress | None         | V1CS Runtime Scanning<br>V1CS Runtime Security
 
 ### Other
 

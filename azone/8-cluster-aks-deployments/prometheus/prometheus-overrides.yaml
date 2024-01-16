@@ -1,0 +1,22 @@
+grafana:
+  enabled: true
+  service:
+    type: NodePort
+
+prometheusOperator:
+  enabled: true
+  service:
+    type: NodePort
+  namespaces:
+    releaseNamespace: true
+    additional:
+    - kube-system
+    - trendmicro-system
+    - attackers
+    - goat
+    - victims
+
+prometheus:
+  enabled: true
+  service:
+    type: NodePort

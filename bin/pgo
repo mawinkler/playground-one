@@ -213,8 +213,24 @@ function init() {
       pgo_access_ip=${pgo_access_ip} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-4-cluster-aks.tfvars >$ONEPATH/azone/4-cluster-aks/terraform.tfvars
+      printf '%s\n' "Create terraform.tfvars for cluster-aks deployments"
+      azure_subscription_id=${azure_subscription_id} \
+      azure_environment=${azure_environment} \
+      pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
+      vision_one_cs_enabled=${vision_one_cs_enabled} \
+      vision_one_cs_policy=${vision_one_cs_policy} \
+      vision_one_api_key=${vision_one_api_key} \
+      vision_one_region=${vision_one_region} \
+      integrations_calico_enabled=${integrations_calico_enabled} \
+      integrations_prometheus_enabled=${integrations_prometheus_enabled} \
+      integrations_prometheus_grafana_password=${integrations_prometheus_grafana_password} \
+      integrations_trivy_enabled=${integrations_trivy_enabled} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-8-cluster-aks-deployments.tfvars >$ONEPATH/azone/8-cluster-aks-deployments/terraform.tfvars
 
       cd ${ONEPATH}/azone/4-cluster-aks
+      terraform init
+      cd ${ONEPATH}/azone/8-cluster-aks-deployments
       terraform init
       ;;&
     ecs|all)
@@ -348,6 +364,8 @@ function apply() {
         kubectl config view --flatten > /tmp/config && \
         mv /tmp/config ~/.kube/config
       kubectl config use-context $(terraform output -raw cluster_name)
+      cd ${ONEPATH}/azone/8-cluster-aks-deployments
+      terraform apply -auto-approve
       ;;&
     ecs|all)
       lock ecs
@@ -461,6 +479,10 @@ function update_ip() {
   if checklock eks-fg ; then
     apply eks-fg
   fi
+  init aks
+  if checklock aks ; then
+    apply aks
+  fi
   init ecs
   if checklock ecs ; then
     apply ecs
@@ -474,7 +496,7 @@ function update_ip() {
     apply scenarios-fg
   fi
   init dsm
-  if checklock pgo.dsm ; then
+  if checklock dsm ; then
     apply dsm
   fi
   # TODO: Add eks deployments
@@ -558,78 +580,124 @@ function destroy() {
   telemetry "destroy" $1
 
   case $1 in
-    nw|network)
-      check_network
-      cd ${ONEPATH}/awsone/2-network
-      terraform destroy -auto-approve
-      unlock nw
-      ;;
-    ec2|instances)
-      cd ${ONEPATH}/awsone/3-instances
-      terraform destroy -auto-approve
-      unlock ec2
-      ;;
-    eks|eks-ec2)
-      cd ${ONEPATH}/awsone/4-cluster-eks-ec2
-      cluster_name=$(terraform output -raw cluster_name)
-      kubectl config use-context ${cluster_name}
-      cd ${ONEPATH}/awsone/8-cluster-eks-ec2-deployments
-      terraform destroy -auto-approve
-      cd ${ONEPATH}/awsone/7-scenarios-ec2
-      terraform destroy -auto-approve
-      unlock scenarios-ec2
-      cd ${ONEPATH}/awsone/4-cluster-eks-ec2
-      terraform destroy -auto-approve
-      unlock eks-ec2
-      kubectl config delete-context ${cluster_name}
-      ;;
-    eks-fg)
-      cd ${ONEPATH}/awsone/4-cluster-eks-fargate
-      cluster_name=$(terraform output -raw cluster_name)
-      kubectl config use-context ${cluster_name}
-      cd ${ONEPATH}/awsone/8-cluster-eks-fargate-deployments
-      terraform destroy -auto-approve
-      cd ${ONEPATH}/awsone/7-scenarios-fargate
-      terraform destroy -auto-approve
-      unlock scenarios-fg
-      cd ${ONEPATH}/awsone/4-cluster-eks-fargate
-      terraform destroy -auto-approve
-      unlock eks-fg
-      kubectl config delete-context ${cluster_name}
-      ;;
-    aks|all)
-      cd ${ONEPATH}/azone/4-cluster-aks
-      cluster_name=$(terraform output -raw cluster_name)
-      terraform destroy -auto-approve
-      unlock aks
-      kubectl config delete-context ${cluster_name}
+    ec2|instances|all)
+      if checklock eks-ec2 ; then
+        cd ${ONEPATH}/awsone/3-instances
+        terraform destroy -auto-approve
+        unlock ec2
+      else
+        printf '%s\n' "Configuration ec2 is not applied"
+      fi
       ;;&
-    ecs)
-      # Workaround for Terraform bug described in FAQ
-      # Delete eventually existing autoscaling groups belonging to the ecs clusters
-      asg_groups=$(aws autoscaling describe-auto-scaling-groups --region ${aws_region} | \
-        jq -r --arg aws_environment "$aws_environment-ecs-" '.AutoScalingGroups[] | select(.AutoScalingGroupName | startswith($aws_environment)) | .AutoScalingGroupName')
-      for group in ${asg_groups} ; do
-        printf '%s\n' "Deleting auto scaling group ${group}"
-        aws autoscaling delete-auto-scaling-group --auto-scaling-group-name ${group} --region ${aws_region} --force-delete
-      done
-      
-      # Delete eventually existing trendmicro scout service before cluster destroy
-      # ecs_fargate_cluster=$(aws ecs list-clusters | jq -r --arg aws_environment "$aws_environment-ecs-fargate" '.clusterArns[]' | sed 's:.*/::')
-      # if [[ "${ecs_fargate_cluster}" != "" ]] ; then
-      #   ecs_services=$(aws ecs list-services --cluster $ecs_fargate_cluster | \
-      #     jq -r --arg aws_environment "$aws_environment-ecs-fargate" '.serviceArns[] | select(. | endswith($aws_environment) | not)' | sed 's:.*/::')
-      # fi
-      # for service in "${ecs_services}" ; do
-      #   if [[ "${service}" != "" ]] ; then
-      #     printf '%s\n' "Deleting Scout service ${service}"
-      #     aws ecs delete-service --service ${service} --cluster ${ecs_fargate_cluster} --force
-      #   fi
-      # done
+    eks|eks-ec2|all)
+      if checklock eks-ec2 ; then
+        cd ${ONEPATH}/awsone/4-cluster-eks-ec2
+        cluster_name=$(terraform output -raw cluster_name)
+        kubectl config use-context ${cluster_name}
+        cd ${ONEPATH}/awsone/8-cluster-eks-ec2-deployments
+        terraform destroy -auto-approve
+        cd ${ONEPATH}/awsone/7-scenarios-ec2
+        terraform destroy -auto-approve
+        unlock scenarios-ec2
+        cd ${ONEPATH}/awsone/4-cluster-eks-ec2
+        terraform destroy -auto-approve
+        unlock eks-ec2
+        kubectl config delete-context ${cluster_name}
+      else
+        printf '%s\n' "Configuration eks-ec2 is not applied"
+      fi
+      ;;&
+    eks-fg|all)
+      if checklock eks-fg ; then
+        cd ${ONEPATH}/awsone/4-cluster-eks-fargate
+        cluster_name=$(terraform output -raw cluster_name)
+        kubectl config use-context ${cluster_name}
+        cd ${ONEPATH}/awsone/8-cluster-eks-fargate-deployments
+        terraform destroy -auto-approve
+        cd ${ONEPATH}/awsone/7-scenarios-fargate
+        terraform destroy -auto-approve
+        unlock scenarios-fg
+        cd ${ONEPATH}/awsone/4-cluster-eks-fargate
+        terraform destroy -auto-approve
+        unlock eks-fg
+        kubectl config delete-context ${cluster_name}
+      else
+        printf '%s\n' "Configuration eks-fg is not applied"
+      fi
+      ;;&
+    aks|all)
+      if checklock aks ; then
+        cd ${ONEPATH}/azone/4-cluster-aks
+        cluster_name=$(terraform output -raw cluster_name)
+        kubectl config use-context ${cluster_name}
+        cd ${ONEPATH}/azone/8-cluster-aks-deployments
+        terraform destroy -auto-approve
+        cd ${ONEPATH}/azone/4-cluster-aks
+        terraform destroy -auto-approve
+        unlock aks
+        kubectl config delete-context ${cluster_name}
+      else
+        printf '%s\n' "Configuration aks is not applied"
+      fi
+      ;;&
+    ecs|all)
+      if checklock ecs ; then
+        # Workaround for Terraform bug described in FAQ
+        # Delete eventually existing autoscaling groups belonging to the ecs clusters
+        asg_groups=$(aws autoscaling describe-auto-scaling-groups --region ${aws_region} | \
+          jq -r --arg aws_environment "$aws_environment-ecs-" '.AutoScalingGroups[] | select(.AutoScalingGroupName | startswith($aws_environment)) | .AutoScalingGroupName')
+        for group in ${asg_groups} ; do
+          printf '%s\n' "Deleting auto scaling group ${group}"
+          aws autoscaling delete-auto-scaling-group --auto-scaling-group-name ${group} --region ${aws_region} --force-delete
+        done
+        
+        # Delete eventually existing trendmicro scout service before cluster destroy
+        # ecs_fargate_cluster=$(aws ecs list-clusters | jq -r --arg aws_environment "$aws_environment-ecs-fargate" '.clusterArns[]' | sed 's:.*/::')
+        # if [[ "${ecs_fargate_cluster}" != "" ]] ; then
+        #   ecs_services=$(aws ecs list-services --cluster $ecs_fargate_cluster | \
+        #     jq -r --arg aws_environment "$aws_environment-ecs-fargate" '.serviceArns[] | select(. | endswith($aws_environment) | not)' | sed 's:.*/::')
+        # fi
+        # for service in "${ecs_services}" ; do
+        #   if [[ "${service}" != "" ]] ; then
+        #     printf '%s\n' "Deleting Scout service ${service}"
+        #     aws ecs delete-service --service ${service} --cluster ${ecs_fargate_cluster} --force
+        #   fi
+        # done
 
-      cd ${ONEPATH}/awsone/5-cluster-ecs
-      terraform destroy -auto-approve
-      unlock ecs
+        cd ${ONEPATH}/awsone/5-cluster-ecs
+        terraform destroy -auto-approve
+        unlock ecs
+      else
+        printf '%s\n' "Configuration ecs is not applied"
+      fi
+      ;;&
+    dsw|all)
+      if checklock dsm ; then
+        deep_security_delete_computers
+        cd ${ONEPATH}/awsone/9-deep-security-workload
+        terraform destroy -auto-approve
+      else
+        printf '%s\n' "Configuration dsm is not applied"
+      fi
+      ;;&
+    dsm|deepsecurity|all)
+      if checklock dsm ; then
+        cd ${ONEPATH}/awsone/9-deep-security
+        terraform destroy -auto-approve
+        unlock dsm
+      else
+        printf '%s\n' "Configuration dsm is not applied"
+      fi
+      ;;&
+    nw|network)
+      if checklock nw ; then
+        check_network
+        cd ${ONEPATH}/awsone/2-network
+        terraform destroy -auto-approve
+        unlock nw
+      else
+        printf '%s\n' "Configuration nw is not applied"
+      fi
       ;;
     scenarios|scenarios-ec2)
       cd ${ONEPATH}/awsone/7-scenarios-ec2
@@ -641,47 +709,9 @@ function destroy() {
       terraform destroy -auto-approve
       unlock scenarios-fg
       ;;
-    dsm|deepsecurity)
-      cd ${ONEPATH}/awsone/9-deep-security
-      terraform destroy -auto-approve
-      unlock dsm
-      ;;
-    dsw)
-      deep_security_delete_computers
-      cd ${ONEPATH}/awsone/9-deep-security-workload
-      terraform destroy -auto-approve
-      ;;
     kind)
       cd ${ONEPATH}/awsone/6-cluster-kind
       terraform destroy -auto-approve
-      ;;
-    all)
-      cd ${ONEPATH}/awsone/3-instances
-      terraform destroy -auto-approve
-      unlock ec2
-      cd ${ONEPATH}/awsone/7-scenarios-ec2
-      terraform destroy -auto-approve
-      unlock scenarios-ec2
-      cd ${ONEPATH}/awsone/7-scenarios-fargate
-      terraform destroy -auto-approve
-      unlock scenarios-fg
-      cd ${ONEPATH}/awsone/8-cluster-eks-ec2-deployments
-      terraform destroy -auto-approve
-      cd ${ONEPATH}/awsone/4-cluster-eks-ec2
-      terraform destroy -auto-approve
-      unlock eks-ec2
-      cd ${ONEPATH}/awsone/4-cluster-eks-fargate
-      terraform destroy -auto-approve
-      unlock eks-fg
-      cd ${ONEPATH}/awsone/5-cluster-ecs
-      terraform destroy -auto-approve
-      unlock ecs
-      deep_security_delete_computers
-      cd ${ONEPATH}/awsone/9-deep-security-workload
-      terraform destroy -auto-approve
-      cd ${ONEPATH}/awsone/9-deep-security
-      terraform destroy -auto-approve
-      unlock dsm
       ;;
   esac
 }
@@ -738,6 +768,8 @@ function output() {
     aks|all)
       if checklock aks ; then
         cd ${ONEPATH}/azone/4-cluster-aks
+        terraform output
+        cd ${ONEPATH}/azone/8-cluster-aks-deployments
         terraform output
       else
         printf '%s\n' "Configuration aks not applied"
@@ -867,6 +899,8 @@ function state() {
     aks|all)
       cd ${ONEPATH}/azone/4-cluster-aks
       terraform state list
+      cd ${ONEPATH}/azone/8-cluster-aks-deployments
+      terraform state list
       ;;&
     ecs|all)
       cd ${ONEPATH}/awsone/5-cluster-ecs
@@ -931,6 +965,8 @@ function show() {
     aks|all)
       cd ${ONEPATH}/azone/4-cluster-aks
       terraform show
+      cd ${ONEPATH}/azone/8-cluster-aks-deployments
+      terraform show
       ;;&
     ecs|all)
       cd ${ONEPATH}/awsone/5-cluster-ecs
@@ -993,6 +1029,8 @@ function validate() {
       ;;&
     aks|all)
       cd ${ONEPATH}/azone/4-cluster-aks
+      terraform validate
+      cd ${ONEPATH}/azone/8-cluster-aks-deployments
       terraform validate
       ;;&
     ecs|all)

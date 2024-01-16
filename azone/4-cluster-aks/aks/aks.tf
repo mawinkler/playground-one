@@ -49,20 +49,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 }
 
-# data "azurerm_kubernetes_cluster" "eks" {
-#   depends_on = [
-#     module.eks.eks_managed_node_groups
-#   ]
-#   name = module.eks.cluster_name
-# }
-
-# data "azurerm_kubernetes_cluster_auth" "eks" {
-#   depends_on = [
-#     module.eks.eks_managed_node_groups
-#   ]
-#   name = module.eks.cluster_name
-# }
-
 provider "kubernetes" {
   host                   = azurerm_kubernetes_cluster.aks.kube_config.0.host
   username               = azurerm_kubernetes_cluster.aks.kube_config.0.username

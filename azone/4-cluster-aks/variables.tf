@@ -1,3 +1,12 @@
+# ####################################
+# Variables
+# ####################################
+variable "subscription_id" {
+  type        = string
+  description = "The subscription ID to use."
+  default     = ""
+}
+
 variable "environment" {
   type = string
 }
@@ -18,20 +27,8 @@ variable "node_count" {
   default     = 3
 }
 
-# variable "msi_id" {
-#   type        = string
-#   description = "The Managed Service Identity ID. Set this value if you're running this example using Managed Identity as the authentication method."
-#   default     = null
-# }
-
 variable "username" {
   type        = string
   description = "The admin username for the new cluster."
   default     = "azureadmin"
-}
-
-variable "subscription_id" {
-  type        = string
-  description = "The subscription ID to use."
-  default     = ""
 }

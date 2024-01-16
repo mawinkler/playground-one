@@ -1,0 +1,25 @@
+# Subscription ID
+subscription_id = "${azure_subscription_id}"
+
+# Allow access to the environment from any location or restrict it to your public ip
+# Example:
+#   access_ip      = "<YOUR IP>/32"
+access_ip = "${pgo_access_ip}"
+
+# Environment Name
+environment = "${azure_environment}"
+
+# Vision One
+container_security = ${vision_one_cs_enabled}
+api_key            = "${vision_one_api_key}"
+cluster_policy     = "${vision_one_cs_policy}"
+
+# Calico
+calico = false  #${integrations_calico_enabled}
+
+# Trivy
+trivy = false  #${integrations_trivy_enabled}
+
+# Prometheus
+prometheus = false  #${integrations_prometheus_enabled}
+grafana_admin_password = "${integrations_prometheus_grafana_password}"
