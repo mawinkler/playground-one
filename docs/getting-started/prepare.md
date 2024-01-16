@@ -28,7 +28,21 @@ Now, run the Playground
 curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/pgo | bash && exit
 ```
 
-The bootstrapping process will exit your current terminal or shell after it has done it's work. Depending on your environment just create a new terminal session and continue with [Configuration](configuration.md).
+The bootstrapping process will exit your current terminal or shell after it has done it's work. Depending on your environment just create a new terminal session.
+
+You now need to manually authenticate to AWS and/or Azure by either running
+
+```ssh
+aws configure
+```
+
+and/or
+
+```ssh
+az login --use-device-code
+```
+
+Then, continue with [Configuration](configuration.md).
 
 ## Cloud9
 
@@ -72,3 +86,11 @@ You will be asked for your AWS credentials. They will never be stored on disk an
 If you forgot to disable AWS managed temporary credentials you will asked to do it again.
 
 The bootstrapping process will exit your current terminal or shell after it has done it's work. Depending on your environment just create a new terminal session and continue with [Configuration](configuration.md).
+
+If you want to work on Azure you now need to authenticate the `az` cli with
+
+```ssh
+az login --use-device-code
+```
+
+Then, continue with [Configuration](configuration.md).

@@ -53,6 +53,7 @@ Available configurations:
   ec2           EC2 configuration
   eks-ec2       EKS configuration
   eks-fg        EKS configuration
+  aks           AKS configuration
   ecs           ECS configurations
   kind          Kind configuration
   scenarios-ec2 Scenario configuration
@@ -67,6 +68,12 @@ Examples:
 ```
 
 ## Configure
+
+> ***Note:*** When using AWS you need to know your Account ID, for Azure you need your Subscription ID. Get these IDs using the following commands:
+>
+> `aws sts get-caller-identity | jq -r '.Account'`
+> 
+> `az account list | jq -r '.[] | [.name, .id] | @tsv'`
 
 After bootstrapping you need to configure Playground One. To simplify the process use the built in configuration tool. An eventually already existing `config.yaml` will be saved as `config.yaml.bak`. Run
 

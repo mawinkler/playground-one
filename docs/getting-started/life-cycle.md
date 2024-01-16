@@ -1,21 +1,5 @@
 # General Life-Cycle
 
-## Authentication
-
-Playground One is designed to work on Ubuntu Linux or an Ubuntu Cloud9 on AWS. If you're using Cloud9 you will get prompted for your AWS Access and Secret Key. These credentials are never stored on any disk but used to create an EC2 instance role only.
-
-If you're using a *normal* Ubuntu server you manually need to authenticate to AWS and/or Azure by either running
-
-```ssh
-aws configure
-```
-
-and/or
-
-```ssh
-az login --use-device-code
-```
-
 ## Initialize
 
 Initialize with
@@ -24,9 +8,9 @@ Initialize with
 pgo --init all
 ```
 
-This will prepare all available configurations. No changes done in the clouds yet. You only need to init once after cloning the repository.
+This will prepare all available configurations. No changes done in the clouds yet.
 
-If you have changed Playground Ones main configuration using `pgo --config` please rerun `pgo --init all` again to apply eventual changes to the configurations.
+If you have changed Playground Ones main configuration using `pgo --config` or updated it via `git pull` please rerun `pgo --init all` again to apply eventual changes to the configurations.
 
 ## Create the AWS Environment
 

@@ -344,6 +344,7 @@ function apply() {
       lock aks
       cd ${ONEPATH}/azone/4-cluster-aks
       terraform apply -auto-approve
+      $(terraform output -raw update_local_context_command)
       ;;&
     ecs|all)
       lock ecs
@@ -595,8 +596,10 @@ function destroy() {
       ;;
     aks|all)
       cd ${ONEPATH}/azone/4-cluster-aks
+      cluster_name=$(terraform output -raw cluster_name)
       terraform destroy -auto-approve
       unlock aks
+      kubectl config delete-context ${cluster_name}
       ;;&
     ecs)
       # Workaround for Terraform bug described in FAQ
