@@ -12,7 +12,7 @@ variable "environment" {
 }
 
 variable "access_ip" {
-  type = list
+  type = list(any)
 }
 
 variable "resource_group_location" {

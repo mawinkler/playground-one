@@ -371,6 +371,7 @@ function apply() {
       lock aks
       cd ${ONEPATH}/azone/4-cluster-aks
       terraform apply -auto-approve
+      # $(terraform output -raw update_local_context_command)
       KUBECONFIG=~/.kube/config:$ONEPATH/azone/4-cluster-aks/kubeconfig \
         kubectl config view --flatten > /tmp/config && \
         mv /tmp/config ~/.kube/config
@@ -649,6 +650,7 @@ function destroy() {
       if checklock aks ; then
         cd ${ONEPATH}/azone/4-cluster-aks
         cluster_name=$(terraform output -raw cluster_name)
+        cluster_username=$(terraform output -raw cluster_username)
         kubectl config use-context ${cluster_name}
         cd ${ONEPATH}/azone/8-cluster-aks-deployments
         terraform destroy -auto-approve
@@ -659,6 +661,8 @@ function destroy() {
         terraform destroy -auto-approve
         unlock aks
         kubectl config delete-context ${cluster_name}
+        kubectl config delete-cluster ${cluster_name}
+        kubectl config delete-user ${cluster_username}
       else
         printf '%s\n' "Configuration aks is not applied"
       fi
@@ -700,7 +704,7 @@ function destroy() {
         cd ${ONEPATH}/awsone/9-deep-security-workload
         terraform destroy -auto-approve
       else
-        printf '%s\n' "Configuration dsm is not applied"
+        printf '%s\n' "Configuration dsw is not applied"
       fi
       ;;&
     dsm|deepsecurity|all)
@@ -712,7 +716,7 @@ function destroy() {
         printf '%s\n' "Configuration dsm is not applied"
       fi
       ;;&
-    nw|network)
+    nw|network|all)
       if checklock nw ; then
         check_network
         cd ${ONEPATH}/awsone/2-network

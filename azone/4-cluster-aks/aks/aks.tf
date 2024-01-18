@@ -1,16 +1,11 @@
-resource "random_pet" "azurerm_kubernetes_cluster_name" {
-  prefix = "${var.resource_group_name_prefix}-aks"
-}
-
-resource "random_pet" "azurerm_kubernetes_cluster_dns_prefix" {
-  prefix = "${var.resource_group_name_prefix}-dns"
-}
-
+# #############################################################################
+# AKS Cluster
+# #############################################################################
 resource "azurerm_kubernetes_cluster" "aks" {
-  name                              = random_pet.azurerm_kubernetes_cluster_name.id
+  name                              = "${var.environment}-eks-${random_pet.pet.id}"
   location                          = azurerm_resource_group.rg.location
   resource_group_name               = azurerm_resource_group.rg.name
-  dns_prefix                        = random_pet.azurerm_kubernetes_cluster_dns_prefix.id
+  dns_prefix                        = "${var.environment}-dns-${random_pet.pet.id}"
   http_application_routing_enabled  = true
   role_based_access_control_enabled = true
 
@@ -42,8 +37,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
   #   }
 
   tags = {
-    Name          = "${var.resource_group_name_prefix}-aks-std"
-    Environment   = "${var.resource_group_name_prefix}"
+    Name          = "${var.environment}-aks-std"
+    Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "aks-std"
   }
