@@ -542,7 +542,7 @@ function ensure_kubectl() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for kubectl"
   if is_linux; then
-    if [ "${PACKAGE_MANAGER}" == "apt" ]; then
+    if [ "${PACKAGE_MANAGER}" == "apt" ] || [ "${PACKAGE_MANAGER}" == "brew" ]; then
       if ! command -v kubectl &>/dev/null; then
         printf "${RED}${BOLD}%s${RESET}\n" "Installing kubectl on linux"
         curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
@@ -554,10 +554,10 @@ function ensure_kubectl() {
         sudo apt-get upgrade -y kubectl
       fi
     fi
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      printf "${RED}${BOLD}%s${RESET}\n" "Installing kubectl on linux"
-      brew install kubernetes-cli
-    fi
+    # if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    #   printf "${RED}${BOLD}%s${RESET}\n" "Installing kubectl on linux"
+    #   brew install kubernetes-cli
+    # fi
   fi
   if is_darwin; then
     printf "${BLUE}${BOLD}%s${RESET}\n" "Installing kubectl on darwin"
