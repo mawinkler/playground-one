@@ -1,0 +1,11 @@
+#!/bin/bash
+
+pgo -i all
+pgo -a nw
+
+pgo -a ec2 & pgo -a ecs && fg
+pgo -a eks-ec2
+pgo -a eks-fg
+
+pgo -a dsm
+pgo -a dsw

@@ -1,31 +1,18 @@
 # #############################################################################
 # AKS Cluster
 # #############################################################################
-data "azurerm_resource_group" "rg" {
-  name     = "${var.environment}-rg-${random_pet.pet.id}"
-}
-
-data "azurerm_subnet" "akssubnet" {
-  name                 = "aks"
-  virtual_network_name = "${var.environment}-vnet-${random_pet.pet.id}"
-  resource_group_name  = data.azurerm_resource_group.rg.name
-}
-
-
 resource "azurerm_kubernetes_cluster" "aks" {
   name                              = "${var.environment}-eks-${random_pet.pet.id}"
   location                          = azurerm_resource_group.rg.location
   resource_group_name               = azurerm_resource_group.rg.name
   dns_prefix                        = "${var.environment}-dns-${random_pet.pet.id}"
-  # http_application_routing_enabled  = true
+  http_application_routing_enabled  = true
   role_based_access_control_enabled = true
 
   default_node_pool {
     name       = "default"
     node_count = var.node_count
     vm_size    = "Standard_D2_v2"
-    vnet_subnet_id       = data.azurerm_subnet.akssubnet.id
-    type = "VirtualMachineScaleSets"
   }
 
   identity {
@@ -34,7 +21,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   network_profile {
     network_plugin = var.network_plugin
-    load_balancer_sku = "standard"
   }
 
   linux_profile {
@@ -45,10 +31,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
-  ingress_application_gateway {
-      subnet_id = data.azurerm_subnet.appgwsubnet.id
-
-  }
+  #   network_profile {
+  #     network_plugin    = "kubenet"
+  #     load_balancer_sku = "standard"
+  #   }
 
   tags = {
     Name          = "${var.environment}-aks-std"

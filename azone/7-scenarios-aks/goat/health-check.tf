@@ -90,6 +90,7 @@ resource "kubernetes_service_v1" "health_check_service" {
     selector = {
       app = "health-check"
     }
+    # type = "ClusterIP"
     type = "NodePort"
   }
 }
@@ -110,7 +111,9 @@ resource "kubernetes_ingress_v1" "health_check_ingress" {
     namespace = var.namespace
   }
   spec {
+    # ingress_class_name = "webapprouting.kubernetes.azure.com"
     rule {
+      # host = "goat.health-check-service.cluster.local"
       http {
         path {
           backend {

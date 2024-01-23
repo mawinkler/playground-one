@@ -33,35 +33,3 @@ variable "network_plugin" {
   # default = "flannel"
   # default = "cilium"
 }
-
-#####
-
-variable "network_address_space" {
-  type        = string
-  default     = "192.168.0.0/16"
-  description = "Azure VNET Address Space"
-}
-
-variable "aks_subnet_address_name" {
-  type        = string
-  default     = "aks"
-  description = "AKS Subnet Address Name"
-}
-
-variable "aks_subnet_address_prefix" {
-  type        = string
-  default     = "192.168.0.0/24"
-  description = "AKS Subnet Address Space"
-}
-
-variable "subnet_address_name" {
-  type        = string
-  default     = "appgw"
-  description = "Subnet Address Name"
-}
-
-variable "subnet_address_prefix" {
-  type        = string
-  default     = "192.168.1.0/24"
-  description = "Subnet Address Space"
-}
