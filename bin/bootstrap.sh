@@ -165,6 +165,11 @@ function ensure_essentials() {
       sudo apt install -y jq apt-transport-https gnupg2 curl nginx apache2-utils pv unzip dialog software-properties-common
     fi
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+
+      printf "${BLUE}${BOLD}%s${RESET}\n" "Installing essential packages on linux"
+      sudo apt update
+      sudo apt install -y jq apt-transport-https gnupg2 curl nginx apache2-utils pv unzip dialog software-properties-common
+
       if ! command -v brew &>/dev/null; then
         printf "${RED}${BOLD}%s${RESET}\n" "Installing brew on linux"
 
@@ -230,16 +235,17 @@ function ensure_awscli() {
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for AWS CLI"
   if is_linux; then
     # aws cli takes ages with brew
-    if [ "${PACKAGE_MANAGER}" == "apt" ] || [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    # if [ "${PACKAGE_MANAGER}" == "apt" ] || [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    if [ "${PACKAGE_MANAGER}" == "apt" ]; then
       printf "${BLUE}${BOLD}%s${RESET}\n" "Installing AWS CLI on linux"
       curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
       unzip -q /tmp/awscliv2.zip -d /tmp
       sudo /tmp/aws/install --update
       rm -Rf /tmp/aws /tmp/awscliv2.zip
     fi
-    # if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-    #   brew install awscli
-    # fi
+    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+      brew install awscli
+    fi
   fi
   if is_darwin; then
     printf "${BLUE}${BOLD}%s${RESET}\n" "Installing AWS CLI on darwin"
@@ -781,6 +787,8 @@ function ensure_grype() {
   fi
 }
 
+exec_start=`date +%s`
+
 if [[ "${SHELL}" == *"bash"* ]]; then
   ensure_bashrc
 fi
@@ -805,4 +813,8 @@ ensure_kind
 ensure_syft
 ensure_grype
 
+exec_end=`date +%s`
+
+runtime=$((exec_end-exec_start))
+printf "${RED}${BOLD}%s${RESET}\n" "Execution time ${runtime} seconds"
 exit 0
