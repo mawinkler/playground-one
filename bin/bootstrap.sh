@@ -229,16 +229,17 @@ function ensure_awscli() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for AWS CLI"
   if is_linux; then
-    if [ "${PACKAGE_MANAGER}" == "apt" ]; then
+    # aws cli takes ages with brew
+    if [ "${PACKAGE_MANAGER}" == "apt" ] || [ "${PACKAGE_MANAGER}" == "brew" ]; then
       printf "${BLUE}${BOLD}%s${RESET}\n" "Installing AWS CLI on linux"
       curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
       unzip -q /tmp/awscliv2.zip -d /tmp
       sudo /tmp/aws/install --update
       rm -Rf /tmp/aws /tmp/awscliv2.zip
     fi
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      brew install awscli
-    fi
+    # if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    #   brew install awscli
+    # fi
   fi
   if is_darwin; then
     printf "${BLUE}${BOLD}%s${RESET}\n" "Installing AWS CLI on darwin"
@@ -276,6 +277,7 @@ function ensure_azcli() {
       sudo chmod 755 /usr/local/bin/azcopy
     fi
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+      printf "${BLUE}${BOLD}%s${RESET}\n" "Installing Azure CLI on linux"
       brew install azure-cli
     fi
   fi
@@ -400,7 +402,8 @@ function ensure_container_engine() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for container engine"
   if is_linux; then
-    if [ "${PACKAGE_MANAGER}" == "apt" ]; then
+    # No docker engine with brew
+    if [ "${PACKAGE_MANAGER}" == "apt" ] || [ "${PACKAGE_MANAGER}" == "brew" ] ; then
       if ! command -v docker &>/dev/null; then
         printf "${BLUE}${BOLD}%s${RESET}\n" "Installing Docker on linux"
         # Enable Universe and Multiverse
@@ -449,11 +452,11 @@ function ensure_container_engine() {
           sudo systemctl restart docker
       fi
     fi
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      printf "${BLUE}${BOLD}%s${RESET}\n" "Installing Docker on linux"
-      brew install docker
-      brew install docker-compose
-    fi
+    # if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    #   printf "${BLUE}${BOLD}%s${RESET}\n" "Installing Docker on linux"
+    #   brew install docker
+    #   brew install docker-compose
+    # fi
   fi
   if is_darwin; then
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
@@ -475,7 +478,8 @@ function ensure_terraform() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for terraform"
   if is_linux; then
-    if [ "${PACKAGE_MANAGER}" == "apt" ]; then
+    # Terraform with brew is version 1.5, but we need 1.6+
+    if [ "${PACKAGE_MANAGER}" == "apt" ] || [ "${PACKAGE_MANAGER}" == "brew" ]; then
       if ! command -v terraform &>/dev/null; then
         printf "${RED}${BOLD}%s${RESET}\n" "Installing terraform on linux"
         # sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
@@ -492,26 +496,10 @@ function ensure_terraform() {
         sudo apt-get upgrade -y terraform
       fi
     fi
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      # brew tap hashicorp/tap
-      # brew install hashicorp/tap/terraform
-
-      if ! command -v terraform &>/dev/null; then
-        printf "${RED}${BOLD}%s${RESET}\n" "Installing terraform on linux"
-        # sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
-        wget -O- https://apt.releases.hashicorp.com/gpg | \
-          gpg --dearmor | \
-          sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
-        echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
-          https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
-          sudo tee /etc/apt/sources.list.d/hashicorp.list
-        sudo apt update
-        sudo apt-get install terraform
-      else
-        printf "${YELLOW}%s${RESET}\n" "Terraform already installed, ensuring latest version"
-        sudo apt-get upgrade -y terraform
-      fi
-    fi
+    # if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    #   brew tap hashicorp/tap
+    #   brew install hashicorp/tap/terraform
+    # fi
   fi
   if is_darwin; then
     printf "${BLUE}${BOLD}%s${RESET}\n" "Installing Terraform on darwin"
