@@ -145,6 +145,7 @@ function ensure_playground() {
 
   # Getting Playground repo or update it
   if ! find_playground ; then
+    printf "${BLUE}${BOLD}%s${RESET}\n" "Downloading Playground One"
     git clone https://github.com/mawinkler/playground-one.git
   else
     cd ${ONEPATH}
@@ -157,11 +158,12 @@ function ensure_playground() {
 function ensure_essentials() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for essentials"
-  if [ "$(uname -s)" == "Linux" ]; then
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing essential packages on linux"
-    sudo apt update
-    sudo apt install -y jq apt-transport-https gnupg2 curl nginx apache2-utils pv unzip dialog software-properties-common
-
+  if is_linux; then
+    if [ "${PACKAGE_MANAGER}" == "apt" ]; then
+      printf "${BLUE}${BOLD}%s${RESET}\n" "Installing essential packages on linux"
+      sudo apt update
+      sudo apt install -y jq apt-transport-https gnupg2 curl nginx apache2-utils pv unzip dialog software-properties-common
+    fi
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
       if ! command -v brew &>/dev/null; then
         printf "${RED}${BOLD}%s${RESET}\n" "Installing brew on linux"
@@ -180,7 +182,7 @@ function ensure_essentials() {
       fi
     fi
   fi
-  if [ "$(uname -s)" == "Darwin" ]; then
+  if is_darwin; then
     printf "${BLUE}${BOLD}%s${RESET}\n" "Installing essential packages on darwin"
     # sudo apt update
     # sudo apt install -y jq apt-transport-https gnupg2 curl nginx apache2-utils pv unzip dialog software-properties-common
@@ -214,7 +216,7 @@ function ensure_bash() {
 
   if [ "${bash_version}" == "3" ]; then
     if [ "$(uname -s)" == "Darwin" ]; then
-      printf "${RED}${BOLD}%s${RESET}\n" "Installing bash on linux"
+      printf "${RED}${BOLD}%s${RESET}\n" "Installing bash on darwin"
       brew install bash
       brew install gnu-getopt
     fi
@@ -239,7 +241,10 @@ function ensure_awscli() {
     fi
   fi
   if is_darwin; then
-    brew install awscli
+    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing AWS CLI on darwin"
+    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+      brew install awscli
+    fi
   fi
 }
 
@@ -275,7 +280,10 @@ function ensure_azcli() {
     fi
   fi
   if is_darwin; then
-    brew install azure-cli
+    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing Azure CLI on darwin"
+    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+      brew install azure-cli
+    fi
   fi
 }
 
@@ -442,20 +450,23 @@ function ensure_container_engine() {
       fi
     fi
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+      printf "${BLUE}${BOLD}%s${RESET}\n" "Installing Docker on linux"
       brew install docker
       brew install docker-compose
     fi
   fi
   if is_darwin; then
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing Colima on darwin"
-    brew install colima
+    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+      printf "${BLUE}${BOLD}%s${RESET}\n" "Installing Colima on darwin"
+      brew install colima
 
-    if [ ! $HOME/Library/LaunchAgents/homebrew.mxcl.colima.plist ]; then
-      brew services start colima
+      if [ ! $HOME/Library/LaunchAgents/homebrew.mxcl.colima.plist ]; then
+        brew services start colima
+      fi
+
+      /opt/homebrew/opt/colima/bin/colima start
+      brew install docker
     fi
-
-    /opt/homebrew/opt/colima/bin/colima start
-    brew install docker
   fi
 
 }
@@ -478,12 +489,28 @@ function ensure_terraform() {
         sudo apt-get install terraform
       else
         printf "${YELLOW}%s${RESET}\n" "Terraform already installed, ensuring latest version"
-        # sudo apt-get upgrade -y terraform
+        sudo apt-get upgrade -y terraform
       fi
     fi
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      brew tap hashicorp/tap
-      brew install hashicorp/tap/terraform
+      # brew tap hashicorp/tap
+      # brew install hashicorp/tap/terraform
+
+      if ! command -v terraform &>/dev/null; then
+        printf "${RED}${BOLD}%s${RESET}\n" "Installing terraform on linux"
+        # sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
+        wget -O- https://apt.releases.hashicorp.com/gpg | \
+          gpg --dearmor | \
+          sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
+        echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
+          https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
+          sudo tee /etc/apt/sources.list.d/hashicorp.list
+        sudo apt update
+        sudo apt-get install terraform
+      else
+        printf "${YELLOW}%s${RESET}\n" "Terraform already installed, ensuring latest version"
+        sudo apt-get upgrade -y terraform
+      fi
     fi
   fi
   if is_darwin; then
@@ -515,10 +542,12 @@ function ensure_kubectl() {
       fi
     fi
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+      printf "${RED}${BOLD}%s${RESET}\n" "Installing kubectl on linux"
       brew install kubernetes-cli
     fi
   fi
   if is_darwin; then
+    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing kubectl on darwin"
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
       brew install kubernetes-cli
     fi
@@ -541,10 +570,12 @@ function ensure_eksctl() {
       fi
     fi
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+      printf "${RED}${BOLD}%s${RESET}\n" "Installing eksctl on linux"
       brew install eksctl
     fi
   fi
   if is_darwin; then
+    printf "${RED}${BOLD}%s${RESET}\n" "Installing eksctl on darwin"
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
       brew install eksctl
     fi
@@ -571,10 +602,12 @@ function ensure_helm() {
       fi
     fi
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+      printf "${RED}${BOLD}%s${RESET}\n" "Installing helm on linux"
       brew install helm
     fi
   fi
   if is_darwin; then
+    printf "${RED}${BOLD}%s${RESET}\n" "Installing helm on darwin"
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
       brew install helm
     fi
@@ -599,10 +632,12 @@ function ensure_kind() {
       fi
     fi
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+      printf "${RED}${BOLD}%s${RESET}\n" "Installing kind on linux"
       brew install kind
     fi
   fi
   if is_darwin; then
+    printf "${RED}${BOLD}%s${RESET}\n" "Installing kind on darwin"
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
       brew install kind
     fi
@@ -625,10 +660,12 @@ function ensure_k9s() {
       fi
     fi
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+      printf "${RED}${BOLD}%s${RESET}\n" "Installing k9s on linux"
       brew install k9s
     fi
   fi
   if is_darwin; then
+    printf "${RED}${BOLD}%s${RESET}\n" "Installing k9s on darwin"
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
       brew install k9s
     fi
@@ -651,10 +688,12 @@ function ensure_stern() {
       fi
     fi
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+      printf "${RED}${BOLD}%s${RESET}\n" "Installing stern on linux"
       brew install stern
     fi
   fi
   if is_darwin; then
+    printf "${RED}${BOLD}%s${RESET}\n" "Installing stern on darwin"
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
       brew install stern
     fi
@@ -676,11 +715,13 @@ function ensure_yq_jq() {
       fi
     fi
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+      printf "${RED}${BOLD}%s${RESET}\n" "Installing yq and jq on linux"
       brew install yq
       brew install jq
     fi
   fi
   if is_darwin; then
+    printf "${RED}${BOLD}%s${RESET}\n" "Installing yq and jq on darwin"
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
       brew install yq
       brew install jq
@@ -708,10 +749,12 @@ function ensure_syft() {
       # fi
     fi
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+      printf "${RED}${BOLD}%s${RESET}\n" "Installing syft on linux"
       brew install syft
     fi
   fi
   if is_darwin; then
+    printf "${RED}${BOLD}%s${RESET}\n" "Installing syft on darwin"
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
       brew install syft
     fi
@@ -738,10 +781,12 @@ function ensure_grype() {
       # fi
     fi
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+      printf "${RED}${BOLD}%s${RESET}\n" "Installing grype on linux"
       brew install grype
     fi
   fi
   if is_darwin; then
+    printf "${RED}${BOLD}%s${RESET}\n" "Installing grype on darwin"
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
       brew install grype
     fi
