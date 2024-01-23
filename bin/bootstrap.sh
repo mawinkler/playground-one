@@ -217,6 +217,8 @@ function ensure_essentials() {
           echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/${USER}/.bashrc
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
         fi
+        # This is kind of mandatory
+        grew install gcc
       else
         printf "${YELLOW}%s${RESET}\n" "Brew already installed, updating packages"
         brew update
@@ -253,8 +255,8 @@ function ensure_awscli() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for AWS CLI"
   if is_linux; then
-    # aws cli takes ages with brew
-    if [ "${PACKAGE_MANAGER}" == "apt" ] || [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    # if [ "${PACKAGE_MANAGER}" == "apt" ] || [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    if [ "${PACKAGE_MANAGER}" == "apt" ]; then
       # if [ "${PACKAGE_MANAGER}" == "apt" ]; then
       printf "${BLUE}${BOLD}%s${RESET}\n" "Installing AWS CLI on linux"
       curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
@@ -262,9 +264,9 @@ function ensure_awscli() {
       sudo /tmp/aws/install --update
       rm -Rf /tmp/aws /tmp/awscliv2.zip
     fi
-    # if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-    #   brew install awscli
-    # fi
+    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+      brew install awscli
+    fi
   fi
   if is_darwin; then
     printf "${BLUE}${BOLD}%s${RESET}\n" "Installing AWS CLI on darwin"
@@ -278,7 +280,8 @@ function ensure_azcli() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for Azure CLI"
   if is_linux; then
-    if [ "${PACKAGE_MANAGER}" == "apt" ] || [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    # if [ "${PACKAGE_MANAGER}" == "apt" ] || [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    if [ "${PACKAGE_MANAGER}" == "apt" ]; then
       printf "${BLUE}${BOLD}%s${RESET}\n" "Installing Azure CLI on linux"
       sudo mkdir -p /etc/apt/keyrings
       curl -sLS https://packages.microsoft.com/keys/microsoft.asc |
@@ -301,10 +304,10 @@ function ensure_azcli() {
       rm -rf /tmp/azcopy*
       sudo chmod 755 /usr/local/bin/azcopy
     fi
-    # if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-    #   printf "${BLUE}${BOLD}%s${RESET}\n" "Installing Azure CLI on linux"
-    #   brew install azure-cli
-    # fi
+    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+      printf "${BLUE}${BOLD}%s${RESET}\n" "Installing Azure CLI on linux"
+      brew install azure-cli
+    fi
   fi
   if is_darwin; then
     printf "${BLUE}${BOLD}%s${RESET}\n" "Installing Azure CLI on darwin"
@@ -542,7 +545,8 @@ function ensure_kubectl() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for kubectl"
   if is_linux; then
-    if [ "${PACKAGE_MANAGER}" == "apt" ] || [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    # if [ "${PACKAGE_MANAGER}" == "apt" ] || [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    if [ "${PACKAGE_MANAGER}" == "apt" ]; then
       if ! command -v kubectl &>/dev/null; then
         printf "${RED}${BOLD}%s${RESET}\n" "Installing kubectl on linux"
         curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
@@ -554,10 +558,10 @@ function ensure_kubectl() {
         sudo apt-get upgrade -y kubectl
       fi
     fi
-    # if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-    #   printf "${RED}${BOLD}%s${RESET}\n" "Installing kubectl on linux"
-    #   brew install kubernetes-cli
-    # fi
+    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+      printf "${RED}${BOLD}%s${RESET}\n" "Installing kubectl on linux"
+      brew install kubernetes-cli
+    fi
   fi
   if is_darwin; then
     printf "${BLUE}${BOLD}%s${RESET}\n" "Installing kubectl on darwin"
@@ -717,7 +721,8 @@ function ensure_yq_jq() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for yq and jq"
   if is_linux; then
-    if [ "${PACKAGE_MANAGER}" == "apt" ] || [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    # if [ "${PACKAGE_MANAGER}" == "apt" ] || [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    if [ "${PACKAGE_MANAGER}" == "apt" ]; then
       if ! command -v yq &>/dev/null; then
         printf "${RED}${BOLD}%s${RESET}\n" "Installing yq on linux"
         curl -Lo yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && \
@@ -727,11 +732,11 @@ function ensure_yq_jq() {
         printf "${YELLOW}%s${RESET}\n" "Yq already installed"
       fi
     fi
-    # if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-    #   printf "${RED}${BOLD}%s${RESET}\n" "Installing yq and jq on linux"
-    #   brew install yq
-    #   brew install jq
-    # fi
+    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+      printf "${RED}${BOLD}%s${RESET}\n" "Installing yq and jq on linux"
+      brew install yq
+      brew install jq
+    fi
   fi
   if is_darwin; then
     printf "${RED}${BOLD}%s${RESET}\n" "Installing yq and jq on darwin"
