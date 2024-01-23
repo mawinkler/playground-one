@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # if [ "$ONEPATH" == "" ]; then
 #   echo ONEPATH not set
@@ -75,7 +75,7 @@ function is_eks() {
 #   false: if not EC2
 #######################################
 function is_ec2() {
-  if [[ $(curl -sS http://169.254.169.254/latest/meta-data/instance-id 2> /dev/null) =~ i-* ]]; then
+  if [[ $(curl -sS -m 1 http://169.254.169.254/latest/meta-data/instance-id 2> /dev/null) =~ i-* ]]; then
     return
   fi
   false
@@ -438,12 +438,19 @@ function telemetry() {
   telemetry_action=$1
   telemetry_configuration=$2
 
+  if is_darwin; then
+    unix_timestamp=$(date -u +%s)
+    account_id_hash=$(echo -n ${aws_account_id} | shasum -a 256 | cut -d " " -f1)
+  else
+    unix_timestamp=$(date --utc +%s)
+    account_id_hash=$(echo -n ${aws_account_id} | sha256sum | cut -d " " -f1)
+  fi
   curl -X POST "${api_url}/telemetry" \
     -H 'Content-Type: application/json' \
     -d '
   {
-      "exec_time": "'$(date --utc +%s)'",
-      "account_id": "'$(echo -n ${aws_account_id} | sha256sum | cut -d " " -f1)'",
+      "exec_time": "'${unix_timestamp}'",
+      "account_id": "'${account_id_hash}'",
       "environment": "'${aws_environment}'",
       "region": "'${aws_region}'",
       "action": "'${telemetry_action}'",

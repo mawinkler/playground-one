@@ -1,4 +1,4 @@
-#?/bin/bash
+#!/usr/bin/env bash
 
 instanceid=${INSTANCE:-none}
 if [ "${instanceid}" == "none" ] || [ "$1" == "help" ]; then

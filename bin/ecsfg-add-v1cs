@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
 [ -z "$1" ] && { printf '%s\n' "Clustername required"; exit 0; }
 
 cluster=${1}

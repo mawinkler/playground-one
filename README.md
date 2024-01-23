@@ -43,6 +43,7 @@ Component         | Operational | Vision One Cloud Security
 TMAS              | Yes         | Artifact Scanning for Vulnerabilities and Malware
 TMFS              | Yes         | File and Directory Scanning for Malware
 Workload Security | Yes         | V1 Server & Workload Protection
+Kind Kubernetes   | In progress |
 
 ***Documentation***
 

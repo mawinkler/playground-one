@@ -1,4 +1,4 @@
-#?/bin/bash
+#!/usr/bin/env bash
 
 lambda=${LAMBDA:-none}
 if [ "${lambda}" == "none" ] || [ "$1" == "help" ]; then

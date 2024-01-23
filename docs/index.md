@@ -25,6 +25,10 @@ In a nutshell:
 
 ## Change Log
 
+01/23/2024
+
+- Playground One starts to support Intel and M1+ MacOS as host platform.
+
 01/16/2024
 
 - Playground One starts to support AKS and V1CS on Azure.
@@ -55,6 +59,7 @@ The Playground One is designed to work with AWS and is tested these operating sy
 
 - Ubuntu Bionic and newer
 - Cloud9 with Ubuntu
+- Intel and M1+ MacOS (likely older versions as well)
 
 ## System Health
 
@@ -90,6 +95,7 @@ Component         | Operational | Known Issues | Vision One Cloud Security
 TMAS              | Yes         | None         | Artifact Scanning for Vulnerabilities and Malware
 TMFS              | Yes         | None         | File and Directory Scanning for Malware
 Workload Security | Yes         | None         | V1 Server & Workload Protection
+Kind Kubernetes   | In progress | None         |
 
 ## CLI Commands of the Playground
 

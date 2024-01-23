@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 DIALOG_CANCEL=1
 DIALOG_ESC=255

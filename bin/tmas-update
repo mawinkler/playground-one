@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
 tmasdir=/usr/local/bin
 [ -f ${tmasdir}/tmas ] && [ -z "$(tmas version 2>&1 | grep 'A new version is available')" ] && \
   { echo tmas is latest; } || \

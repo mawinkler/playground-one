@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -e
 
@@ -13,10 +13,12 @@ else
 fi
 
 # Check for dialog
-DIALOG_INSTALLED=$(apt -qq list dialog 2>/dev/null)
-if [[ "$DIALOG_INSTALLED" != *"installed"* ]]; then
-  sudo apt update
-  sudo apt install -y dialog
+if is_linux; then
+  DIALOG_INSTALLED=$(apt -qq list dialog 2>/dev/null)
+  if [[ "$DIALOG_INSTALLED" != *"installed"* ]]; then
+    sudo apt update
+    sudo apt install -y dialog
+  fi
 fi
 
 # Bootstrap
@@ -1115,6 +1117,31 @@ function validate() {
   esac
 }
 
+#######################################
+# Controls Colima on Darwin
+# Globals:
+#   None
+# Arguments:
+#   enable|disable
+# Outputs:
+#   None
+#######################################
+function colima-service() {
+
+  telemetry "colima-service" $1
+
+  case $1 in
+    enable|true)
+      # brew services start colima
+      colima start
+      ;;
+    disable|false)
+      # brew services stop colima
+      colima stop
+      ;;
+  esac
+}
+
 function helpcmd() {
 
   printf '%s\n' "Usage: pgo -<command> <configuration> ..."
@@ -1171,11 +1198,17 @@ if [ -f ${ONEPATH}/config.yaml ]; then
   get_config
 fi
 
-TEMP=$(getopt -o ci:a:ld:o:s:S:v:uh --long config,init:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help -- "$@")
-if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+if is_darwin; then
+  TEMP=$(/opt/homebrew/opt/gnu-getopt/bin/getopt -o ci:a:ld:o:s:S:v:uhC: --long config,init:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help,colima: -- "$@")
+  if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 
-eval set -- "$TEMP"
+  eval set -- "$TEMP"
+else
+  TEMP=$(getopt -o ci:a:ld:o:s:S:v:uh --long config,init:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help -- "$@")
+  if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 
+  eval set -- "$TEMP"
+fi
 # # Check if IP address changed
 # configured_cidr=${pgo_access_ip//[\[\]\"]/}
 # current_cidr=$(curl -s ifconfig.me && echo)'/32'
@@ -1198,6 +1231,7 @@ while true; do
     -v | --validate ) validate $2; shift 2 ;;
     -u | --updateip ) update_ip; break ;;
     -h | --help ) helpcmd; break ;;
+    -C | --colima ) colima-service $2; shift 2 ;;
     -- ) shift; break ;;
     * ) break ;;
   esac

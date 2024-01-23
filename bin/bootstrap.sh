@@ -1,7 +1,15 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -e
 #o errexit
+
+# Source helpers
+if [ -f $ONEPATH/bin/playground-helpers.sh ]; then
+  .  $ONEPATH/bin/playground-helpers.sh
+else
+  curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/playground-helpers.sh -o /tmp/playground-helpers.sh
+  . /tmp/playground-helpers.sh
+fi
 
 if [ -z "$1" ]; then
   CURRENT_PATH=$(pwd)
@@ -29,7 +37,12 @@ OS="$(uname)"
 # Allowed values:
 #   apt
 #   brew
-PACKAGE_MANAGER="apt"
+if is_linux; then
+  PACKAGE_MANAGER="apt"
+fi
+if is_darwin; then
+  PACKAGE_MANAGER="brew"
+fi
 
 # Repo
 REPO=https://raw.githubusercontent.com/mawinkler/playground-one/main
@@ -42,6 +55,7 @@ function find_playground() {
 }
 
 function ensure_bashrc() {
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Checking .bashrc"
   if ! find_playground ; then
     if [ ! -f "$HOME/.bashrc" ]; then
       echo 'creating .bashrc'
@@ -90,11 +104,44 @@ function ensure_bashrc() {
     export ONEPATH=${CURRENT_PATH}/playground-one
     export PATH==${ONEPATH}/bin:$PATH
   else
-    echo "playground already installed in ${ONEPATH}"
+    echo "Playground One already installed in ${ONEPATH}"
+  fi
+}
+
+function ensure_zshrc() {
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Checking .zshrc"
+  if ! find_playground ; then
+    if [ ! -f "$HOME/.zshrc" ]; then
+      echo 'creating .zshrc'
+      touch $HOME/.zshrc
+    fi
+
+    if [[ ":$PATH:" == *"playground"* ]]; then
+      echo 'playground-one already in $PATH'
+    else
+      echo 'adding playground-one to $PATH'
+      echo "export ONEPATH=${CURRENT_PATH}/playground-one" >> $HOME/.zshrc
+      echo 'export PATH=${ONEPATH}/bin:$PATH' >> $HOME/.zshrc
+    fi
+
+    if [ -z "$(grep '/bash_aliases' $HOME/.zshrc)" ]; then
+      echo 'if [ -f ${ONEPATH}/bash_aliases ]; then' >> $HOME/.zshrc
+      echo '  . ${ONEPATH}/bash_aliases' >> $HOME/.zshrc
+      echo 'fi' >> $HOME/.zshrc
+    fi
+
+    source $HOME/.zshrc
+
+    # FIXME: why does the source from above not work?
+    export ONEPATH=${CURRENT_PATH}/playground-one
+    export PATH==${ONEPATH}/bin:$PATH
+  else
+    echo "Playground One already installed in ${ONEPATH}"
   fi
 }
 
 function ensure_playground() {
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Checking Playground One"
 
   # Getting Playground repo or update it
   if ! find_playground ; then
@@ -107,68 +154,123 @@ function ensure_playground() {
   .  $ONEPATH/bin/playground-helpers.sh
 }
 
-# Installing essentials
 function ensure_essentials() {
 
-  printf "${BLUE}${BOLD}%s${RESET}\n" "Installing essential packages on linux"
-  sudo apt update
-  sudo apt install -y jq apt-transport-https gnupg2 curl nginx apache2-utils pv unzip dialog software-properties-common
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for essentials"
+  if [ "$(uname -s)" == "Linux" ]; then
+    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing essential packages on linux"
+    sudo apt update
+    sudo apt install -y jq apt-transport-https gnupg2 curl nginx apache2-utils pv unzip dialog software-properties-common
 
-  if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-    if ! command -v brew &>/dev/null; then
-      printf "${RED}${BOLD}%s${RESET}\n" "Installing brew on linux"
+    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+      if ! command -v brew &>/dev/null; then
+        printf "${RED}${BOLD}%s${RESET}\n" "Installing brew on linux"
 
-      # Installing homebrew
-      NONINTERACTIVE=1 curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | bash
+        # Installing homebrew
+        NONINTERACTIVE=1 curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | bash
 
-      if [ -z "$(grep '$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)' .bashrc)" ]; then
-        echo '# Set PATH, MANPATH, etc., for Homebrew.' >> /home/${USER}/.bashrc
-        echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/${USER}/.bashrc
-        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        if [ -z "$(grep '$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)' .bashrc)" ]; then
+          echo '# Set PATH, MANPATH, etc., for Homebrew.' >> /home/${USER}/.bashrc
+          echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/${USER}/.bashrc
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        fi
+      else
+        printf "${YELLOW}%s${RESET}\n" "Brew already installed, updating packages"
+        brew update
       fi
-    else
-      printf "${YELLOW}%s${RESET}\n" "Brew already installed, updating packages"
-      brew update
     fi
+  fi
+  if [ "$(uname -s)" == "Darwin" ]; then
+    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing essential packages on darwin"
+    # sudo apt update
+    # sudo apt install -y jq apt-transport-https gnupg2 curl nginx apache2-utils pv unzip dialog software-properties-common
+
+    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+      if ! command -v brew &>/dev/null; then
+        printf "${RED}${BOLD}%s${RESET}\n" "Installing brew on linux"
+
+        # Installing homebrew
+        NONINTERACTIVE=1 curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | bash
+
+        if [ -z "$(grep '$(/opt/homebrew/bin/brew shellenv)' .zshrc)" ]; then
+          echo '# Set PATH, MANPATH, etc., for Homebrew.' >> ${HOME}/.zshrc
+          (echo; echo 'eval "$(/opt/homebrew/bin/brew shellenv)"') >> /Users/markus_winkler/.zprofile
+          eval "$(/opt/homebrew/bin/brew shellenv)"
+        fi
+      else
+        printf "${YELLOW}%s${RESET}\n" "Brew already installed, updating packages"
+        brew update
+      fi
+      # brew install gcc
+    fi
+  fi
+}
+
+function ensure_bash() {
+
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for bash version"
+
+  bash_version=$(bash --version | head -n 1 | cut -d' ' -f4 | cut -d'.' -f1)
+
+  if [ "${bash_version}" == "3" ]; then
+    if [ "$(uname -s)" == "Darwin" ]; then
+      printf "${RED}${BOLD}%s${RESET}\n" "Installing bash on linux"
+      brew install bash
+      brew install gnu-getopt
+    fi
+  else
+    echo V5
   fi
 }
 
 function ensure_awscli() {
 
-  printf "${BLUE}${BOLD}%s${RESET}\n" "Installing aws CLI on linux"
-  curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
-  unzip /tmp/awscliv2.zip -d /tmp
-  sudo /tmp/aws/install --update
-  rm -Rf /tmp/aws /tmp/awscliv2.zip
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for AWS CLI"
+  if is_linux; then
+    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing AWS CLI on linux"
+    curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
+    unzip /tmp/awscliv2.zip -d /tmp
+    sudo /tmp/aws/install --update
+    rm -Rf /tmp/aws /tmp/awscliv2.zip
 
-  curl -fsSL "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-  sudo mv /tmp/eksctl /usr/local/bin
-  rm -Rf /tmp/eksctl
+    curl -fsSL "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+    sudo mv /tmp/eksctl /usr/local/bin
+    rm -Rf /tmp/eksctl
+  fi
+  if is_darwin; then
+    brew install awscli
+  fi
 }
 
 function ensure_azcli() {
 
-  printf "${BLUE}${BOLD}%s${RESET}\n" "Installing az CLI on linux"
-  sudo mkdir -p /etc/apt/keyrings
-  curl -sLS https://packages.microsoft.com/keys/microsoft.asc |
-      gpg --dearmor |
-      sudo tee /etc/apt/keyrings/microsoft.gpg > /dev/null
-  sudo chmod go+r /etc/apt/keyrings/microsoft.gpg
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for Azure CLI"
+  if is_linux; then
+    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing Azure CLI on linux"
+    sudo mkdir -p /etc/apt/keyrings
+    curl -sLS https://packages.microsoft.com/keys/microsoft.asc |
+        gpg --dearmor |
+        sudo tee /etc/apt/keyrings/microsoft.gpg > /dev/null
+    sudo chmod go+r /etc/apt/keyrings/microsoft.gpg
 
-  AZ_DIST=$(lsb_release -cs)
-  echo "deb [arch=`dpkg --print-architecture` signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/azure-cli/ $AZ_DIST main" |
-      sudo tee /etc/apt/sources.list.d/azure-cli.list
-      
-  # echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-$(lsb_release -cs)-prod $(lsb_release -cs) main" | \
-  #     sudo tee /etc/apt/sources.list.d/dotnetdev.list
+    AZ_DIST=$(lsb_release -cs)
+    echo "deb [arch=`dpkg --print-architecture` signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/azure-cli/ $AZ_DIST main" |
+        sudo tee /etc/apt/sources.list.d/azure-cli.list
+        
+    # echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-$(lsb_release -cs)-prod $(lsb_release -cs) main" | \
+    #     sudo tee /etc/apt/sources.list.d/dotnetdev.list
 
-  sudo apt update
-  sudo apt install -y azure-cli azure-functions-core-tools-4
+    sudo apt update
+    sudo apt install -y azure-cli azure-functions-core-tools-4
 
-  curl -fsSL https://aka.ms/downloadazcopy-v10-linux | tar xz --strip-components=1 -C /tmp
-  sudo mv /tmp/azcopy /usr/local/bin
-  rm -rf /tmp/azcopy*
-  sudo chmod 755 /usr/local/bin/azcopy
+    curl -fsSL https://aka.ms/downloadazcopy-v10-linux | tar xz --strip-components=1 -C /tmp
+    sudo mv /tmp/azcopy /usr/local/bin
+    rm -rf /tmp/azcopy*
+    sudo chmod 755 /usr/local/bin/azcopy
+  fi
+  if is_darwin; then
+    brew install azure-cli
+  fi
 }
 
 function query_aws_keys() {
@@ -185,7 +287,9 @@ function query_aws_keys() {
 function ensure_ec2_instance_role() {
   # Are we bootstrapping an EC2 intance (e.g. Cloud9), we need an instance role
 
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for EC2 instance"
   if is_ec2 ; then
+    printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for EC2 instance role"
     # Checking instance role
     if [[ $(aws sts get-caller-identity --query Arn 2> /dev/null | grep assumed-role) =~ "ekscluster" ]]; then
       echo Instance role set
@@ -278,84 +382,80 @@ function ensure_ec2_instance_role() {
   fi
 }
 
-function ensure_docker() {
-  if ! command -v docker &>/dev/null; then
-    if [ "${OS}" == 'Linux' ]; then
-      # Enable Universe and Multiverse
-      sudo add-apt-repository universe
-      sudo add-apt-repository multiverse
-      sudo apt update
-      sudo apt install -y \
-        apt-transport-https ca-certificates curl \
-        gnupg-agent software-properties-common
+function ensure_container_engine() {
 
-      # Add Docker’s official GPG key:
-      curl -fsSL \
-        https://download.docker.com/linux/ubuntu/gpg | \
-        sudo apt-key add -
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for container engine"
+  if is_linux; then
+    if ! command -v docker &>/dev/null; then
+      if is_linux; then
+        printf "${BLUE}${BOLD}%s${RESET}\n" "Installing Docker on linux"
+        # Enable Universe and Multiverse
+        sudo add-apt-repository universe
+        sudo add-apt-repository multiverse
+        sudo apt update
+        sudo apt install -y \
+          apt-transport-https ca-certificates curl \
+          gnupg-agent software-properties-common
 
-      # Docker stable repository
-      sudo add-apt-repository \
-        "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
-        $(lsb_release -cs) \
-        stable"
+        # Add Docker’s official GPG key:
+        curl -fsSL \
+          https://download.docker.com/linux/ubuntu/gpg | \
+          sudo apt-key add -
 
-      # Install Docker
-      sudo apt-get update
-      sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-      sudo usermod -aG docker $(whoami)
+        # Docker stable repository
+        sudo add-apt-repository \
+          "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+          $(lsb_release -cs) \
+          stable"
 
-      # Allow insecure registries
-      # FIXME: check if already configured. If not merge not replace
-      sudo mkdir -p /etc/docker
-      sudo touch /etc/docker/daemon.json && \
-        sudo cp /etc/docker/daemon.json /etc/docker/daemon.json.backup && \
-        echo '{"insecure-registries": ["172.250.255.1","172.250.255.2","172.250.255.3","172.250.255.4","172.250.255.5","172.250.255.1:5000","172.250.255.2:5000","172.250.255.3:5000","172.250.255.4:5000","172.250.255.5:5000"]}' > /tmp/daemon.json && \
-        sudo mv /tmp/daemon.json /etc/docker/daemon.json && \
-        sudo systemctl restart docker
-    fi
-  else
-    if [ "${OS}" == 'Linux' ]; then
-      printf "${RED}${BOLD}%s${RESET}\n" "Upgrading docker on linux"
-      sudo apt upgrade -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+        # Install Docker
+        sudo apt-get update
+        sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+        sudo usermod -aG docker $(whoami)
 
-      # Allow insecure registries
-      # FIXME: check if already configured. If not merge not replace
-      sudo mkdir -p /etc/docker
-      sudo touch /etc/docker/daemon.json && \
-        sudo cp /etc/docker/daemon.json /etc/docker/daemon.json.backup && \
-        echo '{"insecure-registries": ["172.250.255.1","172.250.255.2","172.250.255.3","172.250.255.4","172.250.255.5","172.250.255.1:5000","172.250.255.2:5000","172.250.255.3:5000","172.250.255.4:5000","172.250.255.5:5000"]}' > /tmp/daemon.json && \
-        sudo mv /tmp/daemon.json /etc/docker/daemon.json && \
-        sudo systemctl restart docker
+        # Allow insecure registries
+        # FIXME: check if already configured. If not merge not replace
+        sudo mkdir -p /etc/docker
+        sudo touch /etc/docker/daemon.json && \
+          sudo cp /etc/docker/daemon.json /etc/docker/daemon.json.backup && \
+          echo '{"insecure-registries": ["172.250.255.1","172.250.255.2","172.250.255.3","172.250.255.4","172.250.255.5","172.250.255.1:5000","172.250.255.2:5000","172.250.255.3:5000","172.250.255.4:5000","172.250.255.5:5000"]}' > /tmp/daemon.json && \
+          sudo mv /tmp/daemon.json /etc/docker/daemon.json && \
+          sudo systemctl restart docker
+      fi
+    else
+      if if_linux; then
+        printf "${RED}${BOLD}%s${RESET}\n" "Upgrading docker on linux"
+        sudo apt upgrade -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+        # Allow insecure registries
+        # FIXME: check if already configured. If not merge not replace
+        sudo mkdir -p /etc/docker
+        sudo touch /etc/docker/daemon.json && \
+          sudo cp /etc/docker/daemon.json /etc/docker/daemon.json.backup && \
+          echo '{"insecure-registries": ["172.250.255.1","172.250.255.2","172.250.255.3","172.250.255.4","172.250.255.5","172.250.255.1:5000","172.250.255.2:5000","172.250.255.3:5000","172.250.255.4:5000","172.250.255.5:5000"]}' > /tmp/daemon.json && \
+          sudo mv /tmp/daemon.json /etc/docker/daemon.json && \
+          sudo systemctl restart docker
+      fi
     fi
   fi
-}
+  if is_darwin; then
+    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing Colima on darwin"
+    brew install colima
 
-function ensure_formulae () {
-  printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for gcc"
-  brew install gcc
-  # brew install awscli
-  # brew install azure-cli
-  # FIXME 4 Linux: brew install --cask google-cloud-sdk
-  printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for kubectl"
-  brew install kubernetes-cli
-  # brew install eksctl
-  printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for kustomize"
-  brew install kustomize
-  printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for helm"
-  brew install helm
-  printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for k9s"
-  brew install k9s
-  printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for stern"
-  brew install stern
-  printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for krew"
-  brew install krew
+    if [ ! $HOME/Library/LaunchAgents/homebrew.mxcl.colima.plist ]; then
+      brew services start colima
+    fi
+
+    /opt/homebrew/opt/colima/bin/colima start
+    brew install docker
+  fi
+
 }
 
 function ensure_terraform() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for terraform"
-  # if ! is_ec2 ; then
+  if is_linux; then
     if ! command -v terraform &>/dev/null; then
       printf "${RED}${BOLD}%s${RESET}\n" "Installing terraform on linux"
       # sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
@@ -371,212 +471,227 @@ function ensure_terraform() {
       printf "${YELLOW}%s${RESET}\n" "Terraform already installed, ensuring latest version"
       # sudo apt-get upgrade -y terraform
     fi
-  # fi
+  fi
+  if is_darwin; then
+    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing Terraform on darwin"
+    # sudo apt update
+    # sudo apt install -y jq apt-transport-https gnupg2 curl nginx apache2-utils pv unzip dialog software-properties-common
+
+    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+      brew tap hashicorp/tap
+      brew install hashicorp/tap/terraform
+    fi
+  fi
 }
 
 function ensure_kubectl() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for kubectl"
-  if ! command -v kubectl &>/dev/null; then
-    printf "${RED}${BOLD}%s${RESET}\n" "Installing kubectl on linux"
-    curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
-      echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list && \
-      sudo apt-get update && \
-      sudo apt-get install -y kubectl
-  else
-    printf "${YELLOW}%s${RESET}\n" "Kubectl already installed, ensuring latest version"
-    sudo apt-get upgrade -y kubectl
+  if is_linux; then
+    if ! command -v kubectl &>/dev/null; then
+      printf "${RED}${BOLD}%s${RESET}\n" "Installing kubectl on linux"
+      curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
+        echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list && \
+        sudo apt-get update && \
+        sudo apt-get install -y kubectl
+    else
+      printf "${YELLOW}%s${RESET}\n" "Kubectl already installed, ensuring latest version"
+      sudo apt-get upgrade -y kubectl
+    fi
+  fi
+  if is_darwin; then
+    brew install kubernetes-cli
   fi
 }
 
 function ensure_eksctl() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for eksctl"
-  if ! command -v eksctl &>/dev/null; then
-    printf "${RED}${BOLD}%s${RESET}\n" "Installing eksctl on linux"
-    curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-    sudo mv /tmp/eksctl /usr/local/bin
-  else
-    printf "${YELLOW}%s${RESET}\n" "Eksctl already installed, ensuring latest version"
-    curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-    sudo mv /tmp/eksctl /usr/local/bin
+  if is_linux; then
+    if ! command -v eksctl &>/dev/null; then
+      printf "${RED}${BOLD}%s${RESET}\n" "Installing eksctl on linux"
+      curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+      sudo mv /tmp/eksctl /usr/local/bin
+    else
+      printf "${YELLOW}%s${RESET}\n" "Eksctl already installed, ensuring latest version"
+      curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+      sudo mv /tmp/eksctl /usr/local/bin
+    fi
+  fi
+  if is_darwin; then
+    brew install eksctl
   fi
 }
-
-# function ensure_kustomize() {
-
-#   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for kustomize"
-#   if ! command -v kustomize &>/dev/null; then
-#     printf "${RED}${BOLD}%s${RESET}\n" "Installing kustomize on linux"
-#     curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash && \
-#       sudo mv ./kustomize /usr/local/bin
-#   else
-#     printf "${YELLOW}%s${RESET}\n" "Kustomize already installed, ensuring latest version"
-#     printf "${RED}${BOLD}%s${RESET}\n" "Upgrading kustomize on linux"
-#     curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash && \
-#       sudo mv ./kustomize /usr/local/bin
-#   fi
-# }
 
 function ensure_helm() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for helm"
-  if ! command -v helm &>/dev/null; then
-    printf "${RED}${BOLD}%s${RESET}\n" "Installing helm on linux"
-    curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 && \
-      chmod 700 get_helm.sh && \
-      ./get_helm.sh
-      rm -f ./get_helm.sh
-  else
-    printf "${YELLOW}%s${RESET}\n" "Helm already installed, ensuring latest version"
-    curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 && \
-      chmod 700 get_helm.sh && \
-      ./get_helm.sh
-      rm -f ./get_helm.sh
+  if is_linux; then
+    if ! command -v helm &>/dev/null; then
+      printf "${RED}${BOLD}%s${RESET}\n" "Installing helm on linux"
+      curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 && \
+        chmod 700 get_helm.sh && \
+        ./get_helm.sh
+        rm -f ./get_helm.sh
+    else
+      printf "${YELLOW}%s${RESET}\n" "Helm already installed, ensuring latest version"
+      curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 && \
+        chmod 700 get_helm.sh && \
+        ./get_helm.sh
+        rm -f ./get_helm.sh
+    fi
+  fi
+  if is_darwin; then
+    brew install helm
   fi
 }
 
 function ensure_kind() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for kind"
-  if ! command -v kind &>/dev/null; then
-    printf "${RED}${BOLD}%s${RESET}\n" "Installing kind on linux"
-    curl -fsSLo ./kind "https://kind.sigs.k8s.io/dl/v0.20.0/kind-$(uname)-amd64"
-    chmod +x ./kind
-    sudo mv kind /usr/local/bin/
-  else
-    printf "${YELLOW}%s${RESET}\n" "Kind already installed, ensuring version 0.17.0"
-    curl -fsSLo ./kind "https://kind.sigs.k8s.io/dl/v0.20.0/kind-$(uname)-amd64"
-    chmod +x ./kind
-    sudo mv kind /usr/local/bin/
+  if is_linux; then
+    if ! command -v kind &>/dev/null; then
+      printf "${RED}${BOLD}%s${RESET}\n" "Installing kind on linux"
+      curl -fsSLo ./kind "https://kind.sigs.k8s.io/dl/v0.20.0/kind-$(uname)-amd64"
+      chmod +x ./kind
+      sudo mv kind /usr/local/bin/
+    else
+      printf "${YELLOW}%s${RESET}\n" "Kind already installed, ensuring version 0.17.0"
+      curl -fsSLo ./kind "https://kind.sigs.k8s.io/dl/v0.20.0/kind-$(uname)-amd64"
+      chmod +x ./kind
+      sudo mv kind /usr/local/bin/
+    fi
+  fi
+  if is_darwin; then
+    brew install kind
   fi
 }
 
 function ensure_k9s() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for k9s"
-  if ! command -v k9s &>/dev/null; then
-    printf "${RED}${BOLD}%s${RESET}\n" "Ensuring latest version of k9s on linux"
-    curl -fsSL https://github.com/derailed/k9s/releases/download/v0.26.7/k9s_Linux_x86_64.tar.gz -o /tmp/k9s_Linux_x86_64.tar.gz
-    tar xfz /tmp/k9s_Linux_x86_64.tar.gz -C /tmp k9s
-    sudo mv /tmp/k9s /usr/local/bin/
-    rm /tmp/k9s_Linux_x86_64.tar.gz
-  else
-    printf "${YELLOW}%s${RESET}\n" "K9s already installed"
+  if is_linux; then
+    if ! command -v k9s &>/dev/null; then
+      printf "${RED}${BOLD}%s${RESET}\n" "Ensuring latest version of k9s on linux"
+      curl -fsSL https://github.com/derailed/k9s/releases/download/v0.26.7/k9s_Linux_x86_64.tar.gz -o /tmp/k9s_Linux_x86_64.tar.gz
+      tar xfz /tmp/k9s_Linux_x86_64.tar.gz -C /tmp k9s
+      sudo mv /tmp/k9s /usr/local/bin/
+      rm /tmp/k9s_Linux_x86_64.tar.gz
+    else
+      printf "${YELLOW}%s${RESET}\n" "K9s already installed"
+    fi
+  fi
+  if is_darwin; then
+    brew install k9s
   fi
 }
 
 function ensure_stern() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for stern"
-  if ! command -v stern &>/dev/null; then
-    printf "${RED}${BOLD}%s${RESET}\n" "Installing stern on linux"
-    curl -Lo stern.tgz https://github.com/stern/stern/releases/download/v1.24.0/stern_1.24.0_linux_amd64.tar.gz && \
-      tar xfvz stern.tgz && \
-      rm -f LICENSE stern.tgz && \
-      sudo mv stern /usr/local/bin/stern
-  else
-    printf "${YELLOW}%s${RESET}\n" "Stern already installed"
+  if is_linux; then
+    if ! command -v stern &>/dev/null; then
+      printf "${RED}${BOLD}%s${RESET}\n" "Installing stern on linux"
+      curl -Lo stern.tgz https://github.com/stern/stern/releases/download/v1.24.0/stern_1.24.0_linux_amd64.tar.gz && \
+        tar xfvz stern.tgz && \
+        rm -f LICENSE stern.tgz && \
+        sudo mv stern /usr/local/bin/stern
+    else
+      printf "${YELLOW}%s${RESET}\n" "Stern already installed"
+    fi
+  fi
+  if is_darwin; then
+    brew install stern
   fi
 }
 
-function ensure_yq() {
+function ensure_yq_jq() {
 
-  printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for yq"
-  if ! command -v yq &>/dev/null; then
-    printf "${RED}${BOLD}%s${RESET}\n" "Installing yq on linux"
-    curl -Lo yq https://github.com/mikefarah/yq/releases/download/v4.30.5/yq_linux_amd64 && \
-      chmod +x yq && \
-      sudo mv yq /usr/local/bin/yq
-  else
-    printf "${YELLOW}%s${RESET}\n" "Yq already installed"
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for yq and jq"
+  if is_linux; then
+    if ! command -v yq &>/dev/null; then
+      printf "${RED}${BOLD}%s${RESET}\n" "Installing yq on linux"
+      curl -Lo yq https://github.com/mikefarah/yq/releases/download/v4.30.5/yq_linux_amd64 && \
+        chmod +x yq && \
+        sudo mv yq /usr/local/bin/yq
+    else
+      printf "${YELLOW}%s${RESET}\n" "Yq already installed"
+    fi
+  fi
+  if is_darwin; then
+    brew install yq
+    brew install jq
   fi
 }
-
-# function ensure_krew() {
-
-#   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for krew"
-#   if ! command -v ~/.krew/bin/kubectl-krew &>/dev/null; then
-#     printf "${RED}${BOLD}%s${RESET}\n" "Installing krew on linux"
-#     cd "$(mktemp -d)" &&
-#       OS="$(uname | tr '[:upper:]' '[:lower:]')" &&
-#       ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" &&
-#       KREW="krew-${OS}_${ARCH}" &&
-#       curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" &&
-#       tar zxf "${KREW}.tar.gz" &&
-#       ./$KREW install krew
-#     rm -f "${KREW}.tar.gz" ./krew-*
-#     if [[ ":$PATH:" == *":$HOME/.krew/bin:"* ]]; then
-#       echo "~/.krew/bin already in $PATH"
-#     else
-#       echo "export PATH=~/.krew/bin:$PATH" >> ~/.bashrc
-#     fi
-#     export PATH=~/.krew/bin:$PATH
-#   else
-#     printf "${YELLOW}%s${RESET}\n" "Krew already installed"
-#   fi
-# }
 
 function ensure_syft() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for syft"
-  # if ! command -v ~/.syft/bin/syft &>/dev/null; then
-  printf "${RED}${BOLD}%s${RESET}\n" "Ensuring latest version of syft on linux"
-  mkdir -p ~/.syft/bin
-  curl -fsSL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b ~/.syft/bin
-  if [[ ":$PATH:" == *":$HOME/.syft/bin:"* ]]; then
-    echo '~/.syft/bin already in $PATH'
-  else
-    echo 'export PATH=~/.syft/bin:$PATH' >> ~/.bashrc
+  if is_linux; then
+    # if ! command -v ~/.syft/bin/syft &>/dev/null; then
+    printf "${RED}${BOLD}%s${RESET}\n" "Ensuring latest version of syft on linux"
+    mkdir -p ~/.syft/bin
+    curl -fsSL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b ~/.syft/bin
+    if [[ ":$PATH:" == *":$HOME/.syft/bin:"* ]]; then
+      echo '~/.syft/bin already in $PATH'
+    else
+      echo 'export PATH=~/.syft/bin:$PATH' >> ~/.bashrc
+    fi
+    export PATH=~/.syft/bin:$PATH
+    # else
+    #   printf "${YELLOW}%s${RESET}\n" "Syft already installed"
+    # fi
   fi
-  export PATH=~/.syft/bin:$PATH
-  # else
-  #   printf "${YELLOW}%s${RESET}\n" "Syft already installed"
-  # fi
+  if is_darwin; then
+    brew install syft
+  fi
 }
 
 function ensure_grype() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for grype"
-  # if ! command -v ~/.grype/bin/grype &>/dev/null; then
-  printf "${RED}${BOLD}%s${RESET}\n" "Ensuring latest version of grype on linux"
-  mkdir -p ~/.grype/bin
-  curl -fsSL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b ~/.grype/bin
-  if [[ ":$PATH:" == *":$HOME/.grype/bin:"* ]]; then
-    echo '~/.grype/bin already in $PATH'
-  else
-    echo 'export PATH=~/.grype/bin:$PATH' >> ~/.bashrc
+  if is_linux; then
+    # if ! command -v ~/.grype/bin/grype &>/dev/null; then
+    printf "${RED}${BOLD}%s${RESET}\n" "Ensuring latest version of grype on linux"
+    mkdir -p ~/.grype/bin
+    curl -fsSL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b ~/.grype/bin
+    if [[ ":$PATH:" == *":$HOME/.grype/bin:"* ]]; then
+      echo '~/.grype/bin already in $PATH'
+    else
+      echo 'export PATH=~/.grype/bin:$PATH' >> ~/.bashrc
+    fi
+    export PATH=~/.grype/bin:$PATH
+    # else
+    #   printf "${YELLOW}%s${RESET}\n" "Grype already installed"
+    # fi
   fi
-  export PATH=~/.grype/bin:$PATH
-  # else
-  #   printf "${YELLOW}%s${RESET}\n" "Grype already installed"
-  # fi
+  if is_darwin; then
+    brew install grype
+  fi
 }
 
-ensure_bashrc
+if [[ "${SHELL}" == *"bash"* ]]; then
+  ensure_bashrc
+fi
+if [[ "${SHELL}" == *"zsh"* ]]; then
+  ensure_zshrc
+fi
 ensure_playground
 ensure_essentials
+ensure_bash
+ensure_awscli
 ensure_ec2_instance_role
 ensure_terraform
-# ensure_docker
-if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-  ensure_formulae
-else
-  ensure_kubectl
-  ensure_eksctl
-  # ensure_kustomize
-  ensure_helm
-  ensure_k9s
-  ensure_stern
-fi
-ensure_yq
+ensure_container_engine
+ensure_yq_jq
+ensure_azcli
+ensure_kubectl
+ensure_helm
+ensure_k9s
+ensure_stern
+ensure_eksctl
 ensure_kind
 ensure_syft
 ensure_grype
-ensure_awscli
-ensure_azcli
-# if [ "${PACKAGE_MANAGER}" != "brew" ]; then
-#   ensure_krew
-# fi
 
-printf '\n%s\n' "###TASK-COMPLETED###"
+exit 0
