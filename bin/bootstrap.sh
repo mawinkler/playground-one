@@ -47,6 +47,15 @@ fi
 # Repo
 REPO=https://raw.githubusercontent.com/mawinkler/playground-one/main
 
+#######################################
+# Configure Shells
+# Globals:
+#   None
+# Arguments:
+#   None
+# Outputs:
+#   None
+#######################################
 function find_playground() {
   if [ "${ONEPATH}" != "" ] && [ -f "${ONEPATH}/.pghome" ]; then
     return
@@ -108,6 +117,23 @@ function ensure_bashrc() {
   fi
 }
 
+function ensure_bash() {
+
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for bash version"
+
+  bash_version=$(bash --version | head -n 1 | cut -d' ' -f4 | cut -d'.' -f1)
+
+  if [ "${bash_version}" == "3" ]; then
+    if [ "$(uname -s)" == "Darwin" ]; then
+      printf "${RED}${BOLD}%s${RESET}\n" "Installing bash on darwin"
+      brew install bash
+      brew install gnu-getopt
+    fi
+  else
+    echo V5
+  fi
+}
+
 function ensure_zshrc() {
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking .zshrc"
   if ! find_playground ; then
@@ -155,6 +181,15 @@ function ensure_playground() {
   .  $ONEPATH/bin/playground-helpers.sh
 }
 
+#######################################
+# Install packages
+# Globals:
+#   PACKAGE_MANAGER
+# Arguments:
+#   None
+# Outputs:
+#   None
+#######################################
 function ensure_essentials() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for essentials"
@@ -168,7 +203,7 @@ function ensure_essentials() {
 
       printf "${BLUE}${BOLD}%s${RESET}\n" "Installing essential packages on linux"
       sudo apt update
-      sudo apt install -y jq apt-transport-https gnupg2 curl nginx apache2-utils pv unzip dialog software-properties-common
+      sudo apt install -y jq apt-transport-https gnupg2 curl nginx apache2-utils pv unzip dialog software-properties-common gcc
 
       if ! command -v brew &>/dev/null; then
         printf "${RED}${BOLD}%s${RESET}\n" "Installing brew on linux"
@@ -210,23 +245,6 @@ function ensure_essentials() {
       fi
       # brew install gcc
     fi
-  fi
-}
-
-function ensure_bash() {
-
-  printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for bash version"
-
-  bash_version=$(bash --version | head -n 1 | cut -d' ' -f4 | cut -d'.' -f1)
-
-  if [ "${bash_version}" == "3" ]; then
-    if [ "$(uname -s)" == "Darwin" ]; then
-      printf "${RED}${BOLD}%s${RESET}\n" "Installing bash on darwin"
-      brew install bash
-      brew install gnu-getopt
-    fi
-  else
-    echo V5
   fi
 }
 
@@ -815,6 +833,8 @@ ensure_grype
 
 exec_end=`date +%s`
 
-runtime=$((exec_end-exec_start))
-printf "${RED}${BOLD}%s${RESET}\n" "Execution time ${runtime} seconds"
+exec_runtime=$((exec_end-exec_start))
+printf "${RED}${BOLD}%s${RESET}\n" "Execution time ${exec_runtime} seconds"
+
+echo ${exec_runtime} >> ~/exec_runtime
 exit 0
