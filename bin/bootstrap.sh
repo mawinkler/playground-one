@@ -30,14 +30,15 @@ fi
 YELLOW=$(tput setaf 3)
 BLUE=$(tput setaf 4)
 RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
 BOLD=$(tput bold)
 RESET=$(tput sgr0)
 
 OS="$(uname)"
-# Allowed values:
-#   apt
-#   brew
 if is_linux; then
+  # Allowed values:
+  #   apt
+  #   brew
   PACKAGE_MANAGER="brew"
 fi
 if is_darwin; then
@@ -203,7 +204,7 @@ function ensure_essentials() {
 
       printf "${BLUE}${BOLD}%s${RESET}\n" "Installing essential packages on linux"
       sudo apt update
-      sudo apt install -y jq apt-transport-https gnupg2 curl nginx apache2-utils pv unzip dialog software-properties-common gcc
+      sudo apt install -y jq apt-transport-https gnupg2 curl nginx apache2-utils pv unzip dialog software-properties-common
 
       if ! command -v brew &>/dev/null; then
         printf "${RED}${BOLD}%s${RESET}\n" "Installing brew on linux"
@@ -253,17 +254,17 @@ function ensure_awscli() {
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for AWS CLI"
   if is_linux; then
     # aws cli takes ages with brew
-    # if [ "${PACKAGE_MANAGER}" == "apt" ] || [ "${PACKAGE_MANAGER}" == "brew" ]; then
-    if [ "${PACKAGE_MANAGER}" == "apt" ]; then
+    if [ "${PACKAGE_MANAGER}" == "apt" ] || [ "${PACKAGE_MANAGER}" == "brew" ]; then
+      # if [ "${PACKAGE_MANAGER}" == "apt" ]; then
       printf "${BLUE}${BOLD}%s${RESET}\n" "Installing AWS CLI on linux"
       curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
       unzip -q /tmp/awscliv2.zip -d /tmp
       sudo /tmp/aws/install --update
       rm -Rf /tmp/aws /tmp/awscliv2.zip
     fi
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      brew install awscli
-    fi
+    # if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    #   brew install awscli
+    # fi
   fi
   if is_darwin; then
     printf "${BLUE}${BOLD}%s${RESET}\n" "Installing AWS CLI on darwin"
@@ -277,7 +278,7 @@ function ensure_azcli() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for Azure CLI"
   if is_linux; then
-    if [ "${PACKAGE_MANAGER}" == "apt" ]; then
+    if [ "${PACKAGE_MANAGER}" == "apt" ] || [ "${PACKAGE_MANAGER}" == "brew" ]; then
       printf "${BLUE}${BOLD}%s${RESET}\n" "Installing Azure CLI on linux"
       sudo mkdir -p /etc/apt/keyrings
       curl -sLS https://packages.microsoft.com/keys/microsoft.asc |
@@ -300,10 +301,10 @@ function ensure_azcli() {
       rm -rf /tmp/azcopy*
       sudo chmod 755 /usr/local/bin/azcopy
     fi
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      printf "${BLUE}${BOLD}%s${RESET}\n" "Installing Azure CLI on linux"
-      brew install azure-cli
-    fi
+    # if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    #   printf "${BLUE}${BOLD}%s${RESET}\n" "Installing Azure CLI on linux"
+    #   brew install azure-cli
+    # fi
   fi
   if is_darwin; then
     printf "${BLUE}${BOLD}%s${RESET}\n" "Installing Azure CLI on darwin"
@@ -716,21 +717,21 @@ function ensure_yq_jq() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for yq and jq"
   if is_linux; then
-    if [ "${PACKAGE_MANAGER}" == "apt" ]; then
+    if [ "${PACKAGE_MANAGER}" == "apt" ] || [ "${PACKAGE_MANAGER}" == "brew" ]; then
       if ! command -v yq &>/dev/null; then
         printf "${RED}${BOLD}%s${RESET}\n" "Installing yq on linux"
-        curl -Lo yq https://github.com/mikefarah/yq/releases/download/v4.30.5/yq_linux_amd64 && \
+        curl -Lo yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && \
           chmod +x yq && \
           sudo mv yq /usr/local/bin/yq
       else
         printf "${YELLOW}%s${RESET}\n" "Yq already installed"
       fi
     fi
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      printf "${RED}${BOLD}%s${RESET}\n" "Installing yq and jq on linux"
-      brew install yq
-      brew install jq
-    fi
+    # if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    #   printf "${RED}${BOLD}%s${RESET}\n" "Installing yq and jq on linux"
+    #   brew install yq
+    #   brew install jq
+    # fi
   fi
   if is_darwin; then
     printf "${RED}${BOLD}%s${RESET}\n" "Installing yq and jq on darwin"
@@ -834,7 +835,7 @@ ensure_grype
 exec_end=`date +%s`
 
 exec_runtime=$((exec_end-exec_start))
-printf "${RED}${BOLD}%s${RESET}\n" "Execution time ${exec_runtime} seconds"
+printf "${GREEN}${BOLD}%s${RESET}\n" "Execution time ${exec_runtime} seconds"
 
 echo ${exec_runtime} >> ~/exec_runtime
 exit 0
