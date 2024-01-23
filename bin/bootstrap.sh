@@ -217,8 +217,10 @@ function ensure_essentials() {
           echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/${USER}/.bashrc
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
         fi
+        
         # This is kind of mandatory
-        grew install gcc
+        printf "${BLUE}${BOLD}%s${RESET}\n" "Installing gcc on linux"
+        brew install gcc
       else
         printf "${YELLOW}%s${RESET}\n" "Brew already installed, updating packages"
         brew update
@@ -842,5 +844,4 @@ exec_end=`date +%s`
 exec_runtime=$((exec_end-exec_start))
 printf "${GREEN}${BOLD}%s${RESET}\n" "Execution time ${exec_runtime} seconds"
 
-echo ${exec_runtime} >> ~/exec_runtime
 exit 0
