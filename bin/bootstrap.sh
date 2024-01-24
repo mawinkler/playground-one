@@ -52,12 +52,6 @@ REPO=https://raw.githubusercontent.com/mawinkler/playground-one/main
 
 #######################################
 # Configure Shells
-# Globals:
-#   None
-# Arguments:
-#   None
-# Outputs:
-#   None
 #######################################
 function find_playground() {
   if [ "${ONEPATH}" != "" ] && [ -f "${ONEPATH}/.pghome" ]; then
@@ -169,6 +163,9 @@ function ensure_zshrc() {
   fi
 }
 
+#######################################
+# Get/update Playground One
+#######################################
 function ensure_playground() {
 
   # Getting Playground repo or update it
@@ -184,13 +181,7 @@ function ensure_playground() {
 }
 
 #######################################
-# Install packages
-# Globals:
-#   PACKAGE_MANAGER
-# Arguments:
-#   None
-# Outputs:
-#   None
+# Install essential packages
 #######################################
 function ensure_essentials() {
 
@@ -240,6 +231,41 @@ function ensure_essentials() {
   fi
 }
 
+function ensure_yq_jq() {
+
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading yq and jq"
+  if [ "${PACKAGE_MANAGER}" == "apt" ]; then
+    ensure_yq_jq_curl
+  fi
+  if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    ensure_yq_jq_brew
+  fi
+}
+
+function ensure_yq_jq_curl() {
+
+  curl -Lo yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && \
+    chmod +x yq && \
+    sudo mv yq /usr/local/bin/yq
+}
+
+function ensure_yq_jq_brew() {
+
+  if ! command -v yq &>/dev/null; then
+    brew install yq
+  else
+    brew upgrade yq
+  fi
+  if ! command -v jq &>/dev/null; then
+    brew install jq
+  else
+    brew upgrade jq
+  fi
+}
+
+#######################################
+# AWS
+#######################################
 function ensure_awscli() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading AWS CLI"
@@ -265,59 +291,6 @@ function ensure_awscli_brew() {
     brew install awscli
   else
     brew upgrade awscli
-  fi
-}
-
-function ensure_azcli() {
-
-  printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading Azure CLI"
-  if [ "${PACKAGE_MANAGER}" == "apt" ]; then
-    ensure_azcli_apt
-  fi
-  if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-    ensure_azcli_brew
-  fi
-}
-
-function ensure_azcli_apt() {
-
-  if ! command -v az &>/dev/null; then
-    sudo mkdir -p /etc/apt/keyrings
-    curl -sLS https://packages.microsoft.com/keys/microsoft.asc |
-        gpg --dearmor |
-        sudo tee /etc/apt/keyrings/microsoft.gpg > /dev/null
-    sudo chmod go+r /etc/apt/keyrings/microsoft.gpg
-
-    AZ_DIST=$(lsb_release -cs)
-    echo "deb [arch=`dpkg --print-architecture` signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/azure-cli/ $AZ_DIST main" |
-        sudo tee /etc/apt/sources.list.d/azure-cli.list
-        
-    # echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-$(lsb_release -cs)-prod $(lsb_release -cs) main" | \
-    #     sudo tee /etc/apt/sources.list.d/dotnetdev.list
-
-    sudo apt-get update
-    sudo apt-get install -y azure-cli
-
-    curl -fsSL https://aka.ms/downloadazcopy-v10-linux | tar xz --strip-components=1 -C /tmp
-    sudo mv /tmp/azcopy /usr/local/bin
-    rm -rf /tmp/azcopy*
-    sudo chmod 755 /usr/local/bin/azcopy
-  else
-    sudo apt-get upgrade -y azure-cli
-
-    curl -fsSL https://aka.ms/downloadazcopy-v10-linux | tar xz --strip-components=1 -C /tmp
-    sudo mv /tmp/azcopy /usr/local/bin
-    rm -rf /tmp/azcopy*
-    sudo chmod 755 /usr/local/bin/azcopy
-  fi
-}
-
-function ensure_azcli_brew() {
-
-  if ! command -v az &>/dev/null; then
-    brew install azure-cli
-  else
-    brew upgrade azure-cli
   fi
 }
 
@@ -430,6 +403,91 @@ function ensure_ec2_instance_role() {
   fi
 }
 
+function ensure_eksctl() {
+
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading eksctl"
+  if [ "${PACKAGE_MANAGER}" == "apt" ]; then
+    ensure_eksctl_curl
+  fi
+  if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    ensure_eksctl_brew
+  fi
+}
+
+function ensure_eksctl_curl() {
+
+  curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+  sudo mv /tmp/eksctl /usr/local/bin
+}
+
+function ensure_eksctl_brew() {
+
+  if ! command -v eksctl &>/dev/null; then
+    brew install eksctl
+  else
+    brew upgrade eksctl
+  fi
+}
+
+#######################################
+# Azure
+#######################################
+function ensure_azcli() {
+
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading Azure CLI"
+  if [ "${PACKAGE_MANAGER}" == "apt" ]; then
+    ensure_azcli_apt
+  fi
+  if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    ensure_azcli_brew
+  fi
+}
+
+function ensure_azcli_apt() {
+
+  if ! command -v az &>/dev/null; then
+    sudo mkdir -p /etc/apt/keyrings
+    curl -sLS https://packages.microsoft.com/keys/microsoft.asc |
+        gpg --dearmor |
+        sudo tee /etc/apt/keyrings/microsoft.gpg > /dev/null
+    sudo chmod go+r /etc/apt/keyrings/microsoft.gpg
+
+    AZ_DIST=$(lsb_release -cs)
+    echo "deb [arch=`dpkg --print-architecture` signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/azure-cli/ $AZ_DIST main" |
+        sudo tee /etc/apt/sources.list.d/azure-cli.list
+        
+    # echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-$(lsb_release -cs)-prod $(lsb_release -cs) main" | \
+    #     sudo tee /etc/apt/sources.list.d/dotnetdev.list
+
+    sudo apt-get update
+    sudo apt-get install -y azure-cli
+
+    curl -fsSL https://aka.ms/downloadazcopy-v10-linux | tar xz --strip-components=1 -C /tmp
+    sudo mv /tmp/azcopy /usr/local/bin
+    rm -rf /tmp/azcopy*
+    sudo chmod 755 /usr/local/bin/azcopy
+  else
+    sudo apt-get upgrade -y azure-cli
+
+    curl -fsSL https://aka.ms/downloadazcopy-v10-linux | tar xz --strip-components=1 -C /tmp
+    sudo mv /tmp/azcopy /usr/local/bin
+    rm -rf /tmp/azcopy*
+    sudo chmod 755 /usr/local/bin/azcopy
+  fi
+}
+
+function ensure_azcli_brew() {
+
+  if ! command -v az &>/dev/null; then
+    brew install azure-cli
+  else
+    brew upgrade azure-cli
+  fi
+}
+
+#######################################
+# Install Container Engine
+#######################################
 function ensure_container_engine() {
 
   if is_linux; then
@@ -513,6 +571,9 @@ function ensure_container_engine_brew() {
   fi
 }
 
+#######################################
+# Install Terraform
+#######################################
 function ensure_terraform() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading terraform"
@@ -556,6 +617,9 @@ function ensure_terraform_brew() {
   fi
 }
 
+#######################################
+# Install Kubernetes Tools
+#######################################
 function ensure_kubectl() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading kubectl"
@@ -585,32 +649,6 @@ function ensure_kubectl_brew() {
     brew install kubernetes-cli
   else
     brew upgrade kubernetes-cli
-  fi
-}
-
-function ensure_eksctl() {
-
-  printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading eksctl"
-  if [ "${PACKAGE_MANAGER}" == "apt" ]; then
-    ensure_eksctl_curl
-  fi
-  if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-    ensure_eksctl_brew
-  fi
-}
-
-function ensure_eksctl_curl() {
-
-  curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-  sudo mv /tmp/eksctl /usr/local/bin
-}
-
-function ensure_eksctl_brew() {
-
-  if ! command -v eksctl &>/dev/null; then
-    brew install eksctl
-  else
-    brew upgrade eksctl
   fi
 }
 
@@ -725,38 +763,9 @@ function ensure_stern_brew() {
   fi
 }
 
-function ensure_yq_jq() {
-
-  printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading yq and jq"
-  if [ "${PACKAGE_MANAGER}" == "apt" ]; then
-    ensure_yq_jq_curl
-  fi
-  if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-    ensure_yq_jq_brew
-  fi
-}
-
-function ensure_yq_jq_curl() {
-
-  curl -Lo yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && \
-    chmod +x yq && \
-    sudo mv yq /usr/local/bin/yq
-}
-
-function ensure_yq_jq_brew() {
-
-  if ! command -v yq &>/dev/null; then
-    brew install yq
-  else
-    brew upgrade yq
-  fi
-  if ! command -v jq &>/dev/null; then
-    brew install jq
-  else
-    brew upgrade jq
-  fi
-}
-
+#######################################
+# Install Anchore Tools
+#######################################
 function ensure_syft() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading syft"
@@ -823,12 +832,6 @@ function ensure_grype_brew() {
 
 #######################################
 # Main
-# Globals:
-#   None
-# Arguments:
-#   None
-# Outputs:
-#   None
 #######################################
 exec_start=`date +%s`
 
