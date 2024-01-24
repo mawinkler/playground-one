@@ -197,8 +197,8 @@ function ensure_essentials() {
   if is_linux; then
     printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading essential packages on linux"
     if [ "${PACKAGE_MANAGER}" == "apt" ]; then
-      sudo apt update
-      sudo apt install -y jq apt-transport-https gnupg2 curl nginx apache2-utils pv unzip dialog software-properties-common
+      sudo apt-get update
+      sudo apt-get install -y jq apt-transport-https gnupg2 curl nginx apache2-utils pv unzip dialog software-properties-common
     fi
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
       if ! command -v brew &>/dev/null; then
@@ -295,15 +295,15 @@ function ensure_azcli_apt() {
     # echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-$(lsb_release -cs)-prod $(lsb_release -cs) main" | \
     #     sudo tee /etc/apt/sources.list.d/dotnetdev.list
 
-    sudo apt update
-    sudo apt install -y azure-cli
+    sudo apt-get update
+    sudo apt-get install -y azure-cli
 
     curl -fsSL https://aka.ms/downloadazcopy-v10-linux | tar xz --strip-components=1 -C /tmp
     sudo mv /tmp/azcopy /usr/local/bin
     rm -rf /tmp/azcopy*
     sudo chmod 755 /usr/local/bin/azcopy
   else
-    sudo apt upgrade -y azure-cli
+    sudo apt-get upgrade -y azure-cli
 
     curl -fsSL https://aka.ms/downloadazcopy-v10-linux | tar xz --strip-components=1 -C /tmp
     sudo mv /tmp/azcopy /usr/local/bin
@@ -452,8 +452,8 @@ function ensure_container_engine_apt() {
     # Enable Universe and Multiverse
     sudo add-apt-repository universe
     sudo add-apt-repository multiverse
-    sudo apt update
-    sudo apt install -y \
+    sudo apt-get update
+    sudo apt-get install -y \
       apt-transport-https ca-certificates curl \
       gnupg-agent software-properties-common
 
@@ -482,7 +482,7 @@ function ensure_container_engine_apt() {
       sudo mv /tmp/daemon.json /etc/docker/daemon.json && \
       sudo systemctl restart docker
   else
-    sudo apt upgrade -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+    sudo apt-get upgrade -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 
     # Allow insecure registries
     # FIXME: check if already configured. If not merge not replace
@@ -539,7 +539,7 @@ function ensure_terraform_apt() {
     echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
       https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
       sudo tee /etc/apt/sources.list.d/hashicorp.list
-    sudo apt update
+    sudo apt-get update
     sudo apt-get install terraform
   else
     sudo apt-get upgrade -y terraform
