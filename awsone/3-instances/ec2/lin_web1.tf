@@ -23,7 +23,7 @@ resource "aws_instance" "web1" {
     Configuration = "ec2"
   }
 
-  user_data = data.template_file.linux_userdata.rendered
+  user_data = local.userdata_linux
 
   connection {
     user        = var.linux_username

@@ -1,10 +1,3 @@
-# #############################################################################
-# Windows Userdata to create a new local administrator with
-# the configured password
-# Configures WinRM, SSHD and AWS.Tools
-# #############################################################################
-data "template_file" "windows_userdata" {
-    template = <<EOF
 <powershell>
 Start-Transcript -Path 'C:/userdata.log'
 
@@ -12,8 +5,8 @@ $logfilepath="C:\agent.log"
 $fqdn="$env:computername"
 $port_winrm=5986 
 $port_ssh=22
-$username = '${var.windows_username}'
-$password = ConvertTo-SecureString '${random_password.windows_password.result}' -AsPlainText -Force 
+$username = '${windows_username}'
+$password = ConvertTo-SecureString '${windows_password}' -AsPlainText -Force 
 
 Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser -Force -ErrorAction Ignore
 $ErrorActionPreference = "stop"
@@ -150,9 +143,9 @@ function Configure-OpenSSHService {
         New-ItemProperty -Path "HKLM:\SOFTWARE\OpenSSH" -Name DefaultShell -Value (Get-Command powershell.exe).Path -PropertyType String -Force
 
         # Get the public key 
-        $authorizedKey = "${var.public_key}"
+        $authorizedKey = "${public_key}"
         # New-Item -Force -ItemType Directory -Path $env:USERPROFILE\.ssh; Add-Content -Force -Path $env:USERPROFILE\.ssh\authorized_keys -Value $authorizedKey
-        # New-Item -Force -ItemType Directory -Path C:\Users\${var.windows_username}\.ssh; Add-Content -Force -Path C:\Users\${var.windows_username}\.ssh\authorized_keys -Value $authorizedKey
+        # New-Item -Force -ItemType Directory -Path C:\Users\${windows_username}\.ssh; Add-Content -Force -Path C:\Users\${windows_username}\.ssh\authorized_keys -Value $authorizedKey
         New-Item -Force -ItemType File -Path C:\ProgramData\ssh\administrators_authorized_keys
         Add-Content -Force -Path C:\ProgramData\ssh\administrators_authorized_keys -Value $authorizedKey
 
@@ -236,26 +229,3 @@ Configure-AWS-Tools
 
 Stop-Transcript
 </powershell>
-    EOF
-}
-
-data "template_file" "linux_userdata" {
-    template = <<EOF
-#!/bin/bash
-
-# install essential packages
-apt-get update
-apt-get install -y unzip
-
-# install aws cli
-curl -fsSL https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o /tmp/awscliv2.zip
-unzip /tmp/awscliv2.zip -d /tmp
-/tmp/aws/install --update
-rm -Rf /tmp/aws /tmp/awscliv2.zip
-
-# download from s3
-mkdir -p /home/ubuntu/download
-aws s3 cp s3://${var.s3_bucket}/download /home/ubuntu/download --recursive
-chown ubuntu.ubuntu -R /home/ubuntu/download
-    EOF
-}

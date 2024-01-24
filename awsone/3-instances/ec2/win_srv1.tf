@@ -27,7 +27,7 @@ resource "aws_instance" "srv1" {
     Configuration = "ec2"
   }
 
-  user_data = data.template_file.windows_userdata.rendered
+  user_data = local.userdata_windows
 
   connection {
     host     = coalesce(self.public_ip, self.private_ip)
