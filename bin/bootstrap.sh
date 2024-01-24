@@ -682,10 +682,10 @@ function ensure_k9s() {
 
 function ensure_k9s_curl() {
 
-  curl -fsSL https://github.com/derailed/k9s/releases/download/v0.31.7/k9s_Linux_x86_64.tar.gz -o /tmp/k9s_Linux_x86_64.tar.gz
-  tar xfz /tmp/k9s_Linux_x86_64.tar.gz -C /tmp k9s
+  curl -fsSL https://github.com/derailed/k9s/releases/download/v0.31.7/k9s_Linux_amd64.tar.gz -o /tmp/k9s_Linux_amd64.tar.gz
+  tar xfz /tmp/k9s_Linux_amd64.tar.gz -C /tmp k9s
   sudo mv /tmp/k9s /usr/local/bin/
-  rm /tmp/k9s_Linux_x86_64.tar.gz
+  rm /tmp/k9s_Linux_amd64.tar.gz
 }
 
 function ensure_k9s_brew() {
