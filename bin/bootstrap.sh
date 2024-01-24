@@ -39,9 +39,11 @@ if is_linux; then
   # Allowed values:
   #   apt
   #   brew
-  PACKAGE_MANAGER="brew"
+  PACKAGE_MANAGER="apt"
 fi
 if is_darwin; then
+  # Allowed values:
+  #   brew
   PACKAGE_MANAGER="brew"
 fi
 
@@ -240,88 +242,82 @@ function ensure_essentials() {
 
 function ensure_awscli() {
 
-  if is_linux; then
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading AWS CLI on linux"
-    # if [ "${PACKAGE_MANAGER}" == "apt" ] || [ "${PACKAGE_MANAGER}" == "brew" ]; then
-    if [ "${PACKAGE_MANAGER}" == "apt" ]; then
-      curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
-      unzip -q /tmp/awscliv2.zip -d /tmp
-      sudo /tmp/aws/install --update
-      rm -Rf /tmp/aws /tmp/awscliv2.zip
-    fi
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      if ! command -v aws &>/dev/null; then
-        brew install awscli
-      else
-        brew upgrade awscli
-      fi
-    fi
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading AWS CLI"
+  if [ "${PACKAGE_MANAGER}" == "apt" ]; then
+    ensure_awscli_curl
   fi
-  if is_darwin; then
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading AWS CLI on darwin"
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      if ! command -v aws &>/dev/null; then
-        brew install awscli
-      else
-        brew upgrade awscli
-      fi
-    fi
+  if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    ensure_awscli_brew
+  fi
+}
+
+function ensure_awscli_curl() {
+
+  curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
+  unzip -q /tmp/awscliv2.zip -d /tmp
+  sudo /tmp/aws/install --update
+  rm -Rf /tmp/aws /tmp/awscliv2.zip
+}
+
+function ensure_awscli_brew() {
+
+  if ! command -v aws &>/dev/null; then
+    brew install awscli
+  else
+    brew upgrade awscli
   fi
 }
 
 function ensure_azcli() {
 
-  if is_linux; then
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading Azure CLI on linux"
-    # if [ "${PACKAGE_MANAGER}" == "apt" ] || [ "${PACKAGE_MANAGER}" == "brew" ]; then
-    if [ "${PACKAGE_MANAGER}" == "apt" ]; then
-      if ! command -v az &>/dev/null; then
-        sudo mkdir -p /etc/apt/keyrings
-        curl -sLS https://packages.microsoft.com/keys/microsoft.asc |
-            gpg --dearmor |
-            sudo tee /etc/apt/keyrings/microsoft.gpg > /dev/null
-        sudo chmod go+r /etc/apt/keyrings/microsoft.gpg
-
-        AZ_DIST=$(lsb_release -cs)
-        echo "deb [arch=`dpkg --print-architecture` signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/azure-cli/ $AZ_DIST main" |
-            sudo tee /etc/apt/sources.list.d/azure-cli.list
-            
-        # echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-$(lsb_release -cs)-prod $(lsb_release -cs) main" | \
-        #     sudo tee /etc/apt/sources.list.d/dotnetdev.list
-
-        sudo apt update
-        sudo apt install -y azure-cli
-
-        curl -fsSL https://aka.ms/downloadazcopy-v10-linux | tar xz --strip-components=1 -C /tmp
-        sudo mv /tmp/azcopy /usr/local/bin
-        rm -rf /tmp/azcopy*
-        sudo chmod 755 /usr/local/bin/azcopy
-      else
-        sudo apt upgrade -y azure-cli
-
-        curl -fsSL https://aka.ms/downloadazcopy-v10-linux | tar xz --strip-components=1 -C /tmp
-        sudo mv /tmp/azcopy /usr/local/bin
-        rm -rf /tmp/azcopy*
-        sudo chmod 755 /usr/local/bin/azcopy
-      fi
-    fi
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      if ! command -v az &>/dev/null; then
-        brew install azure-cli
-      else
-        brew upgrade azure-cli
-      fi
-    fi
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading Azure CLI"
+  if [ "${PACKAGE_MANAGER}" == "apt" ]; then
+    ensure_azcli_apt
   fi
-  if is_darwin; then
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading Azure CLI on darwin"
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      if ! command -v az &>/dev/null; then
-        brew install azure-cli
-      else
-        brew upgrade azure-cli
-      fi
-    fi
+  if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    ensure_azcli_brew
+  fi
+}
+
+function ensure_azcli_apt() {
+
+  if ! command -v az &>/dev/null; then
+    sudo mkdir -p /etc/apt/keyrings
+    curl -sLS https://packages.microsoft.com/keys/microsoft.asc |
+        gpg --dearmor |
+        sudo tee /etc/apt/keyrings/microsoft.gpg > /dev/null
+    sudo chmod go+r /etc/apt/keyrings/microsoft.gpg
+
+    AZ_DIST=$(lsb_release -cs)
+    echo "deb [arch=`dpkg --print-architecture` signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/azure-cli/ $AZ_DIST main" |
+        sudo tee /etc/apt/sources.list.d/azure-cli.list
+        
+    # echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-$(lsb_release -cs)-prod $(lsb_release -cs) main" | \
+    #     sudo tee /etc/apt/sources.list.d/dotnetdev.list
+
+    sudo apt update
+    sudo apt install -y azure-cli
+
+    curl -fsSL https://aka.ms/downloadazcopy-v10-linux | tar xz --strip-components=1 -C /tmp
+    sudo mv /tmp/azcopy /usr/local/bin
+    rm -rf /tmp/azcopy*
+    sudo chmod 755 /usr/local/bin/azcopy
+  else
+    sudo apt upgrade -y azure-cli
+
+    curl -fsSL https://aka.ms/downloadazcopy-v10-linux | tar xz --strip-components=1 -C /tmp
+    sudo mv /tmp/azcopy /usr/local/bin
+    rm -rf /tmp/azcopy*
+    sudo chmod 755 /usr/local/bin/azcopy
+  fi
+}
+
+function ensure_azcli_brew() {
+
+  if ! command -v az &>/dev/null; then
+    brew install azure-cli
+  else
+    brew upgrade azure-cli
   fi
 }
 
@@ -337,8 +333,8 @@ function query_aws_keys() {
 }
 
 function ensure_ec2_instance_role() {
-  # Are we bootstrapping an EC2 intance (e.g. Cloud9), we need an instance role
 
+  # If we are bootstrapping an EC2 intance (e.g. Cloud9), we need an instance role
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for EC2 instance"
   if is_ec2 ; then
     printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for EC2 instance role"
@@ -437,459 +433,403 @@ function ensure_ec2_instance_role() {
 function ensure_container_engine() {
 
   if is_linux; then
-    # No docker engine with brew
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading Docker on linux"
     if [ "${PACKAGE_MANAGER}" == "apt" ] || [ "${PACKAGE_MANAGER}" == "brew" ] ; then
-      if ! command -v docker &>/dev/null; then
-        # Enable Universe and Multiverse
-        sudo add-apt-repository universe
-        sudo add-apt-repository multiverse
-        sudo apt update
-        sudo apt install -y \
-          apt-transport-https ca-certificates curl \
-          gnupg-agent software-properties-common
-
-        # Add Docker’s official GPG key:
-        curl -fsSL \
-          https://download.docker.com/linux/ubuntu/gpg | \
-          sudo apt-key add -
-
-        # Docker stable repository
-        sudo add-apt-repository \
-          "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
-          $(lsb_release -cs) \
-          stable"
-
-        # Install Docker
-        sudo apt-get update
-        sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-        sudo usermod -aG docker $(whoami)
-
-        # Allow insecure registries
-        # FIXME: check if already configured. If not merge not replace
-        sudo mkdir -p /etc/docker
-        sudo touch /etc/docker/daemon.json && \
-          sudo cp /etc/docker/daemon.json /etc/docker/daemon.json.backup && \
-          echo '{"insecure-registries": ["172.250.255.1","172.250.255.2","172.250.255.3","172.250.255.4","172.250.255.5","172.250.255.1:5000","172.250.255.2:5000","172.250.255.3:5000","172.250.255.4:5000","172.250.255.5:5000"]}' > /tmp/daemon.json && \
-          sudo mv /tmp/daemon.json /etc/docker/daemon.json && \
-          sudo systemctl restart docker
-      else
-        sudo apt upgrade -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-
-        # Allow insecure registries
-        # FIXME: check if already configured. If not merge not replace
-        sudo mkdir -p /etc/docker
-        sudo touch /etc/docker/daemon.json && \
-          sudo cp /etc/docker/daemon.json /etc/docker/daemon.json.backup && \
-          echo '{"insecure-registries": ["172.250.255.1","172.250.255.2","172.250.255.3","172.250.255.4","172.250.255.5","172.250.255.1:5000","172.250.255.2:5000","172.250.255.3:5000","172.250.255.4:5000","172.250.255.5:5000"]}' > /tmp/daemon.json && \
-          sudo mv /tmp/daemon.json /etc/docker/daemon.json && \
-          sudo systemctl restart docker
-      fi
+      ensure_container_engine_apt
     fi
-    # if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-    #   if ! command -v docker &>/dev/null; then
-    #     brew install docker
-    #     brew install docker-compose
-    #   else
-    #     brew upgrade docker
-    #     brew upgrade docker-compose
-    #   fi
-    # fi
   fi
+
   if is_darwin; then
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading Colima on darwin"
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      if ! command -v docker &>/dev/null; then
-        brew install colima
-
-        if [ ! $HOME/Library/LaunchAgents/homebrew.mxcl.colima.plist ]; then
-          brew services start colima
-        fi
-
-        /opt/homebrew/opt/colima/bin/colima start
-        brew install docker
-      else
-        brew upgrade colima
-        brew upgrade docker
-      fi
+      ensure_container_engine_brew
     fi
   fi
+}
 
+function ensure_container_engine_apt() {
+
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading Docker on linux"
+  if ! command -v docker &>/dev/null; then
+    # Enable Universe and Multiverse
+    sudo add-apt-repository universe
+    sudo add-apt-repository multiverse
+    sudo apt update
+    sudo apt install -y \
+      apt-transport-https ca-certificates curl \
+      gnupg-agent software-properties-common
+
+    # Add Docker’s official GPG key:
+    curl -fsSL \
+      https://download.docker.com/linux/ubuntu/gpg | \
+      sudo apt-key add -
+
+    # Docker stable repository
+    sudo add-apt-repository \
+      "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+      $(lsb_release -cs) \
+      stable"
+
+    # Install Docker
+    sudo apt-get update
+    sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+    sudo usermod -aG docker $(whoami)
+
+    # Allow insecure registries
+    # FIXME: check if already configured. If not merge not replace
+    sudo mkdir -p /etc/docker
+    sudo touch /etc/docker/daemon.json && \
+      sudo cp /etc/docker/daemon.json /etc/docker/daemon.json.backup && \
+      echo '{"insecure-registries": ["172.250.255.1","172.250.255.2","172.250.255.3","172.250.255.4","172.250.255.5","172.250.255.1:5000","172.250.255.2:5000","172.250.255.3:5000","172.250.255.4:5000","172.250.255.5:5000"]}' > /tmp/daemon.json && \
+      sudo mv /tmp/daemon.json /etc/docker/daemon.json && \
+      sudo systemctl restart docker
+  else
+    sudo apt upgrade -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+    # Allow insecure registries
+    # FIXME: check if already configured. If not merge not replace
+    sudo mkdir -p /etc/docker
+    sudo touch /etc/docker/daemon.json && \
+      sudo cp /etc/docker/daemon.json /etc/docker/daemon.json.backup && \
+      echo '{"insecure-registries": ["172.250.255.1","172.250.255.2","172.250.255.3","172.250.255.4","172.250.255.5","172.250.255.1:5000","172.250.255.2:5000","172.250.255.3:5000","172.250.255.4:5000","172.250.255.5:5000"]}' > /tmp/daemon.json && \
+      sudo mv /tmp/daemon.json /etc/docker/daemon.json && \
+      sudo systemctl restart docker
+  fi
+}
+
+function ensure_container_engine_brew() {
+
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading Colima on darwin"
+  if ! command -v docker &>/dev/null; then
+    brew install colima
+
+    if [ ! $HOME/Library/LaunchAgents/homebrew.mxcl.colima.plist ]; then
+      brew services start colima
+    fi
+
+    /opt/homebrew/opt/colima/bin/colima start
+    brew install docker
+  else
+    brew upgrade colima
+    brew upgrade docker
+  fi
 }
 
 function ensure_terraform() {
 
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading terraform"
   if is_linux; then
-    # Terraform with brew is version 1.5, but we need 1.6+
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading terraform on linux"
     if [ "${PACKAGE_MANAGER}" == "apt" ] || [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      if ! command -v terraform &>/dev/null; then
-        # sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
-        wget -O- https://apt.releases.hashicorp.com/gpg | \
-          gpg --dearmor | \
-          sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
-        echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
-          https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
-          sudo tee /etc/apt/sources.list.d/hashicorp.list
-        sudo apt update
-        sudo apt-get install terraform
-      else
-        sudo apt-get upgrade -y terraform
-      fi
+      ensure_terraform_apt
     fi
-    # if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-    #   if ! command -v terraform &>/dev/null; then
-    #     brew tap hashicorp/tap
-    #     brew install hashicorp/tap/terraform
-    #   else
-    #     brew upgrade hashicorp/tap/terraform
-    #   fi
-    # fi
   fi
-  if is_darwin; then
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading Terraform on darwin"
-    # sudo apt update
-    # sudo apt install -y jq apt-transport-https gnupg2 curl nginx apache2-utils pv unzip dialog software-properties-common
 
+  if is_darwin; then
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      if ! command -v terraform &>/dev/null; then
-        brew tap hashicorp/tap
-        brew install hashicorp/tap/terraform
-      else
-        brew upgrade hashicorp/tap/terraform
-      fi
+      ensure_terraform_brew
     fi
+  fi
+}
+
+function ensure_terraform_apt() {
+
+  if ! command -v terraform &>/dev/null; then
+    # sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
+    wget -O- https://apt.releases.hashicorp.com/gpg | \
+      gpg --dearmor | \
+      sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
+    echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
+      https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
+      sudo tee /etc/apt/sources.list.d/hashicorp.list
+    sudo apt update
+    sudo apt-get install terraform
+  else
+    sudo apt-get upgrade -y terraform
+  fi
+}
+
+function ensure_terraform_brew() {
+
+  if ! command -v terraform &>/dev/null; then
+    brew tap hashicorp/tap
+    brew install hashicorp/tap/terraform
+  else
+    brew upgrade hashicorp/tap/terraform
   fi
 }
 
 function ensure_kubectl() {
 
-  if is_linux; then
-    # if [ "${PACKAGE_MANAGER}" == "apt" ] || [ "${PACKAGE_MANAGER}" == "brew" ]; then
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading kubectl on linux"
-    if [ "${PACKAGE_MANAGER}" == "apt" ]; then
-      if ! command -v kubectl &>/dev/null; then
-        curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
-          echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list && \
-          sudo apt-get update && \
-          sudo apt-get install -y kubectl
-      else
-        sudo apt-get upgrade -y kubectl
-      fi
-    fi
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      if ! command -v kubectl &>/dev/null; then
-        brew install kubernetes-cli
-      else
-        brew upgrade kubernetes-cli
-      fi
-    fi
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading kubectl"
+  if [ "${PACKAGE_MANAGER}" == "apt" ]; then
+    ensure_kubectl_apt
   fi
-  if is_darwin; then
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading kubectl on darwin"
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      if ! command -v kubectl &>/dev/null; then
-        brew install kubernetes-cli
-      else
-        brew upgrade kubernetes-cli
-      fi
-    fi
+  if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    ensure_kubectl_brew
+  fi
+}
+
+function ensure_kubectl_apt() {
+
+  if ! command -v kubectl &>/dev/null; then
+    curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
+      echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list && \
+      sudo apt-get update && \
+      sudo apt-get install -y kubectl
+  else
+    sudo apt-get upgrade -y kubectl
+  fi
+}
+
+function ensure_kubectl_brew() {
+
+  if ! command -v kubectl &>/dev/null; then
+    brew install kubernetes-cli
+  else
+    brew upgrade kubernetes-cli
   fi
 }
 
 function ensure_eksctl() {
 
-  if is_linux; then
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading eksctl on linux"
-    if [ "${PACKAGE_MANAGER}" == "apt" ]; then
-      # if ! command -v eksctl &>/dev/null; then
-        curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-        sudo mv /tmp/eksctl /usr/local/bin
-      # else
-      #   curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-      #   sudo mv /tmp/eksctl /usr/local/bin
-      # fi
-    fi
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      if ! command -v eksctl &>/dev/null; then
-        brew install eksctl
-      else
-        brew upgrade eksctl
-      fi
-    fi
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading eksctl"
+  if [ "${PACKAGE_MANAGER}" == "apt" ]; then
+    ensure_eksctl_curl
   fi
-  if is_darwin; then
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading eksctl on darwin"
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      if ! command -v eksctl &>/dev/null; then
-        brew install eksctl
-      else
-        brew upgrade eksctl
-      fi
-    fi
+  if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    ensure_eksctl_brew
+  fi
+}
+
+function ensure_eksctl_curl() {
+
+  curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+  sudo mv /tmp/eksctl /usr/local/bin
+}
+
+function ensure_eksctl_brew() {
+
+  if ! command -v eksctl &>/dev/null; then
+    brew install eksctl
+  else
+    brew upgrade eksctl
   fi
 }
 
 function ensure_helm() {
 
-  if is_linux; then
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading helm on linux"
-    if [ "${PACKAGE_MANAGER}" == "apt" ]; then
-      # if ! command -v helm &>/dev/null; then
-        curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 && \
-          chmod 700 get_helm.sh && \
-          ./get_helm.sh
-          rm -f ./get_helm.sh
-      # else
-      #   curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 && \
-      #     chmod 700 get_helm.sh && \
-      #     ./get_helm.sh
-      #     rm -f ./get_helm.sh
-      # fi
-    fi
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      if ! command -v helm &>/dev/null; then
-        brew install helm
-      else
-        brew upgrade helm
-      fi
-    fi
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading helm"
+  if [ "${PACKAGE_MANAGER}" == "apt" ]; then
+    ensure_helm_curl
   fi
-  if is_darwin; then
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading helm on darwin"
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      if ! command -v helm &>/dev/null; then
-        brew install helm
-      else
-        brew upgrade helm
-      fi
-    fi
+  if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    ensure_helm_brew
+  fi
+}
+
+function ensure_helm_curl() {
+
+  curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 && \
+    chmod 700 get_helm.sh && \
+    ./get_helm.sh
+    rm -f ./get_helm.sh
+}
+
+function ensure_helm_brew() {
+
+  if ! command -v helm &>/dev/null; then
+    brew install helm
+  else
+    brew upgrade helm
   fi
 }
 
 function ensure_kind() {
 
-  if is_linux; then
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading kind on linux"
-    if [ "${PACKAGE_MANAGER}" == "apt" ]; then
-      # if ! command -v kind &>/dev/null; then
-        curl -fsSLo ./kind "https://kind.sigs.k8s.io/dl/v0.20.0/kind-$(uname)-amd64"
-        chmod +x ./kind
-        sudo mv kind /usr/local/bin/
-      # else
-      #   curl -fsSLo ./kind "https://kind.sigs.k8s.io/dl/v0.20.0/kind-$(uname)-amd64"
-      #   chmod +x ./kind
-      #   sudo mv kind /usr/local/bin/
-      # fi
-    fi
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      if ! command -v kind &>/dev/null; then
-        brew install kind
-      else
-        brew upgrade kind
-      fi
-    fi
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading kind"
+  if [ "${PACKAGE_MANAGER}" == "apt" ]; then
+    ensure_kind_curl
   fi
-  if is_darwin; then
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading kind on darwin"
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      if ! command -v kind &>/dev/null; then
-        brew install kind
-      else
-        brew upgrade kind
-      fi
-    fi
+  if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    ensure_kind_brew
+  fi
+}
+
+function ensure_kind_curl() {
+
+  curl -fsSLo ./kind "https://kind.sigs.k8s.io/dl/v0.20.0/kind-$(uname)-amd64"
+  chmod +x ./kind
+  sudo mv kind /usr/local/bin/
+}
+
+function ensure_kind_brew() {
+
+  if ! command -v kind &>/dev/null; then
+    brew install kind
+  else
+    brew upgrade kind
   fi
 }
 
 function ensure_k9s() {
 
-  if is_linux; then
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading k9s on linux"
-    if [ "${PACKAGE_MANAGER}" == "apt" ]; then
-      # if ! command -v k9s &>/dev/null; then
-        curl -fsSL https://github.com/derailed/k9s/releases/download/v0.31.7/k9s_Linux_x86_64.tar.gz -o /tmp/k9s_Linux_x86_64.tar.gz
-        tar xfz /tmp/k9s_Linux_x86_64.tar.gz -C /tmp k9s
-        sudo mv /tmp/k9s /usr/local/bin/
-        rm /tmp/k9s_Linux_x86_64.tar.gz
-      # else
-      #   printf "${YELLOW}%s${RESET}\n" "K9s already installed"
-      # fi
-    fi
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      if ! command -v k9s &>/dev/null; then
-        brew install k9s
-      else
-        brew upgrade k9s
-      fi
-    fi
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading k9s"
+  if [ "${PACKAGE_MANAGER}" == "apt" ]; then
+    ensure_k9s_curl
   fi
-  if is_darwin; then
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading k9s on darwin"
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      if ! command -v k9s &>/dev/null; then
-        brew install k9s
-      else
-        brew upgrade k9s
-      fi
-    fi
+  if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    ensure_k9s_brew
+  fi
+}
+
+function ensure_k9s_curl() {
+
+  curl -fsSL https://github.com/derailed/k9s/releases/download/v0.31.7/k9s_Linux_x86_64.tar.gz -o /tmp/k9s_Linux_x86_64.tar.gz
+  tar xfz /tmp/k9s_Linux_x86_64.tar.gz -C /tmp k9s
+  sudo mv /tmp/k9s /usr/local/bin/
+  rm /tmp/k9s_Linux_x86_64.tar.gz
+}
+
+function ensure_k9s_brew() {
+
+  if ! command -v k9s &>/dev/null; then
+    brew install k9s
+  else
+    brew upgrade k9s
   fi
 }
 
 function ensure_stern() {
 
-  if is_linux; then
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading stern on linux"
-    if [ "${PACKAGE_MANAGER}" == "apt" ]; then
-      # if ! command -v stern &>/dev/null; then
-        curl -Lo stern.tgz https://github.com/stern/stern/releases/download/v1.24.0/stern_1.24.0_linux_amd64.tar.gz && \
-          tar xfvz stern.tgz && \
-          rm -f LICENSE stern.tgz && \
-          sudo mv stern /usr/local/bin/stern
-      # else
-      #   printf "${YELLOW}%s${RESET}\n" "Stern already installed"
-      # fi
-    fi
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      if ! command -v stern &>/dev/null; then
-        brew install stern
-      else
-        brew upgrade stern
-      fi
-    fi
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading stern"
+  if [ "${PACKAGE_MANAGER}" == "apt" ]; then
+    ensure_stern_curl
   fi
-  if is_darwin; then
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading stern on darwin"
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      if ! command -v stern &>/dev/null; then
-        brew install stern
-      else
-        brew upgrade stern
-      fi
-    fi
+  if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    ensure_stern_brew
+  fi
+}
+
+function ensure_stern_curl() {
+
+  curl -Lo stern.tgz https://github.com/stern/stern/releases/download/v1.24.0/stern_1.24.0_linux_amd64.tar.gz && \
+    tar xfvz stern.tgz && \
+    rm -f LICENSE stern.tgz && \
+    sudo mv stern /usr/local/bin/stern
+}
+
+function ensure_stern_brew() {
+
+  if ! command -v stern &>/dev/null; then
+    brew install stern
+  else
+    brew upgrade stern
   fi
 }
 
 function ensure_yq_jq() {
 
-  if is_linux; then
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading yq on linux"
-    # if [ "${PACKAGE_MANAGER}" == "apt" ] || [ "${PACKAGE_MANAGER}" == "brew" ]; then
-    if [ "${PACKAGE_MANAGER}" == "apt" ]; then
-      # if ! command -v yq &>/dev/null; then
-        curl -Lo yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && \
-          chmod +x yq && \
-          sudo mv yq /usr/local/bin/yq
-      # else
-      #   printf "${YELLOW}%s${RESET}\n" "Yq already installed"
-      # fi
-    fi
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      if ! command -v yq &>/dev/null; then
-        brew install yq
-      else
-        brew upgrade yq
-      fi
-      if ! command -v jq &>/dev/null; then
-        brew install jq
-      else
-        brew upgrade jq
-      fi
-    fi
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading yq and jq"
+  if [ "${PACKAGE_MANAGER}" == "apt" ]; then
+    ensure_yq_jq_curl
   fi
-  if is_darwin; then
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading yq and jq on darwin"
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      if ! command -v yq &>/dev/null; then
-        brew install yq
-      else
-        brew upgrade yq
-      fi
-      if ! command -v jq &>/dev/null; then
-        brew install jq
-      else
-        brew upgrade jq
-      fi
-    fi
+  if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    ensure_yq_jq_brew
+  fi
+}
+
+function ensure_yq_jq_curl() {
+
+  curl -Lo yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && \
+    chmod +x yq && \
+    sudo mv yq /usr/local/bin/yq
+}
+
+function ensure_yq_jq_brew() {
+
+  if ! command -v yq &>/dev/null; then
+    brew install yq
+  else
+    brew upgrade yq
+  fi
+  if ! command -v jq &>/dev/null; then
+    brew install jq
+  else
+    brew upgrade jq
   fi
 }
 
 function ensure_syft() {
 
-  if is_linux; then
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading syft on linux"
-    if [ "${PACKAGE_MANAGER}" == "apt" ]; then
-      # if ! command -v ~/.syft/bin/syft &>/dev/null; then
-        mkdir -p ~/.syft/bin
-        curl -fsSL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b ~/.syft/bin
-        if [[ ":$PATH:" == *":$HOME/.syft/bin:"* ]]; then
-          echo '~/.syft/bin already in $PATH'
-        else
-          echo 'export PATH=~/.syft/bin:$PATH' >> ~/.bashrc
-        fi
-        export PATH=~/.syft/bin:$PATH
-      # else
-      #   printf "${YELLOW}%s${RESET}\n" "Syft already installed"
-      # fi
-    fi
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      if ! command -v ~/.syft/bin/syft &>/dev/null; then
-        brew install syft
-      else
-        brew upgrade syft
-      fi
-    fi
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading syft"
+  if [ "${PACKAGE_MANAGER}" == "apt" ]; then
+    ensure_syft_curl
   fi
-  if is_darwin; then
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading syft on darwin"
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      if ! command -v ~/.syft/bin/syft &>/dev/null; then
-        brew install syft
-      else
-        brew upgrade syft
-      fi
-    fi
+  if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    ensure_syft_brew
+  fi
+}
+
+function ensure_syft_curl() {
+
+  mkdir -p ~/.syft/bin
+  curl -fsSL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b ~/.syft/bin
+  if [[ ":$PATH:" == *":$HOME/.syft/bin:"* ]]; then
+    echo '~/.syft/bin already in $PATH'
+  else
+    echo 'export PATH=~/.syft/bin:$PATH' >> ~/.bashrc
+  fi
+  export PATH=~/.syft/bin:$PATH
+}
+
+function ensure_syft_brew() {
+
+  if ! command -v ~/.syft/bin/syft &>/dev/null; then
+    brew install syft
+  else
+    brew upgrade syft
   fi
 }
 
 function ensure_grype() {
 
-  if is_linux; then
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading grype on linux"
-    if [ "${PACKAGE_MANAGER}" == "apt" ]; then
-      # if ! command -v ~/.grype/bin/grype &>/dev/null; then
-        mkdir -p ~/.grype/bin
-        curl -fsSL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b ~/.grype/bin
-        if [[ ":$PATH:" == *":$HOME/.grype/bin:"* ]]; then
-          echo '~/.grype/bin already in $PATH'
-        else
-          echo 'export PATH=~/.grype/bin:$PATH' >> ~/.bashrc
-        fi
-        export PATH=~/.grype/bin:$PATH
-      # else
-      #   printf "${YELLOW}%s${RESET}\n" "Grype already installed"
-      # fi
-    fi
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      if ! command -v ~/.grype/bin/grype &>/dev/null; then
-        brew install grype
-      else
-        brew upgrade grype
-      fi
-    fi
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading grype"
+  if [ "${PACKAGE_MANAGER}" == "apt" ]; then
+    ensure_grype_curl
   fi
-  if is_darwin; then
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading grype on darwin"
-    if [ "${PACKAGE_MANAGER}" == "brew" ]; then
-      if ! command -v ~/.grype/bin/grype &>/dev/null; then
-        brew install grype
-      else
-        brew upgrade grype
-      fi
-    fi
+  if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    ensure_grype_brew
   fi
 }
 
+function ensure_grype_curl() {
+
+  mkdir -p ~/.grype/bin
+  curl -fsSL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b ~/.grype/bin
+  if [[ ":$PATH:" == *":$HOME/.grype/bin:"* ]]; then
+    echo '~/.grype/bin already in $PATH'
+  else
+    echo 'export PATH=~/.grype/bin:$PATH' >> ~/.bashrc
+  fi
+  export PATH=~/.grype/bin:$PATH
+}
+
+function ensure_grype_brew() {
+
+  if ! command -v ~/.grype/bin/grype &>/dev/null; then
+    brew install grype
+  else
+    brew upgrade grype
+  fi
+}
+
+#######################################
+# Main
+# Globals:
+#   None
+# Arguments:
+#   None
+# Outputs:
+#   None
+#######################################
 exec_start=`date +%s`
 
 if [[ "${SHELL}" == *"bash"* ]]; then
@@ -898,6 +838,7 @@ fi
 if [[ "${SHELL}" == *"zsh"* ]]; then
   ensure_zshrc
 fi
+
 ensure_playground
 ensure_essentials
 ensure_bash
