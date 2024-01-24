@@ -677,7 +677,6 @@ function ensure_kind() {
         chmod +x ./kind
         sudo mv kind /usr/local/bin/
       # else
-      #   printf "${YELLOW}%s${RESET}\n" "Kind already installed, ensuring version 0.17.0"
       #   curl -fsSLo ./kind "https://kind.sigs.k8s.io/dl/v0.20.0/kind-$(uname)-amd64"
       #   chmod +x ./kind
       #   sudo mv kind /usr/local/bin/
@@ -856,7 +855,7 @@ function ensure_syft() {
 function ensure_grype() {
 
   if is_linux; then
-    printf "${BLUE}${BOLD}%s${RESET}\n" "Ensuring latest version of grype on linux"
+    printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading grype on linux"
     if [ "${PACKAGE_MANAGER}" == "apt" ]; then
       # if ! command -v ~/.grype/bin/grype &>/dev/null; then
         mkdir -p ~/.grype/bin
