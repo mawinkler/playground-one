@@ -605,7 +605,7 @@ function destroy() {
 
   case $1 in
     ec2|instances|all)
-      if checklock eks-ec2 ; then
+      if checklock ec2 ; then
         cd ${ONEPATH}/awsone/3-instances
         terraform destroy -auto-approve
         unlock ec2
@@ -1327,7 +1327,7 @@ if [ -f ${ONEPATH}/config.yaml ]; then
 fi
 
 if is_darwin; then
-  TEMP=$(/opt/homebrew/opt/gnu-getopt/bin/getopt -o ci:a:ld:o:s:S:v:uhC: --long config,init:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help,colima: -- "$@")
+  TEMP=$(/opt/homebrew/opt/gnu-getopt/bin/getopt -o ci:a:ld:o:s:S:v:uhC:E: --long config,init:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help,colima:,erase: -- "$@")
   if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 
   eval set -- "$TEMP"
