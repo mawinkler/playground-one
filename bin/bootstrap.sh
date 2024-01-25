@@ -50,7 +50,6 @@ fi
 function brew_installed() {
 
   if brew list $1 &>/dev/null; then
-    echo "${1} is already installed"
     return
   # else
   #   brew install $1 && echo "$1 is installed"
