@@ -9,11 +9,11 @@ data "terraform_remote_state" "kind" {
 module "container_security" {
   count = var.container_security ? 1 : 0
 
-  source           = "./container_security"
-  environment      = var.environment
-  cluster_name     = data.terraform_remote_state.kind.outputs.cluster_name
-  cluster_policy   = var.cluster_policy
-  api_key          = var.api_key
+  source         = "./container_security"
+  environment    = var.environment
+  cluster_name   = data.terraform_remote_state.kind.outputs.cluster_name
+  cluster_policy = var.cluster_policy
+  api_key        = var.api_key
 
   providers = {
     restapi.container_security = restapi.container_security
