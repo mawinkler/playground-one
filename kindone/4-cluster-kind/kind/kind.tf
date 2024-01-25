@@ -1,7 +1,7 @@
 locals {
   k8s_config_path = pathexpand("~/.kube/config")
 }
-resource "kind_cluster" "default" {
+resource "kind_cluster" "kind" {
   name            = "${var.environment}-kind"
   kubeconfig_path = local.k8s_config_path
   node_image      = "kindest/node:v${var.kubernetes_version}"

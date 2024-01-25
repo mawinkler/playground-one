@@ -318,9 +318,23 @@ function init() {
       printf '%s\n' "Create terraform.tfvars for cluster-kind"
       aws_environment=${aws_environment} \
       ONEPATH=${ONEPATH} \
-        envsubst <$ONEPATH/templates/terraform-6-cluster-kind.tfvars >$ONEPATH/awsone/6-cluster-kind/terraform.tfvars
+        envsubst <$ONEPATH/templates/terraform-4-cluster-kind.tfvars >$ONEPATH/kindone/4-cluster-kind/terraform.tfvars
 
-      cd ${ONEPATH}/awsone/6-cluster-kind
+      aws_environment=${aws_environment} \
+      vision_one_cs_enabled=${vision_one_cs_enabled} \
+      vision_one_cs_policy=${vision_one_cs_policy} \
+      vision_one_api_key=${vision_one_api_key} \
+      vision_one_region=${vision_one_region} \
+      integrations_calico_enabled=${integrations_calico_enabled} \
+      integrations_prometheus_enabled=${integrations_prometheus_enabled} \
+      integrations_prometheus_grafana_password=${integrations_prometheus_grafana_password} \
+      integrations_trivy_enabled=${integrations_trivy_enabled} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-8-cluster-kind-deployments.tfvars >$ONEPATH/kindone/8-cluster-kind-deployments/terraform.tfvars
+
+      cd ${ONEPATH}/kindone/4-cluster-kind
+      terraform init
+      cd ${ONEPATH}/kindone/8-cluster-kind-deployments
       terraform init
       ;;
   esac
@@ -414,10 +428,12 @@ function apply() {
       cd ${ONEPATH}/awsone/9-deep-security-workload
       terraform apply -auto-approve
       printf '%s\n' "public_instance_password_windows1 = \"$(terraform output -raw public_instance_password_windows1)\""
-      ;;
-    kind)
+      ;;&
+    kind|all)
       lock kind
-      cd ${ONEPATH}/awsone/6-cluster-kind
+      cd ${ONEPATH}/kindone/4-cluster-kind
+      terraform apply -auto-approve
+      cd ${ONEPATH}/kindone/8-cluster-kind-deployments
       terraform apply -auto-approve
       ;;
   esac
@@ -745,9 +761,15 @@ function destroy() {
       unlock scenarios-aks
       ;;
     kind)
-      cd ${ONEPATH}/awsone/6-cluster-kind
-      terraform destroy -auto-approve
-      unlock kind
+      if checklock kind ; then
+        cd ${ONEPATH}/kindone/8-cluster-kind-deployments
+        terraform destroy -auto-approve
+        cd ${ONEPATH}/kindone/4-cluster-kind
+        terraform destroy -auto-approve
+        unlock kind
+      else
+        printf '%s\n' "Configuration kind is not applied"
+      fi
       ;;
   esac
 }
@@ -858,10 +880,16 @@ function output() {
       else
         printf '%s\n' "Configuration dsm not applied"
       fi
-      ;;
-    kind)
-      cd ${ONEPATH}/awsone/6-cluster-kind
-      terraform output
+      ;;&
+    kind|all)
+      if checklock kind ; then
+        cd ${ONEPATH}/kindone/4-cluster-kind
+        terraform output
+        cd ${ONEPATH}/kindone/4-cluster-kind-deployments
+        terraform output
+      else
+        printf '%s\n' "Configuration kind not applied"
+      fi
       ;;
   esac
 }
@@ -908,6 +936,9 @@ function list() {
   fi
   if checklock dsm ; then
     printf '%s\n' "Configuration dsm is applied"
+  fi
+  if checklock kind ; then
+    printf '%s\n' "Configuration kind is applied"
   fi
 }
 
@@ -972,9 +1003,11 @@ function state() {
     dsw|all)
       cd ${ONEPATH}/awsone/9-deep-security-workload
       terraform state list
-      ;;
-    kind)
-      cd ${ONEPATH}/awsone/6-cluster-kind
+      ;;&
+    kind|all)
+      cd ${ONEPATH}/kindone/4-cluster-kind
+      terraform state list
+      cd ${ONEPATH}/kindone/4-cluster-kind-deployments
       terraform state list
       ;;
   esac
@@ -1042,9 +1075,11 @@ function show() {
     dsw|all)
       cd ${ONEPATH}/awsone/9-deep-security-workload
       terraform show
-      ;;
-    kind)
-      cd ${ONEPATH}/awsone/6-cluster-kind
+      ;;&
+    kind|all)
+      cd ${ONEPATH}/kindone/4-cluster-kind
+      terraform show
+      cd ${ONEPATH}/kindone/4-cluster-kind-deployments
       terraform show
       ;;
   esac
@@ -1111,9 +1146,11 @@ function validate() {
     dsw|all)
       cd ${ONEPATH}/awsone/9-deep-security-workload
       terraform validate
-      ;;
-    kind)
-      cd ${ONEPATH}/awsone/6-cluster-kind
+      ;;&
+    kind|all)
+      cd ${ONEPATH}/kindone/4-cluster-kind
+      terraform validate
+      cd ${ONEPATH}/kindone/4-cluster-kind-deployments
       terraform validate
       ;;
   esac
@@ -1260,7 +1297,11 @@ function erase() {
       ;;&
     kind|all)
       if ! checklock kind; then
-        cd ${ONEPATH}/awsone/6-cluster-kind
+        cd ${ONEPATH}/kindone/4-cluster-kind
+        rm -rf .terraform
+        rm -f .terraform.lock.hcl
+        rm -f terraform.tfstate*
+        cd ${ONEPATH}/kindone/4-cluster-kind-deployments
         rm -rf .terraform
         rm -f .terraform.lock.hcl
         rm -f terraform.tfstate*
@@ -1327,7 +1368,7 @@ if [ -f ${ONEPATH}/config.yaml ]; then
 fi
 
 if is_darwin; then
-  TEMP=$(/opt/homebrew/opt/gnu-getopt/bin/getopt -o ci:a:ld:o:s:S:v:uhC:E: --long config,init:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help,colima:,erase: -- "$@")
+  TEMP=$(/opt/homebrew/opt/gnu-getopt/bin/getopt -o ci:a:ld:o:s:S:v:uhC: --long config,init:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help,colima: -- "$@")
   if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 
   eval set -- "$TEMP"
