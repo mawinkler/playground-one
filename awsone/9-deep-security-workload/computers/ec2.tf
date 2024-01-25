@@ -23,7 +23,7 @@ resource "aws_instance" "linux1" {
     Configuration = "dsm"
   }
 
-  user_data = data.template_file.linux_userdata_amzn.rendered
+  user_data = local.userdata_amzn
 
   connection {
     user        = var.linux_username_amzn
@@ -50,7 +50,7 @@ resource "aws_instance" "linux2" {
     Configuration = "dsm"
   }
 
-  user_data = data.template_file.linux_userdata_deb.rendered
+  user_data = local.userdata_deb
 
   connection {
     user        = var.linux_username_ubnt
@@ -83,7 +83,7 @@ resource "aws_instance" "windows1" {
     Configuration = "dsm"
   }
 
-  user_data = data.template_file.windows_userdata.rendered
+  user_data = local.userdata_windows
 
   connection {
     host     = coalesce(self.public_ip, self.private_ip)

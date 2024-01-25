@@ -19,7 +19,7 @@ resource "aws_instance" "bastion" {
     Configuration = "dsm"
   }
 
-  user_data = data.template_file.linux_userdata.rendered
+  user_data = local.userdata_linux
 
   connection {
     user        = var.linux_username

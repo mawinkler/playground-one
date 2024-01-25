@@ -20,4 +20,7 @@ locals {
       }
     }
   EOT
+
+  userdata_linux = templatefile("${path.module}/userdata_linux.tftpl", {
+  })
 }
