@@ -47,6 +47,17 @@ if is_darwin; then
   PACKAGE_MANAGER="brew"
 fi
 
+function brew_installed() {
+
+  if brew list $1 &>/dev/null; then
+    echo "${1} is already installed"
+    return
+  # else
+  #   brew install $1 && echo "$1 is installed"
+  fi
+  false
+}
+
 # Repo
 REPO=https://raw.githubusercontent.com/mawinkler/playground-one/main
 
@@ -566,8 +577,10 @@ function ensure_container_engine_brew() {
     /opt/homebrew/opt/colima/bin/colima start
     brew install docker
   else
-    brew upgrade colima
-    brew upgrade docker
+    if brew_installed colima; then
+      brew upgrade colima
+      brew upgrade docker
+    fi
   fi
 }
 
