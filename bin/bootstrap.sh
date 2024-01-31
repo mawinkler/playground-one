@@ -47,6 +47,21 @@ if is_darwin; then
   PACKAGE_MANAGER="brew"
 fi
 
+ARCH=$(uname -m)
+case $ARCH in
+  armv5*) ARCH="armv5";;
+  armv6*) ARCH="armv6";;
+  armv7*) ARCH="arm";;
+  arm64) ARCH="arm64";;
+  aarch64) ARCH="arm64";;
+  x86) ARCH="386";;
+  x86_64) ARCH="amd64";;
+  i686) ARCH="386";;
+  i386) ARCH="386";;
+esac
+
+printf "${BLUE}${BOLD}%s${RESET}\n" "Bootstrapping on ${ARCH}"
+
 function brew_installed() {
 
   if brew list $1 &>/dev/null; then
@@ -254,7 +269,7 @@ function ensure_yq_jq() {
 
 function ensure_yq_jq_curl() {
 
-  curl -Lo yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && \
+  curl -Lo yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${ARCH} && \
     chmod +x yq && \
     sudo mv yq /usr/local/bin/yq
 }
@@ -289,7 +304,12 @@ function ensure_awscli() {
 
 function ensure_awscli_curl() {
 
-  curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
+  case $ARCH in
+    amd64) AARCH="x86_64";;
+    arm64) AARCH="aarch64";;
+  esac
+
+  curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-${AARCH}.zip" -o "/tmp/awscliv2.zip"
   unzip -q /tmp/awscliv2.zip -d /tmp
   sudo /tmp/aws/install --update
   rm -Rf /tmp/aws /tmp/awscliv2.zip
@@ -426,7 +446,7 @@ function ensure_eksctl() {
 
 function ensure_eksctl_curl() {
 
-  curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+  curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_${ARCH}.tar.gz" | tar xz -C /tmp
   sudo mv /tmp/eksctl /usr/local/bin
 }
 
@@ -466,7 +486,7 @@ function ensure_azcli_apt() {
     echo "deb [arch=`dpkg --print-architecture` signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/azure-cli/ $AZ_DIST main" |
         sudo tee /etc/apt/sources.list.d/azure-cli.list
         
-    # echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-$(lsb_release -cs)-prod $(lsb_release -cs) main" | \
+    # echo "deb [arch=${ARCH}] https://packages.microsoft.com/repos/microsoft-ubuntu-$(lsb_release -cs)-prod $(lsb_release -cs) main" | \
     #     sudo tee /etc/apt/sources.list.d/dotnetdev.list
 
     sudo apt-get update
@@ -489,9 +509,9 @@ function ensure_azcli_apt() {
 function ensure_azcli_brew() {
 
   if ! command -v az &>/dev/null; then
-    brew install azure-cli
+    echo brew install azure-cli
   else
-    brew upgrade azure-cli
+    echo brew upgrade azure-cli
   fi
 }
 
@@ -521,45 +541,24 @@ function ensure_container_engine_apt() {
     sudo add-apt-repository universe
     sudo add-apt-repository multiverse
     sudo apt-get update
-    sudo apt-get install -y \
-      apt-transport-https ca-certificates curl \
-      gnupg-agent software-properties-common
+    sudo apt-get install ca-certificates curl
+    sudo install -m 0755 -d /etc/apt/keyrings
+    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-    # Add Docker’s official GPG key:
-    curl -fsSL \
-      https://download.docker.com/linux/ubuntu/gpg | \
-      sudo apt-key add -
-
-    # Docker stable repository
-    sudo add-apt-repository \
-      "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
-      $(lsb_release -cs) \
-      stable"
+    # Add the repository to Apt sources:
+    echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+      $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+      sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    sudo apt-get update
 
     # Install Docker
     sudo apt-get update
     sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
     sudo usermod -aG docker $(whoami)
-
-    # Allow insecure registries
-    # FIXME: check if already configured. If not merge not replace
-    sudo mkdir -p /etc/docker
-    sudo touch /etc/docker/daemon.json && \
-      sudo cp /etc/docker/daemon.json /etc/docker/daemon.json.backup && \
-      echo '{"insecure-registries": ["172.250.255.1","172.250.255.2","172.250.255.3","172.250.255.4","172.250.255.5","172.250.255.1:5000","172.250.255.2:5000","172.250.255.3:5000","172.250.255.4:5000","172.250.255.5:5000"]}' > /tmp/daemon.json && \
-      sudo mv /tmp/daemon.json /etc/docker/daemon.json && \
-      sudo systemctl restart docker
   else
     sudo apt-get upgrade -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-
-    # Allow insecure registries
-    # FIXME: check if already configured. If not merge not replace
-    sudo mkdir -p /etc/docker
-    sudo touch /etc/docker/daemon.json && \
-      sudo cp /etc/docker/daemon.json /etc/docker/daemon.json.backup && \
-      echo '{"insecure-registries": ["172.250.255.1","172.250.255.2","172.250.255.3","172.250.255.4","172.250.255.5","172.250.255.1:5000","172.250.255.2:5000","172.250.255.3:5000","172.250.255.4:5000","172.250.255.5:5000"]}' > /tmp/daemon.json && \
-      sudo mv /tmp/daemon.json /etc/docker/daemon.json && \
-      sudo systemctl restart docker
   fi
 }
 
@@ -705,7 +704,7 @@ function ensure_kind() {
 
 function ensure_kind_curl() {
 
-  curl -fsSLo ./kind "https://kind.sigs.k8s.io/dl/v0.20.0/kind-$(uname)-amd64"
+  curl -fsSLo ./kind "https://kind.sigs.k8s.io/dl/v0.20.0/kind-$(uname)-${ARCH}"
   chmod +x ./kind
   sudo mv kind /usr/local/bin/
 }
@@ -732,10 +731,10 @@ function ensure_k9s() {
 
 function ensure_k9s_curl() {
 
-  curl -fsSL https://github.com/derailed/k9s/releases/download/v0.31.7/k9s_Linux_amd64.tar.gz -o /tmp/k9s_Linux_amd64.tar.gz
-  tar xfz /tmp/k9s_Linux_amd64.tar.gz -C /tmp k9s
+  curl -fsSL https://github.com/derailed/k9s/releases/download/v0.31.7/k9s_Linux_${ARCH}.tar.gz -o /tmp/k9s_Linux.tar.gz
+  tar xfz /tmp/k9s_Linux.tar.gz -C /tmp k9s
   sudo mv /tmp/k9s /usr/local/bin/
-  rm /tmp/k9s_Linux_amd64.tar.gz
+  rm /tmp/k9s_Linux.tar.gz
 }
 
 function ensure_k9s_brew() {
@@ -760,7 +759,7 @@ function ensure_stern() {
 
 function ensure_stern_curl() {
 
-  curl -Lo stern.tgz https://github.com/stern/stern/releases/download/v1.24.0/stern_1.24.0_linux_amd64.tar.gz && \
+  curl -Lo stern.tgz https://github.com/stern/stern/releases/download/v1.24.0/stern_1.24.0_linux_${ARCH}.tar.gz && \
     tar xfvz stern.tgz && \
     rm -f LICENSE stern.tgz && \
     sudo mv stern /usr/local/bin/stern
