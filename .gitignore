@@ -57,6 +57,9 @@ v1demo
 temp
 .ecsfg
 
+# Workdir
+workdir*
+
 # In development
 4-cluster-eks-redesign
 9-deep-security-bastion
