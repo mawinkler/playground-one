@@ -1383,7 +1383,8 @@ if [ -f ${ONEPATH}/config.yaml ]; then
 fi
 
 if is_darwin; then
-  TEMP=$(/opt/homebrew/opt/gnu-getopt/bin/getopt -o ci:a:ld:o:s:S:v:uhC:U --long config,init:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help,colima:,update -- "$@")
+  TEMP=$(/opt/homebrew/opt/gnu-getopt/bin/getopt -o ci:a:ld:o:s:S:v:uhE:C:U --long config,init:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help,erase:,colima:,update -- "$@")
+
   if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 
   eval set -- "$TEMP"
