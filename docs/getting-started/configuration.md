@@ -34,33 +34,36 @@ less common or more advanced commands.
 Available configurations: vpc, nw, ec2, eks-ec2, eks-fg, ecs, scenarios-ec2, scenarios-fg
 
 Main commands:
-  -c --config   Set/update Playground One main configuration
-  -i --init     Prepare a configuration for other commands
-  -a --apply    Create or update a configuration
-  -l --list     List applied configurations
-  -d --destroy  Destroy previously-created configuration
-  -o --output   Show output values
-  -s --state    Show the current state
-  -h --help     Show this help
+  -c --config    Set/update Playground One main configuration
+  -i --init      Prepare a configuration for other commands
+  -a --apply     Create or update a configuration
+  -l --list      List applied configurations
+  -d --destroy   Destroy previously-created configuration
+  -o --output    Show output values
+  -s --state     Show the current state
+  -E --erase     Cleanup Terraform state and modules
+  -h --help      Show this help
 
 Other commands:
-  -S --show     Show advanced state
-  -u --updateip Update access IP(s)
-  -v --validate Check whether the configuration is valid
+  -S --show      Show advanced state
+  -u --updateip  Update access IP(s)
+  -U --update    Update Playground One and components
+  -v --validate  Check whether the configuration is valid
 
 Available configurations:
-  nw            Network configuration
-  ec2           EC2 configuration
-  eks-ec2       EKS configuration
-  eks-fg        EKS configuration
-  aks           AKS configuration
-  ecs           ECS configurations
-  kind          Kind configuration
-  scenarios-ec2 Scenario configuration
-  scenarios-fg  Scenario configuration
-  dsm           Deep Security configuration
-  dsw           Deep Security Workload configuration
-  all           All configurations
+  nw             Network configuration (synonym: network)
+  ec2            EC2 configuration (synonym: instances)
+  eks-ec2        EKS configuration (synonym: eks)
+  eks-fg         EKS configuration
+  aks            AKS configuration
+  ecs            ECS configurations
+  kind           Kind configuration
+  scenarios-ec2  Scenario configuration (synonym: scenarios)
+  scenarios-fg   Scenario configuration
+  scenarios-aks  Scenario configuration
+  dsm            Deep Security configuration (synonym: deepsecurity)
+  dsw            Deep Security Workload configuration
+  all            All configurations
 
 Examples:
   pgo --apply nw
