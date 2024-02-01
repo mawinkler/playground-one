@@ -14,16 +14,24 @@ Ultra fast and slim playground in the clouds designed for educational and demoin
 
 In a nutshell:
 
-- Bootstrapping directly from the clouds. It will attempt to upgrade already installed tools to the latest available version.  
+- Bootstrapping directly from the clouds.
 
   ```sh
-  curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/pgo | bash && exit
+  curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/pgoc | bash
+
+  ssh -p 2222 pgo@localhost
+  # password: pgo
   ```
 
 - Management of the environment with the help of an easy to use command line interface `pgo`.
 - Based on Terraform >1.5
 
 ## Change Log
+
+02/01/2024
+
+- Playground One in a Box - The Playground One Container<br>
+  The Playgrond One Container allows you to use the playground on any container engine hosted either on `arm64` or `amd64` from within a containerized environment not affecting your system.
 
 01/23/2024
 

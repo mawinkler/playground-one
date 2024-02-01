@@ -3,6 +3,10 @@ PGO_VERSION=$(cat .PGO_VERSION)
 
 printf '%s\n' "Building mcs version ${PGO_VERSION}"
 
+# docker buildx create \
+#   --name container \
+#   --driver=docker-container 
+#   container
 # docker run --privileged multiarch/qemu-user-static:latest --reset -p yes --credential yes
 
     # --progress=plain \

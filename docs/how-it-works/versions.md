@@ -1,6 +1,6 @@
 # Versions as of 12/14/2024
 
-**Terraform >=1.6**
+**Terraform >=1.5**
 
 ## Terraform Providers
 
@@ -13,7 +13,6 @@ Kubernetes | https://registry.terraform.io/providers/hashicorp/kubernetes | 2.24
 Local | https://registry.terraform.io/providers/hashicorp/local | 2.4.1 | nw, eks-ec2, eks-fg, kind, dsm
 Random | https://registry.terraform.io/providers/hashicorp/random | 3.6.0 | nw, ec2, eks-ec2, eks-fg
 RestAPI | https://registry.terraform.io/providers/Mastercard/restapi | 1.18.2 | eks-ec2, eks-fg, dsw
-Template | https://registry.terraform.io/providers/hashicorp/template | 2.2.0 | ec2, eks-ec2, eks-fg, dsm, dsw
 Time | https://registry.terraform.io/providers/hashicorp/time | 0.10.0 | dsw
 TLS | https://registry.terraform.io/providers/hashicorp/tls | 4.0.5 | all
 
