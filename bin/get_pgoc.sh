@@ -20,10 +20,9 @@ GREEN=$(tput setaf 2)
 BOLD=$(tput bold)
 RESET=$(tput sgr0)
 
-# Download current version of pgoc
-curl -fsSLO https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/pgoc
-chmod +x pgoc
-
+#######################################
+# Query AWS Keys
+#######################################
 function query_aws_keys() {
 
   # # In short: 3>&1 opens a new file descriptor which points to stdout,
@@ -56,10 +55,6 @@ function query_aws_keys() {
 
 #######################################
 # Test for EC2 instance
-# Globals:
-#   None
-# Arguments:
-#   None
 # Returns:
 #   0: if EC2
 #   false: if not EC2
@@ -74,13 +69,6 @@ function is_ec2() {
 
 #######################################
 # Create and assign EC2 instance role
-# Resize volume
-# Globals:
-#   None
-# Arguments:
-#   None
-# Returns:
-#   None
 #######################################
 function prepare_cloud9() {
 
@@ -170,6 +158,9 @@ function prepare_cloud9() {
   fi
 }
 
+#######################################
+# Create and assign instance role
+#######################################
 function cloud9_instance_role() {
 
   AWS_ACCOUNT_ID=$(aws sts get-caller-identity --output text --query Account)
@@ -231,8 +222,11 @@ function cloud9_instance_role() {
 
 }
 
+#######################################
+# Resize Cloud9 volume
+#######################################
 function cloud9_resize() {
-  SIZE=${1:-40}
+  SIZE=${1:-30}
   INSTANCEID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id --header "X-aws-ec2-metadata-token: $METADATA_TOKEN")
   VOLUMEID=$(aws ec2 describe-instances \
     --instance-id $INSTANCEID \
@@ -260,6 +254,9 @@ function cloud9_resize() {
   fi
 }
 
+#######################################
+# Create working directory for pgoc
+#######################################
 function create_workdir() {
   if [ ! -d workdir ]; then
     printf '%s\n' "Pulling Playground One Container"
@@ -300,6 +297,11 @@ function create_workdir() {
   fi
 }
 
+
+####################################### 
+# Main
+#######################################
+
 if is_ec2 ; then
   export METADATA_TOKEN=$(curl --request PUT "http://169.254.169.254/latest/api/token" --header "X-aws-ec2-metadata-token-ttl-seconds: 3600")
 
@@ -308,9 +310,22 @@ if is_ec2 ; then
     chmod +x jq
   fi
 
-  # If we are bootstrapping an EC2 intance (e.g. Cloud9), we need an instance role
-  prepare_cloud9
+  # If we were piped to bash we can't read user input
+  if [ -p /dev/stdin ]; then
+    curl -fsSLO https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/get_pgoc.sh
+    chmod +x get_gpoc.sh
+
+    printf '%s\n' "Please run ./get_pgoc.sh"
+    exit 0
+  else
+    # Create instance role and increase volume size
+    prepare_cloud9
+  fi
 fi
+
+# Download current version of pgoc
+curl -fsSLO https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/pgoc
+chmod +x pgoc
 
 create_workdir
 
