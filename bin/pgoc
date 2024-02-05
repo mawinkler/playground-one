@@ -5,26 +5,46 @@ PORT=2222
 
 rm -f get_pgoc.sh
 
-printf '%s\n' "Ensuring Playground One Container is up to date"
-docker pull mawinkler/pgoc:${PGO_VERSION}
+function pgoc_start() {
 
-if [ ! "$(docker ps -q -f name=pgoc-${PGO_VERSION})" ]; then
-  printf '%s\n' "Starting Playground One Container"
-  docker run \
-    --rm \
-    --detach \
-    --name=pgoc-${PGO_VERSION} \
-    --env TZ=Europe/Berlin \
-    --env DEBIAN_FRONTEND=noninteractive \
-    --publish ${PORT}:22 \
-    --volume $(pwd)/workdir:/home/pgo \
-    --volume /var/run/docker.sock:/var/run/docker.sock \
-    mawinkler/pgoc:${PGO_VERSION}
+  if [ ! "$(docker ps -q -f name=pgoc-${PGO_VERSION})" ]; then
+    printf '%s\n' "Starting Playground One Container"
+    docker run \
+      --rm \
+      --detach \
+      --name=pgoc-${PGO_VERSION} \
+      --env DEBIAN_FRONTEND=noninteractive \
+      --publish ${PORT}:22 \
+      --volume $(pwd)/workdir:/home/pgo \
+      --volume /etc/timezone:/etc/timezone \
+      --volume /var/run/docker.sock:/var/run/docker.sock \
+      mawinkler/pgoc:${PGO_VERSION}
+    sleep 2
+  fi
 
-  sleep 2
-fi
+  printf '\n%s\n' "Connect:  ssh -p ${PORT} pgo@localhost"
+  printf '%s\n' "Password: pgo"
+}
 
-printf '\n%s\n' "Connect:  ssh -p ${PORT} pgo@localhost"
-printf '%s\n' "Password: pgo"
+function pgoc_stop() {
+  
+  if [ "$(docker ps -q -f name=pgoc-${PGO_VERSION})" ]; then
+    printf '%s\n' "Stopping Playground One Container"
+    docker stop pgoc-${PGO_VERSION}
+  fi
+}
+
+case $1 in
+  update)
+    printf '%s\n' "Ensuring Playground One Container is up to date"
+    docker pull mawinkler/pgoc:${PGO_VERSION}
+    ;;
+  stop|restart)
+    pgoc_stop
+    ;;&
+  start|restart)
+    pgoc_start
+    ;;
+esac
 
 ssh -o StrictHostKeyChecking=no -p ${PORT} pgo@localhost
