@@ -26,9 +26,10 @@ curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/g
 The above will pull the latest version of the container. If you're already authenticated to AWS and/or have an already existing `config.yaml` from a previous Playground One installation in the current directory, they will automatically be made available to the Playground One container.
 
 > ***Note:*** When running the above `curl`-command on an ***AWS Cloud9*** instance you will be asked to run `./get_pgoc.sh` manually. It will asked for your AWS credentials which will never be stored on disk and get removed from memory after creating and assigning an instance role to the Cloud9 instance.
-> If you didn't do before, you will be asked to turn off AWS managed temporary credentials: 
-> - Click the gear icon (in top right corner), or click to open a new tab and choose `[Open Preferences]`
-> - Select AWS SETTINGS
+> If you didn't do before, you will be asked to turn off AWS managed temporary credentials:<br> 
+> 
+> - Click the gear icon (in top right corner), or click to open a new tab and choose `[Open Preferences]`<br>
+> - Select AWS SETTINGS<br>
 > - Turn OFF `[AWS managed temporary credentials]`
 
 You will notice, that a new directory called `workdir` has been created. This directory represents the `home`-directory from your Playground One Container. To access it run
