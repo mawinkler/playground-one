@@ -329,4 +329,4 @@ chmod +x pgoc
 
 create_workdir
 
-printf '\n%s\n' "Run: ./pgoc"
+printf '\n%s\n' "Run: ./pgoc start"

@@ -10,17 +10,19 @@ awsone
 |   |   ├── eks-deployments (8-cluster-eks-ec2-deployments)
 |   |   └── scenarios (7-scenarios-ec2)
 |   ├── eks (4-cluster-eks-fargate)
+|   |   ├── eks-deployments (8-cluster-eks-fargate-deployments)
 |   |   └── scenarios (7-scenarios-fargate)
 |   └── ecs (5-cluster-ecs)
 └── dsm (9-deep-security)
     └── workload (9-deep-security-workload) 
+
+azone
+└── aks (4-cluster-aks)
+    ├── aks-deployments (8-cluster-aks-deployments)
+    └── scenarios (7-scenarios-aks)
 ```
 
 As we can see, the configuration `network` is the base for the other configurations. It creates the VPC, Subnets, Route Tables, Security Groups, etc. One can choose to only create the EKS cluster, or ECS cluster, or even the full stack. Everything will reside in the same VPC.
-
-*Architecture: Example environment name `pgo8`*
-
-![alt text](images/architecture.png "Architecture diagram")
 
 The following chapters describe the different configurations on a high level, refer the the dedicated documentation for more details.
 
@@ -140,3 +142,9 @@ To come:
 - Documentation of migration scenarios:
   - DS --> V1ES
   - WS --> V1ES
+
+## AKS Cluster
+
+*Configuration located in `azone/4-cluster-aks`*
+
+This is work in progress and not finalized yet.

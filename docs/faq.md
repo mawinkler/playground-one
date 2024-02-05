@@ -130,3 +130,12 @@ For authentication use:
 
 - Username: `foo@bar.org`
 - Password: `foobar`
+
+## Upgrade Vision One Container Security to the latest Release
+
+```sh
+helm get values --namespace trendmicro-system container-security | helm upgrade container-security \
+    --namespace trendmicro-system \
+    --values - \
+    https://github.com/trendmicro/cloudone-container-security-helm/archive/master.tar.gz
+```

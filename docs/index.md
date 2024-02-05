@@ -17,12 +17,11 @@ In a nutshell:
 - Bootstrapping directly from the clouds.
 
   ```sh
-  curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/pgoc | bash
-
-  ssh -p 2222 pgo@localhost
-  # password: pgo
+  curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/get_pgoc.sh | bash
   ```
 
+- Playground One is containerized and supports any `arm64`  or `amd64` based container engine.
+- A native installation is possible as well.
 - Management of the environment with the help of an easy to use command line interface `pgo`.
 - Based on Terraform >1.5
 
