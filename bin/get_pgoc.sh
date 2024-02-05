@@ -86,7 +86,7 @@ function prepare_cloud9() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for EC2 instance role"
   # Checking instance role
-  if [[ $(aws sts get-caller-identity --query Arn 2> /dev/null | grep assumed-role) =~ "ekscluster" ]]; then
+  if [[ $(aws sts get-caller-identity --query Arn 2> /dev/null | grep assumed-role) =~ "pgo" ]]; then
     echo Instance role set
   else
     FAIL=1
@@ -107,7 +107,7 @@ function prepare_cloud9() {
 
     while [ $FAIL -eq 1 ]; do
       # Checking credentials
-      if [[ $(aws sts get-caller-identity --query Arn 2> /dev/null | grep assumed-role) =~ "ekscluster" ]]; then
+      if [[ $(aws sts get-caller-identity --query Arn 2> /dev/null | grep assumed-role) =~ "pgo" ]]; then
         echo Instance role set
         FAIL=0
       elif [[ $(aws sts get-caller-identity --query Arn 2> /dev/null | grep assumed-role) =~ "AWSCloud9SSMAccessRole" ]] || [ "$(aws sts get-caller-identity --query Arn 2> /dev/null)" == "" ]; then
@@ -140,7 +140,7 @@ function prepare_cloud9() {
     fi
 
     # Create and assign instance role
-    if [[ $(aws sts get-caller-identity --query Arn 2> /dev/null | grep assumed-role) =~ "ekscluster" ]]; then
+    if [[ $(aws sts get-caller-identity --query Arn 2> /dev/null | grep assumed-role) =~ "pgo" ]]; then
       echo
     else
       cloud9_instance_role
@@ -152,13 +152,13 @@ function prepare_cloud9() {
 
     for i in {1..60} ; do
       sleep 2
-      if [[ $(aws sts get-caller-identity --query Arn 2> /dev/null | grep assumed-role) =~ "ekscluster" ]]; then
+      if [[ $(aws sts get-caller-identity --query Arn 2> /dev/null | grep assumed-role) =~ "pgo" ]]; then
         break
       fi
       printf '%s' "."
     done
 
-    if [[ $(aws sts get-caller-identity --query Arn 2> /dev/null | grep assumed-role) =~ "ekscluster" ]]; then
+    if [[ $(aws sts get-caller-identity --query Arn 2> /dev/null | grep assumed-role) =~ "pgo" ]]; then
       echo "IAM role valid"
     else
       echo "IAM role NOT valid"
@@ -185,7 +185,7 @@ function cloud9_instance_role() {
   aws configure set default.region ${AWS_DEFAULT_REGION}
 
   # Next, we define some names:
-  ROLE_NAME=ekscluster-admin-$(openssl rand -hex 4)
+  ROLE_NAME=pgo-admin-$(openssl rand -hex 4)
   INSTANCE_PROFILE_NAME=${ROLE_NAME}
 
   # Create the policy for EC2 access
@@ -295,6 +295,8 @@ function create_workdir() {
         cp config.yaml workdir/playground-one/
       fi
     fi
+  else
+    printf '%s\n' "Workdir already present"
   fi
 }
 
@@ -311,3 +313,5 @@ if is_ec2 ; then
 fi
 
 create_workdir
+
+printf '\n%s\n' "Run: ./pgoc"
