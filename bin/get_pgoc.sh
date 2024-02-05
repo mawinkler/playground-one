@@ -303,7 +303,7 @@ function create_workdir() {
 #######################################
 
 if is_ec2 ; then
-  export METADATA_TOKEN=$(curl --request PUT "http://169.254.169.254/latest/api/token" --header "X-aws-ec2-metadata-token-ttl-seconds: 3600")
+  export METADATA_TOKEN=$(curl -sS --request PUT "http://169.254.169.254/latest/api/token" --header "X-aws-ec2-metadata-token-ttl-seconds: 3600")
 
   if ! command -v ./jq &>/dev/null; then
     curl -fsSL https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux64 -o jq
@@ -313,7 +313,7 @@ if is_ec2 ; then
   # If we were piped to bash we can't read user input
   if [ -p /dev/stdin ]; then
     curl -fsSLO https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/get_pgoc.sh
-    chmod +x get_gpoc.sh
+    chmod +x ./get_gpoc.sh
 
     printf '%s\n' "Please run ./get_pgoc.sh"
     exit 0
