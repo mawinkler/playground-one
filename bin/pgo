@@ -1198,112 +1198,112 @@ function erase() {
     nw|network|all)
       if ! checklock nw; then
         cd ${ONEPATH}/awsone/2-network
-        rm -rf .terraform
-        rm -f .terraform.lock.hcl
+        # rm -rf .terraform
+        # rm -f .terraform.lock.hcl
         rm -f terraform.tfstate*
       fi
       ;;&
     ec2|instances|all)
       if ! checklock ec2; then
         cd ${ONEPATH}/awsone/3-instances
-        rm -rf .terraform
-        rm -f .terraform.lock.hcl
+        # rm -rf .terraform
+        # rm -f .terraform.lock.hcl
         rm -f terraform.tfstate*
       fi
       ;;&
     eks|eks-ec2|all)
       if ! checklock eks-ec2; then
         cd ${ONEPATH}/awsone/4-cluster-eks-ec2
-        rm -rf .terraform
-        rm -f .terraform.lock.hcl
+        # rm -rf .terraform
+        # rm -f .terraform.lock.hcl
         rm -f terraform.tfstate*
         cd ${ONEPATH}/awsone/8-cluster-eks-ec2-deployments
-        rm -rf .terraform
-        rm -f .terraform.lock.hcl
+        # rm -rf .terraform
+        # rm -f .terraform.lock.hcl
         rm -f terraform.tfstate*
       fi
       ;;&
     eks-fg|all)
       if ! checklock eks-fg; then
         cd ${ONEPATH}/awsone/4-cluster-eks-fargate
-        rm -rf .terraform
-        rm -f .terraform.lock.hcl
+        # rm -rf .terraform
+        # rm -f .terraform.lock.hcl
         rm -f terraform.tfstate*
         cd ${ONEPATH}/awsone/8-cluster-eks-fargate-deployments
-        rm -rf .terraform
-        rm -f .terraform.lock.hcl
+        # rm -rf .terraform
+        # rm -f .terraform.lock.hcl
         rm -f terraform.tfstate*
       fi
       ;;&
     aks|all)
       if ! checklock aks; then
         cd ${ONEPATH}/azone/4-cluster-aks
-        rm -rf .terraform
-        rm -f .terraform.lock.hcl
+        # rm -rf .terraform
+        # rm -f .terraform.lock.hcl
         rm -f terraform.tfstate*
         cd ${ONEPATH}/azone/8-cluster-aks-deployments
-        rm -rf .terraform
-        rm -f .terraform.lock.hcl
+        # rm -rf .terraform
+        # rm -f .terraform.lock.hcl
         rm -f terraform.tfstate*
       fi
       ;;&
     ecs|all)
       if ! checklock ecs; then
         cd ${ONEPATH}/awsone/5-cluster-ecs
-        rm -rf .terraform
-        rm -f .terraform.lock.hcl
+        # rm -rf .terraform
+        # rm -f .terraform.lock.hcl
         rm -f terraform.tfstate*
       fi
       ;;&
     scenarios|scenarios-ec2|all)
       if ! checklock scenarios-ec2; then
         cd ${ONEPATH}/awsone/7-scenarios-ec2
-        rm -rf .terraform
-        rm -f .terraform.lock.hcl
+        # rm -rf .terraform
+        # rm -f .terraform.lock.hcl
         rm -f terraform.tfstate*
       fi
       ;;&
     scenarios-fg|all)
       if ! checklock scenarios-fg; then
         cd ${ONEPATH}/awsone/7-scenarios-fargate
-        rm -rf .terraform
-        rm -f .terraform.lock.hcl
+        # rm -rf .terraform
+        # rm -f .terraform.lock.hcl
         rm -f terraform.tfstate*
       fi
       ;;&
     scenarios-aks|all)
       if ! checklock scenarios-aks; then
         cd ${ONEPATH}/azone/7-scenarios-aks
-        rm -rf .terraform
-        rm -f .terraform.lock.hcl
+        # rm -rf .terraform
+        # rm -f .terraform.lock.hcl
         rm -f terraform.tfstate*
       fi
       ;;&
     dsm|deepsecurity|all)
       if ! checklock dsm; then
         cd ${ONEPATH}/awsone/9-deep-security
-        rm -rf .terraform
-        rm -f .terraform.lock.hcl
+        # rm -rf .terraform
+        # rm -f .terraform.lock.hcl
         rm -f terraform.tfstate*
       fi
       ;;&
     dsw|all)
       if ! checklock dsm; then
         cd ${ONEPATH}/awsone/9-deep-security-workload
-        rm -rf .terraform
-        rm -f .terraform.lock.hcl
+        # rm -rf .terraform
+        # rm -f .terraform.lock.hcl
         rm -f terraform.tfstate*
       fi
       ;;&
     kind|all)
       if ! checklock kind; then
         cd ${ONEPATH}/kindone/4-cluster-kind
-        rm -rf .terraform
-        rm -f .terraform.lock.hcl
+        # rm -rf .terraform
+        # rm -f .terraform.lock.hcl
         rm -f terraform.tfstate*
-        cd ${ONEPATH}/kindone/4-cluster-kind-deployments
-        rm -rf .terraform
-        rm -f .terraform.lock.hcl
+        cd ${ONEPATH}/kindone/8-cluster-kind-deployments
+        # rm -rf .terraform
+        # rm -f .terraform.lock.hcl
         rm -f terraform.tfstate*
       fi
       ;;
@@ -1342,7 +1342,7 @@ function helpcmd() {
   printf '%s\n' "  -d --destroy   Destroy previously-created configuration"
   printf '%s\n' "  -o --output    Show output values"
   printf '%s\n' "  -s --state     Show the current state"
-  printf '%s\n' "  -E --erase     Cleanup Terraform state and modules"
+  printf '%s\n' "  -E --erase     Cleanup Terraform state"
   printf '%s\n' "  -h --help      Show this help"
   printf '%s\n' ""
   printf '%s\n' "Other commands:"

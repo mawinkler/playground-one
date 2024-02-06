@@ -25,14 +25,17 @@ curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/g
 
 The above will pull the latest version of the container. If you're already authenticated to AWS and/or have an already existing `config.yaml` from a previous Playground One installation in the current directory, they will automatically be made available to the Playground One container.
 
-> ***Note:*** When running the above `curl`-command on an ***AWS Cloud9*** instance you will be asked to run `./get_pgoc.sh` manually. It will asked for your AWS credentials which will never be stored on disk and get removed from memory after creating and assigning an instance role to the Cloud9 instance.
+> ***Note:*** When running the above `curl`-command on an ***AWS Cloud9*** instance, the instance should be at least a `t3.medium` and you will be asked to run `./get_pgoc.sh` manually. The script will ask for your AWS credentials which will never be stored on disk and get removed from memory after creating and assigning an instance role to the Cloud9 instance.
+> 
 > If you didn't do before, you will be asked to turn off AWS managed temporary credentials:<br> 
 > 
 > - Click the gear icon (in top right corner), or click to open a new tab and choose `[Open Preferences]`<br>
 > - Select AWS SETTINGS<br>
 > - Turn OFF `[AWS managed temporary credentials]`
 
-You will notice, that a new directory called `workdir` has been created. This directory represents the `home`-directory from your Playground One Container. To access it run
+You will notice, that a new directory called `workdir` has been created. This directory represents the `home`-directory from your Playground One Container.
+
+To access the container run
 
 ```sh
 ./pgoc start
@@ -65,7 +68,7 @@ To restore this content, you can run the 'unminimize' command.
 pgo@cd741d37446e:~$ 
 ```
 
-If you exited the container, reconnect with
+If you exited the container, reconnect anytime with
 
 ```sh
 ssh -p 2222 pgo@localhost
@@ -74,7 +77,8 @@ ssh -p 2222 pgo@localhost
 
 Eventually authenticate to AWS and/or Azure by either running
 
-```ssh
+```sh
+# Not required when using Cloud9
 aws configure
 ```
 
@@ -84,7 +88,7 @@ and/or
 az login --use-device-code
 ```
 
-Stopping the container is possible with `./pgoc stop`, to restart it just rerun `./pgoc start`.
+Stopping the container is possible with `./pgoc stop`, to start it again just run `./pgoc start`.
 
 > ***Note***: For the curious ones, here's the [Dockerfile](https://github.com/mawinkler/playground-one/blob/main/container/Dockerfile).
 
@@ -164,51 +168,4 @@ Then, continue with [Configuration](configuration.md).
 
 ### Cloud9
 
-Follow this chapter if...
-
-- you're using the Playground on a AWS Cloud9 environment.
-
-Follow the steps below to create a Cloud9 suitable for the Playground.
-
-- Point your browser to AWS
-- Choose your default AWS region in the top right
-- Go to the Cloud9 service
-- Select `[Create Cloud9 environment]`
-- Name it as you like
-- Choose `[t3.medium]` for instance type and
-- `Ubuntu 22.04 LTS` as the platform
-- For the rest take all default values and click `[Create environment]`
-
-Update IAM Settings for the Workspace
-
-- Click the gear icon (in top right corner), or click to open a new tab and choose `[Open Preferences]`
-- Select AWS SETTINGS
-- Turn OFF `[AWS managed temporary credentials]`
-- Close the Preferences tab
-
-Now, run the Playground
-
-```sh
-curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/pgo | bash && exit
-```
-
-If you run the above command on a newly created or rebooted Cloud9 instance and are receiving the following error, just wait a minute or two and rerun the curl command. The reason for this error is, that directly after starting the machine some update processes are running in the background causing the lock to the package manager process.
-
-```sh
-E: Could not get lock /var/lib/dpkg/lock-frontend - open (11: Resource temporarily unavailable)
-E: Unable to acquire the dpkg frontend lock (/var/lib/dpkg/lock-frontend), is another process using it?
-```
-
-You will be asked for your AWS credentials. They will never be stored on disk and get removed from memory after creating and assigning an instance role to the Cloud9 instance.
-
-If you forgot to disable AWS managed temporary credentials you will asked to do it again.
-
-The bootstrapping process will exit your current terminal or shell after it has done it's work. Depending on your environment just create a new terminal session and continue with [Configuration](configuration.md).
-
-If you want to work on Azure you now need to authenticate the `az` cli with
-
-```ssh
-az login --use-device-code
-```
-
-Then, continue with [Configuration](configuration.md).
+> ***Note:*** Native installation on Cloud9 is no longer supported. Use [Playground One Container (Easy and portable)](#playground-one-container-easy-and-portable) instead.

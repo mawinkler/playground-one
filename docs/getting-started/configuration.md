@@ -41,7 +41,7 @@ Main commands:
   -d --destroy   Destroy previously-created configuration
   -o --output    Show output values
   -s --state     Show the current state
-  -E --erase     Cleanup Terraform state and modules
+  -E --erase     Cleanup Terraform state
   -h --help      Show this help
 
 Other commands:

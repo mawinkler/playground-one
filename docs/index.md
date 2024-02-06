@@ -21,7 +21,7 @@ In a nutshell:
   ```
 
 - Playground One is containerized and supports any `arm64`  or `amd64` based container engine.
-- A native installation is possible as well.
+- Alternatively, you can install natively on your system.
 - Management of the environment with the help of an easy to use command line interface `pgo`.
 - Based on Terraform >1.5
 
@@ -62,11 +62,17 @@ In a nutshell:
 
 ## Requirements
 
-The Playground One is designed to work with AWS and is tested these operating systems:
+The Playground One is designed to work on these platforms:
 
-- Ubuntu Bionic and newer
-- Cloud9 with Ubuntu
-- Intel and M1+ MacOS (likely older versions as well)
+Playground One Container:
+
+- Container engine hosted either on `arm64` or `amd64`.
+- Tested with Docker and Colima on Ubuntu, Cloud9, MacOS Intel and Apple Silicon.
+
+Playground One native installation:
+
+- Ubuntu Bionic and newer.
+- Intel and M1+ MacOS.
 
 ## System Health
 
@@ -111,10 +117,13 @@ Besides the obvious cli tools like `kubectl`, etc. the Playground offers you add
 Command | Function
 ------- | --------
 pgo | The command line interface for Playground One
+dsm | Start or stop a deployed Deep Security
+tmcli-update | Update TMAS and TMFS to the latest version
 stern | Tail logs from multiple pods simultaneously
 syft | See [github.com/anchore/syft](https://github.com/anchore/syft)
 grype | See [github.com/anchore/grype](https://github.com/anchore/grype)
 k9s | See [k9scli.io](https://k9scli.io/)
+kubie | See [github.com/sbstp/kubie](https://github.com/sbstp/kubie?tab=readme-ov-file#usage)
 
 ## Support
 
