@@ -1,7 +1,8 @@
 #!/bin/bash
 
+METADATA_TOKEN=$(curl -sS --request PUT "http://169.254.169.254/latest/api/token" --header "X-aws-ec2-metadata-token-ttl-seconds: 3600")
 SIZE=${1:-30}
-INSTANCEID=$(curl http://169.254.169.254/latest/meta-data//instance-id)
+INSTANCEID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id --header "X-aws-ec2-metadata-token: $METADATA_TOKEN")
 VOLUMEID=$(aws ec2 describe-instances \
   --instance-id $INSTANCEID \
   --query "Reservations[0].Instances[0].BlockDeviceMappings[0].Ebs.VolumeId" \
@@ -20,4 +21,9 @@ sleep 1
 done
 
 sudo growpart /dev/nvme0n1 1
-sudo resize2fs /dev/nvme0n1p1
+
+if [ "$(df -T | grep -i '/$' | awk '{print $2}')" == "xfs" ]; then
+  sudo xfs_growfs -d /
+else
+  sudo resize2fs /dev/nvme0n1p1
+fi

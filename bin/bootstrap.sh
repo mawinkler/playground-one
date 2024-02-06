@@ -342,28 +342,28 @@ function ensure_ec2_instance_role() {
   if is_ec2 ; then
     printf "${BLUE}${BOLD}%s${RESET}\n" "Checking for EC2 instance role"
     # Checking instance role
-    if [[ $(aws sts get-caller-identity --query Arn 2> /dev/null | grep assumed-role) =~ "ekscluster" ]]; then
+    if [[ $(aws sts get-caller-identity --query Arn 2> /dev/null | grep assumed-role) =~ "pgo" ]]; then
       echo Instance role set
     else
       FAIL=1
-  
+
       # Are the keys set? If not query them
       if [ -v $AWS_ACCESS_KEY_ID ] || [ -v $AWS_SECRET_ACCESS_KEY ] || [ -v $AWS_DEFAULT_REGION ]; then
         query_aws_keys
       fi
-  
+
       # FIXME: How to do this nicely?
       AKI=${AWS_ACCESS_KEY_ID}
       SAK=${AWS_SECRET_ACCESS_KEY}
       DR=${AWS_DEFAULT_REGION}
-  
+
       unset AWS_ACCESS_KEY_ID
       unset AWS_SECRET_ACCESS_KEY
       unset AWS_DEFAULT_REGION
-  
+
       while [ $FAIL -eq 1 ]; do
         # Checking credentials
-        if [[ $(aws sts get-caller-identity --query Arn 2> /dev/null | grep assumed-role) =~ "ekscluster" ]]; then
+        if [[ $(aws sts get-caller-identity --query Arn 2> /dev/null | grep assumed-role) =~ "pgo" ]]; then
           echo Instance role set
           FAIL=0
         elif [[ $(aws sts get-caller-identity --query Arn 2> /dev/null | grep assumed-role) =~ "AWSCloud9SSMAccessRole" ]] || [ "$(aws sts get-caller-identity --query Arn 2> /dev/null)" == "" ]; then
@@ -375,11 +375,11 @@ function ensure_ec2_instance_role() {
           FAIL=1
         fi
       done
-  
+
       AWS_ACCESS_KEY_ID=${AKI}
       AWS_SECRET_ACCESS_KEY=${SAK}
       AWS_DEFAULT_REGION=${DR}
-  
+
       if [ -v $AWS_ACCESS_KEY_ID ]; then
         echo Set AWS_ACCESS_KEY_ID with: 'export AWS_ACCESS_KEY_ID=<YOUR ACCESS KEY>'
         FAIL=1
@@ -395,9 +395,9 @@ function ensure_ec2_instance_role() {
       if [ "$FAIL" == "1" ]; then
         exit 0
       fi
-  
+
       # Create and assign instance role
-      if [[ $(aws sts get-caller-identity --query Arn 2> /dev/null | grep assumed-role) =~ "ekscluster" ]]; then
+      if [[ $(aws sts get-caller-identity --query Arn 2> /dev/null | grep assumed-role) =~ "pgo" ]]; then
         echo
       else
         AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
@@ -405,26 +405,26 @@ function ensure_ec2_instance_role() {
           AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION} \
           $ONEPATH/tools/cloud9-instance-role.sh
       fi
-  
+
       # Unset AWS credentials
       unset AWS_ACCESS_KEY_ID
       unset AWS_SECRET_ACCESS_KEY
-  
+
       for i in {1..60} ; do
         sleep 2
-        if [[ $(aws sts get-caller-identity --query Arn 2> /dev/null | grep assumed-role) =~ "ekscluster" ]]; then
+        if [[ $(aws sts get-caller-identity --query Arn 2> /dev/null | grep assumed-role) =~ "pgo" ]]; then
           break
         fi
         printf '%s' "."
       done
-  
-      if [[ $(aws sts get-caller-identity --query Arn 2> /dev/null | grep assumed-role) =~ "ekscluster" ]]; then
+
+      if [[ $(aws sts get-caller-identity --query Arn 2> /dev/null | grep assumed-role) =~ "pgo" ]]; then
         echo "IAM role valid"
       else
         echo "IAM role NOT valid"
         exit 0
       fi
-  
+
       # Resizing Cloud9 disk
       curl -fsSL ${REPO}/tools/cloud9-resize.sh | bash
     fi
@@ -746,6 +746,33 @@ function ensure_k9s_brew() {
   fi
 }
 
+function ensure_kubie() {
+
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading kubie"
+  if [ "${PACKAGE_MANAGER}" == "apt" ]; then
+    ensure_kubie_curl
+  fi
+  if [ "${PACKAGE_MANAGER}" == "brew" ]; then
+    ensure_kubie_brew
+  fi
+}
+
+function ensure_kubie_curl() {
+
+  curl -fsSL https://github.com/sbstp/kubie/releases/download/v0.23.0/kubie-linux-${ARCH} -o /tmp/kubie
+  chmod +x /tmp/kubie
+  sudo mv /tmp/kubie /usr/local/bin/
+}
+
+function ensure_kubie_brew() {
+
+  if ! command -v kubie &>/dev/null; then
+    brew install kubie
+  else
+    brew upgrade kubie
+  fi
+}
+
 function ensure_stern() {
 
   printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading stern"
@@ -865,6 +892,7 @@ ensure_azcli
 ensure_kubectl
 ensure_helm
 ensure_k9s
+ensure_kubie
 ensure_stern
 ensure_eksctl
 ensure_kind

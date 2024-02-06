@@ -1,9 +1,10 @@
 #!/bin/bash
 
 set -e
+METADATA_TOKEN=$(curl -sS --request PUT "http://169.254.169.254/latest/api/token" --header "X-aws-ec2-metadata-token-ttl-seconds: 3600")
 
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --output text --query Account)
-AWS_REGION=$(curl -s 169.254.169.254/latest/dynamic/instance-identity/document | jq -r '.region')
+AWS_REGION=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document  --header "X-aws-ec2-metadata-token: $METADATA_TOKEN" | jq -r '.region')
 
 # Check if AWS_REGION is set to desired region. The above curl to 169.254.269.254 points to
 # an AWS internal url allowing an EC2 instance to query some information about itself without
@@ -16,7 +17,7 @@ echo "export AWS_REGION=${AWS_REGION}" >> ~/.bash_profile
 aws configure set default.region ${AWS_REGION}
 
 # Next, we define some names:
-ROLE_NAME=ekscluster-admin-$(openssl rand -hex 4)
+ROLE_NAME=pgo-admin-$(openssl rand -hex 4)
 INSTANCE_PROFILE_NAME=${ROLE_NAME}
 
 # Create the policy for EC2 access
@@ -41,7 +42,7 @@ aws iam add-role-to-instance-profile --role-name ${ROLE_NAME} --instance-profile
 
 # Which the following commands, we grant our Cloud9 instance the priviliges to manage an EKS cluster.
 # Query the instance ID of our Cloud9 environment
-INSTANCE_ID=$(curl -s 169.254.169.254/latest/dynamic/instance-identity/document | jq -r '.instanceId')
+INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id --header "X-aws-ec2-metadata-token: $METADATA_TOKEN")
 
 # Attach the IAM role to an existing EC2 instance
 echo Waiting 10 seconds
