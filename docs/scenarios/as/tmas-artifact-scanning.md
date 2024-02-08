@@ -1,4 +1,4 @@
-# Scenario: Container Vulnerability and Malware Scanning
+# Scenario: Container Image Vulnerability and Malware Scanning
 
 ## Prerequisites
 
