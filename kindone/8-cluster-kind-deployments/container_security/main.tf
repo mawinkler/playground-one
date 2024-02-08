@@ -25,10 +25,10 @@ resource "helm_release" "container_security" {
     value = local.cluster_apikey
   }
 
-  # set {
-  #   name  = "cloudOne.exclusion.namespaces"
-  #   value = "[calico-system, kube-system|"
-  # }
+  set {
+    name  = "cloudOne.exclusion.namespaces"
+    value = "{calico-system,calico-apiserver,tigera-operator,local-path-storage,kube-system}"
+  }
 
   set {
     name  = "cloudOne.endpoint"
