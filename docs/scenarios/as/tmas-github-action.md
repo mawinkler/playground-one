@@ -59,6 +59,12 @@ on:
     branches:
       - "main"
 
+env:
+  TMAS_API_KEY: ${{ secrets.TMAS_API_KEY }}
+  REGION: us-east-1
+  THRESHOLD: "critical"
+  MALWARE_SCAN: true
+
 jobs:
   docker:
     runs-on: ubuntu-latest
@@ -83,11 +89,7 @@ jobs:
       # Next step is to scan the build image for vulnerabilities and malware
       - name: Scan
         env:
-          TMAS_API_KEY: ${{ secrets.TMAS_API_KEY }}
-          REGION: us-east-1
           SBOM: true # Saves SBOM to SBOM.json so you can export it as an artifact later.
-          MALWARE_SCAN: true # Enable malware scan.
-          THRESHOLD: "critical"
         run: |
           # Install tmas latest version
           curl -s -L https://gist.github.com/raphabot/abae09b46c29afc7c3b918b7b8ec2a5c/raw/ | bash
@@ -160,10 +162,6 @@ jobs:
 
       # Rescan in the registry to support admission control
       - name: Registry Scan
-        env:
-          TMAS_API_KEY: ${{ secrets.TMAS_API_KEY }}
-          REGION: us-east-1
-          MALWARE_SCAN: true # Enable malware scan.
         run: |
           tmas scan "$(if [ "$MALWARE_SCAN" = true ]; then echo "--malwareScan"; fi)" -r "$REGION" registry:${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }}
 ```
