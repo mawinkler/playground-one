@@ -53,13 +53,13 @@ The `yaml`-file in `.github/workflows` is more interesting. Let's go through it.
 ```yaml
 name: ci
 
-# A push on the repo triggers the workflow
 on:
   push:
-    branches:
-      - "main"
+    tags: [ v* ]
 
 env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
   TMAS_API_KEY: ${{ secrets.TMAS_API_KEY }}
   REGION: us-east-1
   THRESHOLD: "critical"
@@ -68,6 +68,9 @@ env:
 jobs:
   docker:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       # Prepare the Docker Buildx environment
@@ -78,18 +81,24 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Extract metadata for the Docker image
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          
       # At first, we build the image and save it as a tar ball
       - name: Build and store
         uses: docker/build-push-action@v5
         with:
           context: .
-          tags: ${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }}
+          tags: ${{ steps.meta.outputs.tags }}
           outputs: type=docker,dest=/tmp/image.tar
 
       # Next step is to scan the build image for vulnerabilities and malware
       - name: Scan
         env:
-          SBOM: true # Saves SBOM to SBOM.json so you can export it as an artifact later.
+          SBOM: true # Saves SBOM to sbom.json so you can export it as an artifact later.
         run: |
           # Install tmas latest version
           curl -s -L https://gist.github.com/raphabot/abae09b46c29afc7c3b918b7b8ec2a5c/raw/ | bash
@@ -145,41 +154,42 @@ jobs:
           if [ -f "malware" ] || [ -f "vulnerabilities" ]; then exit 1; fi
 
       # Login to the registry. Here we just use Docker
-      - name: Login to Docker Hub
+      - name: Login to the Container registry
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       # Rebuild the image and push to registry. This is fast since everything is cached.
       - name: Build and push
+        id: build
         uses: docker/build-push-action@v5
         with:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }}
+          tags: ${{ steps.meta.outputs.tags }}
+
+      - name: Summarize the Docker digest and tags
+        run: |
+          echo 'Digest: ${{ steps.build.outputs.digest }}'
+          echo 'Scan: registry:${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}'
+          echo 'Tags: ${{ steps.meta.outputs.tags }}'
 
       # Rescan in the registry to support admission control
       - name: Registry Scan
         run: |
-          tmas scan "$(if [ "$MALWARE_SCAN" = true ]; then echo "--malwareScan"; fi)" -r "$REGION" registry:${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }}
+          tmas scan "$(if [ "$MALWARE_SCAN" = true ]; then echo "--malwareScan"; fi)" -r "$REGION" registry:${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }} || true
 ```
 
 ### Secrets
 
 The workflow requires some secrets to be set. Navigate to `Settings --> Security --> Secrets and variables --> Actions --> Secrets`.
 
-Now add the following secrets:
+Now add the following secret:
 
-- IMAGE_NAME: e.g. `mynginx`
-- IMAGE_TAG: e.g. `latest`
 - TMAS_API_KEY: `<Your TMAS API Key>`
-
-Optionally:
-
-- DOCKERHUB_TOKEN: `<your DockerHub Token>`
-- DOCKERHUB_USERNAME: `<Your DockerHub username>`
 
 ### Actions
 
@@ -187,11 +197,16 @@ Navigate to `Actions` and enable Workflows for the forked repository.
 
 ## Test it
 
-### Change something
+### Create and Push a Tag
 
-Do any kind of change in the repo. You can easily do this on the GitHub webpage as well and don't need to clone the repo. Simply delete the `LICENSE` file for simplicity and commit the changes directly to the main branch.
+Tags are ref's that point to specific points in Git history. Tagging is generally used to capture a point in history that is used for a marked version release (i.e. v1. 0.1). A tag is like a branch that doesn't change.
 
-Any push to the repo will trigger the workflow.
+The above workflow triggers on new tags. Running the below commands will therefore trigger the action:
+
+```sh
+git tag v0.1
+git push --tag
+```
 
 Again, navigate to `Actions` and click on the running workflow to see it's output.
 
@@ -201,12 +216,7 @@ According to the logic in the `Fail Scan` step, whenever a file called `malware`
 
 At the bottom of the page you can download the `sbom.json` and/or scan `results.json` for review.
 
-### Let the workflow pass...
-
-If you want to continue the scenario you now need to set the following two secrets as above:
-
-- DOCKERHUB_TOKEN: `<your DockerHub Token>`
-- DOCKERHUB_USERNAME: `<Your DockerHub username>`
+### Let the workflow pass... Testing Admission Control
 
 Now, we want the image to be published, even though that it has vulnerabilities and a malware inside. To achieve this in this scenario we simply comment out the following last line in the Fail Scan step of the workflow file:
 
@@ -220,7 +230,12 @@ Now, we want the image to be published, even though that it has vulnerabilities 
           # if [ -f "malware" ] || [ -f "vulnerabilities" ]; then exit 1; fi
 ```
 
-Again, do this by directly editing on GitHub and commit the changes to main. This will trigger the workflow another time and should successfully push the image to DockerHub.
+Commit and push the changed workflow and create a new tag.
+
+```sh
+git commit . -m "pass" && git push
+git tag v0.2 && git push --tag
+```
 
 ### Configure Vision One Container Protection Policy
 
