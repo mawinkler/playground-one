@@ -634,11 +634,11 @@ function destroy() {
         cd ${ONEPATH}/awsone/4-cluster-eks-ec2
         cluster_name=$(terraform output -raw cluster_name)
         kubectl config use-context ${cluster_name}
-        cd ${ONEPATH}/awsone/8-cluster-eks-ec2-deployments
-        terraform destroy -auto-approve
         cd ${ONEPATH}/awsone/7-scenarios-ec2
         terraform destroy -auto-approve
         unlock scenarios-ec2
+        cd ${ONEPATH}/awsone/8-cluster-eks-ec2-deployments
+        terraform destroy -auto-approve
         cd ${ONEPATH}/awsone/4-cluster-eks-ec2
         terraform destroy -auto-approve
         unlock eks-ec2
@@ -652,11 +652,11 @@ function destroy() {
         cd ${ONEPATH}/awsone/4-cluster-eks-fargate
         cluster_name=$(terraform output -raw cluster_name)
         kubectl config use-context ${cluster_name}
-        cd ${ONEPATH}/awsone/8-cluster-eks-fargate-deployments
-        terraform destroy -auto-approve
         cd ${ONEPATH}/awsone/7-scenarios-fargate
         terraform destroy -auto-approve
         unlock scenarios-fg
+        cd ${ONEPATH}/awsone/8-cluster-eks-fargate-deployments
+        terraform destroy -auto-approve
         cd ${ONEPATH}/awsone/4-cluster-eks-fargate
         terraform destroy -auto-approve
         unlock eks-fg
@@ -671,11 +671,11 @@ function destroy() {
         cluster_name=$(terraform output -raw cluster_name)
         cluster_username=$(terraform output -raw cluster_username)
         kubectl config use-context ${cluster_name}
-        cd ${ONEPATH}/azone/8-cluster-aks-deployments
-        terraform destroy -auto-approve
         cd ${ONEPATH}/azone/7-scenarios-aks
         terraform destroy -auto-approve
         unlock scenarios-aks
+        cd ${ONEPATH}/azone/8-cluster-aks-deployments
+        terraform destroy -auto-approve
         cd ${ONEPATH}/azone/4-cluster-aks
         terraform destroy -auto-approve
         unlock aks
