@@ -96,7 +96,6 @@ Currently, the following (vulnerable) deployments are defined:
 - WebApp Health-Check (see [ContainerD Abuse](../scenarios/eks/dind-exploitation.md))
 - WebApp Hunger-Check (see [Hunger Check](../scenarios/eks/hunger-check.md))
 - Java-Goof
-- WebApp OpenSSL3
 - Nginx
 
 Automated attacks are running every full hour.
