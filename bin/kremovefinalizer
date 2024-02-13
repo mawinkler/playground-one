@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+# Colors
+# Num  Colour    #define         R G B
+# 0    black     COLOR_BLACK     0,0,0
+# 1    red       COLOR_RED       1,0,0
+# 2    green     COLOR_GREEN     0,1,0
+# 3    yellow    COLOR_YELLOW    1,1,0
+# 4    blue      COLOR_BLUE      0,0,1
+# 5    magenta   COLOR_MAGENTA   1,0,1
+# 6    cyan      COLOR_CYAN      0,1,1
+# 7    white     COLOR_WHITE     1,1,1
+YELLOW=$(tput setaf 3)
+BLUE=$(tput setaf 4)
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+BOLD=$(tput bold)
+RESET=$(tput sgr0)
+
+if [ -z "$1" ]; then
+  printf "${BLUE}${RED}%s${RESET}\n" "Missiong namespace name"
+  exit 0
+else
+  NAMESPACE=$1
+fi
+
+kubectl get namespace $NAMESPACE -o json > tmp1.json
+jq '.spec = {}' tmp1.json > tmp2.json
+kubectl replace --raw "/api/v1/namespaces/$NAMESPACE/finalize" -f ./tmp2.json"
+
+rm -f tmp1.json tmp2.json
