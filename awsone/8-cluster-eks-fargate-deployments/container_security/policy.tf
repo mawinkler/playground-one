@@ -9,11 +9,3 @@ data "restapi_object" "policies" {
   results_key  = "items"
   id_attribute = "id"
 }
-
-locals {
-  cluster_policy = jsondecode(data.restapi_object.policies.api_response).id
-}
-
-output "policy_id" {
-  value = local.cluster_policy
-}

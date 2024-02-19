@@ -8,18 +8,6 @@ resource "helm_release" "container_security" {
   namespace    = var.namespace
   reuse_values = true
 
-  # cloudOne: 
-  #     apiKey: 2Zi...
-  #     endpoint: https://container.us-1.cloudone.trendmicro.com
-  #     exclusion: 
-  #         namespaces: [calico-system, kube-system]
-  #     runtimeSecurity:
-  #         enabled: true
-  #     vulnerabilityScanning:
-  #         enabled: true
-  #     inventoryCollection:
-  #         enabled: true
-
   set {
     name  = "cloudOne.apiKey"
     value = local.cluster_apikey
@@ -62,7 +50,7 @@ resource "helm_release" "container_security" {
 
   set {
     name  = "cloudOne.fargateInjector.enabled"
-    value = false
+    value = true
   }
 
   set {
@@ -83,5 +71,21 @@ resource "helm_release" "container_security" {
   set {
     name  = "securityContext.enabled"
     value = true
+  }
+
+  # set {
+  #   name  = "proxy.httpsProxy"
+  #   value = "http://192.168.1.122:3128"
+  # }
+
+  # set {
+  #   name  = "proxy.httpProxy"
+  #   value = "http://192.168.1.122:3128"
+  # }
+
+  lifecycle {
+    ignore_changes = [
+      set,
+    ]
   }
 }

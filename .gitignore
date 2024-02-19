@@ -47,6 +47,7 @@ TMServerAgent_Windows.zip
 .pgo.scenarios-fg.lock
 .pgo.ecs.lock
 .pgo.dsm.lock
+.pgo.aks.lock
 overrides.yaml
 dsm.properties
 
