@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 
 if [ -z "$1" ]; then
-  PGO_VERSION=latest
+  if [ -f .PGO_VERSION ]; then
+    PGO_VERSION=$(<.PGO_VERSION)
+  else
+    PGO_VERSION=latest
+  fi
 else
   PGO_VERSION=$1
 fi
