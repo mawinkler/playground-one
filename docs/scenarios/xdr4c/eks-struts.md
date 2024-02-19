@@ -42,7 +42,6 @@ Example output with ECS EC2:
 loadbalancer_dns_health_check = "k8s-goat-healthch-e9104c52db-803985454.eu-central-1.elb.amazonaws.com"
 loadbalancer_dns_hunger_check = "k8s-goat-hungerch-0816ee11b2-1006982801.eu-central-1.elb.amazonaws.com"
 loadbalancer_dns_java_goof = "k8s-victims-javagoof-2c75b42412-356920097.eu-central-1.elb.amazonaws.com"
-loadbalancer_dns_openssl3 = "k8s-victims-webappin-8cd6b2fc5e-1459691118.eu-central-1.elb.amazonaws.com"
 loadbalancer_dns_system_monitor = "k8s-goat-systemmo-09a16052b6-565756108.eu-central-1.elb.amazonaws.com"
 ```
 

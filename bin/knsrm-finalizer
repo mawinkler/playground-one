@@ -18,7 +18,7 @@ BOLD=$(tput bold)
 RESET=$(tput sgr0)
 
 if [ -z "$1" ]; then
-  printf "${BLUE}${RED}%s${RESET}\n" "Missiong namespace name"
+  printf "${BLUE}${RED}%s${RESET}\n" "Missing namespace name"
   exit 0
 else
   NAMESPACE=$1
@@ -26,6 +26,6 @@ fi
 
 kubectl get namespace $NAMESPACE -o json > tmp1.json
 jq '.spec = {}' tmp1.json > tmp2.json
-kubectl replace --raw "/api/v1/namespaces/$NAMESPACE/finalize" -f ./tmp2.json"
+kubectl replace --raw "/api/v1/namespaces/$NAMESPACE/finalize" -f ./tmp2.json
 
 rm -f tmp1.json tmp2.json

@@ -67,9 +67,19 @@ To delete a namespace, Kubernetes must first delete all the resources in the nam
 - The namespace contains resources that Kubernetes can't delete.
 - An API service has a False status.
 
+Scripted:
+
+```sh
+knsrm-finalizer <NAMESPACE>
+```
+
+Manual:
+
 1. Save a JSON file like in the following example:
 
 ```sh
+namespace=<NAMESPACE>
+
 kubectl get namespace $namespace -o json > tempfile.json
 ```
 
