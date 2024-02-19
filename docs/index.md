@@ -25,7 +25,7 @@ In a nutshell:
 - Management of the environment with the help of an easy to use command line interface `pgo`.
 - Based on Terraform >1.5
 
-## Change Log
+## Major Updates
 
 02/01/2024
 

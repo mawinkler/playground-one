@@ -17,6 +17,17 @@ Follow this chapter if...
 
 First, start a terminal and ensure to have a running container engine, eventually run `docker ps` to verify this.
 
+> ***Note:*** If you want to specify a Playground One Container version instead of using latest create a file with the version (tag) to use by running:
+>
+> `echo "<VERSION>" >.PGO_VERSION`
+> 
+> Example:
+>
+> `echo "0.2" >.PGO_VERSION`
+>
+> See [Change Log](#change-log).
+
+
 Then simply run
 
 ```sh
@@ -169,3 +180,21 @@ Then, continue with [Configuration](configuration.md).
 ### Cloud9
 
 > ***Note:*** Native installation on Cloud9 is no longer supported. Use [Playground One Container (Easy and portable)](#playground-one-container-easy-and-portable) instead.
+
+## Change Log
+
+### 0.2 Maintenance release (02/06/2024)
+
+#### Fixes
+
+- Vision One Container Security gets unregistered from Vision One on cluster destroy.
+- Cluster deployments are now correctly destroyed after the scenarios.
+
+#### Changes
+
+- Playground One Container now supports versioning.
+- ECS Fargate task definition patcher bumped to version 2.3.30
+- New scenario added: [Container Image Vulnerability and Malware Scanning as GitHub Action](https://mawinkler.github.io/playground-one-pages/scenarios/as/tmas-github-action/).
+- Removed openssl3 demo app.
+
+### 0.1 Initial release (02/06/2024)

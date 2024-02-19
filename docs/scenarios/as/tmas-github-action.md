@@ -9,7 +9,6 @@
     - Container Protection
       - Run artifact scan
 - GitHub Account.
-- Docker Hub Account (optional).
 - Kubernetes Cluster (ideally) with Vision One Container Security deployed.
 
 ## About GitHub Actions
@@ -22,7 +21,19 @@ You can configure a GitHub Actions workflow to be triggered when an event occurs
 
 Workflows are defined as YAML files in the .github/workflows directory in a repository, and a repository can have multiple workflows, each of which can perform a different set of tasks.
 
-In this scenario we're going to create a workflow to automatically build, push and scan a container image with Trend Micro Artifact Scanning. The scan will check the image for vulnerabilities and malware and eventually push it to DockerHub.
+In this scenario we're going to create a workflow to automatically build, push and scan a container image with Trend Micro Artifact Scanning. The scan will check the image for vulnerabilities and malware and eventually push it to the registry.
+
+The logic implemented in this Action template is as follows:
+
+- Prepare the Docker Buildx environment.
+- Build the image and save it as a tar ball.
+- Scan the built image for vulnerabilities and malware using Vision One Container Security.
+- Upload Scan Result and SBOM Artifact if available. Artifacts allow you to share data between jobs in a workflow and store data once that workflow has completed, in this case saving the scan result and the container image SBOM as an artifact allow you to have proof on what happened on past scans.
+- Optionally fail the workflow if malware and/or the vulnerability threshold was reached. Failing the workflow at this stage prevents the registry to get polluted with insecure images.
+- Authenticate to the deployment registry.
+- Rebuild the image from cache for the desired architectures.
+- Push the image to the registry.
+- Rescan the image in the registry to allow proper admission control integration.
 
 ## Fork the Scenario Repo
 
@@ -32,7 +43,7 @@ Next, you want to create a Fork of the scenarios repo. A fork is basically a cop
 
 To do this navigate to the repo [playground-one-scenario-github-action](https://github.com/mawinkler/playground-one-scenario-github-action) and click on the `Fork`-button in the upper right.
 
-On the next screen press `[Create fork]` which will bring you back to your account.
+On the next screen you change the name to something shorter like `action`. Then press `[Create fork]` which will bring you back to your account.
 
 ## The Repo
 
@@ -53,6 +64,7 @@ The `yaml`-file in `.github/workflows` is more interesting. Let's go through it.
 ```yaml
 name: ci
 
+# A push --tags on the repo triggers the workflow
 on:
   push:
     tags: [ v* ]
@@ -61,9 +73,11 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   TMAS_API_KEY: ${{ secrets.TMAS_API_KEY }}
+
   REGION: us-east-1
   THRESHOLD: "critical"
   MALWARE_SCAN: true
+  FAIL_ACTION: true
 
 jobs:
   docker:
@@ -73,7 +87,7 @@ jobs:
       packages: write
 
     steps:
-      # Prepare the Docker Buildx environment
+      # Prepare the Docker Buildx environment.
       - name: Checkout
         uses: actions/checkout@v4
       - name: Set up QEMU
@@ -87,7 +101,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           
-      # At first, we build the image and save it as a tar ball
+      # Build the image and save it as a tar ball.
       - name: Build and store
         uses: docker/build-push-action@v5
         with:
@@ -95,10 +109,10 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           outputs: type=docker,dest=/tmp/image.tar
 
-      # Next step is to scan the build image for vulnerabilities and malware
+      # Scan the build image for vulnerabilities and malware.
       - name: Scan
         env:
-          SBOM: true # Saves SBOM to sbom.json so you can export it as an artifact later.
+          SBOM: true # Saves SBOM to sbom.json
         run: |
           # Install tmas latest version
           curl -s -L https://gist.github.com/raphabot/abae09b46c29afc7c3b918b7b8ec2a5c/raw/ | bash
@@ -107,30 +121,30 @@ jobs:
 
           if [ "$SBOM" = true ]; then mv SBOM_* sbom.json; fi
 
-          echo Analyze result
-          fail=0
+          # Analyze result
+          fail_vul=false
+          fail_mal=false
           [ "${THRESHOLD}" = "any" ] && \
-            [ $(jq '.vulnerability.totalVulnCount' result.json) -ne 0 ] && fail=1
+            [ $(jq '.vulnerability.totalVulnCount' result.json) -ne 0 ] && fail_vul=true
 
           [ "${THRESHOLD}" = "critical" ] && \
-            [ $(jq '.vulnerability.criticalCount' result.json) -ne 0 ] && fail=2
+            [ $(jq '.vulnerability.criticalCount' result.json) -ne 0 ] && fail_vul=true
 
           [ "${THRESHOLD}" = "high" ] && \
-            [ $(jq '.vulnerability.highCount + .vulnerability.criticalCount' result.json) -ne 0 ] && fail=3
+            [ $(jq '.vulnerability.highCount + .vulnerability.criticalCount' result.json) -ne 0 ] && fail_vul=true
 
           [ "${THRESHOLD}" = "medium" ] && \
-            [ $(jq '.vulnerability.mediumCount + .vulnerability.highCount + .vulnerability.criticalCount' result.json) -ne 0 ] && fail=4
+            [ $(jq '.vulnerability.mediumCount + .vulnerability.highCount + .vulnerability.criticalCount' result.json) -ne 0 ] && fail_vul=true
 
           [ "${THRESHOLD}" = "low" ] &&
-            [ $(jq '.vulnerability.lowCount + .vulnerability.mediumCount + .vulnerability.highCount + .vulnerability.criticalCount' result.json) -ne 0 ] && fail=5
+            [ $(jq '.vulnerability.lowCount + .vulnerability.mediumCount + .vulnerability.highCount + .vulnerability.criticalCount' result.json) -ne 0 ] && fail_vul=true
 
-          [ $(jq '.malware.scanResult' result.json) -ne 0 ] && fail=6
+          [ $(jq '.malware.scanResult' result.json) -ne 0 ] && fail_mal=true
 
-          [ $fail -eq 6 ] && echo !!! Malware found !!! > malware || true
+          [ "$fail_vul" = true ] && echo !!! Vulnerability threshold exceeded !!! > vulnerabilities || true
+          [ "$fail_mal" = true ] && echo !!! Malware found !!! > malware || true
 
-          [ $fail -ne 0 ] && echo !!! Vulnerability threshold exceeded !!! > vulnerabilities || true
-
-      # Upload Scan Result and SBOM Artifact if available
+      # Upload Scan Result and SBOM Artifact if available.
       - name: Upload Scan Result Artifact
         uses: actions/upload-artifact@v3
         with:
@@ -145,15 +159,16 @@ jobs:
           path: sbom.json
           retention-days: 30
 
-      # Fail the workflow if we found malware or reach the vulnerability threshold
-      - name: Fail Scan
+      # Fail the workflow if malware found or the vulnerability threshold reached.
+      - name: Fail Action
         run: |
-          ls -l
-          if [ -f "malware" ]; then cat malware; fi
-          if [ -f "vulnerabilities" ]; then cat vulnerabilities; fi
-          if [ -f "malware" ] || [ -f "vulnerabilities" ]; then exit 1; fi
+          if [ "$FAIL_ACTION" = true ]; then
+            if [ -f "malware" ]; then cat malware; fi
+            if [ -f "vulnerabilities" ]; then cat vulnerabilities; fi
+            if [ -f "malware" ] || [ -f "vulnerabilities" ]; then exit 1; fi
+          fi
 
-      # Login to the registry. Here we just use Docker
+      # Login to the registry.
       - name: Login to the Container registry
         uses: docker/login-action@v3
         with:
@@ -167,29 +182,56 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
           push: true
+          provenance: false
           tags: ${{ steps.meta.outputs.tags }}
 
       - name: Summarize the Docker digest and tags
         run: |
           echo 'Digest: ${{ steps.build.outputs.digest }}'
-          echo 'Scan: registry:${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}'
           echo 'Tags: ${{ steps.meta.outputs.tags }}'
 
       # Rescan in the registry to support admission control
       - name: Registry Scan
         run: |
-          tmas scan "$(if [ "$MALWARE_SCAN" = true ]; then echo "--malwareScan"; fi)" -r "$REGION" registry:${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }} || true
+          tmas scan "$(if [ "$MALWARE_SCAN" = true ]; then echo "--malwareScan"; fi)" -r "$REGION" -p linux/amd64 registry:${{ steps.meta.outputs.tags }} || true
 ```
 
 ### Secrets
 
-The workflow requires some secrets to be set. Navigate to `Settings --> Security --> Secrets and variables --> Actions --> Secrets`.
+The workflow requires a secret to be set. For that navigate to `Settings --> Security --> Secrets and variables --> Actions --> Secrets`.
 
-Now add the following secret:
+Add the following secret:
 
 - TMAS_API_KEY: `<Your TMAS API Key>`
+
+### Template
+
+Below, the workflow tamplate. Adapt it to your needs and save it as a `yaml`-file in the `.github/workflow` directory.
+
+Adapt the environment variables in the `env:`-section as required.
+
+Variable       | Purpose
+-------------- | -------
+`REGISTRY`     | The workflow uses the GitHub Packages by default.
+`IMAGE_NAME`   | The image name is derived from the GitHub Repo name.
+`TMAS_API_KEY` | The key is retrieved from the secrets.
+`REGION`       | Vision One Region of choice (ap-southeast-2, eu-central-1, ap-south-1, ap-northeast-1, ap-southeast-1, us-east-1).
+`THRESHOLD`    | Defines the fail condition of the action in relation to discovered vulnerabilities. A threshold of `critical` does allow any number of vulnerabilities up to the criticality `high`. 
+`MALWARE_SCAN` | Enable or disable malware scanning.
+`FAIL_ACTION`  | Enable or disable failing the action if the vulnerability threshold was reached and/or malware detected.
+
+Allowed values for the `THRESHOLD` are:
+
+- `any`: No vulnerabilities allowed.
+- `critical`: Max severity of discovered vulnerabilities is `high`.
+- `high`: Max severity of discovered vulnerabilities is `medium`.
+- `medium`: Max severity of discovered vulnerabilities is `low`.
+- `low`: Max severity of discovered vulnerabilities is `negligible`.
+
+If the `THRESHOLD` is not set, vulnerabilities will not fail the pipeline.
+
+The workflow will trigger on `git push --tags`.
 
 ### Actions
 
@@ -197,45 +239,42 @@ Navigate to `Actions` and enable Workflows for the forked repository.
 
 ## Test it
 
-### Create and Push a Tag
+### Create a Tag
 
-Tags are ref's that point to specific points in Git history. Tagging is generally used to capture a point in history that is used for a marked version release (i.e. v1. 0.1). A tag is like a branch that doesn't change.
+To trigger the action we simply create a tag.
 
-The above workflow triggers on new tags. Running the below commands will therefore trigger the action:
+Navigate to `Releases` on the right and then click on `[Draft a new release]`.
 
-```sh
-git tag v0.1
-git push --tag
-```
+Next, click on `[Choose a tag]` and type `v0.1`. A new button called `[Create new tag]` should get visible. Click on it.
 
-Again, navigate to `Actions` and click on the running workflow to see it's output.
+Leave the rest as it is and finally click on the green button `[Publish release]`. This will trigger the action workflow.
 
-According to the logic in the `Fail Scan` step, whenever a file called `malware` and/or `vulnerabilities` is found in the repos directory, the workflow will fail. These files are created in the `Scan`-step when the vulnerability threshold reached and/or a malware is detected.
+> ***CLI:*** `git tag v0.1 && git push --tags`
 
-![alt text](images/action-fail-scan.png "Fail Scan")
+### Check the Action
 
-At the bottom of the page you can download the `sbom.json` and/or scan `results.json` for review.
+Now, navigate to the tab `Actions` and review the actions output. Click on the workflow run.
 
-### Let the workflow pass... Testing Admission Control
+You should now see three main sections:
 
-Now, we want the image to be published, even though that it has vulnerabilities and a malware inside. To achieve this in this scenario we simply comment out the following last line in the Fail Scan step of the workflow file:
+1. `build-push.yaml`: Clicking on `docker` reveals the output of the steps from the workflow (and where it failed).
+   ![alt text](images/action-fail-scan.png "Fail Scan")
+3. Annotations: Telling you in this case that the process completed with exit code 1.
+4. Artifacts: These are the artifacts created by the action. There should be a `sbom` and `scan-result`.
+
+### Let the workflow pass...
+
+Now, we want the image to be published, even though that it has vulnerabilities and a malware inside. To achieve this in this scenario we simply change the environment variable `FAIL_ACTION`:
 
 ```yaml
-      - name: Fail Scan
-        run: |
-          ls -l
-          if [ -f "malware" ]; then cat malware; fi
-          if [ -f "vulnerabilities" ]; then cat vulnerabilities; fi
-
-          # if [ -f "malware" ] || [ -f "vulnerabilities" ]; then exit 1; fi
+env:
+...
+  FAIL_ACTION: false
 ```
 
-Commit and push the changed workflow and create a new tag.
+Again, do this by directly editing the workflow file on GitHub and commit the changes to main. Then, repeat the steps to create a new tag as above, but choose a different tag (e.g. `v0.2`).
 
-```sh
-git commit . -m "pass" && git push
-git tag v0.2 && git push --tag
-```
+The action should now complete successfully and the container image is pushed to the registry.
 
 ### Configure Vision One Container Protection Policy
 
@@ -248,8 +287,10 @@ Next, ensure to have your Container Security policy set with the following prope
 Assuming you have access to a Kubernetes cluster with Vision One Container Security deployed and a policy assigned with the setting from above, you can now run
 
 ```sh
-kubectl run --image=<DOCKERHUB_USERNAME>/<IMAGE_NAME>:<IMAGE_TAG> nginx
+kubectl run --image=ghcr.io/<GITHUB_USERNAME>/<GITHUB_REPO_NAME>:<IMAGE_TAG> action
 ```
+
+This should result in the following error message since Container Security blocks the deploament:
 
 ```sh
 Error from server: admission webhook "trendmicro-admission-controller.trendmicro-system.svc" denied the request: 

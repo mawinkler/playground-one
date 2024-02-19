@@ -107,7 +107,7 @@ See above.
 
 ## I cannot destroy the ECS cluster(s)
 
-If you have enabled `Runtime Scanning` and/or `Runtime Security` in your Vision One console for your ECS clusters disable them and press `[Save]`. The clusters should then be successfully destroyed.
+If you have enabled `Runtime Scanning` and/or `Runtime Security` in your Vision One console for your ECS clusters disable them and press `[Save]`. Wait for the container security services/tasks disappear on the EC2 console. The clusters should then be successfully destroyed.
 
 ***Background:*** Vision One injects addisional tasks to the ECS clusters which are not known by the playground. Even if you delete the task in the AWS console they are injected again by Vision One. This causes a remaining dependency on the AWS side which prevents the destruction of ECS.
 
