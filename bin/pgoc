@@ -40,10 +40,53 @@ function pgoc_stop() {
   fi
 }
 
+function pgoc_update() {
+  if [ -d workdir ]; then
+    if [ -f workdir/playground-one/config.yaml ]; then
+      cp workdir/playground-one/config.yaml .
+      mv workdir workdir.old
+    fi
+  fi
+  if [ ! -d workdir ]; then
+    printf '%s\n' "Pulling Playground One Container"
+    docker pull mawinkler/pgoc:${PGO_VERSION}
+
+    IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep "mawinkler/pgoc:${PGO_VERSION}")
+    printf '%s\n' "Starting Playground One Container from image ${IMAGE}"
+    docker run -d --rm --name=pgoc-${PGO_VERSION} ${IMAGE} -c "/bin/sleep 60"
+
+    printf '%s\n' "Fetch Home Directory from Container"
+    CONTAINER=$(docker ps --format "{{.ID}}" --filter "name=pgoc-${PGO_VERSION}")
+    docker cp ${CONTAINER}:/tmp/home.tgz .
+
+    printf '%s\n' "Stopping Playground One Container"
+    docker stop ${CONTAINER}
+
+    printf '%s\n' "Populating workdir"
+    mkdir -p workdir
+    tar xpzf home.tgz --strip-components=2 -C ./workdir
+
+    rm -f home.tgz
+
+    if [ ! -d workdir/.aws ]; then
+      if [ -d ~/.aws ]; then
+        printf '%s\n' "Copy AWS credentials to workdir"
+        cp -r ~/.aws workdir/
+      fi
+    fi
+
+    if [ ! -f workdir/playground-one/config.yaml ]; then
+      if [ -f config.yaml ]; then
+        printf '%s\n' "Copy config.yaml to workdir"
+        cp config.yaml workdir/playground-one/
+      fi
+    fi
+  fi
+}
+
 case $1 in
   update)
-    printf '%s\n' "Ensuring Playground One Container is up to date"
-    docker pull mawinkler/pgoc:${PGO_VERSION}
+    pgoc_update
     ;;
   stop|restart)
     pgoc_stop
@@ -53,4 +96,6 @@ case $1 in
     ;;
 esac
 
-ssh -o StrictHostKeyChecking=no -p ${PORT} pgo@localhost
+if [ "$(docker ps -q -f name=pgoc-${PGO_VERSION})" ]; then
+  ssh -o StrictHostKeyChecking=no -p ${PORT} pgo@localhost
+fi
