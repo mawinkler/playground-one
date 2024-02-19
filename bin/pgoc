@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
-PGO_VERSION=latest
+if [ -f .PGO_VERSION ]; then
+  PGO_VERSION=$(<.PGO_VERSION)
+else
+  PGO_VERSION=latest
+fi
+
 PORT=2222
 
 rm -f get_pgoc.sh

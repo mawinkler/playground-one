@@ -1,7 +1,14 @@
 #!/usr/bin/env bash
 
-PGO_VERSION=latest
+if [ -z "$1" ]; then
+  PGO_VERSION=latest
+else
+  PGO_VERSION=$1
+fi
+
 PORT=2222
+
+echo $PGO_VERSION > .PGO_VERSION
 
 # Colors
 # Num  Colour    #define         R G B
