@@ -3,6 +3,8 @@
 set -e
 #o errexit
 
+export DEBIAN_FRONTEND=noninteractive
+
 # Source helpers
 if [ -f $ONEPATH/bin/playground-helpers.sh ]; then
   .  $ONEPATH/bin/playground-helpers.sh
