@@ -2,6 +2,8 @@
 
 set -e
 
+export DEBIAN_FRONTEND=noninteractive
+
 [ -f $ONEPATH/banner.txt ] && cat $ONEPATH/banner.txt
 
 # Source helpers
