@@ -110,6 +110,8 @@ Stopping the container is possible with `./pgoc stop`, to start it again just ru
 >    2. The desired version of the container is pulled and a new `workdir` is created.
 >    3. The previous `config.yaml` is restored alongside the eventually existing `.aws` config.
 > 3. Start the new container with `./pgoc start` and login via ssh.
+> 
+> You likely get an error when connecting with ssh. If so, delete the offending line in `~/.ssh/known_hosts` and retry.
 
 Then, continue with [Configuration](configuration.md).
 
@@ -191,12 +193,13 @@ Then, continue with [Configuration](configuration.md).
 
 ## Change Log
 
-### 0.2 Maintenance release (02/06/2024)
+### 0.2 Maintenance release (02/20/2024)
 
 #### Fixes
 
 - Vision One Container Security gets unregistered from Vision One on cluster destroy.
-- Cluster deployments are now correctly destroyed after the scenarios.
+- Cluster deployments are now correctly destroyed in the correct order.
+- Allow docker client to work with docker.sock on Cloud9
 
 #### Changes
 

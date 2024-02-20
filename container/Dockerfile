@@ -14,7 +14,13 @@ LABEL Description="This is the Multi Cloud Shell"
 # ##############################################################
 RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && echo ${TZ} > /etc/timezone
 RUN addgroup -gid ${gid} ${group} || true
-RUN useradd -m -s /usr/bin/bash -d /home/${user} -u ${uid} -g ${gid} ${user}
+# Add group id of Cloud9 Amazon Linux docker groups
+RUN addgroup -gid 990 c9damzn || true
+RUN addgroup -gid 999 c9dubuntu || true
+# Add user pgo and add user to group id of Cloud9 Amazon Linux docker groups
+RUN useradd -m -s /usr/bin/bash -d /home/${user} -u ${uid} -g ${gid} ${user} && \
+    usermod -a -G 990 ${user} && \
+    usermod -a -G 999 ${user}
 
 RUN \
     # set password
@@ -31,8 +37,10 @@ RUN \
         curl \
         figlet \
         git \
+        nano \
         openssh-server \
-        sudo && \
+        sudo \
+        vim && \
     \
     chown root:root /usr/bin/sudo && \
     chmod u+s /usr/bin/sudo && \

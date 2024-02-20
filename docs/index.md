@@ -108,7 +108,7 @@ Component         | Operational | Known Issues | Vision One Cloud Security
 TMAS              | Yes         | None         | Artifact Scanning for Vulnerabilities and Malware
 TMFS              | Yes         | None         | File and Directory Scanning for Malware
 Workload Security | Yes         | None         | V1 Server & Workload Protection
-Kind Kubernetes   | In progress | None         |
+Kind Kubernetes   | In progress | Only native  |
 
 ## CLI Commands of the Playground
 

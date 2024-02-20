@@ -44,8 +44,8 @@ function pgoc_update() {
   if [ -d workdir ]; then
     if [ -f workdir/playground-one/config.yaml ]; then
       cp workdir/playground-one/config.yaml .
-      mv workdir workdir-$(date +%s)
     fi
+    mv workdir workdir-$(date +%s)
   fi
   if [ ! -d workdir ]; then
     printf '%s\n' "Pulling Playground One Container"

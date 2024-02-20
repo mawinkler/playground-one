@@ -10,8 +10,8 @@ printf '%s\n' "Building mcs version ${PGO_VERSION}"
 # docker run --privileged multiarch/qemu-user-static:latest --reset -p yes --credential yes
 
     # --progress=plain \
-    # --no-cache \
     # -t mawinkler/pgoc:latest \
+    # --no-cache \
 docker buildx build \
     -t mawinkler/pgoc:${PGO_VERSION} \
     --build-arg uid=$(id -u) \
