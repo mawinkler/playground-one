@@ -86,6 +86,7 @@ function pgoc_update() {
 
 case $1 in
   update)
+    pgoc_stop
     pgoc_update
     ;;
   stop|restart)

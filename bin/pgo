@@ -427,6 +427,7 @@ function apply() {
       terraform apply -auto-approve
       ;;&
     dsw|all)
+      lock dsw
       cd ${ONEPATH}/awsone/9-deep-security-workload
       terraform apply -auto-approve
       printf '%s\n' "public_instance_password_windows1 = \"$(terraform output -raw public_instance_password_windows1)\""
@@ -540,6 +541,10 @@ function update_ip() {
   init dsm
   if checklock dsm ; then
     apply dsm
+  fi
+  init dsw
+  if checklock dsw ; then
+    apply dsw
   fi
   # TODO: Add eks deployments
 }
@@ -720,10 +725,11 @@ function destroy() {
       fi
       ;;&
     dsw|all)
-      if checklock dsm ; then
+      if checklock dsw ; then
         deep_security_delete_computers
         cd ${ONEPATH}/awsone/9-deep-security-workload
         terraform destroy -auto-approve
+        unlock dsw
       else
         printf '%s\n' "Configuration dsw is not applied"
       fi
@@ -876,7 +882,7 @@ function output() {
       fi
       ;;&
     dsw|all)
-      if checklock dsm ; then
+      if checklock dsw ; then
         cd ${ONEPATH}/awsone/9-deep-security-workload
         terraform output
       else
@@ -938,6 +944,9 @@ function list() {
   fi
   if checklock dsm ; then
     printf '%s\n' "Configuration dsm is applied"
+  fi
+  if checklock dsw ; then
+    printf '%s\n' "Configuration dsw is applied"
   fi
   if checklock kind ; then
     printf '%s\n' "Configuration kind is applied"
@@ -1290,7 +1299,7 @@ function erase() {
       fi
       ;;&
     dsw|all)
-      if ! checklock dsm; then
+      if ! checklock dsw; then
         cd ${ONEPATH}/awsone/9-deep-security-workload
         # rm -rf .terraform
         # rm -f .terraform.lock.hcl
