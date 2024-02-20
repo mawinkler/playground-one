@@ -15,9 +15,11 @@ Follow this chapter if...
 
 - you intent to use Playground One Container on any `arm64`  or `amd64` based container engine. This includes AWS Cloud9 environments with Amazon Linux or Ubuntu.
 
+> ***Note***: For the curious ones, here's the [Dockerfile](https://github.com/mawinkler/playground-one/blob/main/container/Dockerfile).
+
 First, start a terminal and ensure to have a running container engine, eventually run `docker ps` to verify this.
 
-> ***Note:*** If you want to specify a Playground One Container version instead of using latest create a file with the version (tag) to use by running:
+> ***Note:*** If you want to specify a Playground One Container version instead of using `latest` create a file with the version (tag) to use by running:
 >
 > `echo "<VERSION>" >.PGO_VERSION`
 > 
@@ -27,14 +29,13 @@ First, start a terminal and ensure to have a running container engine, eventuall
 >
 > See [Change Log](#change-log).
 
-
 Then simply run
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/get_pgoc.sh | bash
 ```
 
-The above will pull the latest version of the container. If you're already authenticated to AWS and/or have an already existing `config.yaml` from a previous Playground One installation in the current directory, they will automatically be made available to the Playground One container.
+The above will pull the latest version (or the version you specified in the `.PGO_VERSION`-file) of the container. If you're already authenticated to AWS and/or have an already existing `config.yaml` from a previous Playground One installation in the current directory, they will automatically be made available to the Playground One container.
 
 > ***Note:*** When running the above `curl`-command on an ***AWS Cloud9*** instance, the instance should be at least a `t3.medium` and you will be asked to run `./get_pgoc.sh` manually. The script will ask for your AWS credentials which will never be stored on disk and get removed from memory after creating and assigning an instance role to the Cloud9 instance.
 > 
@@ -101,7 +102,14 @@ az login --use-device-code
 
 Stopping the container is possible with `./pgoc stop`, to start it again just run `./pgoc start`.
 
-> ***Note***: For the curious ones, here's the [Dockerfile](https://github.com/mawinkler/playground-one/blob/main/container/Dockerfile).
+> ***Note***: Updating the container or changing to a different release of the container can be done following these steps:
+>
+> 1. Edit the file `.PGO_VERSION` to set the version you want (e.g. `0.2`).
+> 2. Run `./pgoc update`
+>    1. This will backup your current `workdir` and save your `config.yaml`.
+>    2. The desired version of the container is pulled and a new `workdir` is created.
+>    3. The previous `config.yaml` is restored alongside the eventually existing `.aws` config.
+> 3. Start the new container with `./pgoc start` and login via ssh.
 
 Then, continue with [Configuration](configuration.md).
 

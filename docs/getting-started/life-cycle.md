@@ -107,9 +107,20 @@ It's a playground, or? Experiment and hopefully learn a few things. For your gui
 
 ## Switch in between multiple Kubernetes Clusters
 
-If you're using multiple cluster variants simultaneously you can easily switch in between the clusters using the command `pgo-context`.
+If you're using multiple clusters simultaneously you can easily switch in between the clusters using the command `kubie`.
 
-![alt text](images/pgo-context.png "Context")
+Main commands:
+
+* `kubie ctx` display a selectable menu of contexts or directly spawns a shell if there is only one context available.
+* `kubie ctx <context>` switch the current shell to the given context (spawns a shell if not a kubie shell).
+* `kubie ctx -` switch back to the previous context
+* `kubie ns` display a selectable menu of namespaces
+* `kubie ns <namespace>` switch the current shell to the given namespace
+* `kubie ns -` switch back to the previous namespace
+
+Exit a context by pressing `^d`.
+
+Full list of kubie commands [here](https://github.com/sbstp/kubie#usage).
 
 ## Tear Down
 
