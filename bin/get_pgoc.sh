@@ -60,6 +60,7 @@ function query_aws_keys() {
   if [[ ! -z "${TEMP}" ]]; then
     AWS_SECRET_ACCESS_KEY=${TEMP}
   fi
+  printf "\n"
 
   AWS_DEFAULT_REGION=$(curl -sS -m 1 http://169.254.169.254/latest/meta-data/placement/region --header "X-aws-ec2-metadata-token: $METADATA_TOKEN")
 }
