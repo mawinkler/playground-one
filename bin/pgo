@@ -527,42 +527,48 @@ function update_ip() {
   cd ${ONEPATH}/awsone/2-network
   terraform apply
 
-  init eks-ec2
-  if checklock eks-ec2 ; then
-    apply eks-ec2
-  fi
-  init eks-fg
-  if checklock eks-fg ; then
-    apply eks-fg
-  fi
-  init aks
-  if checklock aks ; then
-    apply aks
-  fi
-  init ecs
-  if checklock ecs ; then
-    apply ecs
-  fi
-  init scenarios-ec2
-  if checklock scenarios-ec2 ; then
-    apply scenarios-ec2
-  fi
-  init scenarios-fg
-  if checklock scenarios-fg ; then
-    apply scenarios-fg
-  fi
-  init scenarios-aks
-  if checklock scenarios-aks ; then
-    apply scenarios-aks
-  fi
-  init dsm
-  if checklock dsm ; then
-    apply dsm
-  fi
-  init dsw
-  if checklock dsw ; then
-    apply dsw
-  fi
+  for conf in eks-ec2 eks-fg aks ecs scenarios-ec2 scenarios-fg scenarios-aks dsm dsw ; do
+    init ${conf}
+    if checklock ${conf} ; then
+      apply ${conf}
+    fi
+  done
+  # init eks-ec2
+  # if checklock eks-ec2 ; then
+  #   apply eks-ec2
+  # fi
+  # init eks-fg
+  # if checklock eks-fg ; then
+  #   apply eks-fg
+  # fi
+  # init aks
+  # if checklock aks ; then
+  #   apply aks
+  # fi
+  # init ecs
+  # if checklock ecs ; then
+  #   apply ecs
+  # fi
+  # init scenarios-ec2
+  # if checklock scenarios-ec2 ; then
+  #   apply scenarios-ec2
+  # fi
+  # init scenarios-fg
+  # if checklock scenarios-fg ; then
+  #   apply scenarios-fg
+  # fi
+  # init scenarios-aks
+  # if checklock scenarios-aks ; then
+  #   apply scenarios-aks
+  # fi
+  # init dsm
+  # if checklock dsm ; then
+  #   apply dsm
+  # fi
+  # init dsw
+  # if checklock dsw ; then
+  #   apply dsw
+  # fi
   # TODO: Add eks deployments
 }
 
