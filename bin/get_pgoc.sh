@@ -56,7 +56,7 @@ function query_aws_keys() {
   fi
 
   key_desc="AWS Secret Key"
-  read -p "${key_desc} [${AWS_SECRET_ACCESS_KEY}]: " TEMP
+  read -s -p "${key_desc} [${AWS_SECRET_ACCESS_KEY}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     AWS_SECRET_ACCESS_KEY=${TEMP}
   fi
