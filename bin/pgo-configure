@@ -262,6 +262,35 @@ function update_vision_one_config() {
   printf '\n%s\n' "Please set/update your Vision One Container Security"
 
   ##
+  ## Vision One
+  ##
+  key_desc="Vision One API Key"
+  read -p "${key_desc} [${vision_one_api_key:0:10}...]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    vision_one_api_key=${TEMP}
+  fi
+  if [[ "${vision_one_api_key}" =~ ^ey[0-9a-zA-Z]+\.ey[0-9a-zA-Z\.\_-]+$ ]]; then
+    target_val=${vision_one_api_key} \
+      yq -i '.services.vision-one.api-key = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  key_desc="Vision One region name"
+  read -p "${key_desc} [${vision_one_region:0:10}...]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    vision_one_region=${TEMP}
+  fi
+  if [[ "${vision_one_region}" =~ ^[0-9a-z\-]+$ ]]; then
+    target_val=${vision_one_region} \
+      yq -i '.services.vision-one.region = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  ##
   ## Vision One Container Security
   ##
   key_desc="Vision One Container Security"
@@ -278,19 +307,6 @@ function update_vision_one_config() {
   fi
 
   if ${vision_one_cs_enabled} ; then
-    key_desc="Vision One API Key"
-    read -p "${key_desc} [${vision_one_api_key:0:10}...]: " TEMP
-    if [[ ! -z "${TEMP}" ]]; then
-      vision_one_api_key=${TEMP}
-    fi
-    if [[ "${vision_one_api_key}" =~ ^ey[0-9a-zA-Z]+\.ey[0-9a-zA-Z\.\_-]+$ ]]; then
-      target_val=${vision_one_api_key} \
-        yq -i '.services.vision-one.api-key = env(target_val)' ${ONEPATH}/config.yaml
-    else
-      echo "Error: Invalid ${key_desc} input."
-      exit 0
-    fi
-
     key_desc="Vision One Container Security Policy Name"
     read -p "${key_desc} [${vision_one_cs_policy}]: " TEMP
     if [[ ! -z "${TEMP}" ]]; then

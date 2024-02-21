@@ -394,8 +394,10 @@ function get_config() {
     # Vision One
     vision_one_cs_enabled="$(yq '.services.vision-one.container-security.enabled' $ONEPATH/config.yaml)"
     vision_one_api_key="$(yq '.services.vision-one.api-key' $ONEPATH/config.yaml)"
+    vision_one_region="$(yq '.services.vision-one.region' $ONEPATH/config.yaml)"
     vision_one_cs_policy="$(yq '.services.vision-one.container-security.policy' $ONEPATH/config.yaml)"
     [[ "${vision_one_api_key}" = "null" || "${vision_one_api_key}" = "" ]] && vision_one_api_key="apikey"
+    [[ "${vision_one_region}" = "null" || "${vision_one_region}" = "" ]] && vision_one_region="us-east-1"
     [[ "${vision_one_cs_enabled}" = "null" || "${vision_one_cs_enabled}" = "" ]] && vision_one_cs_enabled=false
     [[ "${vision_one_cs_policy}" = "null" || "${vision_one_cs_policy}" = "" ]] && vision_one_cs_policy="policy"
 
