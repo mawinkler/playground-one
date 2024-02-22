@@ -13,6 +13,7 @@ awsone
 |   |   ├── eks-deployments (8-cluster-eks-fargate-deployments)
 |   |   └── scenarios (7-scenarios-fargate)
 |   └── ecs (5-cluster-ecs)
+├── s3scanner (6-bucket-scanner)
 └── dsm (9-deep-security)
     └── workload (9-deep-security-workload) 
 
@@ -20,6 +21,10 @@ azone
 └── aks (4-cluster-aks)
     ├── aks-deployments (8-cluster-aks-deployments)
     └── scenarios (7-scenarios-aks)
+
+kindone
+└── kind (4-cluster-kind)
+    └── kind-deployments (8-cluster-kind-deployments)
 ```
 
 As we can see, the configuration `network` is the base for the other configurations. It creates the VPC, Subnets, Route Tables, Security Groups, etc. One can choose to only create the EKS cluster, or ECS cluster, or even the full stack. Everything will reside in the same VPC.
@@ -125,6 +130,12 @@ Here we're building an ECS cluster using EC2 instances and/or Fargate profile. K
 - ALB Load Balancer
 - Automatic deployment of a vulnerable service (Java-Goof)
 
+## S3 Bucket Scanner
+
+*Configuration located in `awsone/6-bucket-scanner`*
+
+Simple S3 Bucket scanner using the File Security Python SDK within a Lambda Function. Scan results will show up on the Vision One console.
+
 ## Deep Security
 
 *Configuration located in `awsone/9-deep-security` and `awsone/9-deep-security-workload`*
@@ -147,3 +158,9 @@ To come:
 *Configuration located in `azone/4-cluster-aks`*
 
 This is work in progress and not finalized yet.
+
+## Kind Cluster
+
+*Configuration located in `kindone/4-cluster-kind`*
+
+This is work in progress and not finalized yet. Useful for quickly testing out Kubernetes things :-).

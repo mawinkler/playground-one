@@ -115,7 +115,7 @@ You don't necessarily need to change anything here if you're satisfied with the 
 Set/update:
 
 - `Access IPs/CIDRs`:
-  - If you're running on a local Ubuntu server (not Cloud9), get your public IP and set the value to `<YOUR IP>/32` or type `pub` and let the config tool detect your public IP.
+  - If you're running on a local Ubuntu server or are using Playground One Container locally (not on Cloud9), get your public IP and set the value to `<YOUR IP>/32` or type `pub` and let the config tool detect your public IP.
   - If you're working on a Cloud9 you need enter two public IP/CIDRs separated by `,`.
     1. Public IP from your Cloud9 or type `pub`.
     2. Public IP from your local client.  
