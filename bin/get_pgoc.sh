@@ -298,6 +298,13 @@ function create_workdir() {
       fi
     fi
 
+    if [ ! -d workdir/.azure ]; then
+      if [ -d ~/.azure ]; then
+        printf '%s\n' "Copy Azure credentials to workdir"
+        cp -r ~/.azure workdir/
+      fi
+    fi
+
     if [ ! -f workdir/playground-one/config.yaml ]; then
       if [ -f config.yaml ]; then
         printf '%s\n' "Copy config.yaml to workdir"
