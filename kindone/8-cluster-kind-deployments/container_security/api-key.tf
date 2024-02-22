@@ -9,7 +9,7 @@ resource "restapi_object" "cluster" {
   id_attribute   = "name"
   data           = <<-EOT
     {
-      "name": "${replace(var.environment, "-", "_")}",
+      "name": "${local.cluster_name}",
       "description": "Playground Cluster",
       "policyID": "${local.cluster_policy}"
     }

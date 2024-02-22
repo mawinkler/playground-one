@@ -8,7 +8,7 @@ data "restapi_object" "cluster" {
   path         = "/beta/containerSecurity/kubernetesClusters"
   results_key  = "items"
   search_key   = "name"
-  search_value = replace(var.environment, "-", "_")
+  search_value = local.cluster_name
 }
 
 locals {
@@ -16,4 +16,5 @@ locals {
   cluster_apikey   = jsondecode(restapi_object.cluster.api_response).apiKey
   cluster_endpoint = jsondecode(restapi_object.cluster.api_response).endpointUrl
   cluster_policy   = jsondecode(data.restapi_object.policies.api_response).id
+  cluster_name     = replace("${var.environment}-${random_string.suffix.result}", "-", "_")
 }
