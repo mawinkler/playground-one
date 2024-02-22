@@ -75,7 +75,8 @@ function is_eks() {
 #   false: if not EC2
 #######################################
 function is_ec2() {
-  if [[ $(curl -sS -m 1 http://169.254.169.254/latest/meta-data/instance-id 2> /dev/null) =~ i-* ]]; then
+  # if [[ $(curl -sS -m 1 http://169.254.169.254/latest/meta-data/instance-id 2> /dev/null) =~ i-* ]]; then
+  if curl -sS -m 1 http://169.254.169.254/latest/meta-data/instance-id &> /dev/null; then
     return
   fi
   false

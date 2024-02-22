@@ -131,6 +131,15 @@ function update_pgo_config() {
     pgo_access_ip=${TEMP}
   fi
 
+  if is_ec2 ; then
+    key_desc="Public IP accessing Cloud9"
+    pgo_access_ip=${pgo_access_ip//[\[\]\"]/}
+    read -p "${key_desc} [${pgo_access_ip}]: " TEMP
+    if [[ ! -z "${TEMP}" ]]; then
+      pgo_access_ip=${pgo_access_ip},${TEMP}
+    fi
+  fi
+
   n='([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])'
   m='([0-9]|[12][0-9]|3[012])'
   cidr_list='['
@@ -139,7 +148,7 @@ function update_pgo_config() {
     # Input matches "pub", query public IP
     if [[ "${cidr}" == "pub" ]]; then
       cidr=$(curl -s ifconfig.me && echo)'/32'
-      printf 'Public IP/CIDR %s\n' "$cidr"
+      # printf 'Public IP/CIDR %s\n' "$cidr"
     fi
     # Input matches IP, append /0 or /32
     if [[ "${cidr}" =~ ^$n(\.$n){3}$ ]]; then
@@ -156,6 +165,7 @@ function update_pgo_config() {
   pgo_access_ip=${cidr_list::-1}']'
   # CIDR list correct?
   if [[ "${pgo_access_ip}" =~ ^\[\"[0-9\.\,\/\"[:space:]]+\"\]$ ]]; then
+    printf 'Public IP(s)/CIDR(s): %s\n' "$pgo_access_ip"
     target_val=${pgo_access_ip} \
       yq -i '.services.playground-one.access-ip = env(target_val)' ${ONEPATH}/config.yaml
   else
@@ -278,7 +288,7 @@ function update_vision_one_config() {
   fi
 
   key_desc="Vision One region name"
-  read -p "${key_desc} [${vision_one_region:0:10}...]: " TEMP
+  read -p "${key_desc} [${vision_one_region}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     vision_one_region=${TEMP}
   fi

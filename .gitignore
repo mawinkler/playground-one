@@ -69,3 +69,5 @@ awsone/9-deep-security/cookie.txt
 azone/4-cluster-aks/kubeconfig
 .pgo.kind.lock
 pgoc
+.pgo.s3scanner.lock
+eicarcom2.zip
