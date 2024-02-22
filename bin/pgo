@@ -663,17 +663,21 @@ function destroy() {
       if checklock eks-ec2 ; then
         cd ${ONEPATH}/awsone/4-cluster-eks-ec2
         cluster_name=$(terraform output -raw cluster_name)
-        cluster_id=$(terraform output -raw cluster_id)
         kubectl config use-context ${cluster_name}
         cd ${ONEPATH}/awsone/7-scenarios-ec2
         terraform destroy -auto-approve
         unlock scenarios-ec2
         cd ${ONEPATH}/awsone/8-cluster-eks-ec2-deployments
+        cluster_id=$(terraform output -json cluster_id 2>/dev/null | jq -r .)
+        if [ -z "${cluster_id}" ]; then
+          printf '%s\n' "Eventually delete cluster in Vision One manually"
+        else
+          curl -fsSL -X DELETE \
+            -H "Content-Type: application/json" \
+            -H "api-version: v1" -H "Authorization: Bearer ${vision_one_api_key}" \
+            "https://api.xdr.trendmicro.com/beta/containerSecurity/kubernetesClusters/${cluster_id}"
+        fi
         terraform destroy -auto-approve
-        curl -fsSL -X DELETE \
-          -H "Content-Type: application/json" \
-          -H "api-version: v1" -H "Authorization: Bearer ${vision_one_api_keyy}" \
-          "https://api.xdr.trendmicro.com/beta/containerSecurity/kubernetesClusters/${cluster_id}"
 
         cd ${ONEPATH}/awsone/4-cluster-eks-ec2
         terraform destroy -auto-approve
@@ -687,17 +691,21 @@ function destroy() {
       if checklock eks-fg ; then
         cd ${ONEPATH}/awsone/4-cluster-eks-fargate
         cluster_name=$(terraform output -raw cluster_name)
-        cluster_id=$(terraform output -raw cluster_id)
         kubectl config use-context ${cluster_name}
         cd ${ONEPATH}/awsone/7-scenarios-fargate
         terraform destroy -auto-approve
         unlock scenarios-fg
         cd ${ONEPATH}/awsone/8-cluster-eks-fargate-deployments
+        cluster_id=$(terraform output -json cluster_id 2>/dev/null | jq -r .)
+        if [ -z "${cluster_id}" ]; then
+          printf '%s\n' "Eventually delete cluster in Vision One manually"
+        else
+          curl -fsSL -X DELETE \
+            -H "Content-Type: application/json" \
+            -H "api-version: v1" -H "Authorization: Bearer ${vision_one_api_key}" \
+            "https://api.xdr.trendmicro.com/beta/containerSecurity/kubernetesClusters/${cluster_id}"
+        fi
         terraform destroy -auto-approve
-        curl -fsSL -X DELETE \
-          -H "Content-Type: application/json" \
-          -H "api-version: v1" -H "Authorization: Bearer ${vision_one_api_keyy}" \
-          "https://api.xdr.trendmicro.com/beta/containerSecurity/kubernetesClusters/${cluster_id}"
 
         cd ${ONEPATH}/awsone/4-cluster-eks-fargate
         terraform destroy -auto-approve
@@ -712,17 +720,21 @@ function destroy() {
         cd ${ONEPATH}/azone/4-cluster-aks
         cluster_name=$(terraform output -raw cluster_name)
         cluster_username=$(terraform output -raw cluster_username)
-        cluster_id=$(terraform output -raw cluster_id)
         kubectl config use-context ${cluster_name}
         cd ${ONEPATH}/azone/7-scenarios-aks
         terraform destroy -auto-approve
         unlock scenarios-aks
         cd ${ONEPATH}/azone/8-cluster-aks-deployments
+        cluster_id=$(terraform output -json cluster_id 2>/dev/null | jq -r .)
+        if [ -z "${cluster_id}" ]; then
+          printf '%s\n' "Eventually delete cluster in Vision One manually"
+        else
+          curl -fsSL -X DELETE \
+            -H "Content-Type: application/json" \
+            -H "api-version: v1" -H "Authorization: Bearer ${vision_one_api_key}" \
+            "https://api.xdr.trendmicro.com/beta/containerSecurity/kubernetesClusters/${cluster_id}"
+        fi
         terraform destroy -auto-approve
-        curl -fsSL -X DELETE \
-          -H "Content-Type: application/json" \
-          -H "api-version: v1" -H "Authorization: Bearer ${vision_one_api_keyy}" \
-          "https://api.xdr.trendmicro.com/beta/containerSecurity/kubernetesClusters/${cluster_id}"
 
         cd ${ONEPATH}/azone/4-cluster-aks
         terraform destroy -auto-approve
@@ -821,12 +833,16 @@ function destroy() {
     kind)
       if checklock kind ; then
         cd ${ONEPATH}/kindone/8-cluster-kind-deployments
-        cluster_id=$(terraform output -raw cluster_id)
+        cluster_id=$(terraform output -json cluster_id 2>/dev/null | jq -r .)
+        if [ -z "${cluster_id}" ]; then
+          printf '%s\n' "Eventually delete cluster in Vision One manually"
+        else
+          curl -fsSL -X DELETE \
+            -H "Content-Type: application/json" \
+            -H "api-version: v1" -H "Authorization: Bearer ${vision_one_api_key}" \
+            "https://api.xdr.trendmicro.com/beta/containerSecurity/kubernetesClusters/${cluster_id}"
+        fi
         terraform destroy -auto-approve
-        curl -fsSL -X DELETE \
-          -H "Content-Type: application/json" \
-          -H "api-version: v1" -H "Authorization: Bearer ${vision_one_api_key}" \
-          "https://api.xdr.trendmicro.com/beta/containerSecurity/kubernetesClusters/${cluster_id}"
 
         cd ${ONEPATH}/kindone/4-cluster-kind
         terraform destroy -auto-approve
