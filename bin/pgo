@@ -251,6 +251,18 @@ function init() {
       cd ${ONEPATH}/awsone/5-cluster-ecs
       terraform init
       ;;&
+    s3scanner|all)
+      printf '%s\n' "Create terraform.tfvars for s3scanner"
+      aws_region=${aws_region} \
+      aws_environment=${aws_environment} \
+      vision_one_api_key=${vision_one_api_key} \
+      vision_one_region=${vision_one_region} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-6-bucket-scanner.tfvars >$ONEPATH/awsone/6-bucket-scanner/terraform.tfvars
+
+      cd ${ONEPATH}/awsone/6-bucket-scanner
+      terraform init
+      ;;&
     scenarios|scenarios-ec2|all)
       printf '%s\n' "Create terraform.tfvars for scenarios-ec2 deployments"
       aws_region=${aws_region} \
@@ -402,6 +414,11 @@ function apply() {
       cd ${ONEPATH}/awsone/5-cluster-ecs
       terraform apply -auto-approve
       ;;&
+    s3scanner|all)
+      lock s3scanner
+      cd ${ONEPATH}/awsone/6-bucket-scanner
+      terraform apply -auto-approve
+      ;;&
     scenarios|scenarios-ec2|all)
       lock scenarios-ec2
       # make sure fargate namespace exists
@@ -510,42 +527,48 @@ function update_ip() {
   cd ${ONEPATH}/awsone/2-network
   terraform apply
 
-  init eks-ec2
-  if checklock eks-ec2 ; then
-    apply eks-ec2
-  fi
-  init eks-fg
-  if checklock eks-fg ; then
-    apply eks-fg
-  fi
-  init aks
-  if checklock aks ; then
-    apply aks
-  fi
-  init ecs
-  if checklock ecs ; then
-    apply ecs
-  fi
-  init scenarios-ec2
-  if checklock scenarios-ec2 ; then
-    apply scenarios-ec2
-  fi
-  init scenarios-fg
-  if checklock scenarios-fg ; then
-    apply scenarios-fg
-  fi
-  init scenarios-aks
-  if checklock scenarios-aks ; then
-    apply scenarios-aks
-  fi
-  init dsm
-  if checklock dsm ; then
-    apply dsm
-  fi
-  init dsw
-  if checklock dsw ; then
-    apply dsw
-  fi
+  for conf in eks-ec2 eks-fg aks ecs scenarios-ec2 scenarios-fg scenarios-aks dsm dsw ; do
+    init ${conf}
+    if checklock ${conf} ; then
+      apply ${conf}
+    fi
+  done
+  # init eks-ec2
+  # if checklock eks-ec2 ; then
+  #   apply eks-ec2
+  # fi
+  # init eks-fg
+  # if checklock eks-fg ; then
+  #   apply eks-fg
+  # fi
+  # init aks
+  # if checklock aks ; then
+  #   apply aks
+  # fi
+  # init ecs
+  # if checklock ecs ; then
+  #   apply ecs
+  # fi
+  # init scenarios-ec2
+  # if checklock scenarios-ec2 ; then
+  #   apply scenarios-ec2
+  # fi
+  # init scenarios-fg
+  # if checklock scenarios-fg ; then
+  #   apply scenarios-fg
+  # fi
+  # init scenarios-aks
+  # if checklock scenarios-aks ; then
+  #   apply scenarios-aks
+  # fi
+  # init dsm
+  # if checklock dsm ; then
+  #   apply dsm
+  # fi
+  # init dsw
+  # if checklock dsw ; then
+  #   apply dsw
+  # fi
   # TODO: Add eks deployments
 }
 
@@ -742,6 +765,15 @@ function destroy() {
         printf '%s\n' "Configuration ecs is not applied"
       fi
       ;;&
+    s3scanner|all)
+      if checklock s3scanner ; then
+        cd ${ONEPATH}/awsone/6-bucket-scanner
+        terraform destroy -auto-approve
+        unlock s3scanner
+      else
+        printf '%s\n' "Configuration s3scanner is not applied"
+      fi
+      ;;&
     dsw|all)
       if checklock dsw ; then
         deep_security_delete_computers
@@ -873,6 +905,14 @@ function output() {
         printf '%s\n' "Configuration ecs not applied"
       fi
       ;;&
+    s3scanner|all)
+      if checklock s3scanner ; then
+        cd ${ONEPATH}/awsone/6-bucket-scanner
+        terraform output
+      else
+        printf '%s\n' "Configuration s3scanner not applied"
+      fi
+      ;;&
     scenarios|scenarios-ec2|all)
       if checklock scenarios-ec2 ; then
         cd ${ONEPATH}/awsone/7-scenarios-ec2
@@ -957,6 +997,9 @@ function list() {
   if checklock ecs ; then
     printf '%s\n' "Configuration ecs is applied"
   fi
+  if checklock s3scanner ; then
+    printf '%s\n' "Configuration s3scanner is applied"
+  fi
   if checklock scenarios-ec2 ; then
     printf '%s\n' "Configuration scenarios-ec2 is applied"
   fi
@@ -1017,6 +1060,10 @@ function state() {
       ;;&
     ecs|all)
       cd ${ONEPATH}/awsone/5-cluster-ecs
+      terraform state list
+      ;;&
+    s3scanner|all)
+      cd ${ONEPATH}/awsone/6-bucket-scanner
       terraform state list
       ;;&
     scenarios|scenarios-ec2|all)
@@ -1091,6 +1138,10 @@ function show() {
       cd ${ONEPATH}/awsone/5-cluster-ecs
       terraform show
       ;;&
+    s3scanner|all)
+      cd ${ONEPATH}/awsone/6-bucket-scanner
+      terraform show
+      ;;&
     scenarios|scenarios-ec2|all)
       cd ${ONEPATH}/awsone/7-scenarios-ec2
       terraform show
@@ -1160,6 +1211,10 @@ function validate() {
       ;;&
     ecs|all)
       cd ${ONEPATH}/awsone/5-cluster-ecs
+      terraform validate
+      ;;&
+    s3scanner|all)
+      cd ${ONEPATH}/awsone/6-bucket-scanner
       terraform validate
       ;;&
     scenarios|scenarios-ec2|all)
@@ -1290,6 +1345,14 @@ function erase() {
         rm -f terraform.tfstate*
       fi
       ;;&
+    s3scanner|all)
+      if ! checklock s3scanner; then
+        cd ${ONEPATH}/awsone/6-bucket-scanner
+        # rm -rf .terraform
+        # rm -f .terraform.lock.hcl
+        rm -f terraform.tfstate*
+      fi
+      ;;&
     scenarios|scenarios-ec2|all)
       if ! checklock scenarios-ec2; then
         cd ${ONEPATH}/awsone/7-scenarios-ec2
@@ -1393,6 +1456,7 @@ function helpcmd() {
   printf '%s\n' "  eks-fg         EKS configuration"
   printf '%s\n' "  aks            AKS configuration"
   printf '%s\n' "  ecs            ECS configurations"
+  printf '%s\n' "  s3scanner      S3 Bucket scanner"
   printf '%s\n' "  kind           Kind configuration"
   printf '%s\n' "  scenarios-ec2  Scenario configuration"
   printf '%s\n' "  scenarios-fg   Scenario configuration"
