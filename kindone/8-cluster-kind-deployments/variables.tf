@@ -1,6 +1,4 @@
-# ####################################
-# Variables
-# ####################################
+
 variable "environment" {
   type = string
 }
@@ -20,6 +18,11 @@ variable "api_key" {
 
 # Calico
 variable "calico" {
+  type = bool
+}
+
+# MetalLB
+variable "metallb" {
   type = bool
 }
 

@@ -6,6 +6,7 @@ data "terraform_remote_state" "kind" {
   }
 }
 
+
 module "container_security" {
   count = var.container_security ? 1 : 0
 
@@ -27,6 +28,13 @@ module "calico" {
   namespace = "tigera-operator"
 }
 
+module "metallb" {
+  count = var.metallb ? 1 : 0
+
+  source                  = "./metallb"
+  namespace               = "metallb-system"
+}
+
 module "trivy" {
   count = var.trivy ? 1 : 0
 
@@ -36,6 +44,7 @@ module "trivy" {
 }
 
 module "prometheus" {
+  depends_on = [ module.metallb ]
   count = var.prometheus ? 1 : 0
 
   source                 = "./prometheus"

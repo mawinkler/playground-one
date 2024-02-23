@@ -1,12 +1,12 @@
 grafana:
   enabled: true
   service:
-    type: NodePort
+    type: LoadBalancer
 
 prometheusOperator:
   enabled: true
   service:
-    type: NodePort
+    type: LoadBalancer
   namespaces:
     releaseNamespace: true
     additional:
@@ -19,4 +19,4 @@ prometheusOperator:
 prometheus:
   enabled: true
   service:
-    type: NodePort
+    type: LoadBalancer
