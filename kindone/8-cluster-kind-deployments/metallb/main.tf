@@ -1,5 +1,5 @@
 data "external" "kind_network_inspect" {
-  program    = ["bash", "${path.module}/get_docker_network_ip.sh"]
+  program = ["bash", "${path.module}/get_docker_network_ip.sh"]
 }
 
 resource "helm_release" "metallb" {
@@ -30,10 +30,11 @@ YAML
 }
 
 resource "helm_release" "projectcontour" {
-  name       = "contour"
+  depends_on = [helm_release.metallb]
 
   repository       = "https://charts.bitnami.com/bitnami"
   chart            = "contour"
+  name             = "contour"
   namespace        = "projectcontour"
   version          = "12.1.0"
   create_namespace = true
