@@ -44,19 +44,6 @@ function update_aws_config() {
     echo "Error: Invalid ${key_desc} input."
     exit 0
   fi
-
-  key_desc="AWS environment name"
-  read -p "${key_desc} [${aws_environment}]: " TEMP
-  if [[ ! -z "${TEMP}" ]]; then
-    aws_environment=${TEMP}
-  fi
-  if [[ "${aws_environment}" =~ ^[0-9a-z\-]+$ && ${#aws_environment} -le 12 ]]; then
-    target_val=${aws_environment} \
-      yq -i '.services.aws.environment = env(target_val)' ${ONEPATH}/config.yaml
-  else
-    echo "Error: Invalid ${key_desc} input."
-    exit 0
-  fi
 }
 
 function update_azure_config() {
@@ -90,19 +77,6 @@ function update_azure_config() {
     echo "Error: Invalid ${key_desc} input."
     exit 0
   fi
-
-  key_desc="Azure environment name"
-  read -p "${key_desc} [${azure_environment}]: " TEMP
-  if [[ ! -z "${TEMP}" ]]; then
-    azure_environment=${TEMP}
-  fi
-  if [[ "${azure_environment}" =~ ^[0-9a-z\-]+$ && ${#azure_environment} -le 12 ]]; then
-    target_val=${azure_environment} \
-      yq -i '.services.azure.environment = env(target_val)' ${ONEPATH}/config.yaml
-  else
-    echo "Error: Invalid ${key_desc} input."
-    exit 0
-  fi
 }
 
 function update_pgo_config() {
@@ -120,6 +94,19 @@ function update_pgo_config() {
   #   echo "Error: Invalid ${key_desc} input."
   #   exit 0
   # fi
+
+  key_desc="PGO environment name"
+  read -p "${key_desc} [${environment_name}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    environment_name=${TEMP}
+  fi
+  if [[ "${environment_name}" =~ ^[0-9a-z\-]+$ && ${#environment_name} -le 12 ]]; then
+    target_val=${environment_name} \
+      yq -i '.services.environment_name = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
 
   ##
   ## Access IPs/CIDRs

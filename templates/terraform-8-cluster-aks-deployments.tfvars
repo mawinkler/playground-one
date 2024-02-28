@@ -7,7 +7,7 @@ subscription_id = "${azure_subscription_id}"
 access_ip = "${pgo_access_ip}"
 
 # Environment Name
-environment = "${azure_environment}"
+environment = "${environment_name}"
 
 # Vision One
 container_security = ${vision_one_cs_enabled}

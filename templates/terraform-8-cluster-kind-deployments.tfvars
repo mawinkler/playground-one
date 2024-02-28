@@ -1,5 +1,5 @@
 # Environment Name
-environment = "${aws_environment}"
+environment = "${environment_name}"
 
 # Vision One
 container_security = ${vision_one_cs_enabled}

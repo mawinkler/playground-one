@@ -10,7 +10,7 @@ aws_region = "${aws_region}"
 access_ip = ${pgo_access_ip}
 
 # Environment Name
-environment = "${aws_environment}"
+environment = "${environment_name}"
 
 # Create EC2
 ecs_ec2 = ${pgo_ecs_create_ec2}

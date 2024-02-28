@@ -2,7 +2,7 @@
 aws_region = "${aws_region}"
 
 # Environment Name
-environment = "${aws_environment}"
+environment = "${environment_name}"
 
 # Vision One
 vision_one_region = "${vision_one_region}"

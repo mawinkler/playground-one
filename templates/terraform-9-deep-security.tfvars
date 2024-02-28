@@ -10,7 +10,7 @@ aws_region = "${aws_region}"
 access_ip = ${pgo_access_ip}
 
 # Environment Name
-environment = "${aws_environment}-dsm"
+environment = "${environment_name}-dsm"
 
 # Path to Playground One
 one_path = "${ONEPATH}"

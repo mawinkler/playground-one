@@ -79,7 +79,7 @@ function check_network() {
   fi
   aws_account_id=${aws_account_id} \
   aws_region=${aws_region} \
-  aws_environment=${aws_environment} \
+  environment_name=${environment_name} \
   pgo_access_ip=${pgo_access_ip} \
   xdr_for_containers=${xdr_for_containers} \
   ONEPATH=${ONEPATH} \
@@ -128,7 +128,7 @@ function init() {
       fi
       aws_account_id=${aws_account_id} \
       aws_region=${aws_region} \
-      aws_environment=${aws_environment} \
+      environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip} \
       xdr_for_containers=${xdr_for_containers} \
       ONEPATH=${ONEPATH} \
@@ -141,7 +141,7 @@ function init() {
       printf '%s\n' "Create terraform.tfvars for instances"
       aws_region=${aws_region} \
       pgo_access_ip=${pgo_access_ip} \
-      aws_environment=${aws_environment} \
+      environment_name=${environment_name} \
       pgo_ec2_create_linux=${pgo_ec2_create_linux} \
       pgo_ec2_create_windows=${pgo_ec2_create_windows} \
       pgo_ec2_create_database=${pgo_ec2_create_database} \
@@ -155,14 +155,14 @@ function init() {
       printf '%s\n' "Create terraform.tfvars for cluster-eks-ec2"
       aws_account_id=${aws_account_id} \
       aws_region=${aws_region} \
-      aws_environment=${aws_environment} \
+      environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip} \
       pgo_eks_create_ec2=${pgo_eks_create_ec2} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-4-cluster-eks-ec2.tfvars >$ONEPATH/awsone/4-cluster-eks-ec2/terraform.tfvars
       printf '%s\n' "Create terraform.tfvars for cluster-eks deployments"
       aws_region=${aws_region} \
-      aws_environment=${aws_environment} \
+      environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
       vision_one_cs_enabled=${vision_one_cs_enabled} \
       vision_one_cs_policy=${vision_one_cs_policy} \
@@ -184,14 +184,14 @@ function init() {
       printf '%s\n' "Create terraform.tfvars for cluster-eks-fargate"
       aws_account_id=${aws_account_id} \
       aws_region=${aws_region} \
-      aws_environment=${aws_environment} \
+      environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip} \
       pgo_eks_create_ec2=${pgo_eks_create_ec2} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-4-cluster-eks-fargate.tfvars >$ONEPATH/awsone/4-cluster-eks-fargate/terraform.tfvars
       printf '%s\n' "Create terraform.tfvars for cluster-eks deployments"
       aws_region=${aws_region} \
-      aws_environment=${aws_environment} \
+      environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
       vision_one_cs_enabled=${vision_one_cs_enabled} \
       vision_one_cs_policy=${vision_one_cs_policy} \
@@ -213,13 +213,13 @@ function init() {
       printf '%s\n' "Create terraform.tfvars for cluster-aks"
       azure_subscription_id=${azure_subscription_id} \
       azure_region=${azure_region} \
-      azure_environment=${azure_environment} \
+      environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-4-cluster-aks.tfvars >$ONEPATH/azone/4-cluster-aks/terraform.tfvars
       printf '%s\n' "Create terraform.tfvars for cluster-aks deployments"
       azure_subscription_id=${azure_subscription_id} \
-      azure_environment=${azure_environment} \
+      environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
       vision_one_cs_enabled=${vision_one_cs_enabled} \
       vision_one_cs_policy=${vision_one_cs_policy} \
@@ -241,7 +241,7 @@ function init() {
       printf '%s\n' "Create terraform.tfvars for cluster-ecs"
       aws_account_id=${aws_account_id} \
       aws_region=${aws_region} \
-      aws_environment=${aws_environment} \
+      environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip} \
       pgo_ecs_create_ec2=${pgo_ecs_create_ec2} \
       pgo_ecs_create_fargate=${pgo_ecs_create_fargate} \
@@ -254,7 +254,7 @@ function init() {
     s3scanner|all)
       printf '%s\n' "Create terraform.tfvars for s3scanner"
       aws_region=${aws_region} \
-      aws_environment=${aws_environment} \
+      environment_name=${environment_name} \
       vision_one_api_key=${vision_one_api_key} \
       vision_one_region=${vision_one_region} \
       ONEPATH=${ONEPATH} \
@@ -266,7 +266,7 @@ function init() {
     scenarios|scenarios-ec2|all)
       printf '%s\n' "Create terraform.tfvars for scenarios-ec2 deployments"
       aws_region=${aws_region} \
-      aws_environment=${aws_environment} \
+      environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-7-scenarios-ec2.tfvars >$ONEPATH/awsone/7-scenarios-ec2/terraform.tfvars
@@ -277,7 +277,7 @@ function init() {
     scenarios-fg|all)
       printf '%s\n' "Create terraform.tfvars for scenarios-fg deployments"
       aws_region=${aws_region} \
-      aws_environment=${aws_environment} \
+      environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-7-scenarios-fargate.tfvars >$ONEPATH/awsone/7-scenarios-fargate/terraform.tfvars
@@ -288,7 +288,7 @@ function init() {
     scenarios-aks|all)
       printf '%s\n' "Create terraform.tfvars for scenarios-aks deployments"
       azure_subscription_id=${azure_subscription_id} \
-      azure_environment=${azure_environment} \
+      environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-7-scenarios-aks.tfvars >$ONEPATH/azone/7-scenarios-aks/terraform.tfvars
@@ -300,7 +300,7 @@ function init() {
       printf '%s\n' "Create terraform.tfvars for deep security"
       aws_account_id=${aws_account_id} \
       aws_region=${aws_region} \
-      aws_environment=${aws_environment} \
+      environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip} \
       deep_security_license=${deep_security_license} \
       deep_security_username=${deep_security_username} \
@@ -315,7 +315,7 @@ function init() {
       printf '%s\n' "Create terraform.tfvars for deep security workload"
       aws_account_id=${aws_account_id} \
       aws_region=${aws_region} \
-      aws_environment=${aws_environment} \
+      environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip} \
       deep_security_license=${deep_security_license} \
       deep_security_username=${deep_security_username} \
@@ -330,11 +330,11 @@ function init() {
       ;;&
     kind|all)
       printf '%s\n' "Create terraform.tfvars for cluster-kind"
-      aws_environment=${aws_environment} \
+      environment_name=${environment_name} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-4-cluster-kind.tfvars >$ONEPATH/kindone/4-cluster-kind/terraform.tfvars
 
-      aws_environment=${aws_environment} \
+      environment_name=${environment_name} \
       vision_one_cs_enabled=${vision_one_cs_enabled} \
       vision_one_cs_policy=${vision_one_cs_policy} \
       vision_one_api_key=${vision_one_api_key} \
@@ -751,17 +751,17 @@ function destroy() {
         # Workaround for Terraform bug described in FAQ
         # Delete eventually existing autoscaling groups belonging to the ecs clusters
         asg_groups=$(aws autoscaling describe-auto-scaling-groups --region ${aws_region} | \
-          jq -r --arg aws_environment "$aws_environment-ecs-" '.AutoScalingGroups[] | select(.AutoScalingGroupName | startswith($aws_environment)) | .AutoScalingGroupName')
+          jq -r --arg environment_name "$environment_name-ecs-" '.AutoScalingGroups[] | select(.AutoScalingGroupName | startswith($environment_name)) | .AutoScalingGroupName')
         for group in ${asg_groups} ; do
           printf '%s\n' "Deleting auto scaling group ${group}"
           aws autoscaling delete-auto-scaling-group --auto-scaling-group-name ${group} --region ${aws_region} --force-delete
         done
         
         # Delete eventually existing trendmicro scout service before cluster destroy
-        # ecs_fargate_cluster=$(aws ecs list-clusters | jq -r --arg aws_environment "$aws_environment-ecs-fargate" '.clusterArns[]' | sed 's:.*/::')
+        # ecs_fargate_cluster=$(aws ecs list-clusters | jq -r --arg environment_name "$environment_name-ecs-fargate" '.clusterArns[]' | sed 's:.*/::')
         # if [[ "${ecs_fargate_cluster}" != "" ]] ; then
         #   ecs_services=$(aws ecs list-services --cluster $ecs_fargate_cluster | \
-        #     jq -r --arg aws_environment "$aws_environment-ecs-fargate" '.serviceArns[] | select(. | endswith($aws_environment) | not)' | sed 's:.*/::')
+        #     jq -r --arg environment_name "$environment_name-ecs-fargate" '.serviceArns[] | select(. | endswith($environment_name) | not)' | sed 's:.*/::')
         # fi
         # for service in "${ecs_services}" ; do
         #   if [[ "${service}" != "" ]] ; then

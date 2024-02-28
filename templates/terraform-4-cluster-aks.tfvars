@@ -7,7 +7,7 @@ subscription_id = "${azure_subscription_id}"
 access_ip = ${pgo_access_ip}
 
 # Environment Name
-environment = "${azure_environment}"
+environment = "${environment_name}"
 
 # Azure Region
 resource_group_location = "${azure_region}"

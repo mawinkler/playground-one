@@ -363,16 +363,16 @@ function get_config() {
     # AWS
     aws_account_id="$(yq '.services.aws.account-id' $ONEPATH/config.yaml)"
     aws_region="$(yq '.services.aws.region' $ONEPATH/config.yaml)"
-    aws_environment="$(yq '.services.aws.environment' $ONEPATH/config.yaml)"
     [[ "${aws_region}" = "null" || "${aws_region}" = "" ]] && aws_region="eu-central-1"
-    [[ "${aws_environment}" = "null" || "${aws_environment}" = "" ]] && aws_environment="pgo"
 
     # Azure
     azure_subscription_id="$(yq '.services.azure.subscription-id' $ONEPATH/config.yaml)"
     azure_region="$(yq '.services.azure.region' $ONEPATH/config.yaml)"
-    azure_environment="$(yq '.services.azure.environment' $ONEPATH/config.yaml)"
     [[ "${azure_region}" = "null" || "${azure_region}" = "" ]] && azure_region="westeurope"
-    [[ "${azure_environment}" = "null" || "${azure_environment}" = "" ]] && azure_environment="pgo"
+
+    # Environment Name
+    environment_name="$(yq '.services.environment_name' $ONEPATH/config.yaml)"
+    [[ "${environment_name}" = "null" || "${environment_name}" = "" ]] && environment_name="pgo"
 
     # Playground One
     pgo_access_ip="$(yq '.services.playground-one.access-ip' $ONEPATH/config.yaml)"
@@ -454,7 +454,7 @@ function telemetry() {
   {
       "exec_time": "'${unix_timestamp}'",
       "account_id": "'${account_id_hash}'",
-      "environment": "'${aws_environment}'",
+      "environment": "'${environment_name}'",
       "region": "'${aws_region}'",
       "action": "'${telemetry_action}'",
       "configuration": "'${telemetry_configuration}'",

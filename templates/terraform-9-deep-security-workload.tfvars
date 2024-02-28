@@ -2,7 +2,7 @@
 aws_region = "${aws_region}"
 
 # Environment Name
-environment = "${aws_environment}-dsm"
+environment = "${environment_name}-dsm"
 
 # Linux Username (Do not change)
 linux_username_amzn = "ec2-user"

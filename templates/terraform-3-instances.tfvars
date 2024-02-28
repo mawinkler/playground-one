@@ -17,7 +17,7 @@ create_windows = ${pgo_ec2_create_windows}
 create_database = ${pgo_ec2_create_database}
 
 # Environment Name
-environment = "${aws_environment}"
+environment = "${environment_name}"
 
 # db1 Database
 rds_name = "db1"

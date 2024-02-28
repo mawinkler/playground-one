@@ -7,4 +7,4 @@ access_ip = "${pgo_access_ip}"
 aws_region = "${aws_region}"
 
 # Environment Name
-environment = "${aws_environment}"
+environment = "${environment_name}"

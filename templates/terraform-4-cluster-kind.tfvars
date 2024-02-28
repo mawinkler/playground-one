@@ -1,6 +1,6 @@
 # Environment Name
-# environment = "${aws_environment}"
-environment = "${aws_environment}"
+# environment = "${environment_name}"
+environment = "${environment_name}"
 
 # Playground One Home
 one_path = "${ONEPATH}"
