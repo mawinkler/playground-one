@@ -429,6 +429,8 @@ function get_config() {
     [[ "${integrations_prometheus_grafana_password}" = "null" || "${integrations_prometheus_grafana_password}" = "" ]] && integrations_prometheus_grafana_password="playground"
     integrations_trivy_enabled="$(yq '.services.integrations.trivy.enabled' $ONEPATH/config.yaml)"
     [[ "${integrations_trivy_enabled}" = "null" || "${integrations_trivy_enabled}" = "" ]] && integrations_trivy_enabled=false
+    integrations_metallb_enabled="$(yq '.services.integrations.metallb.enabled' $ONEPATH/config.yaml)"
+    [[ "${integrations_metallb_enabled}" = "null" || "${integrations_metallb_enabled}" = "" ]] && integrations_metallb_enabled=false
   fi
 
   return 0

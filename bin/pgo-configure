@@ -465,7 +465,7 @@ function update_integrations_config() {
   ##
   ## Calico
   ##
-  key_desc="EKS Calico"
+  key_desc="Calico"
   read -p "${key_desc} [${integrations_calico_enabled}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     integrations_calico_enabled=${TEMP}
@@ -481,7 +481,7 @@ function update_integrations_config() {
   ##
   ## Prometheus & Grafana
   ##
-  key_desc="EKS Prometheus & Grafana (EC2 only)"
+  key_desc="Prometheus & Grafana"
   read -p "${key_desc} [${integrations_prometheus_enabled}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     integrations_prometheus_enabled=${TEMP}
@@ -514,7 +514,7 @@ function update_integrations_config() {
   ##
   ## Trivy
   ##
-  key_desc="EKS Trivy (EC2 only)"
+  key_desc="Trivy"
   read -p "${key_desc} [${integrations_trivy_enabled}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     integrations_trivy_enabled=${TEMP}
@@ -522,6 +522,22 @@ function update_integrations_config() {
   if [[ "${integrations_trivy_enabled}" =~ ^true|false$ ]]; then
     target_val=${integrations_trivy_enabled} \
       yq -i '.services.integrations.trivy.enabled = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  ##
+  ## MetalLB
+  ##
+  key_desc="MetalLB"
+  read -p "${key_desc} [${integrations_metallb_enabled}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    integrations_metallb_enabled=${TEMP}
+  fi
+  if [[ "${integrations_metallb_enabled}" =~ ^true|false$ ]]; then
+    target_val=${integrations_metallb_enabled} \
+      yq -i '.services.integrations.metallb.enabled = env(target_val)' ${ONEPATH}/config.yaml
   else
     echo "Error: Invalid ${key_desc} input."
     exit 0

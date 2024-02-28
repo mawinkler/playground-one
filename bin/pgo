@@ -343,6 +343,7 @@ function init() {
       integrations_prometheus_enabled=${integrations_prometheus_enabled} \
       integrations_prometheus_grafana_password=${integrations_prometheus_grafana_password} \
       integrations_trivy_enabled=${integrations_trivy_enabled} \
+      integrations_metallb_enabled=${integrations_metallb_enabled} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-8-cluster-kind-deployments.tfvars >$ONEPATH/kindone/8-cluster-kind-deployments/terraform.tfvars
 
