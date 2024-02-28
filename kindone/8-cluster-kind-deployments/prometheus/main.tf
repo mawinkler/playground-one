@@ -19,17 +19,17 @@ resource "helm_release" "prometheus" {
     name  = "prometheus.ingress.enabled"
     value = true
   }
-  set {
-    name  = "prometheus.ingress.annotations.alb\\.ingress\\.kubernetes\\.io/scheme"
-    value = "internet-facing"
-  }
-  set {
-    name  = "prometheus.ingress.annotations.alb\\.ingress\\.kubernetes\\.io/target-type"
-    value = "ip"
-  }
+  # set {
+  #   name  = "prometheus.ingress.annotations.alb\\.ingress\\.kubernetes\\.io/scheme"
+  #   value = "internet-facing"
+  # }
+  # set {
+  #   name  = "prometheus.ingress.annotations.alb\\.ingress\\.kubernetes\\.io/target-type"
+  #   value = "ip"
+  # }
   set {
     name  = "prometheus.ingress.annotations.kubernetes\\.io/ingress\\.class"
-    value = "alb"
+    value = "nginx"
   }
   # set {
   #   name  = "prometheus.ingress.annotations.alb\\.ingress\\.kubernetes\\.io/inbound-cidrs"
@@ -49,17 +49,17 @@ resource "helm_release" "prometheus" {
     name  = "grafana.ingress.enabled"
     value = true
   }
-  set {
-    name  = "grafana.ingress.annotations.alb\\.ingress\\.kubernetes\\.io/scheme"
-    value = "internet-facing"
-  }
-  set {
-    name  = "grafana.ingress.annotations.alb\\.ingress\\.kubernetes\\.io/target-type"
-    value = "ip"
-  }
+  # set {
+  #   name  = "grafana.ingress.annotations.alb\\.ingress\\.kubernetes\\.io/scheme"
+  #   value = "internet-facing"
+  # }
+  # set {
+  #   name  = "grafana.ingress.annotations.alb\\.ingress\\.kubernetes\\.io/target-type"
+  #   value = "ip"
+  # }
   set {
     name  = "grafana.ingress.annotations.kubernetes\\.io/ingress\\.class"
-    value = "alb"
+    value = "nginx"
   }
   # set {
   #   name  = "grafana.ingress.annotations.alb\\.ingress\\.kubernetes\\.io/inbound-cidrs"
@@ -71,20 +71,81 @@ resource "helm_release" "prometheus" {
   }
 }
 
-data "kubernetes_ingress_v1" "prometheus_grafana" {
-  depends_on   = [helm_release.prometheus]
+# data "kubernetes_ingress_v1" "prometheus_grafana" {
+#   depends_on   = [helm_release.prometheus]
 
-  metadata {
-    name = "prometheus-grafana"
-    namespace = var.namespace
-  }
+#   metadata {
+#     name = "prometheus-grafana"
+#     namespace = var.namespace
+#   }
+# }
+
+# data "kubernetes_ingress_v1" "prometheus_kube_prometheus_prometheus" {
+#   depends_on   = [helm_release.prometheus]
+
+#   metadata {
+#     name = "prometheus-kube-prometheus-prometheus"
+#     namespace = var.namespace
+#   }
+# }
+
+# data "kubernetes_service_v1" "prometheus_grafana" {
+#   depends_on   = [helm_release.prometheus]
+
+#   metadata {
+#     name = "prometheus-grafana"
+#     namespace = var.namespace
+#   }
+# }
+
+# data "kubernetes_service_v1" "prometheus_kube_prometheus_prometheus" {
+#   depends_on   = [helm_release.prometheus]
+
+#   metadata {
+#     name = "prometheus-kube-prometheus-prometheus"
+#     namespace = var.namespace
+#   }
+# }
+
+resource "kubectl_manifest" "prometheus_httpproxy" {
+  yaml_body  = <<YAML
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: prometheus
+  namespace: prometheus
+spec:
+  virtualhost:
+    fqdn: localhost
+  routes:
+    - services:
+      - name: prometheus-kube-prometheus-prometheus
+        port: 9090
+      # conditions:
+      # - prefix: /prometheus
+    # - services:
+    #   - name: prometheus-grafana
+    #     port: 80
+    #   conditions:
+    #   - prefix: /grafana
+YAML
 }
 
-data "kubernetes_ingress_v1" "prometheus_kube_prometheus_prometheus" {
-  depends_on   = [helm_release.prometheus]
-
-  metadata {
-    name = "prometheus-kube-prometheus-prometheus"
-    namespace = var.namespace
-  }
-}
+# resource "kubectl_manifest" "grafana_httpproxy" {
+#   yaml_body  = <<YAML
+# apiVersion: projectcontour.io/v1
+# kind: HTTPProxy
+# metadata:
+#   name: grafana
+#   namespace: prometheus
+# spec:
+#   virtualhost:
+#     fqdn: grafana.localhost
+#   routes:
+#     - services:
+#       - name: prometheus-grafana
+#         port: 80
+#       # conditions:
+#       # - prefix: /grafana
+# YAML
+# }

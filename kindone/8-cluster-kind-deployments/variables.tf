@@ -23,6 +23,11 @@ variable "calico" {
   type = bool
 }
 
+# MetalLB
+variable "metallb" {
+  type = bool
+}
+
 # Trivy
 variable "trivy" {
   type = bool

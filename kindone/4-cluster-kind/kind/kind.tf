@@ -72,11 +72,11 @@ EOF
         container_port = 443
         host_port      = 443
       }
-      # Falco Sidekick-UI
-      extra_port_mappings {
-        container_port = 2802
-        host_port      = 2802
-      }
+      # # Falco Sidekick-UI
+      # extra_port_mappings {
+      #   container_port = 2802
+      #   host_port      = 2802
+      # }
     }
 
     # node {

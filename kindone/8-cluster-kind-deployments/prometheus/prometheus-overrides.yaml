@@ -1,12 +1,12 @@
 grafana:
-  enabled: true
+  enabled: false
   service:
-    type: NodePort
+    type: ClusterIP
 
 prometheusOperator:
   enabled: true
   service:
-    type: NodePort
+    type: ClusterIP
   namespaces:
     releaseNamespace: true
     additional:
@@ -19,4 +19,4 @@ prometheusOperator:
 prometheus:
   enabled: true
   service:
-    type: NodePort
+    type: ClusterIP
