@@ -1,16 +1,16 @@
 # Playground One
 
-Ultra fast and slim playground in the clouds designed for educational and demoing purposes.
-
-!!! danger "Under construction!"
+!!! success
 
     Hello dear Playground One fan. Nice that you found the documentation.
-    This is currently under construction!
-    The contents are therefore to be enjoyed with caution and can still change at any time.
 
-## Latest News
+Ultra fast and slim playground in the clouds designed for educational and demoing purposes.
 
-!!! ***Playground integrated with Vision One*** !!!
+!!! abstract "Abstract"
+
+    Playground Ones main purpose is to act as a learning platform and demo environment while ensuring a reproducible experience. Playground One itself is containerized and uses Terraform to manage the cloud lifecycle using an easy-to-use command line interface. It integrates with various services such as container clusters, virtual instances, storage, but also with the corresponding Vision One services and endpoints. Among other things, you can gain experience and present Vision One Container Security, File Security, XDR, ASRM, Operations, Server & Workload Protection, and APIs in real environments.
+
+    Playground One includes scenarios and walkthroughs to help you expand your knowledge of cloud security. So if you've ever wanted to experiment with ECS security, run container image scans with GitHub Actions, use EKS with Fargate, do some nasty things, or drive successful demos, go and play with Playground One.
 
 In a nutshell:
 
@@ -24,6 +24,11 @@ In a nutshell:
 - Alternatively, you can install natively on your system.
 - Management of the environment with the help of an easy to use command line interface `pgo`.
 - Based on Terraform >1.5
+
+!!! danger "Under construction!"
+
+    The Playground One is continuously under construction!
+    The capabilities and contents are therefore to be enjoyed with caution and can change at any time.
 
 ## Major Updates
 

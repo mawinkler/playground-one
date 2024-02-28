@@ -35,7 +35,7 @@ Then simply run
 curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/get_pgoc.sh | bash
 ```
 
-The above will pull the latest version (or the version you specified in the `.PGO_VERSION`-file) of the container. If you're already authenticated to AWS and/or have an already existing `config.yaml` from a previous Playground One installation in the current directory, they will automatically be made available to the Playground One container.
+The above will pull the latest version (or the version you specified in the `.PGO_VERSION`-file) of the container. If you're already authenticated to AWS, Azure, and/or have an already existing `config.yaml` from a previous Playground One installation in the current directory, they will automatically be made available to the Playground One container.
 
 > ***Note:*** When running the above `curl`-command on an ***AWS Cloud9*** instance, the instance should be at least a `t3.medium` and you will be asked to run `./get_pgoc.sh` manually. The script will ask for your AWS credentials which will never be stored on disk and get removed from memory after creating and assigning an instance role to the Cloud9 instance.
 > 
@@ -192,6 +192,18 @@ Then, continue with [Configuration](configuration.md).
 > ***Note:*** Native installation on Cloud9 is no longer supported. Use [Playground One Container (Easy and portable)](#playground-one-container-easy-and-portable) instead.
 
 ## Change Log
+
+### 0.2.1 Fix release (02/27/2024)
+
+#### Fixes
+
+- The implementation of a proper Vision One Container Security life-cycle broke the deployment since the DELETE api_call was fired too early.
+
+#### Changes
+
+- Simple S3 Bucket scanner now part of Playground One. This includes a dedicated [scenario](https://mawinkler.github.io/playground-one-pages/scenarios/as/tmfs-s3-bucket-scanning/).
+- Improved handling of public IPs in configflow when running on Cloud9.
+- Eventually existing Azure credentials are now made available within the container.
 
 ### 0.2 Maintenance release (02/20/2024)
 

@@ -14,6 +14,7 @@ printf '%s\n' "Building mcs version ${PGO_VERSION}"
     # --no-cache \
 docker buildx build \
     -t mawinkler/pgoc:${PGO_VERSION} \
+    --no-cache \
     --build-arg uid=$(id -u) \
     --build-arg gid=$(id -g) \
     --build-arg version=${PGO_VERSION} \
