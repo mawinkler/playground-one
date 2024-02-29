@@ -7,15 +7,15 @@ module "vpc" {
   name = local.name
   cidr = local.vpc_cidr
 
-  azs             = local.azs
-  private_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k)]
-  public_subnets  = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 4)]
-  intra_subnets   = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 20)]
+  azs              = local.azs
+  private_subnets  = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k)]
+  public_subnets   = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 4)]
+  intra_subnets    = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 20)]
   database_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 24)]
 
-  private_subnet_names = [for i in local.azs : "${var.environment}-private-subnet-${i}"]
-  public_subnet_names  = [for i in local.azs : "${var.environment}-public-subnet-${i}"]
-  intra_subnet_names   = [for i in local.azs : "${var.environment}-intra-subnet-${i}"]
+  private_subnet_names  = [for i in local.azs : "${var.environment}-private-subnet-${i}"]
+  public_subnet_names   = [for i in local.azs : "${var.environment}-public-subnet-${i}"]
+  intra_subnet_names    = [for i in local.azs : "${var.environment}-intra-subnet-${i}"]
   database_subnet_names = [for i in local.azs : "${var.environment}-database-subnet-${i}"]
 
   create_database_subnet_group = true
@@ -35,15 +35,15 @@ module "vpc" {
 
   map_public_ip_on_launch = true
 
-  enable_flow_log           = true
-  flow_log_destination_type = "s3"
-  flow_log_destination_arn  = module.s3_bucket.s3_bucket_arn
-  
+  enable_flow_log                   = true
+  flow_log_destination_type         = "s3"
+  flow_log_destination_arn          = module.s3_bucket.s3_bucket_arn
+  flow_log_max_aggregation_interval = 60
+
   # VPC Flow Logs (Cloudwatch log group and IAM role will be created)
   # enable_flow_log                      = true
   # create_flow_log_cloudwatch_log_group = true
   # create_flow_log_cloudwatch_iam_role  = true
-  # flow_log_max_aggregation_interval    = 60
 
   tags = {
     # Name          = "${var.environment}-vpc"
