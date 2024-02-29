@@ -65,11 +65,30 @@ aws ecs describe-task-definition \
   --task-definition ${task_definition_name} | \
   jq '.taskDefinition' > ${ONEPATH}/.ecsfg/task-definition.json
 
+# Are we contained?
+# findmnt /
+# TARGET SOURCE         FSTYPE OPTIONS
+# /      /dev/nvme0n1p1 xfs    rw,noatime,seclabel,attr2,inode64,logbufs=8,logbsize=32k,sunit=1024,swidth=1024,noquota
+
+# findmnt /TARGET SOURCE  FSTYPE  OPTIONS
+# /      overlay overlay rw,relatime,seclabel,lowerdir=/var/lib/docker/overlay2/l/LF5OWVJWMQ6KS5U64OBSH4BTSZ:/var/lib/docker/overlay2
+
+# get home with: docker inspect pgoc-0.2.1 | jq -r '.[0].Mounts[] | select(.Source | endswith("workdir")) | .Source'
+# /home/ec2-user/environment/workdir
+if [ "$(findmnt -o SOURCE -J / | jq -r '.filesystems[0].source')" == "overlay" ]; then
+  # Contained
+  container_name=$(docker ps --format "{{.Names}}" -f name=pgoc)
+  home_dir=$(docker inspect ${container_name} | jq -r '.[0].Mounts[] | select(.Source | endswith("workdir")) | .Source')
+  ecsfg_path=${home_dir}/playground-one
+else
+  # Uncontained
+  ecsfg_path=${ONEPATH}
+fi
 # Patch task definition
 printf '%s\n' "  Patching task definition..."
 docker run -ti \
-  -v ${ONEPATH}/.ecsfg:/mnt/input \
-  -v ${ONEPATH}/.ecsfg:/mnt/output \
+  -v ${ecsfg_path}/.ecsfg:/mnt/input \
+  -v ${ecsfg_path}/.ecsfg:/mnt/output \
   trendmicrocloudone/ecs-taskdef-patcher:2.3.30 \
   -i /mnt/input/task-definition.json \
   -o /mnt/output/task-definition-patched.json
