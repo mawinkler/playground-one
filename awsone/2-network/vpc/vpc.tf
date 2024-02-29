@@ -35,6 +35,10 @@ module "vpc" {
 
   map_public_ip_on_launch = true
 
+  enable_flow_log           = true
+  flow_log_destination_type = "s3"
+  flow_log_destination_arn  = module.s3_bucket.s3_bucket_arn
+  
   # VPC Flow Logs (Cloudwatch log group and IAM role will be created)
   # enable_flow_log                      = true
   # create_flow_log_cloudwatch_log_group = true
