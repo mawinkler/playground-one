@@ -16,4 +16,4 @@ environment = "${environment_name}"
 one_path = "${ONEPATH}"
 
 # XDR for Containers deployed
-xdr_for_containers = ${xdr_for_containers}
+# xdr_for_containers = ${xdr_for_containers}

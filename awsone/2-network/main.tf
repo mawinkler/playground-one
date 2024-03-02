@@ -3,7 +3,7 @@ module "vpc" {
 
   access_ip          = var.access_ip
   environment        = var.environment
-  xdr_for_containers = var.xdr_for_containers
+  # xdr_for_containers = var.xdr_for_containers
 }
 
 module "ec2" {

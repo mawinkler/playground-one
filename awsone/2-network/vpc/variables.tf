@@ -5,4 +5,4 @@ variable "environment" {}
 
 variable "access_ip" {}
 
-variable "xdr_for_containers" {}
+# variable "xdr_for_containers" {}

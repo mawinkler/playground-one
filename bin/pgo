@@ -31,28 +31,138 @@ if [ ! -f "$ONEPATH/.pghome" ]; then
   exit 0
 fi
 
-function lock() {
+#######################################
+# Configuration Map
+# Globals:
+#   ONEPATH
+# Arguments:
+#   None
+# Outputs:
+#   configs
+#######################################
+declare -A configs
+configs=(
+  ["network"]=${ONEPATH}/awsone/2-network
+  ["instances"]=${ONEPATH}/awsone/3-instances
+  ["eks-ec2"]=${ONEPATH}/awsone/4-cluster-eks-ec2
+  ["eks-ec2-deployments"]=${ONEPATH}/awsone/8-cluster-eks-ec2-deployments
+  ["eks-fg"]=${ONEPATH}/awsone/4-cluster-eks-fargate
+  ["eks-fg-deployments"]=${ONEPATH}/awsone/8-cluster-eks-fargate-deployments
+  ["aks"]=${ONEPATH}/azone/4-cluster-aks
+  ["aks-deployments"]=${ONEPATH}/azone/8-cluster-aks-deployments
+  ["ecs"]=${ONEPATH}/awsone/5-cluster-ecs
+  ["s3scanner"]=${ONEPATH}/awsone/6-bucket-scanner
+  ["scenarios-ec2"]=${ONEPATH}/awsone/7-scenarios-ec2
+  ["scenarios-fg"]=${ONEPATH}/awsone/7-scenarios-fargate
+  ["scenarios-aks"]=${ONEPATH}/azone/7-scenarios-aks
+  ["dsm"]=${ONEPATH}/awsone/9-deep-security
+  ["dsw"]=${ONEPATH}/awsone/9-deep-security-workload
+  ["kind"]=${ONEPATH}/kindone/4-cluster-kind
+  ["kind-deployments"]=${ONEPATH}/kindone/8-cluster-kind-deployments
+)
 
-  touch ${ONEPATH}/.pgo.$1.lock
+#######################################
+# Run a Terraform action
+# Globals:
+#   ONEPATH
+# Arguments:
+#   Configuration name
+#   Terraform action
+# Outputs:
+#   None
+#######################################
+function tf() {
+  config=$1
+  action=$2
+
+  cd "${configs[$config]}"
+  printf '%s\n' "Working directory: $(pwd)"
+  case "$action" in
+    init)
+      terraform init
+      ;;
+    apply)
+      terraform apply -auto-approve
+      lock $config
+      ;;
+    destroy)
+      if checklock $config ; then
+        terraform destroy -auto-approve
+      else
+        printf '%s\n' "Configuration ${config} not applied"
+      fi
+      unlock $config
+      ;;
+    output)
+      if checklock $config ; then
+        terraform output
+      else
+        printf '%s\n' "Configuration ${config} not applied"
+      fi
+      ;;
+    state)
+      terraform state list
+      ;;
+    show)
+      terraform show
+      ;;
+    validate)
+      terraform validate
+      ;;
+    erase)
+      rm -rf .terraform
+      rm -f .terraform.lock.hcl
+      rm -f terraform.tfstate*
+      unlock $config
+      ;;
+  esac
+}
+
+#######################################
+# Lock, unlock and check lock
+# a configuration
+# Globals:
+#   ONEPATH
+# Arguments:
+#   Configuration name
+# Outputs:
+#   None
+#######################################
+function lock() {
+  config=$1
+
+  touch ${ONEPATH}/.pgo.$config.lock
 }
 
 function unlock() {
+  config=$1
 
-  rm -f ${ONEPATH}/.pgo.$1.lock
+  rm -f ${ONEPATH}/.pgo.$config.lock
 }
 
 function checklock() {
+  config=$1
 
-  if [[ -f ${ONEPATH}/.pgo.$1.lock ]] ; then
+  if [[ -f ${ONEPATH}/.pgo.$config.lock ]] ; then
     return
   fi
   false
 }
 
+#######################################
+# Check if XDR for Containers (legacy)
+# is deployed
+# Globals:
+#   ONEPATH
+# Arguments:
+#   None
+# Outputs:
+#   None
+#######################################
 function check_xdr_for_containers() {
 
   # Checking if XDR for Containers is deployed
-  cd ${ONEPATH}/awsone/2-network
+  cd "${configs[network]}"
   tf_state_vpc=$(terraform state list 2>/dev/null | grep "module.vpc.aws_vpc.vpc")
   if [[ ! -z "${tf_state_vpc}" ]] ; then
     vpc_id=$(terraform output -raw vpc_id)
@@ -69,39 +179,39 @@ function check_xdr_for_containers() {
   false
 }
 
+#######################################
+# Check VPC
+# Globals:
+#   ONEPATH
+# Arguments:
+#   None
+# Outputs:
+#   None
+#######################################
 function check_network() {
 
   # Checking if XDR for Containers is deployed and update tfvars
-  if check_xdr_for_containers ; then
-    xdr_for_containers=true
-  else
-    xdr_for_containers=false
-  fi
-  aws_account_id=${aws_account_id} \
-  aws_region=${aws_region} \
-  environment_name=${environment_name} \
-  pgo_access_ip=${pgo_access_ip} \
-  xdr_for_containers=${xdr_for_containers} \
-  ONEPATH=${ONEPATH} \
-    envsubst <$ONEPATH/templates/terraform-2-network.tfvars >$ONEPATH/awsone/2-network/terraform.tfvars
+  # if check_xdr_for_containers ; then
+  #   xdr_for_containers=true
+  # else
+  #   xdr_for_containers=false
+  # fi
+  # aws_account_id=${aws_account_id} \
+  # aws_region=${aws_region} \
+  # environment_name=${environment_name} \
+  # pgo_access_ip=${pgo_access_ip} \
+  # xdr_for_containers=${xdr_for_containers} \
+  # ONEPATH=${ONEPATH} \
+  #   envsubst <$ONEPATH/templates/terraform-2-network.tfvars >${configs[network]}/terraform.tfvars
 
   # Check locks
-  if checklock ec2 ; then
-    echo Destroy EC2 configuration first
-    exit 0
-  fi
-  if checklock eks-ec2 ; then
-    echo Destroy EKS EC2 configuration first
-    exit 0
-  fi
-  if checklock eks-fg ; then
-    echo Destroy EKS Fargate configuration first
-    exit 0
-  fi
-  if checklock ecs ; then
-    echo Destroy ECS configuration first
-    exit 0
-  fi
+  for config in instances eks-ec2 eks-fg ecs ; do
+    # init ${config}
+    if checklock ${config} ; then
+      printf 'Destroy %s configuration first\n' "${config}"
+      exit 0
+    fi
+  done
 }
 
 #######################################
@@ -121,21 +231,20 @@ function init() {
   case $1 in
     nw|network|all)
       printf '%s\n' "Create terraform.tfvars for network"
-      if check_xdr_for_containers ; then
-        xdr_for_containers=true
-      else
-        xdr_for_containers=false
-      fi
+      # if check_xdr_for_containers ; then
+      #   xdr_for_containers=true
+      # else
+      #   xdr_for_containers=false
+      # fi
+      # xdr_for_containers=${xdr_for_containers} \
       aws_account_id=${aws_account_id} \
       aws_region=${aws_region} \
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip} \
-      xdr_for_containers=${xdr_for_containers} \
       ONEPATH=${ONEPATH} \
-        envsubst <$ONEPATH/templates/terraform-2-network.tfvars >$ONEPATH/awsone/2-network/terraform.tfvars
+        envsubst <$ONEPATH/templates/terraform-2-network.tfvars >${configs[network]}/terraform.tfvars
       
-      cd ${ONEPATH}/awsone/2-network
-      terraform init
+      tf network init
       ;;&
     ec2|instances|all)
       printf '%s\n' "Create terraform.tfvars for instances"
@@ -146,10 +255,9 @@ function init() {
       pgo_ec2_create_windows=${pgo_ec2_create_windows} \
       pgo_ec2_create_database=${pgo_ec2_create_database} \
       ONEPATH=${ONEPATH} \
-        envsubst <$ONEPATH/templates/terraform-3-instances.tfvars >$ONEPATH/awsone/3-instances/terraform.tfvars
+        envsubst <$ONEPATH/templates/terraform-3-instances.tfvars >${configs[instances]}/terraform.tfvars
 
-      cd ${ONEPATH}/awsone/3-instances
-      terraform init
+      tf instances init
       ;;&
     eks|eks-ec2|all)
       printf '%s\n' "Create terraform.tfvars for cluster-eks-ec2"
@@ -159,7 +267,7 @@ function init() {
       pgo_access_ip=${pgo_access_ip} \
       pgo_eks_create_ec2=${pgo_eks_create_ec2} \
       ONEPATH=${ONEPATH} \
-        envsubst <$ONEPATH/templates/terraform-4-cluster-eks-ec2.tfvars >$ONEPATH/awsone/4-cluster-eks-ec2/terraform.tfvars
+        envsubst <$ONEPATH/templates/terraform-4-cluster-eks-ec2.tfvars >${configs[eks-ec2]}/terraform.tfvars
       printf '%s\n' "Create terraform.tfvars for cluster-eks deployments"
       aws_region=${aws_region} \
       environment_name=${environment_name} \
@@ -173,12 +281,10 @@ function init() {
       integrations_prometheus_grafana_password=${integrations_prometheus_grafana_password} \
       integrations_trivy_enabled=${integrations_trivy_enabled} \
       ONEPATH=${ONEPATH} \
-        envsubst <$ONEPATH/templates/terraform-8-cluster-eks-ec2-deployments.tfvars >$ONEPATH/awsone/8-cluster-eks-ec2-deployments/terraform.tfvars
+        envsubst <$ONEPATH/templates/terraform-8-cluster-eks-ec2-deployments.tfvars >${configs[eks-ec2-deployments]}/terraform.tfvars
 
-      cd ${ONEPATH}/awsone/4-cluster-eks-ec2
-      terraform init
-      cd ${ONEPATH}/awsone/8-cluster-eks-ec2-deployments
-      terraform init
+      tf eks-ec2 init
+      tf eks-ec2-deployments init
       ;;&
     eks-fg|all)
       printf '%s\n' "Create terraform.tfvars for cluster-eks-fargate"
@@ -188,7 +294,7 @@ function init() {
       pgo_access_ip=${pgo_access_ip} \
       pgo_eks_create_ec2=${pgo_eks_create_ec2} \
       ONEPATH=${ONEPATH} \
-        envsubst <$ONEPATH/templates/terraform-4-cluster-eks-fargate.tfvars >$ONEPATH/awsone/4-cluster-eks-fargate/terraform.tfvars
+        envsubst <$ONEPATH/templates/terraform-4-cluster-eks-fargate.tfvars >${configs[eks-fg]}/terraform.tfvars
       printf '%s\n' "Create terraform.tfvars for cluster-eks deployments"
       aws_region=${aws_region} \
       environment_name=${environment_name} \
@@ -202,12 +308,10 @@ function init() {
       integrations_prometheus_grafana_password=${integrations_prometheus_grafana_password} \
       integrations_trivy_enabled=${integrations_trivy_enabled} \
       ONEPATH=${ONEPATH} \
-        envsubst <$ONEPATH/templates/terraform-8-cluster-eks-fargate-deployments.tfvars >$ONEPATH/awsone/8-cluster-eks-fargate-deployments/terraform.tfvars
+        envsubst <$ONEPATH/templates/terraform-8-cluster-eks-fargate-deployments.tfvars >${configs[eks-fg-deployments]}/terraform.tfvars
 
-      cd ${ONEPATH}/awsone/4-cluster-eks-fargate
-      terraform init
-      cd ${ONEPATH}/awsone/8-cluster-eks-fargate-deployments
-      terraform init
+      tf eks-fg init
+      tf eks-fg-deployments init
       ;;&
     aks|all)
       printf '%s\n' "Create terraform.tfvars for cluster-aks"
@@ -216,7 +320,7 @@ function init() {
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip} \
       ONEPATH=${ONEPATH} \
-        envsubst <$ONEPATH/templates/terraform-4-cluster-aks.tfvars >$ONEPATH/azone/4-cluster-aks/terraform.tfvars
+        envsubst <$ONEPATH/templates/terraform-4-cluster-aks.tfvars >${configs[aks]}/terraform.tfvars
       printf '%s\n' "Create terraform.tfvars for cluster-aks deployments"
       azure_subscription_id=${azure_subscription_id} \
       environment_name=${environment_name} \
@@ -230,12 +334,10 @@ function init() {
       integrations_prometheus_grafana_password=${integrations_prometheus_grafana_password} \
       integrations_trivy_enabled=${integrations_trivy_enabled} \
       ONEPATH=${ONEPATH} \
-        envsubst <$ONEPATH/templates/terraform-8-cluster-aks-deployments.tfvars >$ONEPATH/azone/8-cluster-aks-deployments/terraform.tfvars
+        envsubst <$ONEPATH/templates/terraform-8-cluster-aks-deployments.tfvars >${configs[aks-deployments]}/terraform.tfvars
 
-      cd ${ONEPATH}/azone/4-cluster-aks
-      terraform init
-      cd ${ONEPATH}/azone/8-cluster-aks-deployments
-      terraform init
+      tf aks init
+      tf aks-deployments init
       ;;&
     ecs|all)
       printf '%s\n' "Create terraform.tfvars for cluster-ecs"
@@ -246,10 +348,9 @@ function init() {
       pgo_ecs_create_ec2=${pgo_ecs_create_ec2} \
       pgo_ecs_create_fargate=${pgo_ecs_create_fargate} \
       ONEPATH=${ONEPATH} \
-        envsubst <$ONEPATH/templates/terraform-5-cluster-ecs.tfvars >$ONEPATH/awsone/5-cluster-ecs/terraform.tfvars
+        envsubst <$ONEPATH/templates/terraform-5-cluster-ecs.tfvars >${configs[ecs]}/terraform.tfvars
 
-      cd ${ONEPATH}/awsone/5-cluster-ecs
-      terraform init
+      tf ecs init
       ;;&
     s3scanner|all)
       printf '%s\n' "Create terraform.tfvars for s3scanner"
@@ -258,10 +359,9 @@ function init() {
       vision_one_api_key=${vision_one_api_key} \
       vision_one_region=${vision_one_region} \
       ONEPATH=${ONEPATH} \
-        envsubst <$ONEPATH/templates/terraform-6-bucket-scanner.tfvars >$ONEPATH/awsone/6-bucket-scanner/terraform.tfvars
+        envsubst <$ONEPATH/templates/terraform-6-bucket-scanner.tfvars >${configs[s3scanner]}/terraform.tfvars
 
-      cd ${ONEPATH}/awsone/6-bucket-scanner
-      terraform init
+      tf s3scanner init
       ;;&
     scenarios|scenarios-ec2|all)
       printf '%s\n' "Create terraform.tfvars for scenarios-ec2 deployments"
@@ -269,10 +369,9 @@ function init() {
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
       ONEPATH=${ONEPATH} \
-        envsubst <$ONEPATH/templates/terraform-7-scenarios-ec2.tfvars >$ONEPATH/awsone/7-scenarios-ec2/terraform.tfvars
+        envsubst <$ONEPATH/templates/terraform-7-scenarios-ec2.tfvars >${configs[scenarios-ec2]}/terraform.tfvars
 
-      cd ${ONEPATH}/awsone/7-scenarios-ec2
-      terraform init
+      tf scenarios-ec2 init
       ;;&
     scenarios-fg|all)
       printf '%s\n' "Create terraform.tfvars for scenarios-fg deployments"
@@ -280,10 +379,9 @@ function init() {
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
       ONEPATH=${ONEPATH} \
-        envsubst <$ONEPATH/templates/terraform-7-scenarios-fargate.tfvars >$ONEPATH/awsone/7-scenarios-fargate/terraform.tfvars
+        envsubst <$ONEPATH/templates/terraform-7-scenarios-fargate.tfvars >${configs[scenarios-fg]}/terraform.tfvars
 
-      cd ${ONEPATH}/awsone/7-scenarios-fargate
-      terraform init
+      tf scenarios-fg init
       ;;&
     scenarios-aks|all)
       printf '%s\n' "Create terraform.tfvars for scenarios-aks deployments"
@@ -291,10 +389,9 @@ function init() {
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
       ONEPATH=${ONEPATH} \
-        envsubst <$ONEPATH/templates/terraform-7-scenarios-aks.tfvars >$ONEPATH/azone/7-scenarios-aks/terraform.tfvars
+        envsubst <$ONEPATH/templates/terraform-7-scenarios-aks.tfvars >${configs[scenarios-aks]}/terraform.tfvars
 
-      cd ${ONEPATH}/azone/7-scenarios-aks
-      terraform init
+      tf scenarios-aks init
       ;;&
     dsm|deepsecurity|all)
       printf '%s\n' "Create terraform.tfvars for deep security"
@@ -306,10 +403,9 @@ function init() {
       deep_security_username=${deep_security_username} \
       deep_security_password=${deep_security_password} \
       ONEPATH=${ONEPATH} \
-        envsubst <$ONEPATH/templates/terraform-9-deep-security.tfvars >$ONEPATH/awsone/9-deep-security/terraform.tfvars
+        envsubst <$ONEPATH/templates/terraform-9-deep-security.tfvars >${configs[dsm]}/terraform.tfvars
 
-      cd ${ONEPATH}/awsone/9-deep-security
-      terraform init
+      tf dsm init
       ;;&
     dsw|all)
       printf '%s\n' "Create terraform.tfvars for deep security workload"
@@ -323,16 +419,15 @@ function init() {
       pgo_ec2_create_linux=${pgo_ec2_create_linux} \
       pgo_ec2_create_windows=${pgo_ec2_create_windows} \
       ONEPATH=${ONEPATH} \
-        envsubst <$ONEPATH/templates/terraform-9-deep-security-workload.tfvars >$ONEPATH/awsone/9-deep-security-workload/terraform.tfvars
+        envsubst <$ONEPATH/templates/terraform-9-deep-security-workload.tfvars >${configs[dsw]}/terraform.tfvars
 
-      cd ${ONEPATH}/awsone/9-deep-security-workload
-      terraform init
+      tf dsw init
       ;;&
     kind|all)
       printf '%s\n' "Create terraform.tfvars for cluster-kind"
       environment_name=${environment_name} \
       ONEPATH=${ONEPATH} \
-        envsubst <$ONEPATH/templates/terraform-4-cluster-kind.tfvars >$ONEPATH/kindone/4-cluster-kind/terraform.tfvars
+        envsubst <$ONEPATH/templates/terraform-4-cluster-kind.tfvars >${configs[kind]}/terraform.tfvars
 
       environment_name=${environment_name} \
       vision_one_cs_enabled=${vision_one_cs_enabled} \
@@ -345,12 +440,10 @@ function init() {
       integrations_trivy_enabled=${integrations_trivy_enabled} \
       integrations_metallb_enabled=${integrations_metallb_enabled} \
       ONEPATH=${ONEPATH} \
-        envsubst <$ONEPATH/templates/terraform-8-cluster-kind-deployments.tfvars >$ONEPATH/kindone/8-cluster-kind-deployments/terraform.tfvars
+        envsubst <$ONEPATH/templates/terraform-8-cluster-kind-deployments.tfvars >${configs[kind-deployments]}/terraform.tfvars
 
-      cd ${ONEPATH}/kindone/4-cluster-kind
-      terraform init
-      cd ${ONEPATH}/kindone/8-cluster-kind-deployments
-      terraform init
+      tf kind init
+      tf kind-deployments init
       ;;
   esac
   printf '%s\n' "💬 Terraform terraform.tfvars dropped to configurations"
@@ -371,91 +464,57 @@ function apply() {
 
   case $1 in
     nw|network|all)
-      check_network
-      lock nw
-      cd ${ONEPATH}/awsone/2-network
-      terraform apply -auto-approve
+      # check_network
+      tf network apply
       ;;&
     ec2|instances|all)
-      lock ec2
-      cd ${ONEPATH}/awsone/3-instances
-      terraform apply -auto-approve
+      tf instances apply
       printf '%s\n' "public_instance_password_srv1 = \"$(terraform output -raw public_instance_password_srv1)\""
       ;;&
     eks|eks-ec2|all)
-      lock eks-ec2
-      cd ${ONEPATH}/awsone/4-cluster-eks-ec2
-      terraform apply -auto-approve
+      tf eks-ec2 apply
       $(terraform output -raw update_local_context_command)
-      cd ${ONEPATH}/awsone/8-cluster-eks-ec2-deployments
-      terraform apply -auto-approve
+      tf eks-ec2-deployments apply
       ;;&
     eks-fg|all)
-      lock eks-fg
-      cd ${ONEPATH}/awsone/4-cluster-eks-fargate
-      terraform apply -auto-approve
+      tf eks-fg apply
       $(terraform output -raw update_local_context_command)
-      cd ${ONEPATH}/awsone/8-cluster-eks-fargate-deployments
-      terraform apply -auto-approve
+      tf eks-fg-deployments apply
       ;;&
     aks|all)
-      lock aks
-      cd ${ONEPATH}/azone/4-cluster-aks
-      terraform apply -auto-approve
+      tf aks apply
       # $(terraform output -raw update_local_context_command)
       KUBECONFIG=~/.kube/config:$ONEPATH/azone/4-cluster-aks/kubeconfig \
         kubectl config view --flatten > /tmp/config && \
         mv /tmp/config ~/.kube/config
       kubectl config use-context $(terraform output -raw cluster_name)
-      cd ${ONEPATH}/azone/8-cluster-aks-deployments
-      terraform apply -auto-approve
+      tf aks-deployments apply
       ;;&
     ecs|all)
-      lock ecs
-      cd ${ONEPATH}/awsone/5-cluster-ecs
-      terraform apply -auto-approve
+      tf ecs apply
       ;;&
     s3scanner|all)
-      lock s3scanner
-      cd ${ONEPATH}/awsone/6-bucket-scanner
-      terraform apply -auto-approve
+      tf s3scanner apply
       ;;&
     scenarios|scenarios-ec2|all)
-      lock scenarios-ec2
-      # make sure fargate namespace exists
-      # kubectl create namespace fargate --dry-run=client -o yaml | kubectl apply -f -
-      cd ${ONEPATH}/awsone/7-scenarios-ec2
-      terraform apply -auto-approve
+      tf scenarios-ec2 apply
       ;;&
     scenarios-fg|all)
-      lock scenarios-fg
-      # make sure fargate namespace exists
-      # kubectl create namespace fargate --dry-run=client -o yaml | kubectl apply -f -
-      cd ${ONEPATH}/awsone/7-scenarios-fargate
-      terraform apply -auto-approve
+      tf scenarios-fg apply
       ;;&
     scenarios-aks|all)
-      lock scenarios-aks
-      cd ${ONEPATH}/azone/7-scenarios-aks
-      terraform apply -auto-approve
+      tf scenarios-aks apply
       ;;&
     dsm|deepsecurity|all)
-      lock dsm
-      cd ${ONEPATH}/awsone/9-deep-security
-      terraform apply -auto-approve
+      tf dsm apply
       ;;&
     dsw|all)
-      lock dsw
-      cd ${ONEPATH}/awsone/9-deep-security-workload
-      terraform apply -auto-approve
+      tf dsw apply
       printf '%s\n' "public_instance_password_windows1 = \"$(terraform output -raw public_instance_password_windows1)\""
       ;;&
     kind|all)
-      lock kind
-      cd ${ONEPATH}/kindone/4-cluster-kind
-      terraform apply -auto-approve
-      cd ${ONEPATH}/kindone/8-cluster-kind-deployments
-      terraform apply -auto-approve
+      tf kind apply
+      tf kind-deployments apply
       ;;
   esac
 }
@@ -471,19 +530,6 @@ function apply() {
 #######################################
 function update_ip() {
   
-  # key_desc="Access IPs/CIDRs"
-  # read -p "${key_desc} [${pgo_access_ip}]: " TEMP
-  # if [[ ! -z "${TEMP}" ]]; then
-  #   pgo_access_ip=${TEMP}
-  # fi
-  # if [[ "${pgo_access_ip}" =~ ^\[\"[0-9\.\,\/\"[:space:]]+\"\]$ ]]; then
-  #   target_val=${pgo_access_ip} \
-  #     yq -i '.services.playground-one.access-ip = env(target_val)' ${ONEPATH}/config.yaml
-  # else
-  #   echo "Error: Invalid ${key_desc} input."
-  #   exit 0
-  # fi
-
   key_desc="Access IPs/CIDRs"
   pgo_access_ip=${pgo_access_ip//[\[\]\"]/}
   read -p "${key_desc} [${pgo_access_ip}]: " TEMP
@@ -523,53 +569,12 @@ function update_ip() {
     exit 0
   fi
 
-  init nw
-
-  cd ${ONEPATH}/awsone/2-network
-  terraform apply
-
-  for conf in eks-ec2 eks-fg aks ecs scenarios-ec2 scenarios-fg scenarios-aks dsm dsw ; do
-    init ${conf}
-    if checklock ${conf} ; then
-      apply ${conf}
+  for config in network eks-ec2 eks-fg aks ecs scenarios-ec2 scenarios-fg scenarios-aks dsm dsw ; do
+    init ${config}
+    if checklock ${config} ; then
+      apply ${config}
     fi
   done
-  # init eks-ec2
-  # if checklock eks-ec2 ; then
-  #   apply eks-ec2
-  # fi
-  # init eks-fg
-  # if checklock eks-fg ; then
-  #   apply eks-fg
-  # fi
-  # init aks
-  # if checklock aks ; then
-  #   apply aks
-  # fi
-  # init ecs
-  # if checklock ecs ; then
-  #   apply ecs
-  # fi
-  # init scenarios-ec2
-  # if checklock scenarios-ec2 ; then
-  #   apply scenarios-ec2
-  # fi
-  # init scenarios-fg
-  # if checklock scenarios-fg ; then
-  #   apply scenarios-fg
-  # fi
-  # init scenarios-aks
-  # if checklock scenarios-aks ; then
-  #   apply scenarios-aks
-  # fi
-  # init dsm
-  # if checklock dsm ; then
-  #   apply dsm
-  # fi
-  # init dsw
-  # if checklock dsw ; then
-  #   apply dsw
-  # fi
   # TODO: Add eks deployments
 }
 
@@ -585,7 +590,7 @@ function update_ip() {
 #######################################
 function deep_security_delete_computers() {
 
-  cd ${ONEPATH}/awsone/9-deep-security-workload
+  cd "${configs[dsw]}"
   dsm_url=$(terraform output -raw dsm_url)
   api_key=$(terraform output -raw ds_apikey)
   linux_policy_id=$(terraform output -raw linux_policy_id)
@@ -652,23 +657,21 @@ function destroy() {
 
   case $1 in
     ec2|instances|all)
-      if checklock ec2 ; then
-        cd ${ONEPATH}/awsone/3-instances
-        terraform destroy -auto-approve
-        unlock ec2
+      if checklock instances ; then
+        tf instances destroy
       else
-        printf '%s\n' "Configuration ec2 is not applied"
+        printf '%s\n' "Configuration instances is not applied"
       fi
       ;;&
     eks|eks-ec2|all)
       if checklock eks-ec2 ; then
-        cd ${ONEPATH}/awsone/4-cluster-eks-ec2
+        cd "${configs[eks-ec2]}"
         cluster_name=$(terraform output -raw cluster_name)
         kubectl config use-context ${cluster_name}
-        cd ${ONEPATH}/awsone/7-scenarios-ec2
-        terraform destroy -auto-approve
-        unlock scenarios-ec2
-        cd ${ONEPATH}/awsone/8-cluster-eks-ec2-deployments
+
+        tf scenarios-ec2 destroy
+
+        cd "${configs[eks-ec2-deployments]}"
         cluster_id=$(terraform output -json cluster_id 2>/dev/null | jq -r .)
         if [ -z "${cluster_id}" ]; then
           printf '%s\n' "Eventually delete cluster in Vision One manually"
@@ -678,11 +681,10 @@ function destroy() {
             -H "api-version: v1" -H "Authorization: Bearer ${vision_one_api_key}" \
             "https://api.xdr.trendmicro.com/beta/containerSecurity/kubernetesClusters/${cluster_id}"
         fi
-        terraform destroy -auto-approve
 
-        cd ${ONEPATH}/awsone/4-cluster-eks-ec2
-        terraform destroy -auto-approve
-        unlock eks-ec2
+        tf eks-ec2-deployments destroy
+        tf eks-ec2 destroy
+
         kubectl config delete-context ${cluster_name}
       else
         printf '%s\n' "Configuration eks-ec2 is not applied"
@@ -690,13 +692,13 @@ function destroy() {
       ;;&
     eks-fg|all)
       if checklock eks-fg ; then
-        cd ${ONEPATH}/awsone/4-cluster-eks-fargate
+        cd "${configs[eks-fg]}"
         cluster_name=$(terraform output -raw cluster_name)
         kubectl config use-context ${cluster_name}
-        cd ${ONEPATH}/awsone/7-scenarios-fargate
-        terraform destroy -auto-approve
-        unlock scenarios-fg
-        cd ${ONEPATH}/awsone/8-cluster-eks-fargate-deployments
+
+        tf scenarios-fg destroy
+
+        cd "${configs[eks-fg-deployments]}"
         cluster_id=$(terraform output -json cluster_id 2>/dev/null | jq -r .)
         if [ -z "${cluster_id}" ]; then
           printf '%s\n' "Eventually delete cluster in Vision One manually"
@@ -708,9 +710,9 @@ function destroy() {
         fi
         terraform destroy -auto-approve
 
-        cd ${ONEPATH}/awsone/4-cluster-eks-fargate
-        terraform destroy -auto-approve
-        unlock eks-fg
+        tf eks-fg-deployments destroy
+        tf eks-fg destroy
+
         kubectl config delete-context ${cluster_name}
       else
         printf '%s\n' "Configuration eks-fg is not applied"
@@ -718,14 +720,14 @@ function destroy() {
       ;;&
     aks|all)
       if checklock aks ; then
-        cd ${ONEPATH}/azone/4-cluster-aks
+        cd "${configs[aks]}"
         cluster_name=$(terraform output -raw cluster_name)
         cluster_username=$(terraform output -raw cluster_username)
         kubectl config use-context ${cluster_name}
-        cd ${ONEPATH}/azone/7-scenarios-aks
-        terraform destroy -auto-approve
-        unlock scenarios-aks
-        cd ${ONEPATH}/azone/8-cluster-aks-deployments
+
+        tf scenarios-aks destroy
+
+        cd "${configs[aks-deployments]}"
         cluster_id=$(terraform output -json cluster_id 2>/dev/null | jq -r .)
         if [ -z "${cluster_id}" ]; then
           printf '%s\n' "Eventually delete cluster in Vision One manually"
@@ -735,11 +737,10 @@ function destroy() {
             -H "api-version: v1" -H "Authorization: Bearer ${vision_one_api_key}" \
             "https://api.xdr.trendmicro.com/beta/containerSecurity/kubernetesClusters/${cluster_id}"
         fi
-        terraform destroy -auto-approve
 
-        cd ${ONEPATH}/azone/4-cluster-aks
-        terraform destroy -auto-approve
-        unlock aks
+        tf aks-deployments destroy
+        tf aks destroy
+
         kubectl config delete-context ${cluster_name}
         kubectl config delete-cluster ${cluster_name}
         kubectl config delete-user ${cluster_username}
@@ -771,18 +772,14 @@ function destroy() {
         #   fi
         # done
 
-        cd ${ONEPATH}/awsone/5-cluster-ecs
-        terraform destroy -auto-approve
-        unlock ecs
+        tf ecs destroy
       else
         printf '%s\n' "Configuration ecs is not applied"
       fi
       ;;&
     s3scanner|all)
       if checklock s3scanner ; then
-        cd ${ONEPATH}/awsone/6-bucket-scanner
-        terraform destroy -auto-approve
-        unlock s3scanner
+        tf s3scanner destroy
       else
         printf '%s\n' "Configuration s3scanner is not applied"
       fi
@@ -790,18 +787,14 @@ function destroy() {
     dsw|all)
       if checklock dsw ; then
         deep_security_delete_computers
-        cd ${ONEPATH}/awsone/9-deep-security-workload
-        terraform destroy -auto-approve
-        unlock dsw
+        tf dsw destroy
       else
         printf '%s\n' "Configuration dsw is not applied"
       fi
       ;;&
     dsm|deepsecurity|all)
       if checklock dsm ; then
-        cd ${ONEPATH}/awsone/9-deep-security
-        terraform destroy -auto-approve
-        unlock dsm
+        tf dsm destroy
       else
         printf '%s\n' "Configuration dsm is not applied"
       fi
@@ -809,31 +802,35 @@ function destroy() {
     nw|network|all)
       if checklock nw ; then
         check_network
-        cd ${ONEPATH}/awsone/2-network
-        terraform destroy -auto-approve
-        unlock nw
+        tf network destroy
       else
         printf '%s\n' "Configuration nw is not applied"
       fi
       ;;
     scenarios|scenarios-ec2)
-      cd ${ONEPATH}/awsone/7-scenarios-ec2
-      terraform destroy -auto-approve
-      unlock scenarios-ec2
+      if checklock scenarios-ec2 ; then
+        tf scenarios-ec2 destroy
+      else
+        printf '%s\n' "Configuration scenarios-ec2 is not applied"
+      fi
       ;;
     scenarios-fg)
-      cd ${ONEPATH}/awsone/7-scenarios-fargate
-      terraform destroy -auto-approve
-      unlock scenarios-fg
+      if checklock scenarios-fg ; then
+        tf scenarios-fg destroy
+      else
+        printf '%s\n' "Configuration scenarios-fg is not applied"
+      fi
       ;;
     scenarios-aks)
-      cd ${ONEPATH}/azone/7-scenarios-aks
-      terraform destroy -auto-approve
-      unlock scenarios-aks
+      if checklock scenarios-aks ; then
+        tf scenarios-aks destroy
+      else
+        printf '%s\n' "Configuration scenarios-aks is not applied"
+      fi
       ;;
     kind)
       if checklock kind ; then
-        cd ${ONEPATH}/kindone/8-cluster-kind-deployments
+        cd "${configs[kind-deployments]}"
         cluster_id=$(terraform output -json cluster_id 2>/dev/null | jq -r .)
         if [ -z "${cluster_id}" ]; then
           printf '%s\n' "Eventually delete cluster in Vision One manually"
@@ -843,11 +840,9 @@ function destroy() {
             -H "api-version: v1" -H "Authorization: Bearer ${vision_one_api_key}" \
             "https://api.xdr.trendmicro.com/beta/containerSecurity/kubernetesClusters/${cluster_id}"
         fi
-        terraform destroy -auto-approve
+        tf kind-deployments destroy
 
-        cd ${ONEPATH}/kindone/4-cluster-kind
-        terraform destroy -auto-approve
-        unlock kind
+        tf kind destroy
       else
         printf '%s\n' "Configuration kind is not applied"
       fi
@@ -870,115 +865,46 @@ function output() {
 
   case $1 in
     nw|network|all)
-      if checklock nw ; then
-        cd ${ONEPATH}/awsone/2-network
-        terraform output
-      else
-        printf '%s\n' "Configuration nw not applied"
-      fi
+      tf network output
       ;;&
     ec2|instances|all)
-      if checklock ec2 ; then
-        cd ${ONEPATH}/awsone/3-instances
-        terraform output
-        printf '%s\n' "public_instance_password_srv1 = \"$(terraform output -raw public_instance_password_srv1)\""
-      else
-        printf '%s\n' "Configuration ec2 not applied"
-      fi
+      tf instances output
       ;;&
     eks|eks-ec2|all)
-      if checklock eks-ec2 ; then
-        cd ${ONEPATH}/awsone/4-cluster-eks-ec2
-        terraform output
-        cd ${ONEPATH}/awsone/8-cluster-eks-ec2-deployments
-        terraform output
-      else
-        printf '%s\n' "Configuration eks-ec2 not applied"
-      fi
+      tf eks-ec2 output
+      tf eks-ec2-deployments output
       ;;&
     eks-fg|all)
-      if checklock eks-fg ; then
-        cd ${ONEPATH}/awsone/4-cluster-eks-fargate
-        terraform output
-      else
-        printf '%s\n' "Configuration eks-fargate not applied"
-      fi
+      tf eks-fg output
       ;;&
     aks|all)
-      if checklock aks ; then
-        cd ${ONEPATH}/azone/4-cluster-aks
-        terraform output
-        cd ${ONEPATH}/azone/8-cluster-aks-deployments
-        terraform output
-      else
-        printf '%s\n' "Configuration aks not applied"
-      fi
+      tf aks output
+      tf aks-deployments output
       ;;&
     ecs|all)
-      if checklock ecs ; then
-        cd ${ONEPATH}/awsone/5-cluster-ecs
-        terraform output
-      else
-        printf '%s\n' "Configuration ecs not applied"
-      fi
+      tf ecs output
       ;;&
     s3scanner|all)
-      if checklock s3scanner ; then
-        cd ${ONEPATH}/awsone/6-bucket-scanner
-        terraform output
-      else
-        printf '%s\n' "Configuration s3scanner not applied"
-      fi
+      tf s3scanner output
       ;;&
     scenarios|scenarios-ec2|all)
-      if checklock scenarios-ec2 ; then
-        cd ${ONEPATH}/awsone/7-scenarios-ec2
-        terraform output
-      else
-        printf '%s\n' "Configuration scenarios-ec2 not applied"
-      fi
+      tf scenarios-ec2 output
       ;;&
     scenarios-fg|all)
-      if checklock scenarios-fg ; then
-        cd ${ONEPATH}/awsone/7-scenarios-fargate
-        terraform output
-      else
-        printf '%s\n' "Configuration scenarios-fg not applied"
-      fi
+      tf scenarios-fg output
       ;;&
     scenarios-aks|all)
-      if checklock scenarios-aks ; then
-        cd ${ONEPATH}/azone/7-scenarios-aks
-        terraform output
-      else
-        printf '%s\n' "Configuration scenarios-aks not applied"
-      fi
+      tf scenarios-aks output
       ;;&
     dsm|deepsecurity|all)
-      if checklock dsm ; then
-        cd ${ONEPATH}/awsone/9-deep-security
-        terraform output
-      else
-        printf '%s\n' "Configuration dsm not applied"
-      fi
+      tf dsm output
       ;;&
     dsw|all)
-      if checklock dsw ; then
-        cd ${ONEPATH}/awsone/9-deep-security-workload
-        terraform output
-      else
-        printf '%s\n' "Configuration dsm not applied"
-      fi
+      tf dsw output
       ;;&
     kind|all)
-      if checklock kind ; then
-        cd ${ONEPATH}/kindone/4-cluster-kind
-        terraform output
-        cd ${ONEPATH}/kindone/8-cluster-kind-deployments
-        terraform output
-      else
-        printf '%s\n' "Configuration kind not applied"
-      fi
+      tf kind output
+      tf kind-deployments output
       ;;
   esac
 }
@@ -988,7 +914,7 @@ function output() {
 # Globals:
 #   ONEPATH
 # Arguments:
-#   Configuration name or all
+#   None
 # Outputs:
 #   None
 #######################################
@@ -996,45 +922,11 @@ function list() {
 
   telemetry "list"
 
-  if checklock nw ; then
-    printf '%s\n' "Configuration nw is applied"
-  fi
-  if checklock ec2 ; then
-    printf '%s\n' "Configuration ec2 is applied"
-  fi
-  if checklock eks-ec2 ; then
-    printf '%s\n' "Configuration eks-ec2 is applied"
-  fi
-  if checklock eks-fg ; then
-    printf '%s\n' "Configuration eks-fargate is applied"
-  fi
-  if checklock aks ; then
-    printf '%s\n' "Configuration aks is applied"
-  fi
-  if checklock ecs ; then
-    printf '%s\n' "Configuration ecs is applied"
-  fi
-  if checklock s3scanner ; then
-    printf '%s\n' "Configuration s3scanner is applied"
-  fi
-  if checklock scenarios-ec2 ; then
-    printf '%s\n' "Configuration scenarios-ec2 is applied"
-  fi
-  if checklock scenarios-fg ; then
-    printf '%s\n' "Configuration scenarios-fg is applied"
-  fi
-  if checklock scenarios-aks ; then
-    printf '%s\n' "Configuration scenarios-aks is applied"
-  fi
-  if checklock dsm ; then
-    printf '%s\n' "Configuration dsm is applied"
-  fi
-  if checklock dsw ; then
-    printf '%s\n' "Configuration dsw is applied"
-  fi
-  if checklock kind ; then
-    printf '%s\n' "Configuration kind is applied"
-  fi
+  for config in "${!configs[@]}"; do
+    if checklock $config ; then
+      printf '%s\n' "Configuration ${config} is applied"
+    fi
+  done
 }
 
 #######################################
@@ -1052,62 +944,47 @@ function state() {
 
   case $1 in
     nw|network|all)
-      cd ${ONEPATH}/awsone/2-network
-      terraform state list
+      tf network state
       ;;&
     ec2|instances|all)
-      cd ${ONEPATH}/awsone/3-instances
-      terraform state list
+      tf instances state
       ;;&
     eks|eks-ec2|all)
-      cd ${ONEPATH}/awsone/4-cluster-eks-ec2
-      terraform state list
-      cd ${ONEPATH}/awsone/8-cluster-eks-ec2-deployments
-      terraform state list
+      tf eks-ec2 state
+      tf eks-ec2-deployments state
       ;;&
     eks-fg|all)
-      cd ${ONEPATH}/awsone/4-cluster-eks-fargate
-      terraform state list
+      tf eks-fg state
+      tf eks-fg-deployments state
       ;;&
     aks|all)
-      cd ${ONEPATH}/azone/4-cluster-aks
-      terraform state list
-      cd ${ONEPATH}/azone/8-cluster-aks-deployments
-      terraform state list
+      tf aks state
+      tf aks-deployments state
       ;;&
     ecs|all)
-      cd ${ONEPATH}/awsone/5-cluster-ecs
-      terraform state list
+      tf ecs state
       ;;&
     s3scanner|all)
-      cd ${ONEPATH}/awsone/6-bucket-scanner
-      terraform state list
+      tf s3scanner state
       ;;&
     scenarios|scenarios-ec2|all)
-      cd ${ONEPATH}/awsone/7-scenarios-ec2
-      terraform state list
+      tf scenarios-ec2 state
       ;;&
     scenarios-fg|all)
-      cd ${ONEPATH}/awsone/7-scenarios-fargate
-      terraform state list
+      tf scenarios-fg state
       ;;&
     scenarios-aks|all)
-      cd ${ONEPATH}/azone/7-scenarios-aks
-      terraform state list
+      tf scenarios-aks state
       ;;&
     dsm|deepsecurity|all)
-      cd ${ONEPATH}/awsone/9-deep-security
-      terraform state list
+      tf dsm state
       ;;&
     dsw|all)
-      cd ${ONEPATH}/awsone/9-deep-security-workload
-      terraform state list
+      tf dsw state
       ;;&
     kind|all)
-      cd ${ONEPATH}/kindone/4-cluster-kind
-      terraform state list
-      cd ${ONEPATH}/kindone/4-cluster-kind-deployments
-      terraform state list
+      tf kind state
+      tf kind-deployments state
       ;;
   esac
 }
@@ -1128,62 +1005,47 @@ function show() {
 
   case $1 in
     nw|network|all)
-      cd ${ONEPATH}/awsone/2-network
-      terraform show
+      tf network show
       ;;&
     ec2|instances|all)
-      cd ${ONEPATH}/awsone/3-instances
-      terraform show
+      tf instances show
       ;;&
     eks|eks-ec2|all)
-      cd ${ONEPATH}/awsone/4-cluster-eks-ec2
-      terraform show
-      cd ${ONEPATH}/awsone/8-cluster-eks-ec2-deployments
-      terraform show
+      tf eks-ec2 show
+      tf eks-ec2-deployments show
       ;;&
     eks-fg|all)
-      cd ${ONEPATH}/awsone/4-cluster-eks-fargate
-      terraform show
+      tf eks-fg show
+      tf eks-fg-deployments show
       ;;&
     aks|all)
-      cd ${ONEPATH}/azone/4-cluster-aks
-      terraform show
-      cd ${ONEPATH}/azone/8-cluster-aks-deployments
-      terraform show
+      tf aks show
+      tf aks-deployments show
       ;;&
     ecs|all)
-      cd ${ONEPATH}/awsone/5-cluster-ecs
-      terraform show
+      tf ecs show
       ;;&
     s3scanner|all)
-      cd ${ONEPATH}/awsone/6-bucket-scanner
-      terraform show
+      tf s3scanner show
       ;;&
     scenarios|scenarios-ec2|all)
-      cd ${ONEPATH}/awsone/7-scenarios-ec2
-      terraform show
+      tf scenarios-ec2 show
       ;;&
     scenarios-fg|all)
-      cd ${ONEPATH}/awsone/7-scenarios-fargate
-      terraform show
+      tf scenarios-fg show
       ;;&
     scenarios-aks|all)
-      cd ${ONEPATH}/azone/7-scenarios-aks
-      terraform show
+      tf scenarios-aks show
       ;;&
     dsm|deepsecurity|all)
-      cd ${ONEPATH}/awsone/9-deep-security
-      terraform show
+      tf dsm show
       ;;&
     dsw|all)
-      cd ${ONEPATH}/awsone/9-deep-security-workload
-      terraform show
+      tf dsw show
       ;;&
     kind|all)
-      cd ${ONEPATH}/kindone/4-cluster-kind
-      terraform show
-      cd ${ONEPATH}/kindone/4-cluster-kind-deployments
-      terraform show
+      tf kind show
+      tf kind-deployments show
       ;;
   esac
 }
@@ -1203,62 +1065,47 @@ function validate() {
 
   case $1 in
     nw|network|all)
-      cd ${ONEPATH}/awsone/2-network
-      terraform validate
+      tf network validate
       ;;&
     ec2|instances|all)
-      cd ${ONEPATH}/awsone/3-instances
-      terraform validate
+      tf instances validate
       ;;&
     eks|eks-ec2|all)
-      cd ${ONEPATH}/awsone/4-cluster-eks-ec2
-      terraform validate
-      cd ${ONEPATH}/awsone/8-cluster-eks-ec2-deployments
-      terraform validate
+      tf eks-ec2 validate
+      tf eks-ec2-deployments validate
       ;;&
     eks-fg|all)
-      cd ${ONEPATH}/awsone/4-cluster-eks-fargate
-      terraform validate
+      tf eks-fg validate
+      tf eks-fg-deployments validate
       ;;&
     aks|all)
-      cd ${ONEPATH}/azone/4-cluster-aks
-      terraform validate
-      cd ${ONEPATH}/azone/8-cluster-aks-deployments
-      terraform validate
+      tf aks validate
+      tf aks-deployments validate
       ;;&
     ecs|all)
-      cd ${ONEPATH}/awsone/5-cluster-ecs
-      terraform validate
+      tf ecs validate
       ;;&
     s3scanner|all)
-      cd ${ONEPATH}/awsone/6-bucket-scanner
-      terraform validate
+      tf s3scanner validate
       ;;&
     scenarios|scenarios-ec2|all)
-      cd ${ONEPATH}/awsone/7-scenarios-ec2
-      terraform validate
+      tf scenarios-ec2 validate
       ;;&
     scenarios-fg|all)
-      cd ${ONEPATH}/awsone/7-scenarios-fargate
-      terraform validate
+      tf scenarios-fg validate
       ;;&
     scenarios-aks|all)
-      cd ${ONEPATH}/azone/7-scenarios-aks
-      terraform validate
+      tf scenarios-aks validate
       ;;&
     dsm|deepsecurity|all)
-      cd ${ONEPATH}/awsone/9-deep-security
-      terraform validate
+      tf dsm validate
       ;;&
     dsw|all)
-      cd ${ONEPATH}/awsone/9-deep-security-workload
-      terraform validate
+      tf dsw validate
       ;;&
     kind|all)
-      cd ${ONEPATH}/kindone/4-cluster-kind
-      terraform validate
-      cd ${ONEPATH}/kindone/4-cluster-kind-deployments
-      terraform validate
+      tf kind validate
+      tf kind-deployments validate
       ;;
   esac
 }
@@ -1303,124 +1150,47 @@ function erase() {
 
   case $1 in
     nw|network|all)
-      if ! checklock nw; then
-        cd ${ONEPATH}/awsone/2-network
-        # rm -rf .terraform
-        # rm -f .terraform.lock.hcl
-        rm -f terraform.tfstate*
-      fi
+      tf network erase
       ;;&
     ec2|instances|all)
-      if ! checklock ec2; then
-        cd ${ONEPATH}/awsone/3-instances
-        # rm -rf .terraform
-        # rm -f .terraform.lock.hcl
-        rm -f terraform.tfstate*
-      fi
+      tf instances erase
       ;;&
     eks|eks-ec2|all)
-      if ! checklock eks-ec2; then
-        cd ${ONEPATH}/awsone/4-cluster-eks-ec2
-        # rm -rf .terraform
-        # rm -f .terraform.lock.hcl
-        rm -f terraform.tfstate*
-        cd ${ONEPATH}/awsone/8-cluster-eks-ec2-deployments
-        # rm -rf .terraform
-        # rm -f .terraform.lock.hcl
-        rm -f terraform.tfstate*
-      fi
+      tf eks-ec2 erase
+      tf eks-ec2-deployments erase
       ;;&
     eks-fg|all)
-      if ! checklock eks-fg; then
-        cd ${ONEPATH}/awsone/4-cluster-eks-fargate
-        # rm -rf .terraform
-        # rm -f .terraform.lock.hcl
-        rm -f terraform.tfstate*
-        cd ${ONEPATH}/awsone/8-cluster-eks-fargate-deployments
-        # rm -rf .terraform
-        # rm -f .terraform.lock.hcl
-        rm -f terraform.tfstate*
-      fi
+      tf eks-fg erase
+      tf eks-fg-deployments erase
       ;;&
     aks|all)
-      if ! checklock aks; then
-        cd ${ONEPATH}/azone/4-cluster-aks
-        # rm -rf .terraform
-        # rm -f .terraform.lock.hcl
-        rm -f terraform.tfstate*
-        cd ${ONEPATH}/azone/8-cluster-aks-deployments
-        # rm -rf .terraform
-        # rm -f .terraform.lock.hcl
-        rm -f terraform.tfstate*
-      fi
+      tf aks erase
+      tf aks-deployments erase
       ;;&
     ecs|all)
-      if ! checklock ecs; then
-        cd ${ONEPATH}/awsone/5-cluster-ecs
-        # rm -rf .terraform
-        # rm -f .terraform.lock.hcl
-        rm -f terraform.tfstate*
-      fi
+      tf ecs erase
       ;;&
     s3scanner|all)
-      if ! checklock s3scanner; then
-        cd ${ONEPATH}/awsone/6-bucket-scanner
-        # rm -rf .terraform
-        # rm -f .terraform.lock.hcl
-        rm -f terraform.tfstate*
-      fi
+      tf s3scanner erase
       ;;&
     scenarios|scenarios-ec2|all)
-      if ! checklock scenarios-ec2; then
-        cd ${ONEPATH}/awsone/7-scenarios-ec2
-        # rm -rf .terraform
-        # rm -f .terraform.lock.hcl
-        rm -f terraform.tfstate*
-      fi
+      tf scenarios-ec2 erase
       ;;&
     scenarios-fg|all)
-      if ! checklock scenarios-fg; then
-        cd ${ONEPATH}/awsone/7-scenarios-fargate
-        # rm -rf .terraform
-        # rm -f .terraform.lock.hcl
-        rm -f terraform.tfstate*
-      fi
+      tf scenarios-fg erase
       ;;&
     scenarios-aks|all)
-      if ! checklock scenarios-aks; then
-        cd ${ONEPATH}/azone/7-scenarios-aks
-        # rm -rf .terraform
-        # rm -f .terraform.lock.hcl
-        rm -f terraform.tfstate*
-      fi
+      tf scenarios-aks erase
       ;;&
     dsm|deepsecurity|all)
-      if ! checklock dsm; then
-        cd ${ONEPATH}/awsone/9-deep-security
-        # rm -rf .terraform
-        # rm -f .terraform.lock.hcl
-        rm -f terraform.tfstate*
-      fi
+      tf dsm erase
       ;;&
     dsw|all)
-      if ! checklock dsw; then
-        cd ${ONEPATH}/awsone/9-deep-security-workload
-        # rm -rf .terraform
-        # rm -f .terraform.lock.hcl
-        rm -f terraform.tfstate*
-      fi
+      tf dsw erase
       ;;&
     kind|all)
-      if ! checklock kind; then
-        cd ${ONEPATH}/kindone/4-cluster-kind
-        # rm -rf .terraform
-        # rm -f .terraform.lock.hcl
-        rm -f terraform.tfstate*
-        cd ${ONEPATH}/kindone/8-cluster-kind-deployments
-        # rm -rf .terraform
-        # rm -f .terraform.lock.hcl
-        rm -f terraform.tfstate*
-      fi
+      tf kind erase
+      tf kind-deployments erase
       ;;
   esac
 }

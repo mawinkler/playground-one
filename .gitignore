@@ -48,8 +48,15 @@ TMServerAgent_Windows.zip
 .pgo.ecs.lock
 .pgo.dsm.lock
 .pgo.aks.lock
+.pgo.kind.lock
+.pgo.s3scanner.lock
+.pgo.eks-ec2-deployments.lock
+.pgo.instances.lock
+.pgo.kind-deployments.lock
+.pgo.network.lock
 overrides.yaml
 dsm.properties
+pgoc
 
 # Exploits
 exploits
@@ -67,7 +74,4 @@ workdir*
 awsone/9-deep-security/dsm/apikey
 awsone/9-deep-security/cookie.txt
 azone/4-cluster-aks/kubeconfig
-.pgo.kind.lock
-pgoc
-.pgo.s3scanner.lock
 eicarcom2.zip
