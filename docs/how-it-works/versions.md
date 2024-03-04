@@ -1,6 +1,6 @@
 # Versions as of 12/14/2024
 
-**Terraform >=1.5**
+**Terraform >=1.6**
 
 ## Terraform Providers
 

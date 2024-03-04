@@ -37,6 +37,9 @@ nav:
     # - Privileged Shell: scenarios/container-security-eks-privileged-shell.md
     # - Server & Workload Protection:
     #   - Malware Upload: scenarios/server-workload-ecs-ec2-malware-upload.md
+    - Posture Management:
+      - Terraform IaC Scanning with a GitHub Action: scenarios/cspm/template-scanning-terraform-github-action.md
+      - CloudFormation IaC Scanning with a GitHub Action: scenarios/cspm/template-scanning-cfn-github-action.md
     - Attack Surface Risk Management:
       - Virtual Instance Potential Attack Path: scenarios/asrm/virtual-machine-attack-path.md
     - XDR:

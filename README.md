@@ -13,7 +13,7 @@ In a nutshell:
 - Playground One is containerized and supports any `arm64`  or `amd64` based container engine.
 - A native installation is possible as well.
 - Management of the environment with the help of an easy to use command line interface `pgo`.
-- Based on Terraform >1.5
+- Based on Terraform >1.6
 
 The Playground One has a modular structure and supports the following services:
 

@@ -9,6 +9,7 @@
     - Container Protection
       - Run artifact scan
 - GitHub Account.
+- Forked [playground-one-scenario-github-action](https://github.com/mawinkler/playground-one-scenario-github-action).
 - Kubernetes Cluster (ideally) with Vision One Container Security deployed.
 
 ## About GitHub Actions
