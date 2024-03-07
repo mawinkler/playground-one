@@ -34,6 +34,7 @@ nav:
       - Scan Containers for Vulnerabilities and Malware: scenarios/as/tmas-artifact-scanning.md
       - Scan Containers with a GitHub Action: scenarios/as/tmas-github-action.md
       - Scan Files and Directories for Malware: scenarios/as/tmfs-artifact-scanning.md
+      - Scan S3 Buckets for Malware: scenarios/as/tmfs-s3-bucket-scanning.md
     # - Privileged Shell: scenarios/container-security-eks-privileged-shell.md
     # - Server & Workload Protection:
     #   - Malware Upload: scenarios/server-workload-ecs-ec2-malware-upload.md

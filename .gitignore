@@ -75,3 +75,7 @@ awsone/9-deep-security/dsm/apikey
 awsone/9-deep-security/cookie.txt
 azone/4-cluster-aks/kubeconfig
 eicarcom2.zip
+log/calico/cni/cni.log
+log/calico/cni/config
+log/calico/cni/current
+log/calico/cni/lock
