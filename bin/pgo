@@ -800,11 +800,11 @@ function destroy() {
       fi
       ;;&
     nw|network|all)
-      if checklock nw ; then
+      if checklock network ; then
         check_network
         tf network destroy
       else
-        printf '%s\n' "Configuration nw is not applied"
+        printf '%s\n' "Configuration network is not applied"
       fi
       ;;
     scenarios|scenarios-ec2)
