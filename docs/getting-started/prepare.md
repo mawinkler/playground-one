@@ -193,6 +193,23 @@ Then, continue with [Configuration](configuration.md).
 
 ## Change Log
 
+### 0.2.3 Fix release (03/08/2024)
+
+#### Fixes
+
+- Corrected lock handling on network.
+
+### 0.2.2 (03/07/2024)
+
+#### Fixes
+
+- `ecsfg-add-v1cs` does now work within the Playground One Container.
+
+#### Changes
+
+- AWS and Azure now use the same environment name.
+- Local Kind cluster now supports load balancing and ingress controller based on Contour-Envoy.
+
 ### 0.2.1 Fix release (02/27/2024)
 
 #### Fixes
