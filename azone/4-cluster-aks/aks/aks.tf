@@ -45,10 +45,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
-  ingress_application_gateway {
-      subnet_id = data.azurerm_subnet.appgwsubnet.id
+  # ingress_application_gateway {
+  #     subnet_id = data.azurerm_subnet.appgwsubnet.id
 
-  }
+  # }
 
   tags = {
     Name          = "${var.environment}-aks-std"
