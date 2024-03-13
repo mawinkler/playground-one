@@ -196,7 +196,6 @@ function check_network() {
   # else
   #   xdr_for_containers=false
   # fi
-  # aws_account_id=${aws_account_id} \
   # aws_region=${aws_region} \
   # environment_name=${environment_name} \
   # pgo_access_ip=${pgo_access_ip} \
@@ -237,7 +236,6 @@ function init() {
       #   xdr_for_containers=false
       # fi
       # xdr_for_containers=${xdr_for_containers} \
-      aws_account_id=${aws_account_id} \
       aws_region=${aws_region} \
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip} \
@@ -263,7 +261,6 @@ function init() {
       ;;&
     eks|eks-ec2|all)
       printf '%s\n' "Create terraform.tfvars for cluster-eks-ec2"
-      aws_account_id=${aws_account_id} \
       aws_region=${aws_region} \
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip} \
@@ -290,7 +287,6 @@ function init() {
       ;;&
     eks-fg|all)
       printf '%s\n' "Create terraform.tfvars for cluster-eks-fargate"
-      aws_account_id=${aws_account_id} \
       aws_region=${aws_region} \
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip} \
@@ -343,7 +339,6 @@ function init() {
       ;;&
     ecs|all)
       printf '%s\n' "Create terraform.tfvars for cluster-ecs"
-      aws_account_id=${aws_account_id} \
       aws_region=${aws_region} \
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip} \
@@ -397,7 +392,6 @@ function init() {
       ;;&
     dsm|deepsecurity|all)
       printf '%s\n' "Create terraform.tfvars for deep security"
-      aws_account_id=${aws_account_id} \
       aws_region=${aws_region} \
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip} \
@@ -411,7 +405,6 @@ function init() {
       ;;&
     dsw|all)
       printf '%s\n' "Create terraform.tfvars for deep security workload"
-      aws_account_id=${aws_account_id} \
       aws_region=${aws_region} \
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip} \

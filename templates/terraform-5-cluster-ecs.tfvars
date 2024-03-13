@@ -1,6 +1,3 @@
-# AWS Account ID
-account_id = "${aws_account_id}"
-
 # AWS Region
 aws_region = "${aws_region}"
 

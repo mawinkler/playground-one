@@ -6,10 +6,6 @@ variable "access_ip" {
   type = list
 }
 
-variable "account_id" {
-  type = string
-}
-
 variable "environment" {
   type    = string
 }

@@ -11,7 +11,6 @@ module "ecs-ec2" {
 
   source                     = "./ecs-ec2"
   environment                = var.environment
-  account_id                 = var.account_id
   aws_region                 = var.aws_region
   access_ip                  = var.access_ip
   key_name                   = data.terraform_remote_state.vpc.outputs.key_name
@@ -28,7 +27,6 @@ module "ecs-fargate" {
 
   source                     = "./ecs-fargate"
   environment                = var.environment
-  account_id                 = var.account_id
   aws_region                 = var.aws_region
   access_ip                  = var.access_ip
   vpc_id                     = data.terraform_remote_state.vpc.outputs.vpc_id
@@ -37,3 +35,4 @@ module "ecs-fargate" {
   private_subnet_cidr_blocks = data.terraform_remote_state.vpc.outputs.private_subnet_cidr_blocks.*
   private_security_group_id  = data.terraform_remote_state.vpc.outputs.private_security_group_id
 }
+

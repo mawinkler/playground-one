@@ -5,7 +5,7 @@ variable "environment" {}
 
 variable "vpc_id" {}
 
-variable "account_id" {}
+variable "vpc_owner_id" {}
 
 variable "aws_region" {}
 

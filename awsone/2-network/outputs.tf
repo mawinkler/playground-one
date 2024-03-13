@@ -2,6 +2,10 @@ output "vpc_id" {
   value = module.vpc.vpc_id
 }
 
+output "vpc_owner_id" {
+  value = module.vpc.vpc_owner_id
+}
+
 output "public_security_group_id" {
   value = module.ec2.public_security_group_id
 }

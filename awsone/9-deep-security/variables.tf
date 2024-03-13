@@ -9,10 +9,6 @@ variable "access_ip" {
   type = list(any)
 }
 
-variable "account_id" {
-  type = string
-}
-
 variable "environment" {
   type = string
 }

@@ -9,7 +9,6 @@ data "terraform_remote_state" "vpc" {
 module "eks-fargate" {
   source                    = "./eks-fargate"
   environment               = var.environment
-  account_id                = var.account_id
   aws_region                = var.aws_region
   access_ip                 = var.access_ip
   key_name                  = data.terraform_remote_state.vpc.outputs.key_name
