@@ -4,3 +4,5 @@
 variable "environment" {}
 
 variable "s3_bucket" {}
+
+variable "create_attackpath" {}

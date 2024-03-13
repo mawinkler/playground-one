@@ -1,15 +1,5 @@
 # #############################################################################
 # EC2 Instance Role
-# "Effect": "Allow",
-# "Action": [
-#     "s3:GetObject",
-#     "s3:GetObjectVersion",
-#     "s3:List*"
-# ],
-# "Resource": [
-#     "arn:aws:s3:::${var.s3_bucket}",
-#     "arn:aws:s3:::${var.s3_bucket}/*"
-# ]
 # #############################################################################
 # Create a policy with RDS Read access
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy

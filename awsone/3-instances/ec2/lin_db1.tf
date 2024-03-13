@@ -1,5 +1,5 @@
 # #############################################################################
-# Linux Instance
+# Linux Instance (ASRM Scenario)
 #   MYSQL
 #   Vision One Server & Workload Protection
 #   Atomic Launcher

@@ -193,6 +193,13 @@ Then, continue with [Configuration](configuration.md).
 
 ## Change Log
 
+### 0.2.4 (03/13/2024)
+
+#### Changes
+
+- The preparation for potential attack path detections with ASRM can now be enabled or disabled via the config tool.
+- IAM User Potential Attack Path with a new [scenario](https://mawinkler.github.io/playground-one-pages/scenarios/asrm/iam-user-attack-path/).
+
 ### 0.2.3 Fix release (03/08/2024)
 
 #### Fixes

@@ -41,3 +41,10 @@ variable "rds_name" {
 variable "rds_username" {
   type = string
 }
+
+#
+# create attack path
+#
+variable "create_attackpath" {
+  type = bool
+}

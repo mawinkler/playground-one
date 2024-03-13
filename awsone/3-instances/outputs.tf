@@ -42,3 +42,12 @@ output "ssh_instance_web1" {
 output "ssh_instance_srv1" {
   value = module.ec2.ssh_instance_srv1
 }
+
+output "pgo_dbadmin_access_key" {
+  value = module.iam.pgo_dbadmin_access_key
+}
+
+output "pgo_dbadmin_secret_access_key" {
+  value     = module.iam.pgo_dbadmin_secret_access_key
+  sensitive = true
+}

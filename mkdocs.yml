@@ -43,6 +43,7 @@ nav:
       - CloudFormation IaC Scanning with a GitHub Action: scenarios/cspm/template-scanning-cfn-github-action.md
     - Attack Surface Risk Management:
       - Virtual Instance Potential Attack Path: scenarios/asrm/virtual-machine-attack-path.md
+      - IAM User Potential Attack Path: scenarios/asrm/iam-user-attack-path.md
     - XDR:
       - Automated Observed Attack Techniques Generation: scenarios/xdr/oat-generation.md
       - Automated Workbench Generation: scenarios/xdr/workbench-generation.md

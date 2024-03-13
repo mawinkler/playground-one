@@ -25,9 +25,10 @@ module "ec2" {
 }
 
 module "iam" {
-  source      = "./iam"
-  environment = var.environment
-  s3_bucket   = module.s3.s3_bucket
+  source            = "./iam"
+  environment       = var.environment
+  s3_bucket         = module.s3.s3_bucket
+  create_attackpath = var.create_attackpath
 }
 
 module "s3" {

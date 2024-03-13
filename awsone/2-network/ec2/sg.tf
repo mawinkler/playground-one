@@ -34,6 +34,7 @@ resource "aws_security_group" "sg" {
   }
 }
 
+# (ASRM Scenario)
 resource "aws_security_group" "sg_inet" {
   for_each    = local.security_groups
   name        = "${each.value.name}-inet"
