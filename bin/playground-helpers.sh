@@ -397,10 +397,12 @@ function get_config() {
     vision_one_api_key="$(yq '.services.vision-one.api-key' $ONEPATH/config.yaml)"
     vision_one_region="$(yq '.services.vision-one.region' $ONEPATH/config.yaml)"
     vision_one_cs_policy="$(yq '.services.vision-one.container-security.policy' $ONEPATH/config.yaml)"
+    vision_one_asrm_create_attackpath="$(yq '.services.vision-one.asrm.create-attackpath' $ONEPATH/config.yaml)"
     [[ "${vision_one_api_key}" = "null" || "${vision_one_api_key}" = "" ]] && vision_one_api_key="apikey"
     [[ "${vision_one_region}" = "null" || "${vision_one_region}" = "" ]] && vision_one_region="us-east-1"
     [[ "${vision_one_cs_enabled}" = "null" || "${vision_one_cs_enabled}" = "" ]] && vision_one_cs_enabled=false
     [[ "${vision_one_cs_policy}" = "null" || "${vision_one_cs_policy}" = "" ]] && vision_one_cs_policy="policy"
+    [[ "${vision_one_asrm_create_attackpath}" = "null" || "${vision_one_asrm_create_attackpath}" = "" ]] && vision_one_asrm_create_attackpath=false
 
     # Deep Security
     deep_security_license="$(yq '.services.deep-security.license' $ONEPATH/config.yaml)"

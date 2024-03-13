@@ -241,6 +241,7 @@ function init() {
       aws_region=${aws_region} \
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip} \
+      vision_one_asrm_create_attackpath=${vision_one_asrm_create_attackpath} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-2-network.tfvars >${configs[network]}/terraform.tfvars
       
@@ -254,6 +255,7 @@ function init() {
       pgo_ec2_create_linux=${pgo_ec2_create_linux} \
       pgo_ec2_create_windows=${pgo_ec2_create_windows} \
       pgo_ec2_create_database=${pgo_ec2_create_database} \
+      vision_one_asrm_create_attackpath=${vision_one_asrm_create_attackpath} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-3-instances.tfvars >${configs[instances]}/terraform.tfvars
 

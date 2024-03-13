@@ -17,3 +17,6 @@ one_path = "${ONEPATH}"
 
 # XDR for Containers deployed
 # xdr_for_containers = ${xdr_for_containers}
+
+# create attack path
+create_attackpath = ${vision_one_asrm_create_attackpath}

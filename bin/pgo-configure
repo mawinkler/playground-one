@@ -32,7 +32,7 @@ function update_aws_config() {
     exit 0
   fi
 
-  key_desc="AWS region name"
+  key_desc="AWS Region Name"
   read -p "${key_desc} [${aws_region}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     aws_region=${TEMP}
@@ -65,7 +65,7 @@ function update_azure_config() {
     exit 0
   fi
 
-  key_desc="Azure region name"
+  key_desc="Azure Region Name"
   read -p "${key_desc} [${azure_region}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     azure_region=${TEMP}
@@ -95,7 +95,7 @@ function update_pgo_config() {
   #   exit 0
   # fi
 
-  key_desc="PGO environment name"
+  key_desc="PGO Environment Name"
   read -p "${key_desc} [${environment_name}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     environment_name=${TEMP}
@@ -189,7 +189,7 @@ function update_pgo_config() {
     exit 0
   fi
 
-  key_desc="EC2 - create RDS Database"
+  key_desc="RDS - create RDS Database"
   read -p "${key_desc} [${pgo_ec2_create_database}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     pgo_ec2_create_database=${TEMP}
@@ -228,7 +228,7 @@ function update_pgo_config() {
   #   exit 0
   # fi
 
-  key_desc="ECS - utilize EC2 nodes"
+  key_desc="ECS - utilize EC2 Nodes"
   read -p "${key_desc} [${pgo_ecs_create_ec2}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     pgo_ecs_create_ec2=${TEMP}
@@ -241,7 +241,7 @@ function update_pgo_config() {
     exit 0
   fi
 
-  key_desc="ECS - utilize Fargate nodes"
+  key_desc="ECS - utilize Fargate Nodes"
   read -p "${key_desc} [${pgo_ecs_create_fargate}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     pgo_ecs_create_fargate=${TEMP}
@@ -256,7 +256,7 @@ function update_pgo_config() {
 }
 
 function update_vision_one_config() {
-  printf '\n%s\n' "Please set/update your Vision One Container Security"
+  printf '\n%s\n' "Please set/update your Vision One configuration"
 
   ##
   ## Vision One
@@ -274,7 +274,7 @@ function update_vision_one_config() {
     exit 0
   fi
 
-  key_desc="Vision One region name"
+  key_desc="Vision One Region Name"
   read -p "${key_desc} [${vision_one_region}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     vision_one_region=${TEMP}
@@ -282,6 +282,22 @@ function update_vision_one_config() {
   if [[ "${vision_one_region}" =~ ^[0-9a-z\-]+$ ]]; then
     target_val=${vision_one_region} \
       yq -i '.services.vision-one.region = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  ##
+  ## Vision One Attack Surface Risk Management
+  ##
+  key_desc="Vision One ASRM - create Potential Attack Path(s)"
+  read -p "${key_desc} [${vision_one_asrm_create_attackpath}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    vision_one_asrm_create_attackpath=${TEMP}
+  fi
+  if [[ "${vision_one_asrm_create_attackpath}" =~ ^true|false$ ]]; then
+    target_val=${vision_one_asrm_create_attackpath} \
+      yq -i '.services.vision-one.asrm.create-attackpath = env(target_val)' ${ONEPATH}/config.yaml
   else
     echo "Error: Invalid ${key_desc} input."
     exit 0

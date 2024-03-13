@@ -21,3 +21,10 @@ variable "one_path" {
 # variable "xdr_for_containers" {
 #   type = bool
 # }
+
+#
+# create attack path
+#
+variable "create_attackpath" {
+  type = bool
+}

@@ -95,16 +95,14 @@ The configuration tool is devided into sections. The following chapters walk you
 Set/update:
 
 - `AWS Account ID`: The ID of your AWS subscription (just numbers no `-`). This is mandatory.
-- `AWS region name`: If you want to use another region as `eu-central-1`.
-- `AWS environment name`: Your to be built environment name. It MUST NOT be longer than 12 characters.
+- `AWS Region Name`: If you want to use another region as `eu-central-1`.
 
 ### Section: Azure
 
 Set/update:
 
 - `Azure Subscription ID`: The ID of your Azure subscription. This is mandatory.
-- `Azure region name`: If you want to use another region as `westeurope`.
-- `Azure environment name`: Your to be built environment name. It MUST NOT be longer than 12 characters.
+- `Azure Region Name`: If you want to use another region as `westeurope`.
 
 ### Section: Playground One
 
@@ -114,9 +112,10 @@ You don't necessarily need to change anything here if you're satisfied with the 
 
 Set/update:
 
+- `PGO Environment Name`: Your to be built environment name. It MUST NOT be longer than 12 characters.
 - `Access IPs/CIDRs`:
   - If you're running on a local Ubuntu server or are using Playground One Container locally (not on Cloud9), get your public IP and set the value to `<YOUR IP>/32` or type `pub` and let the config tool detect your public IP.
-  - If you're working on a Cloud9 you need enter two public IP/CIDRs separated by `,`.
+  - If you're working on a Cloud9 you need to enter a second public IP/CIDRs.
     1. Public IP from your Cloud9 or type `pub`.
     2. Public IP from your local client.  
   - If you want someone else grant access to your environment just add another IP/CIDR.
@@ -127,26 +126,30 @@ Set/update:
     - `0.0.0.0/0` *Dangerous!*
 - `EC2 - create Linux EC2`: Enable/disable Linux instances in the `ec2` configuration.
 - `EC2 - create Windows EC2`: Enable/disable Windows instances in the `ec2` configuration.
-- `ECS - utilize EC2 nodes`: Enable/disable ECS cluster with EC2 nodes.
-- `ECS - utilize Fargate nodes`: Enable/disable ECS cluster with Fargate nodes.
+- `RDS - create RDS Database`: Enable/disable creation of a RDS database
+- `ECS - utilize EC2 Nodes`: Enable/disable ECS cluster with EC2 nodes.
+- `ECS - utilize Fargate Nodes`: Enable/disable ECS cluster with Fargate nodes.
 
 > If your IP address has changed see [FAQ](../faq.md#my-ip-address-has-changed-and-i-cannot-access-my-apps-anymore).
 
-### Section: Vision One Container Security
+### Section: Vision One Configuration
 
 Set/update:
 
-- `Vision One Container Security`: Enable or disable the Container Security deployment. If set to `false` Cloud One configuration will be skipped.
 - `Vision One API Key`: Your Vision One API Key.
+- `Vision One Region Name`: Your Vision One Region.
+- `Vision One ASRM - create Potential Attack Path(s)`: Create potential attack path detections for ASRM.
+- `Vision One Container Security`: Enable or disable the Container Security deployment. If set to `false` Cloud One configuration will be skipped.
 - `Container Security Policy Name`: The name of the Policy to assign.
 
 ### Section: Integrations Configuration
 
 Set/update:
 
-- `EKS Calico`: Enable/disable the most used Pod network on your EKS cluster. It's currently disabled by default but will come shortly
-- `EKS Prometheus & Grafana`: Enable/disable Prometheus. It is an open-source systems monitoring and alerting toolkit integrated with a preconfigured Grafana.
-- `EKS Trivy`: Enable/disable Trivy vulnerability scanning for comparison.
+- `Calico`: Enable/disable the most used Pod network on your EKS cluster. It's currently disabled by default but will come shortly
+- `Prometheus & Grafana`: Enable/disable Prometheus. It is an open-source systems monitoring and alerting toolkit integrated with a preconfigured Grafana.
+- `Trivy`: Enable/disable Trivy vulnerability scanning for comparison.
+- `MetalLB`: Enable/disable MetalLB for Kind cluster.
 
 ### Section: Deep Security
 
