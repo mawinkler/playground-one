@@ -540,8 +540,8 @@ function ensure_container_engine_apt() {
   printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading Docker on linux"
   if ! command -v docker &>/dev/null; then
     # Enable Universe and Multiverse
-    sudo add-apt-repository universe
-    sudo add-apt-repository multiverse
+    sudo add-apt-repository -y universe
+    sudo add-apt-repository -y multiverse
     sudo apt-get update
     sudo apt-get install ca-certificates curl
     sudo install -m 0755 -d /etc/apt/keyrings
