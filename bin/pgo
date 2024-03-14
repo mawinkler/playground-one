@@ -26,9 +26,10 @@ fi
 # Bootstrap
 if [ ! -f "$ONEPATH/.pghome" ]; then
   curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/bootstrap.sh -o /tmp/bootstrap.sh
-  . /tmp/bootstrap.sh ${CURRENT_PATH}
+  . /tmp/bootstrap.sh $(pwd)
 
-  exit 0
+  touch /tmp/bootstrap_done
+  # exit 0
 fi
 
 #######################################

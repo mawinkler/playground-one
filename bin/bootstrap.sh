@@ -878,6 +878,8 @@ function ensure_grype_brew() {
 #######################################
 exec_start=`date +%s`
 
+touch /tmp/bootstrap_start
+
 if [[ "${SHELL}" == *"bash"* ]]; then
   ensure_bashrc
 fi
