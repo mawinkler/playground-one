@@ -1,0 +1,1307 @@
+#!/bin/bash
+
+set -e
+
+export DEBIAN_FRONTEND=noninteractive
+
+[ -f $ONEPATH/banner.txt ] && cat $ONEPATH/banner.txt
+
+# Source helpers
+if [ -f $ONEPATH/bin/playground-helpers.sh ]; then
+  .  $ONEPATH/bin/playground-helpers.sh
+else
+  curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/playground-helpers-px.sh -o /tmp/playground-helpers.sh
+  . /tmp/playground-helpers.sh
+fi
+
+# Check for dialog
+if is_linux; then
+  DIALOG_INSTALLED=$(apt -qq list dialog 2>/dev/null)
+  if [[ "$DIALOG_INSTALLED" != *"installed"* ]]; then
+    sudo apt update
+    sudo apt install -y dialog
+  fi
+fi
+
+# Bootstrap
+if [ ! -f "$ONEPATH/.pghome" ]; then
+  curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/bootstrap-px.sh -o /tmp/bootstrap.sh
+  . /tmp/bootstrap.sh $(pwd)
+
+  touch /tmp/bootstrap_done
+  # exit 0
+fi
+
+#######################################
+# Configuration Map
+# Globals:
+#   ONEPATH
+# Arguments:
+#   None
+# Outputs:
+#   configs
+#######################################
+declare -A configs
+configs=(
+  ["network"]=${ONEPATH}/awsone/2-network
+  ["instances"]=${ONEPATH}/awsone/3-instances
+  ["eks-ec2"]=${ONEPATH}/awsone/4-cluster-eks-ec2
+  ["eks-ec2-deployments"]=${ONEPATH}/awsone/8-cluster-eks-ec2-deployments
+  ["eks-fg"]=${ONEPATH}/awsone/4-cluster-eks-fargate
+  ["eks-fg-deployments"]=${ONEPATH}/awsone/8-cluster-eks-fargate-deployments
+  ["aks"]=${ONEPATH}/azone/4-cluster-aks
+  ["aks-deployments"]=${ONEPATH}/azone/8-cluster-aks-deployments
+  ["ecs"]=${ONEPATH}/awsone/5-cluster-ecs
+  ["s3scanner"]=${ONEPATH}/awsone/6-bucket-scanner
+  ["scenarios-ec2"]=${ONEPATH}/awsone/7-scenarios-ec2
+  ["scenarios-fg"]=${ONEPATH}/awsone/7-scenarios-fargate
+  ["scenarios-aks"]=${ONEPATH}/azone/7-scenarios-aks
+  ["dsm"]=${ONEPATH}/awsone/9-deep-security
+  ["dsw"]=${ONEPATH}/awsone/9-deep-security-workload
+  ["kind"]=${ONEPATH}/kindone/4-cluster-kind
+  ["kind-deployments"]=${ONEPATH}/kindone/8-cluster-kind-deployments
+)
+
+#######################################
+# Run a Terraform action
+# Globals:
+#   ONEPATH
+# Arguments:
+#   Configuration name
+#   Terraform action
+# Outputs:
+#   None
+#######################################
+function tf() {
+  config=$1
+  action=$2
+
+  cd "${configs[$config]}"
+  printf '%s\n' "Working directory: $(pwd)"
+  case "$action" in
+    init)
+      terraform init
+      ;;
+    apply)
+      terraform apply -auto-approve
+      lock $config
+      ;;
+    destroy)
+      if checklock $config ; then
+        terraform destroy -auto-approve
+      else
+        printf '%s\n' "Configuration ${config} not applied"
+      fi
+      unlock $config
+      ;;
+    output)
+      if checklock $config ; then
+        terraform output
+      else
+        printf '%s\n' "Configuration ${config} not applied"
+      fi
+      ;;
+    state)
+      terraform state list
+      ;;
+    show)
+      terraform show
+      ;;
+    validate)
+      terraform validate
+      ;;
+    erase)
+      rm -rf .terraform
+      rm -f .terraform.lock.hcl
+      rm -f terraform.tfstate*
+      unlock $config
+      ;;
+  esac
+}
+
+#######################################
+# Lock, unlock and check lock
+# a configuration
+# Globals:
+#   ONEPATH
+# Arguments:
+#   Configuration name
+# Outputs:
+#   None
+#######################################
+function lock() {
+  config=$1
+
+  touch ${ONEPATH}/.pgo.$config.lock
+}
+
+function unlock() {
+  config=$1
+
+  rm -f ${ONEPATH}/.pgo.$config.lock
+}
+
+function checklock() {
+  config=$1
+
+  if [[ -f ${ONEPATH}/.pgo.$config.lock ]] ; then
+    return
+  fi
+  false
+}
+
+#######################################
+# Check if XDR for Containers (legacy)
+# is deployed
+# Globals:
+#   ONEPATH
+# Arguments:
+#   None
+# Outputs:
+#   None
+#######################################
+function check_xdr_for_containers() {
+
+  # Checking if XDR for Containers is deployed
+  cd "${configs[network]}"
+  tf_state_vpc=$(terraform state list 2>/dev/null | grep "module.vpc.aws_vpc.vpc")
+  if [[ ! -z "${tf_state_vpc}" ]] ; then
+    vpc_id=$(terraform output -raw vpc_id)
+    subnets_createdby=$(aws ec2 describe-subnets --region ${aws_region} | \
+      jq -r --arg vpc_id "$vpc_id" '.Subnets[] |
+        select(.VpcId==$vpc_id) | .Tags[] | select(.Key=="CreatedBy") | .Value' | head -n1)
+    if [ "${subnets_createdby}" == "VisionOneXdrForContainer" ] ; then
+      printf '%s\n' "XDR for Containers is deployed in VPC ${vpc_id}"
+      return
+    else
+      printf '%s\n' "XDR for Containers is NOT deployed in VPC ${vpc_id}"
+    fi
+  fi
+  false
+}
+
+#######################################
+# Check VPC
+# Globals:
+#   ONEPATH
+# Arguments:
+#   None
+# Outputs:
+#   None
+#######################################
+function check_network() {
+
+  # Checking if XDR for Containers is deployed and update tfvars
+  # if check_xdr_for_containers ; then
+  #   xdr_for_containers=true
+  # else
+  #   xdr_for_containers=false
+  # fi
+  # aws_region=${aws_region} \
+  # environment_name=${environment_name} \
+  # pgo_access_ip=${pgo_access_ip} \
+  # xdr_for_containers=${xdr_for_containers} \
+  # ONEPATH=${ONEPATH} \
+  #   envsubst <$ONEPATH/templates/terraform-2-network.tfvars >${configs[network]}/terraform.tfvars
+
+  # Check locks
+  for config in instances eks-ec2 eks-fg ecs ; do
+    # init ${config}
+    if checklock ${config} ; then
+      printf 'Destroy %s configuration first\n' "${config}"
+      exit 0
+    fi
+  done
+}
+
+#######################################
+# Initializes Terraform and creates
+# variables.tfvars
+# Globals:
+#   ONEPATH
+# Arguments:
+#   Configuration name or all
+# Outputs:
+#   None
+#######################################
+function init() {
+
+  telemetry "init" $1
+
+  case $1 in
+    nw|network|all)
+      printf '%s\n' "Create terraform.tfvars for network"
+      # if check_xdr_for_containers ; then
+      #   xdr_for_containers=true
+      # else
+      #   xdr_for_containers=false
+      # fi
+      # xdr_for_containers=${xdr_for_containers} \
+      aws_region=${aws_region} \
+      environment_name=${environment_name} \
+      pgo_access_ip=${pgo_access_ip} \
+      vision_one_asrm_create_attackpath=${vision_one_asrm_create_attackpath} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-2-network.tfvars >${configs[network]}/terraform.tfvars
+      
+      tf network init
+      ;;&
+    ec2|instances|all)
+      printf '%s\n' "Create terraform.tfvars for instances"
+      aws_region=${aws_region} \
+      pgo_access_ip=${pgo_access_ip} \
+      environment_name=${environment_name} \
+      pgo_ec2_create_linux=${pgo_ec2_create_linux} \
+      pgo_ec2_create_windows=${pgo_ec2_create_windows} \
+      pgo_ec2_create_database=${pgo_ec2_create_database} \
+      vision_one_asrm_create_attackpath=${vision_one_asrm_create_attackpath} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-3-instances.tfvars >${configs[instances]}/terraform.tfvars
+
+      tf instances init
+      ;;&
+    eks|eks-ec2|all)
+      printf '%s\n' "Create terraform.tfvars for cluster-eks-ec2"
+      aws_region=${aws_region} \
+      environment_name=${environment_name} \
+      pgo_access_ip=${pgo_access_ip} \
+      pgo_eks_create_ec2=${pgo_eks_create_ec2} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-4-cluster-eks-ec2.tfvars >${configs[eks-ec2]}/terraform.tfvars
+      printf '%s\n' "Create terraform.tfvars for cluster-eks deployments"
+      aws_region=${aws_region} \
+      environment_name=${environment_name} \
+      pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
+      vision_one_cs_enabled=${vision_one_cs_enabled} \
+      vision_one_cs_policy=${vision_one_cs_policy} \
+      vision_one_api_key=${vision_one_api_key} \
+      vision_one_region=${vision_one_region} \
+      integrations_calico_enabled=${integrations_calico_enabled} \
+      integrations_prometheus_enabled=${integrations_prometheus_enabled} \
+      integrations_prometheus_grafana_password=${integrations_prometheus_grafana_password} \
+      integrations_trivy_enabled=${integrations_trivy_enabled} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-8-cluster-eks-ec2-deployments.tfvars >${configs[eks-ec2-deployments]}/terraform.tfvars
+
+      tf eks-ec2 init
+      tf eks-ec2-deployments init
+      ;;&
+    eks-fg|all)
+      printf '%s\n' "Create terraform.tfvars for cluster-eks-fargate"
+      aws_region=${aws_region} \
+      environment_name=${environment_name} \
+      pgo_access_ip=${pgo_access_ip} \
+      pgo_eks_create_ec2=${pgo_eks_create_ec2} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-4-cluster-eks-fargate.tfvars >${configs[eks-fg]}/terraform.tfvars
+      printf '%s\n' "Create terraform.tfvars for cluster-eks deployments"
+      aws_region=${aws_region} \
+      environment_name=${environment_name} \
+      pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
+      vision_one_cs_enabled=${vision_one_cs_enabled} \
+      vision_one_cs_policy=${vision_one_cs_policy} \
+      vision_one_api_key=${vision_one_api_key} \
+      vision_one_region=${vision_one_region} \
+      integrations_calico_enabled=${integrations_calico_enabled} \
+      integrations_prometheus_enabled=${integrations_prometheus_enabled} \
+      integrations_prometheus_grafana_password=${integrations_prometheus_grafana_password} \
+      integrations_trivy_enabled=${integrations_trivy_enabled} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-8-cluster-eks-fargate-deployments.tfvars >${configs[eks-fg-deployments]}/terraform.tfvars
+
+      tf eks-fg init
+      tf eks-fg-deployments init
+      ;;&
+    aks|all)
+      printf '%s\n' "Create terraform.tfvars for cluster-aks"
+      azure_subscription_id=${azure_subscription_id} \
+      azure_region=${azure_region} \
+      environment_name=${environment_name} \
+      pgo_access_ip=${pgo_access_ip} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-4-cluster-aks.tfvars >${configs[aks]}/terraform.tfvars
+      printf '%s\n' "Create terraform.tfvars for cluster-aks deployments"
+      azure_subscription_id=${azure_subscription_id} \
+      environment_name=${environment_name} \
+      pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
+      vision_one_cs_enabled=${vision_one_cs_enabled} \
+      vision_one_cs_policy=${vision_one_cs_policy} \
+      vision_one_api_key=${vision_one_api_key} \
+      vision_one_region=${vision_one_region} \
+      integrations_calico_enabled=${integrations_calico_enabled} \
+      integrations_prometheus_enabled=${integrations_prometheus_enabled} \
+      integrations_prometheus_grafana_password=${integrations_prometheus_grafana_password} \
+      integrations_trivy_enabled=${integrations_trivy_enabled} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-8-cluster-aks-deployments.tfvars >${configs[aks-deployments]}/terraform.tfvars
+
+      tf aks init
+      tf aks-deployments init
+      ;;&
+    ecs|all)
+      printf '%s\n' "Create terraform.tfvars for cluster-ecs"
+      aws_region=${aws_region} \
+      environment_name=${environment_name} \
+      pgo_access_ip=${pgo_access_ip} \
+      pgo_ecs_create_ec2=${pgo_ecs_create_ec2} \
+      pgo_ecs_create_fargate=${pgo_ecs_create_fargate} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-5-cluster-ecs.tfvars >${configs[ecs]}/terraform.tfvars
+
+      tf ecs init
+      ;;&
+    s3scanner|all)
+      printf '%s\n' "Create terraform.tfvars for s3scanner"
+      aws_region=${aws_region} \
+      environment_name=${environment_name} \
+      vision_one_api_key=${vision_one_api_key} \
+      vision_one_region=${vision_one_region} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-6-bucket-scanner.tfvars >${configs[s3scanner]}/terraform.tfvars
+
+      tf s3scanner init
+      ;;&
+    scenarios|scenarios-ec2|all)
+      printf '%s\n' "Create terraform.tfvars for scenarios-ec2 deployments"
+      aws_region=${aws_region} \
+      environment_name=${environment_name} \
+      pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-7-scenarios-ec2.tfvars >${configs[scenarios-ec2]}/terraform.tfvars
+
+      tf scenarios-ec2 init
+      ;;&
+    scenarios-fg|all)
+      printf '%s\n' "Create terraform.tfvars for scenarios-fg deployments"
+      aws_region=${aws_region} \
+      environment_name=${environment_name} \
+      pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-7-scenarios-fargate.tfvars >${configs[scenarios-fg]}/terraform.tfvars
+
+      tf scenarios-fg init
+      ;;&
+    scenarios-aks|all)
+      printf '%s\n' "Create terraform.tfvars for scenarios-aks deployments"
+      azure_subscription_id=${azure_subscription_id} \
+      environment_name=${environment_name} \
+      pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-7-scenarios-aks.tfvars >${configs[scenarios-aks]}/terraform.tfvars
+
+      tf scenarios-aks init
+      ;;&
+    dsm|deepsecurity|all)
+      printf '%s\n' "Create terraform.tfvars for deep security"
+      aws_region=${aws_region} \
+      environment_name=${environment_name} \
+      pgo_access_ip=${pgo_access_ip} \
+      deep_security_license=${deep_security_license} \
+      deep_security_username=${deep_security_username} \
+      deep_security_password=${deep_security_password} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-9-deep-security.tfvars >${configs[dsm]}/terraform.tfvars
+
+      tf dsm init
+      ;;&
+    dsw|all)
+      printf '%s\n' "Create terraform.tfvars for deep security workload"
+      aws_region=${aws_region} \
+      environment_name=${environment_name} \
+      pgo_access_ip=${pgo_access_ip} \
+      deep_security_license=${deep_security_license} \
+      deep_security_username=${deep_security_username} \
+      deep_security_password=${deep_security_password} \
+      pgo_ec2_create_linux=${pgo_ec2_create_linux} \
+      pgo_ec2_create_windows=${pgo_ec2_create_windows} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-9-deep-security-workload.tfvars >${configs[dsw]}/terraform.tfvars
+
+      tf dsw init
+      ;;&
+    kind|all)
+      printf '%s\n' "Create terraform.tfvars for cluster-kind"
+      environment_name=${environment_name} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-4-cluster-kind.tfvars >${configs[kind]}/terraform.tfvars
+
+      environment_name=${environment_name} \
+      vision_one_cs_enabled=${vision_one_cs_enabled} \
+      vision_one_cs_policy=${vision_one_cs_policy} \
+      vision_one_api_key=${vision_one_api_key} \
+      vision_one_region=${vision_one_region} \
+      integrations_calico_enabled=${integrations_calico_enabled} \
+      integrations_prometheus_enabled=${integrations_prometheus_enabled} \
+      integrations_prometheus_grafana_password=${integrations_prometheus_grafana_password} \
+      integrations_trivy_enabled=${integrations_trivy_enabled} \
+      integrations_metallb_enabled=${integrations_metallb_enabled} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-8-cluster-kind-deployments.tfvars >${configs[kind-deployments]}/terraform.tfvars
+
+      tf kind init
+      tf kind-deployments init
+      ;;
+  esac
+  printf '%s\n' "💬 Terraform terraform.tfvars dropped to configurations"
+}
+
+#######################################
+# Applies a Terraform configuration
+# Globals:
+#   ONEPATH
+# Arguments:
+#   Configuration name or all
+# Outputs:
+#   None
+#######################################
+function apply() {
+
+  telemetry "apply" $1
+
+  case $1 in
+    nw|network|all)
+      # check_network
+      tf network apply
+      ;;&
+    ec2|instances|all)
+      tf instances apply
+      printf '%s\n' "public_instance_password_srv1 = \"$(terraform output -raw public_instance_password_srv1)\""
+      ;;&
+    eks|eks-ec2|all)
+      tf eks-ec2 apply
+      $(terraform output -raw update_local_context_command)
+      tf eks-ec2-deployments apply
+      ;;&
+    eks-fg|all)
+      tf eks-fg apply
+      $(terraform output -raw update_local_context_command)
+      tf eks-fg-deployments apply
+      ;;&
+    aks|all)
+      tf aks apply
+      # $(terraform output -raw update_local_context_command)
+      KUBECONFIG=~/.kube/config:$ONEPATH/azone/4-cluster-aks/kubeconfig \
+        kubectl config view --flatten > /tmp/config && \
+        mv /tmp/config ~/.kube/config
+      kubectl config use-context $(terraform output -raw cluster_name)
+      tf aks-deployments apply
+      ;;&
+    ecs|all)
+      tf ecs apply
+      ;;&
+    s3scanner|all)
+      tf s3scanner apply
+      ;;&
+    scenarios|scenarios-ec2|all)
+      tf scenarios-ec2 apply
+      ;;&
+    scenarios-fg|all)
+      tf scenarios-fg apply
+      ;;&
+    scenarios-aks|all)
+      tf scenarios-aks apply
+      ;;&
+    dsm|deepsecurity|all)
+      tf dsm apply
+      ;;&
+    dsw|all)
+      tf dsw apply
+      printf '%s\n' "public_instance_password_windows1 = \"$(terraform output -raw public_instance_password_windows1)\""
+      ;;&
+    kind|all)
+      tf kind apply
+      tf kind-deployments apply
+      ;;
+  esac
+}
+
+#######################################
+# Updates the Access IP(s)
+# Globals:
+#   ONEPATH
+# Arguments:
+#   None
+# Outputs:
+#   None
+#######################################
+function update_ip() {
+  
+  key_desc="Access IPs/CIDRs"
+  pgo_access_ip=${pgo_access_ip//[\[\]\"]/}
+  read -p "${key_desc} [${pgo_access_ip}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    pgo_access_ip=${TEMP}
+  fi
+
+  n='([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])'
+  m='([0-9]|[12][0-9]|3[012])'
+  cidr_list='['
+  for cidr in $(echo ${pgo_access_ip} | tr ',' ' ')
+  do
+    # Input matches "pub", query public IP
+    if [[ "${cidr}" == "pub" ]]; then
+      cidr=$(curl -s ifconfig.me && echo)'/32'
+      printf 'Public IP/CIDR %s\n' "$cidr"
+    fi
+    # Input matches IP, append /0 or /32
+    if [[ "${cidr}" =~ ^$n(\.$n){3}$ ]]; then
+      [[ "${cidr}" == "0.0.0.0" ]] && cidr='0.0.0.0/0' || cidr=$cidr'/32'
+    fi
+    # Test for valid CIDR
+    if [[ "${cidr}" =~ ^$n(\.$n){3}/$m$ ]]; then
+      cidr_list=$cidr_list'"'$cidr'",'
+    else
+      printf 'Error: "%s" is not a valid CIDR\n' "$cidr"
+      exit 0
+    fi
+  done
+  pgo_access_ip=${cidr_list::-1}']'
+  # CIDR list correct?
+  if [[ "${pgo_access_ip}" =~ ^\[\"[0-9\.\,\/\"[:space:]]+\"\]$ ]]; then
+    target_val=${pgo_access_ip} \
+      yq -i '.services.playground-one.access-ip = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  for config in network eks-ec2 eks-fg aks ecs scenarios-ec2 scenarios-fg scenarios-aks dsm dsw ; do
+    init ${config}
+    if checklock ${config} ; then
+      apply ${config}
+    fi
+  done
+  # TODO: Add eks deployments
+}
+
+#######################################
+# Deletes computers from Deep Security
+# with Playground policy assigned
+# Globals:
+#   ONEPATH
+# Arguments:
+#   None
+# Outputs:
+#   None
+#######################################
+function deep_security_delete_computers() {
+
+  cd "${configs[dsw]}"
+  dsm_url=$(terraform output -raw dsm_url)
+  api_key=$(terraform output -raw ds_apikey)
+  linux_policy_id=$(terraform output -raw linux_policy_id)
+  windows_policy_id=$(terraform output -raw windows_policy_id)
+  computer_ids=$(curl --location -ks ${dsm_url}/api/computers/search \
+    --header 'api-version: v1' \
+    --header 'Content-Type: application/json' \
+    --header 'Accept: application/json' \
+    --header 'api-secret-key: '${api_key} \
+    --data '{
+      "searchCriteria": [
+        {
+          "fieldName": "policyID",
+          "numericTest": "equal",
+          "numericValue": "'${linux_policy_id}'"
+        }
+      ]
+    }' | jq -r '.computers[].ID')
+  for id in ${computer_ids}; do
+    printf 'Deleting Computer with ID: %s\n' "${id}"
+    curl --location -ks --request DELETE ${dsm_url}/api/computers/${id} \
+      --header 'api-version: v1' \
+      --header 'Content-Type: application/json' \
+      --header 'Accept: application/json' \
+      --header 'api-secret-key: '${api_key}
+  done
+
+  computer_ids=$(curl --location -ks ${dsm_url}/api/computers/search \
+    --header 'api-version: v1' \
+    --header 'Content-Type: application/json' \
+    --header 'Accept: application/json' \
+    --header 'api-secret-key: '${api_key} \
+    --data '{
+      "searchCriteria": [
+        {
+          "fieldName": "policyID",
+          "numericTest": "equal",
+          "numericValue": "'${windows_policy_id}'"
+        }
+      ]
+    }' | jq -r '.computers[].ID')
+  for id in ${computer_ids}; do
+    printf 'Deleting Computer with ID: %s\n' "${id}"
+    curl --location -ks --request DELETE ${dsm_url}/api/computers/${id} \
+      --header 'api-version: v1' \
+      --header 'Content-Type: application/json' \
+      --header 'Accept: application/json' \
+      --header 'api-secret-key: '${api_key}
+  done
+}
+
+#######################################
+# Destroys a Terraform configuration
+# Globals:
+#   ONEPATH
+# Arguments:
+#   Configuration name or all
+# Outputs:
+#   None
+#######################################
+function destroy() {
+
+  telemetry "destroy" $1
+
+  case $1 in
+    ec2|instances|all)
+      if checklock instances ; then
+        tf instances destroy
+      else
+        printf '%s\n' "Configuration instances is not applied"
+      fi
+      ;;&
+    eks|eks-ec2|all)
+      if checklock eks-ec2 ; then
+        cd "${configs[eks-ec2]}"
+        cluster_name=$(terraform output -raw cluster_name)
+        kubectl config use-context ${cluster_name}
+
+        tf scenarios-ec2 destroy
+
+        cd "${configs[eks-ec2-deployments]}"
+        cluster_id=$(terraform output -json cluster_id 2>/dev/null | jq -r .)
+        if [ -z "${cluster_id}" ]; then
+          printf '%s\n' "Eventually delete cluster in Vision One manually"
+        else
+          curl -fsSL -X DELETE \
+            -H "Content-Type: application/json" \
+            -H "api-version: v1" -H "Authorization: Bearer ${vision_one_api_key}" \
+            "https://api.xdr.trendmicro.com/beta/containerSecurity/kubernetesClusters/${cluster_id}"
+        fi
+
+        tf eks-ec2-deployments destroy
+        tf eks-ec2 destroy
+
+        kubectl config delete-context ${cluster_name}
+      else
+        printf '%s\n' "Configuration eks-ec2 is not applied"
+      fi
+      ;;&
+    eks-fg|all)
+      if checklock eks-fg ; then
+        cd "${configs[eks-fg]}"
+        cluster_name=$(terraform output -raw cluster_name)
+        kubectl config use-context ${cluster_name}
+
+        tf scenarios-fg destroy
+
+        cd "${configs[eks-fg-deployments]}"
+        cluster_id=$(terraform output -json cluster_id 2>/dev/null | jq -r .)
+        if [ -z "${cluster_id}" ]; then
+          printf '%s\n' "Eventually delete cluster in Vision One manually"
+        else
+          curl -fsSL -X DELETE \
+            -H "Content-Type: application/json" \
+            -H "api-version: v1" -H "Authorization: Bearer ${vision_one_api_key}" \
+            "https://api.xdr.trendmicro.com/beta/containerSecurity/kubernetesClusters/${cluster_id}"
+        fi
+        terraform destroy -auto-approve
+
+        tf eks-fg-deployments destroy
+        tf eks-fg destroy
+
+        kubectl config delete-context ${cluster_name}
+      else
+        printf '%s\n' "Configuration eks-fg is not applied"
+      fi
+      ;;&
+    aks|all)
+      if checklock aks ; then
+        cd "${configs[aks]}"
+        cluster_name=$(terraform output -raw cluster_name)
+        cluster_username=$(terraform output -raw cluster_username)
+        kubectl config use-context ${cluster_name}
+
+        tf scenarios-aks destroy
+
+        cd "${configs[aks-deployments]}"
+        cluster_id=$(terraform output -json cluster_id 2>/dev/null | jq -r .)
+        if [ -z "${cluster_id}" ]; then
+          printf '%s\n' "Eventually delete cluster in Vision One manually"
+        else
+          curl -fsSL -X DELETE \
+            -H "Content-Type: application/json" \
+            -H "api-version: v1" -H "Authorization: Bearer ${vision_one_api_key}" \
+            "https://api.xdr.trendmicro.com/beta/containerSecurity/kubernetesClusters/${cluster_id}"
+        fi
+
+        tf aks-deployments destroy
+        tf aks destroy
+
+        kubectl config delete-context ${cluster_name}
+        kubectl config delete-cluster ${cluster_name}
+        kubectl config delete-user ${cluster_username}
+      else
+        printf '%s\n' "Configuration aks is not applied"
+      fi
+      ;;&
+    ecs|all)
+      if checklock ecs ; then
+        # Workaround for Terraform bug described in FAQ
+        # Delete eventually existing autoscaling groups belonging to the ecs clusters
+        asg_groups=$(aws autoscaling describe-auto-scaling-groups --region ${aws_region} | \
+          jq -r --arg environment_name "$environment_name-ecs-" '.AutoScalingGroups[] | select(.AutoScalingGroupName | startswith($environment_name)) | .AutoScalingGroupName')
+        for group in ${asg_groups} ; do
+          printf '%s\n' "Deleting auto scaling group ${group}"
+          aws autoscaling delete-auto-scaling-group --auto-scaling-group-name ${group} --region ${aws_region} --force-delete
+        done
+        
+        # Delete eventually existing trendmicro scout service before cluster destroy
+        # ecs_fargate_cluster=$(aws ecs list-clusters | jq -r --arg environment_name "$environment_name-ecs-fargate" '.clusterArns[]' | sed 's:.*/::')
+        # if [[ "${ecs_fargate_cluster}" != "" ]] ; then
+        #   ecs_services=$(aws ecs list-services --cluster $ecs_fargate_cluster | \
+        #     jq -r --arg environment_name "$environment_name-ecs-fargate" '.serviceArns[] | select(. | endswith($environment_name) | not)' | sed 's:.*/::')
+        # fi
+        # for service in "${ecs_services}" ; do
+        #   if [[ "${service}" != "" ]] ; then
+        #     printf '%s\n' "Deleting Scout service ${service}"
+        #     aws ecs delete-service --service ${service} --cluster ${ecs_fargate_cluster} --force
+        #   fi
+        # done
+
+        tf ecs destroy
+      else
+        printf '%s\n' "Configuration ecs is not applied"
+      fi
+      ;;&
+    s3scanner|all)
+      if checklock s3scanner ; then
+        tf s3scanner destroy
+      else
+        printf '%s\n' "Configuration s3scanner is not applied"
+      fi
+      ;;&
+    dsw|all)
+      if checklock dsw ; then
+        deep_security_delete_computers
+        tf dsw destroy
+      else
+        printf '%s\n' "Configuration dsw is not applied"
+      fi
+      ;;&
+    dsm|deepsecurity|all)
+      if checklock dsm ; then
+        tf dsm destroy
+      else
+        printf '%s\n' "Configuration dsm is not applied"
+      fi
+      ;;&
+    nw|network|all)
+      if checklock network ; then
+        check_network
+        tf network destroy
+      else
+        printf '%s\n' "Configuration network is not applied"
+      fi
+      ;;
+    scenarios|scenarios-ec2)
+      if checklock scenarios-ec2 ; then
+        tf scenarios-ec2 destroy
+      else
+        printf '%s\n' "Configuration scenarios-ec2 is not applied"
+      fi
+      ;;
+    scenarios-fg)
+      if checklock scenarios-fg ; then
+        tf scenarios-fg destroy
+      else
+        printf '%s\n' "Configuration scenarios-fg is not applied"
+      fi
+      ;;
+    scenarios-aks)
+      if checklock scenarios-aks ; then
+        tf scenarios-aks destroy
+      else
+        printf '%s\n' "Configuration scenarios-aks is not applied"
+      fi
+      ;;
+    kind)
+      if checklock kind ; then
+        cd "${configs[kind-deployments]}"
+        cluster_id=$(terraform output -json cluster_id 2>/dev/null | jq -r .)
+        if [ -z "${cluster_id}" ]; then
+          printf '%s\n' "Eventually delete cluster in Vision One manually"
+        else
+          curl -fsSL -X DELETE \
+            -H "Content-Type: application/json" \
+            -H "api-version: v1" -H "Authorization: Bearer ${vision_one_api_key}" \
+            "https://api.xdr.trendmicro.com/beta/containerSecurity/kubernetesClusters/${cluster_id}"
+        fi
+        tf kind-deployments destroy
+
+        tf kind destroy
+      else
+        printf '%s\n' "Configuration kind is not applied"
+      fi
+      ;;
+  esac
+}
+
+#######################################
+# Lists Terraform outputs
+# Globals:
+#   ONEPATH
+# Arguments:
+#   Configuration name or all
+# Outputs:
+#   None
+#######################################
+function output() {
+
+  telemetry "output" $1
+
+  case $1 in
+    nw|network|all)
+      tf network output
+      ;;&
+    ec2|instances|all)
+      tf instances output
+      ;;&
+    eks|eks-ec2|all)
+      tf eks-ec2 output
+      tf eks-ec2-deployments output
+      ;;&
+    eks-fg|all)
+      tf eks-fg output
+      ;;&
+    aks|all)
+      tf aks output
+      tf aks-deployments output
+      ;;&
+    ecs|all)
+      tf ecs output
+      ;;&
+    s3scanner|all)
+      tf s3scanner output
+      ;;&
+    scenarios|scenarios-ec2|all)
+      tf scenarios-ec2 output
+      ;;&
+    scenarios-fg|all)
+      tf scenarios-fg output
+      ;;&
+    scenarios-aks|all)
+      tf scenarios-aks output
+      ;;&
+    dsm|deepsecurity|all)
+      tf dsm output
+      ;;&
+    dsw|all)
+      tf dsw output
+      ;;&
+    kind|all)
+      tf kind output
+      tf kind-deployments output
+      ;;
+  esac
+}
+
+#######################################
+# Lists applied Terraform configurations
+# Globals:
+#   ONEPATH
+# Arguments:
+#   None
+# Outputs:
+#   None
+#######################################
+function list() {
+
+  telemetry "list"
+
+  for config in "${!configs[@]}"; do
+    if checklock $config ; then
+      printf '%s\n' "Configuration ${config} is applied"
+    fi
+  done
+}
+
+#######################################
+# Shows a Terraform configuration state
+# Globals:
+#   ONEPATH
+# Arguments:
+#   Configuration name or all
+# Outputs:
+#   None
+#######################################
+function state() {
+
+  telemetry "state" $1
+
+  case $1 in
+    nw|network|all)
+      tf network state
+      ;;&
+    ec2|instances|all)
+      tf instances state
+      ;;&
+    eks|eks-ec2|all)
+      tf eks-ec2 state
+      tf eks-ec2-deployments state
+      ;;&
+    eks-fg|all)
+      tf eks-fg state
+      tf eks-fg-deployments state
+      ;;&
+    aks|all)
+      tf aks state
+      tf aks-deployments state
+      ;;&
+    ecs|all)
+      tf ecs state
+      ;;&
+    s3scanner|all)
+      tf s3scanner state
+      ;;&
+    scenarios|scenarios-ec2|all)
+      tf scenarios-ec2 state
+      ;;&
+    scenarios-fg|all)
+      tf scenarios-fg state
+      ;;&
+    scenarios-aks|all)
+      tf scenarios-aks state
+      ;;&
+    dsm|deepsecurity|all)
+      tf dsm state
+      ;;&
+    dsw|all)
+      tf dsw state
+      ;;&
+    kind|all)
+      tf kind state
+      tf kind-deployments state
+      ;;
+  esac
+}
+
+#######################################
+# Shows a Terraform configuration full
+# state
+# Globals:
+#   ONEPATH
+# Arguments:
+#   Configuration name or all
+# Outputs:
+#   None
+#######################################
+function show() {
+
+  telemetry "show" $1
+
+  case $1 in
+    nw|network|all)
+      tf network show
+      ;;&
+    ec2|instances|all)
+      tf instances show
+      ;;&
+    eks|eks-ec2|all)
+      tf eks-ec2 show
+      tf eks-ec2-deployments show
+      ;;&
+    eks-fg|all)
+      tf eks-fg show
+      tf eks-fg-deployments show
+      ;;&
+    aks|all)
+      tf aks show
+      tf aks-deployments show
+      ;;&
+    ecs|all)
+      tf ecs show
+      ;;&
+    s3scanner|all)
+      tf s3scanner show
+      ;;&
+    scenarios|scenarios-ec2|all)
+      tf scenarios-ec2 show
+      ;;&
+    scenarios-fg|all)
+      tf scenarios-fg show
+      ;;&
+    scenarios-aks|all)
+      tf scenarios-aks show
+      ;;&
+    dsm|deepsecurity|all)
+      tf dsm show
+      ;;&
+    dsw|all)
+      tf dsw show
+      ;;&
+    kind|all)
+      tf kind show
+      tf kind-deployments show
+      ;;
+  esac
+}
+
+#######################################
+# Validates a Terraform configuration
+# Globals:
+#   ONEPATH
+# Arguments:
+#   Configuration name or all
+# Outputs:
+#   None
+#######################################
+function validate() {
+
+  telemetry "validate" $1
+
+  case $1 in
+    nw|network|all)
+      tf network validate
+      ;;&
+    ec2|instances|all)
+      tf instances validate
+      ;;&
+    eks|eks-ec2|all)
+      tf eks-ec2 validate
+      tf eks-ec2-deployments validate
+      ;;&
+    eks-fg|all)
+      tf eks-fg validate
+      tf eks-fg-deployments validate
+      ;;&
+    aks|all)
+      tf aks validate
+      tf aks-deployments validate
+      ;;&
+    ecs|all)
+      tf ecs validate
+      ;;&
+    s3scanner|all)
+      tf s3scanner validate
+      ;;&
+    scenarios|scenarios-ec2|all)
+      tf scenarios-ec2 validate
+      ;;&
+    scenarios-fg|all)
+      tf scenarios-fg validate
+      ;;&
+    scenarios-aks|all)
+      tf scenarios-aks validate
+      ;;&
+    dsm|deepsecurity|all)
+      tf dsm validate
+      ;;&
+    dsw|all)
+      tf dsw validate
+      ;;&
+    kind|all)
+      tf kind validate
+      tf kind-deployments validate
+      ;;
+  esac
+}
+
+#######################################
+# Controls Colima on Darwin
+# Globals:
+#   None
+# Arguments:
+#   enable|disable
+# Outputs:
+#   None
+#######################################
+function colima-service() {
+
+  telemetry "colima-service" $1
+
+  case $1 in
+    enable|true)
+      # brew services start colima
+      colima start
+      ;;
+    disable|false)
+      # brew services stop colima
+      colima stop
+      ;;
+  esac
+}
+
+#######################################
+# Cleanup Terraform state and modules
+# Globals:
+#   None
+# Arguments:
+#   Configuration name or all
+# Outputs:
+#   None
+#######################################
+function erase() {
+
+  telemetry "cleanup" $1
+
+  case $1 in
+    nw|network|all)
+      tf network erase
+      ;;&
+    ec2|instances|all)
+      tf instances erase
+      ;;&
+    eks|eks-ec2|all)
+      tf eks-ec2 erase
+      tf eks-ec2-deployments erase
+      ;;&
+    eks-fg|all)
+      tf eks-fg erase
+      tf eks-fg-deployments erase
+      ;;&
+    aks|all)
+      tf aks erase
+      tf aks-deployments erase
+      ;;&
+    ecs|all)
+      tf ecs erase
+      ;;&
+    s3scanner|all)
+      tf s3scanner erase
+      ;;&
+    scenarios|scenarios-ec2|all)
+      tf scenarios-ec2 erase
+      ;;&
+    scenarios-fg|all)
+      tf scenarios-fg erase
+      ;;&
+    scenarios-aks|all)
+      tf scenarios-aks erase
+      ;;&
+    dsm|deepsecurity|all)
+      tf dsm erase
+      ;;&
+    dsw|all)
+      tf dsw erase
+      ;;&
+    kind|all)
+      tf kind erase
+      tf kind-deployments erase
+      ;;
+  esac
+}
+
+#######################################
+# Update Playground One and components
+# Globals:
+#   None
+# Arguments:
+#   None
+# Outputs:
+#   None
+#######################################
+function update() {
+  cd ${ONEPATH}
+  bin/bootstrap.sh
+}
+
+function helpcmd() {
+
+  printf '%s\n' "Usage: pgo -<command> <configuration> ..."
+  printf '%s\n' ""
+  printf '%s\n' "The available commands for execution are listed below."
+  printf '%s\n' "The primary workflow commands are given first, followed by"
+  printf '%s\n' "less common or more advanced commands."
+  printf '%s\n' ""
+  printf '%s\n' "Available configurations: vpc, nw, ec2, eks-ec2, eks-fg, ecs, scenarios-ec2, scenarios-fg"
+  printf '%s\n' ""
+  printf '%s\n' "Main commands:"
+  printf '%s\n' "  -c --config    Set/update Playground One main configuration"
+  printf '%s\n' "  -i --init      Prepare a configuration for other commands"
+  printf '%s\n' "  -a --apply     Create or update a configuration"
+  printf '%s\n' "  -l --list      List applied configurations"
+  printf '%s\n' "  -d --destroy   Destroy previously-created configuration"
+  printf '%s\n' "  -o --output    Show output values"
+  printf '%s\n' "  -s --state     Show the current state"
+  printf '%s\n' "  -E --erase     Cleanup Terraform state"
+  printf '%s\n' "  -h --help      Show this help"
+  printf '%s\n' ""
+  printf '%s\n' "Other commands:"
+  printf '%s\n' "  -S --show      Show advanced state"
+  printf '%s\n' "  -u --updateip  Update access IP(s)"
+  printf '%s\n' "  -U --update    Update Playground One and components"
+  printf '%s\n' "  -v --validate  Check whether the configuration is valid"
+  printf '%s\n' ""
+  printf '%s\n' "Available configurations:"
+  printf '%s\n' "  nw             Network configuration"
+  printf '%s\n' "  ec2            EC2 configuration"
+  printf '%s\n' "  eks-ec2        EKS configuration"
+  printf '%s\n' "  eks-fg         EKS configuration"
+  printf '%s\n' "  aks            AKS configuration"
+  printf '%s\n' "  ecs            ECS configurations"
+  printf '%s\n' "  s3scanner      S3 Bucket scanner"
+  printf '%s\n' "  kind           Kind configuration"
+  printf '%s\n' "  scenarios-ec2  Scenario configuration"
+  printf '%s\n' "  scenarios-fg   Scenario configuration"
+  printf '%s\n' "  scenarios-aks  Scenario configuration"
+  printf '%s\n' "  dsm            Deep Security configuration"
+  printf '%s\n' "  dsw            Deep Security Workload configuration"
+  printf '%s\n' "  all            All configurations"
+  printf '%s\n' ""
+  printf '%s\n' "Examples:"
+  printf '%s\n' "  pgo --apply nw"
+  printf '%s\n' "  pgo --state all"
+}
+
+#######################################
+# Main:
+# Manages a AWS based V1 & C1
+# demo environment
+#######################################
+[ -z "$1" ] && helpcmd
+
+if [ -f ${ONEPATH}/config.yaml ]; then
+  get_config
+fi
+
+if is_darwin; then
+  TEMP=$(/opt/homebrew/opt/gnu-getopt/bin/getopt -o ci:a:ld:o:s:S:v:uhE:C:U --long config,init:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help,erase:,colima:,update -- "$@")
+
+  if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+
+  eval set -- "$TEMP"
+else
+  TEMP=$(getopt -o ci:a:ld:o:s:S:v:uhE:U --long config,init:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help,erase:,update -- "$@")
+  if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+
+  eval set -- "$TEMP"
+fi
+# # Check if IP address changed
+# configured_cidr=${pgo_access_ip//[\[\]\"]/}
+# current_cidr=$(curl -s ifconfig.me && echo)'/32'
+# if [[ ${configured_cidr} != *"$current_cidr"* ]] ; then
+#   printf '%s\n' "!!! Access IP mismatch !!!"
+#   sleep 3
+#   exit 0
+# fi
+
+while true; do
+  case "$1" in
+    -c | --config ) pgo-configure; break ;;
+    -i | --init ) init $2; shift 2 ;;
+    -a | --apply ) apply $2; shift 2 ;;
+    -l | --list ) list; break ;;
+    -d | --destroy ) destroy $2; shift 2 ;;
+    -o | --output ) output $2; shift 2 ;;
+    -s | --state ) state $2; shift 2 ;;
+    -S | --show ) show $2; shift 2 ;;
+    -v | --validate ) validate $2; shift 2 ;;
+    -u | --updateip ) update_ip; break ;;
+    -h | --help ) helpcmd; break ;;
+    -C | --colima ) colima-service $2; shift 2 ;;
+    -E | --erase ) erase $2; shift 2 ;;
+    -U | --update ) update; break ;;
+    -- ) shift; break ;;
+    * ) break ;;
+  esac
+done
