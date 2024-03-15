@@ -49,6 +49,7 @@ Other commands:
   -u --updateip  Update access IP(s)
   -U --update    Update Playground One and components
   -v --validate  Check whether the configuration is valid
+  -p --plan      Plan apply and destroy
 
 Available configurations:
   nw             Network configuration (synonym: network)

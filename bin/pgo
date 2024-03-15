@@ -63,6 +63,18 @@ configs=(
 )
 
 #######################################
+# Run a Terraform apply and destroy as
+# plan only
+# Globals:
+#   None
+# Arguments:
+#   None
+# Outputs:
+#   None
+#######################################
+dryrun=False
+
+#######################################
 # Run a Terraform action
 # Globals:
 #   ONEPATH
@@ -83,12 +95,20 @@ function tf() {
       terraform init
       ;;
     apply)
-      terraform apply -auto-approve
+      if [ "${dryrun}" == "True" ] ; then
+        terraform plan -out=${ONEPATH}/${config}.out
+      else
+        terraform apply -auto-approve
+      fi
       lock $config
       ;;
     destroy)
       if checklock $config ; then
+      if [ "${dryrun}" == "False" ] ; then
+        terraform plan -out=${ONEPATH}/${config}.out
+      else
         terraform destroy -auto-approve
+      fi
       else
         printf '%s\n' "Configuration ${config} not applied"
       fi
@@ -1231,6 +1251,7 @@ function helpcmd() {
   printf '%s\n' "  -u --updateip  Update access IP(s)"
   printf '%s\n' "  -U --update    Update Playground One and components"
   printf '%s\n' "  -v --validate  Check whether the configuration is valid"
+  printf '%s\n' "  -p --plan      Plan apply and destroy"
   printf '%s\n' ""
   printf '%s\n' "Available configurations:"
   printf '%s\n' "  nw             Network configuration"
@@ -1265,13 +1286,13 @@ if [ -f ${ONEPATH}/config.yaml ]; then
 fi
 
 if is_darwin; then
-  TEMP=$(/opt/homebrew/opt/gnu-getopt/bin/getopt -o ci:a:ld:o:s:S:v:uhE:C:U --long config,init:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help,erase:,colima:,update -- "$@")
+  TEMP=$(/opt/homebrew/opt/gnu-getopt/bin/getopt -o pci:a:ld:o:s:S:v:uhE:C:U --long plan,config,init:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help,erase:,colima:,update -- "$@")
 
   if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 
   eval set -- "$TEMP"
 else
-  TEMP=$(getopt -o ci:a:ld:o:s:S:v:uhE:U --long config,init:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help,erase:,update -- "$@")
+  TEMP=$(getopt -o pci:a:ld:o:s:S:v:uhE:U --long plan,config,init:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help,erase:,update -- "$@")
   if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 
   eval set -- "$TEMP"
@@ -1287,6 +1308,7 @@ fi
 
 while true; do
   case "$1" in
+    -p | --plan ) dryrun=True; shift 1 ;;
     -c | --config ) pgo-configure; break ;;
     -i | --init ) init $2; shift 2 ;;
     -a | --apply ) apply $2; shift 2 ;;
