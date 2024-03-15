@@ -724,7 +724,6 @@ function destroy() {
             -H "api-version: v1" -H "Authorization: Bearer ${vision_one_api_key}" \
             "https://api.xdr.trendmicro.com/beta/containerSecurity/kubernetesClusters/${cluster_id}"
         fi
-        terraform destroy -auto-approve
 
         tf eks-fg-deployments destroy
         tf eks-fg destroy
