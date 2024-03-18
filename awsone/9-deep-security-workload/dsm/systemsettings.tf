@@ -13,7 +13,8 @@ resource "restapi_object" "systemsettings" {
     {
       "platformSettingAgentInitiatedActivationEnabled": { "value": "For any computers" },
       "platformSettingWindowsUpgradeOnActivationEnabled": { "value": "true" },
-      "platformSettingLinuxUpgradeOnActivationEnabled": { "value": "true" }
+      "platformSettingLinuxUpgradeOnActivationEnabled": { "value": "true" },
+      "platformSettingApiSoapWebServiceEnabled": { "value": "true" },
     }
   EOT
 
