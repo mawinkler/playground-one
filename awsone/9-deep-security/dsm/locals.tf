@@ -44,17 +44,34 @@ locals {
     sed -i '/^AddressAndPortsScreen.ManagerAddress=/ s/$/&'$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)'/' /home/ec2-user/dsm.properties
 
     # Download Agent Installers
-    curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/20.0/Manager-Linux-20.0.844.x64.sh -o /home/ec2-user/dsm_install.sh
+    # curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/20.0/Manager-Linux-20.0.844.x64.sh -o /home/ec2-user/dsm_install.sh
+    curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/20.0/Manager-Linux-20.0.883.x64.sh -o /home/ec2-user/dsm_install.sh
 
-    curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2-20.0.0-8268.aarch64.zip -O
-    curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2-20.0.0-8268.x86_64.zip -O
-    curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2023-20.0.0-8268.aarch64.zip -O
-    curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2023-20.0.0-8268.x86_64.zip -O
-    curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_20.04-20.0.0-8268.aarch64.zip -O
-    curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_20.04-20.0.0-8268.x86_64.zip -O
-    curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_22.04-20.0.0-8268.aarch64.zip -O
-    curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_22.04-20.0.0-8268.x86_64.zip -O
-    curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Windows-20.0.0-8268.x86_64.zip -O
+    agents='
+      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2-20.0.1-3180.aarch64.zip
+      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2-20.0.1-3180.x86_64.zip
+      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2023-20.0.1-3180.aarch64.zip
+      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2023-20.0.1-3180.x86_64.zip
+      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_20.04-20.0.1-3180.aarch64.zip
+      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_20.04-20.0.1-3180.x86_64.zip
+      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_22.04-20.0.1-3180.aarch64.zip
+      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_22.04-20.0.1-3180.x86_64.zip
+      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Windows-20.0.1-3180.x86_64.zip
+    '
+    
+    for agent in $agents; do
+      curl -fsSL $agent -O
+    done
+
+    # curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2-20.0.0-8268.aarch64.zip -O
+    # curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2-20.0.0-8268.x86_64.zip -O
+    # curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2023-20.0.0-8268.aarch64.zip -O
+    # curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2023-20.0.0-8268.x86_64.zip -O
+    # curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_20.04-20.0.0-8268.aarch64.zip -O
+    # curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_20.04-20.0.0-8268.x86_64.zip -O
+    # curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_22.04-20.0.0-8268.aarch64.zip -O
+    # curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_22.04-20.0.0-8268.x86_64.zip -O
+    # curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Windows-20.0.0-8268.x86_64.zip -O
 
     # Install Deep Security Manager
     chmod +x /home/ec2-user/dsm_install.sh
