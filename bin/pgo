@@ -88,49 +88,49 @@ function tf() {
   config=$1
   action=$2
 
-  cd "${configs[$config]}"
-  printf '%s\n' "Working directory: $(pwd)"
+  printf '%s\n' "Configuration ${config} in directory ${configs[$config]}"
   case "$action" in
     init)
-      terraform init
+      terraform -chdir=${configs[$config]} init
       ;;
     apply)
       if [ "${dryrun}" == "True" ] ; then
-        terraform plan -out=${ONEPATH}/${config}.out
+        terraform -chdir=${configs[$config]} plan -out=${ONEPATH}/${config}.out
       else
-        terraform apply -auto-approve
+        terraform -chdir=${configs[$config]} apply -auto-approve
+        lock $config
       fi
-      lock $config
       ;;
     destroy)
       if checklock $config ; then
-      if [ "${dryrun}" == "False" ] ; then
-        terraform plan -out=${ONEPATH}/${config}.out
+      if [ "${dryrun}" == "True" ] ; then
+        terraform -chdir=${configs[$config]} plan -out=${ONEPATH}/${config}.out
       else
-        terraform destroy -auto-approve
+        terraform -chdir=${configs[$config]} destroy -auto-approve
+        unlock $config
       fi
       else
         printf '%s\n' "Configuration ${config} not applied"
       fi
-      unlock $config
       ;;
     output)
       if checklock $config ; then
-        terraform output
+        terraform -chdir=${configs[$config]} output
       else
         printf '%s\n' "Configuration ${config} not applied"
       fi
       ;;
     state)
-      terraform state list
+      terraform -chdir=${configs[$config]} state list
       ;;
     show)
-      terraform show
+      terraform -chdir=${configs[$config]} show
       ;;
     validate)
-      terraform validate
+      terraform -chdir=${configs[$config]} validate
       ;;
     erase)
+      cd "${configs[$config]}"
       rm -rf .terraform
       rm -f .terraform.lock.hcl
       rm -f terraform.tfstate*
@@ -183,10 +183,10 @@ function checklock() {
 function check_xdr_for_containers() {
 
   # Checking if XDR for Containers is deployed
-  cd "${configs[network]}"
-  tf_state_vpc=$(terraform state list 2>/dev/null | grep "module.vpc.aws_vpc.vpc")
+  # cd "${configs[network]}"
+  tf_state_vpc=$(terraform -chdir=${configs[network]} state list 2>/dev/null | grep "module.vpc.aws_vpc.vpc")
   if [[ ! -z "${tf_state_vpc}" ]] ; then
-    vpc_id=$(terraform output -raw vpc_id)
+    vpc_id=$(terraform -chdir=${configs[network]} output -raw vpc_id)
     subnets_createdby=$(aws ec2 describe-subnets --region ${aws_region} | \
       jq -r --arg vpc_id "$vpc_id" '.Subnets[] |
         select(.VpcId==$vpc_id) | .Tags[] | select(.Key=="CreatedBy") | .Value' | head -n1)
@@ -485,25 +485,25 @@ function apply() {
       ;;&
     ec2|instances|all)
       tf instances apply
-      printf '%s\n' "public_instance_password_srv1 = \"$(terraform output -raw public_instance_password_srv1)\""
+      printf '%s\n' "public_instance_password_srv1 = \"$(terraform -chdir=${configs[instances]} output -raw public_instance_password_srv1)\""
       ;;&
     eks|eks-ec2|all)
       tf eks-ec2 apply
-      $(terraform output -raw update_local_context_command)
+      $(terraform -chdir=${configs[eks-ec2]} output -raw update_local_context_command)
       tf eks-ec2-deployments apply
       ;;&
     eks-fg|all)
       tf eks-fg apply
-      $(terraform output -raw update_local_context_command)
+      $(terraform -chdir=${configs[eks-fg]} output -raw update_local_context_command)
       tf eks-fg-deployments apply
       ;;&
     aks|all)
       tf aks apply
-      # $(terraform output -raw update_local_context_command)
-      KUBECONFIG=~/.kube/config:$ONEPATH/azone/4-cluster-aks/kubeconfig \
+      # $(terraform -chdir=${configs[aks]} output -raw update_local_context_command)
+      KUBECONFIG=~/.kube/config:${configs[aks]}/kubeconfig \
         kubectl config view --flatten > /tmp/config && \
         mv /tmp/config ~/.kube/config
-      kubectl config use-context $(terraform output -raw cluster_name)
+      kubectl config use-context $(terraform -chdir=${configs[aks]} output -raw cluster_name)
       tf aks-deployments apply
       ;;&
     ecs|all)
@@ -526,7 +526,7 @@ function apply() {
       ;;&
     dsw|all)
       tf dsw apply
-      printf '%s\n' "public_instance_password_windows1 = \"$(terraform output -raw public_instance_password_windows1)\""
+      printf '%s\n' "public_instance_password_windows1 = \"$(terraform -chdir=${configs[dsw]} output -raw public_instance_password_windows1)\""
       ;;&
     kind|all)
       tf kind apply
@@ -606,11 +606,11 @@ function update_ip() {
 #######################################
 function deep_security_delete_computers() {
 
-  cd "${configs[dsw]}"
-  dsm_url=$(terraform output -raw dsm_url)
-  api_key=$(terraform output -raw ds_apikey)
-  linux_policy_id=$(terraform output -raw linux_policy_id)
-  windows_policy_id=$(terraform output -raw windows_policy_id)
+  # cd "${configs[dsw]}"
+  dsm_url=$(terraform -chdir=${configs[dsw]} output -raw dsm_url)
+  api_key=$(terraform -chdir=${configs[dsw]} output -raw ds_apikey)
+  linux_policy_id=$(terraform -chdir=${configs[dsw]} output -raw linux_policy_id)
+  windows_policy_id=$(terraform -chdir=${configs[dsw]} output -raw windows_policy_id)
   computer_ids=$(curl --location -ks ${dsm_url}/api/computers/search \
     --header 'api-version: v1' \
     --header 'Content-Type: application/json' \
@@ -681,14 +681,14 @@ function destroy() {
       ;;&
     eks|eks-ec2|all)
       if checklock eks-ec2 ; then
-        cd "${configs[eks-ec2]}"
-        cluster_name=$(terraform output -raw cluster_name)
+        # cd "${configs[eks-ec2]}"
+        cluster_name=$(terraform -chdir=${configs[eks-ec2]} output -raw cluster_name)
         kubectl config use-context ${cluster_name}
 
         tf scenarios-ec2 destroy
 
-        cd "${configs[eks-ec2-deployments]}"
-        cluster_id=$(terraform output -json cluster_id 2>/dev/null | jq -r .)
+        # cd "${configs[eks-ec2-deployments]}"
+        cluster_id=$(terraform -chdir=${configs[eks-ec2-deployments]} output -json cluster_id 2>/dev/null | jq -r .)
         if [ -z "${cluster_id}" ]; then
           printf '%s\n' "Eventually delete cluster in Vision One manually"
         else
@@ -708,14 +708,14 @@ function destroy() {
       ;;&
     eks-fg|all)
       if checklock eks-fg ; then
-        cd "${configs[eks-fg]}"
-        cluster_name=$(terraform output -raw cluster_name)
+        # cd "${configs[eks-fg]}"
+        cluster_name=$(terraform -chdir=${configs[eks-fg]} output -raw cluster_name)
         kubectl config use-context ${cluster_name}
 
         tf scenarios-fg destroy
 
-        cd "${configs[eks-fg-deployments]}"
-        cluster_id=$(terraform output -json cluster_id 2>/dev/null | jq -r .)
+        # cd "${configs[eks-fg-deployments]}"
+        cluster_id=$(terraform -chdir=${configs[eks-fg-deployments]} output -json cluster_id 2>/dev/null | jq -r .)
         if [ -z "${cluster_id}" ]; then
           printf '%s\n' "Eventually delete cluster in Vision One manually"
         else
@@ -735,15 +735,15 @@ function destroy() {
       ;;&
     aks|all)
       if checklock aks ; then
-        cd "${configs[aks]}"
-        cluster_name=$(terraform output -raw cluster_name)
-        cluster_username=$(terraform output -raw cluster_username)
+        # cd "${configs[aks]}"
+        cluster_name=$(terraform -chdir=${configs[aks]} output -raw cluster_name)
+        cluster_username=$(terraform -chdir=${configs[aks]} output -raw cluster_username)
         kubectl config use-context ${cluster_name}
 
         tf scenarios-aks destroy
 
-        cd "${configs[aks-deployments]}"
-        cluster_id=$(terraform output -json cluster_id 2>/dev/null | jq -r .)
+        # cd "${configs[aks-deployments]}"
+        cluster_id=$(terraform -chdir=${configs[aks-deployments]} output -json cluster_id 2>/dev/null | jq -r .)
         if [ -z "${cluster_id}" ]; then
           printf '%s\n' "Eventually delete cluster in Vision One manually"
         else
@@ -845,8 +845,8 @@ function destroy() {
       ;;
     kind)
       if checklock kind ; then
-        cd "${configs[kind-deployments]}"
-        cluster_id=$(terraform output -json cluster_id 2>/dev/null | jq -r .)
+        # cd "${configs[kind-deployments]}"
+        cluster_id=$(terraform -chdir=${configs[kind-deployments]} output -json cluster_id 2>/dev/null | jq -r .)
         if [ -z "${cluster_id}" ]; then
           printf '%s\n' "Eventually delete cluster in Vision One manually"
         else
