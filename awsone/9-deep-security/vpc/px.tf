@@ -29,6 +29,7 @@ resource "aws_vpc_endpoint" "endpoint_interface" {
 #         VPCRegion: 'us-east-1'
 resource "aws_route53_zone" "route53_hosted_zone" {
   name = "licenseupdate.trendmicro.com"
+
   vpc {
     vpc_id     = module.vpc.vpc_id
     vpc_region = "us-east-1"
@@ -51,6 +52,7 @@ resource "aws_route53_record" "licenseupdate_dns" {
   zone_id    = aws_route53_zone.route53_hosted_zone.zone_id
   name       = "licenseupdate.trendmicro.com"
   type       = "A"
+
   alias {
     zone_id                = aws_vpc_endpoint.endpoint_interface.dns_entry[0].hosted_zone_id
     name                   = aws_vpc_endpoint.endpoint_interface.dns_entry[0].dns_name
@@ -72,9 +74,10 @@ resource "aws_security_group" "epi_security_group" {
   name        = "epi-sg"
   description = "Enable inbound license check from deep security"
   vpc_id      = module.vpc.vpc_id
+
   ingress {
-    from_port   = 80
-    to_port     = 80
+    from_port   = 443
+    to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["10.0.0.0/24"]
   }
