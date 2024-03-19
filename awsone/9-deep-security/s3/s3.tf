@@ -8,7 +8,8 @@ resource "random_string" "random_suffix" {
 }
 
 resource "aws_s3_bucket" "playground_awsone" {
-  bucket = "playground-awsone-${random_string.random_suffix.result}"
+  bucket        = "playground-awsone-${random_string.random_suffix.result}"
+  force_destroy = true
 
   tags = {
     Name          = "${var.environment}-s3-bucket"
