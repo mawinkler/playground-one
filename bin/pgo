@@ -97,8 +97,8 @@ function tf() {
       if [ "${dryrun}" == "True" ] ; then
         terraform -chdir=${configs[$config]} plan -out=${ONEPATH}/${config}.out
       else
-        terraform -chdir=${configs[$config]} apply -auto-approve
         lock $config
+        terraform -chdir=${configs[$config]} apply -auto-approve
       fi
       ;;
     destroy)
