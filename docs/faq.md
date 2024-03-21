@@ -139,3 +139,30 @@ helm get values --namespace trendmicro-system container-security | helm upgrade 
     --values - \
     https://github.com/trendmicro/cloudone-container-security-helm/archive/master.tar.gz
 ```
+
+## AWS EC2 Instance Connect does not work from the AWS EC2 Console
+
+EC2 Instance Connect uses specific IP address ranges for browser-based SSH connections to your instance (when users use the Amazon EC2 console to connect to an instance). These IP address ranges are documented [here](https://ip-ranges.amazonaws.com/ip-ranges.json).
+
+To filter this large list for instance connect run:
+
+```sh
+jq '.prefixes[] | select(.service=="EC2_INSTANCE_CONNECT") | .' ip-ranges.json
+```
+
+Currently, Playground One does only allow Instance Connect from the following regions:
+
+Region | IP address range
+------ | ----------------
+eu-central-1 | 3.120.181.40/29
+eu-west-1 | 18.202.216.48/29
+eu-west-2 | 3.8.37.24/29
+eu-west-3 | 35.180.112.80/29
+eu-north-1 | 13.48.4.200/30
+us-east-1 | 18.206.107.24/29
+us-east-2 | 3.16.146.0/29
+us-west-1 | 13.52.6.112/29
+us-west-2 | 18.237.140.160/29
+```
+
+If you need any other reagion, please let me know.
