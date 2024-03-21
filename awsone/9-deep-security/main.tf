@@ -3,6 +3,7 @@ module "vpc" {
 
   access_ip   = var.access_ip
   environment = var.environment
+  px          = var.px
 }
 
 module "ec2" {

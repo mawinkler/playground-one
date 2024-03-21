@@ -163,6 +163,19 @@ function update_pgo_config() {
   ##
   ## Booleans
   ##
+  key_desc="Running in Product Experience"
+  read -p "${key_desc} [${pgo_px}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    pgo_px=${TEMP}
+  fi
+  if [[ "${pgo_px}" =~ ^true|false$ ]]; then
+    target_val=${pgo_px} \
+      yq -i '.services.playground-one.px = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
   key_desc="EC2 - create Linux EC2"
   read -p "${key_desc} [${pgo_ec2_create_linux}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then

@@ -46,3 +46,10 @@ variable "rds_name" {
 variable "rds_username" {
   type = string
 }
+
+#
+# Use PX License Server
+#
+variable "px" {
+  type = bool
+}

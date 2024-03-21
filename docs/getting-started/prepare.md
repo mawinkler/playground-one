@@ -193,6 +193,18 @@ Then, continue with [Configuration](configuration.md).
 
 ## Change Log
 
+### 0.2.5 (03/21/2024)
+
+Playground One is now included in Trend Micro Product Experience.
+
+#### Changes
+
+- Enabled EC2 Instance Connect via Console to EC2 instances for some regions. See [FAQ](https://mawinkler.github.io/playground-one-pages/faq/).
+- Playground One is now able to run on Trend Micro Platform Experience. Ensure to enable it in the configuration.
+- Deep Security now has SOAP API enabled.
+- Upgraded Deep Security Manager and Agents to versions as of 03/18/2023.
+- Added dryrun capability for apply and destroy in CLI.
+
 ### 0.2.4 (03/13/2024)
 
 #### Changes

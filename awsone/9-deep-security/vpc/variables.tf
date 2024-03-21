@@ -4,3 +4,5 @@
 variable "environment" {}
 
 variable "access_ip" {}
+
+variable "px" {}

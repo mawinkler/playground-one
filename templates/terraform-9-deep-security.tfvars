@@ -23,3 +23,6 @@ dsm_password = "${deep_security_password}"
 # Deep Security Database
 rds_name = "deepsecurity"
 rds_username = "dsm"
+
+# Use PX License Server
+px = ${px}

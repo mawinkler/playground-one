@@ -12,6 +12,8 @@
 #       VpcEndpointType: "Interface"
 #       VpcId: !Ref VPC
 resource "aws_vpc_endpoint" "endpoint_interface" {
+  count = var.px ? 1 : 0
+
   vpc_id             = module.vpc.vpc_id
   service_name       = "com.amazonaws.vpce.us-east-1.vpce-svc-0e576abdce6c1b866"
   vpc_endpoint_type  = "Interface"
@@ -28,6 +30,8 @@ resource "aws_vpc_endpoint" "endpoint_interface" {
 #         VPCId: !Ref VPC
 #         VPCRegion: 'us-east-1'
 resource "aws_route53_zone" "route53_hosted_zone" {
+  count = var.px ? 1 : 0
+
   name = "licenseupdate.trendmicro.com"
 
   vpc {
@@ -48,14 +52,16 @@ resource "aws_route53_zone" "route53_hosted_zone" {
 #           DNSName: !Select ['1', !Split [':', !Select ['0', !GetAtt EndpointInterface.DnsEntries]]]
 #     DependsOn: Route53HostedZone    
 resource "aws_route53_record" "licenseupdate_dns" {
+  count = var.px ? 1 : 0
+
   depends_on = [aws_route53_zone.route53_hosted_zone]
-  zone_id    = aws_route53_zone.route53_hosted_zone.zone_id
+  zone_id    = aws_route53_zone.route53_hosted_zone[0].zone_id
   name       = "licenseupdate.trendmicro.com"
   type       = "A"
 
   alias {
-    zone_id                = aws_vpc_endpoint.endpoint_interface.dns_entry[0].hosted_zone_id
-    name                   = aws_vpc_endpoint.endpoint_interface.dns_entry[0].dns_name
+    zone_id                = aws_vpc_endpoint.endpoint_interface[0].dns_entry[0].hosted_zone_id
+    name                   = aws_vpc_endpoint.endpoint_interface[0].dns_entry[0].dns_name
     evaluate_target_health = false
   }
 }

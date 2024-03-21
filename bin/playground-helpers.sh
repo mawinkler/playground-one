@@ -376,6 +376,7 @@ function get_config() {
 
     # Playground One
     pgo_access_ip="$(yq '.services.playground-one.access-ip' $ONEPATH/config.yaml)"
+    pgo_px="$(yq '.services.playground-one.px' $ONEPATH/config.yaml)"
     pgo_ec2_create_linux="$(yq '.services.playground-one.ec2.create-linux' $ONEPATH/config.yaml)"
     pgo_ec2_create_windows="$(yq '.services.playground-one.ec2.create-windows' $ONEPATH/config.yaml)"
     pgo_ec2_create_database="$(yq '.services.playground-one.ec2.create-database' $ONEPATH/config.yaml)"
@@ -384,6 +385,7 @@ function get_config() {
     pgo_ecs_create_ec2="$(yq '.services.playground-one.ecs.create-ec2' $ONEPATH/config.yaml)"
     pgo_ecs_create_fargate="$(yq '.services.playground-one.ecs.create-fargate' $ONEPATH/config.yaml)"
     [[ "${pgo_access_ip}" = "null" || "${pgo_access_ip}" = "" ]] && pgo_access_ip=[\"0.0.0.0/0\"]
+    [[ "${pgo_px}" = "null" || "${pgo_px}" = "" ]] && pgo_px=false
     [[ "${pgo_ec2_create_linux}" = "null" || "${pgo_ec2_create_linux}" = "" ]] && pgo_ec2_create_linux=true
     [[ "${pgo_ec2_create_windows}" = "null" || "${pgo_ec2_create_windows}" = "" ]] && pgo_ec2_create_windows=true
     [[ "${pgo_ec2_create_database}" = "null" || "${pgo_ec2_create_database}" = "" ]] && pgo_ec2_create_database=false
