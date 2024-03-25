@@ -24,8 +24,8 @@ archive=TMServerAgent_Linux.tar
 
 /usr/local/bin/aws s3 cp s3://${s3_bucket}/download/$archive ~/download/$archive
 
-if [ -f "${archive}" ]; then
-    tar xf ${archive}
+if [ -f "$archive" ]; then
+    tar xf $archive
     sudo ./tmxbc install
 fi
 EOF

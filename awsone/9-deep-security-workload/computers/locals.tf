@@ -20,5 +20,6 @@ locals {
       windows_password = random_password.windows_password.result
       windows_policy_id = var.windows_policy_id
       public_key = var.public_key
+      s3_bucket = var.s3_bucket
   })
 }

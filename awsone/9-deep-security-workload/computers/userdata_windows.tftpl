@@ -240,9 +240,7 @@ if (!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]
 
 $archive="TMServerAgent_Windows.zip"
 
-Copy-S3Object -BucketName ${s3_bucket} -Key $archive -LocalFile $HOME/Downloads/$archive
-
-Copy-S3Object -BucketName playground-awsone-gx8xglnj -Key $archive -LocalFile $HOME/Downloads/$archive
+Copy-S3Object -BucketName ${s3_bucket} -Key download/$archive -LocalFile $HOME/Downloads/$archive
 
 if (Test-Path $archive) {
 
