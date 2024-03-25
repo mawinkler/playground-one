@@ -1,34 +1,30 @@
 # #############################################################################
 # Platform Experience Licensing Server
 # #############################################################################
-#   EndpointInterface:
-#     Type: AWS::EC2::VPCEndpoint
-#     Properties:
-#       SecurityGroupIds: 
-#         - !Ref epiSecurityGroup
-#       ServiceName: "com.amazonaws.vpce.us-east-1.vpce-svc-0e576abdce6c1b866"
-#       SubnetIds: 
-#         - !Ref PublicSubnet # change with your deep security instance subnet if needed
-#       VpcEndpointType: "Interface"
-#       VpcId: !Ref VPC
+# Find the public subnet in availability zone id use1-az1
+data "aws_subnet" "subnet_use1_az1" {
+  depends_on = [module.vpc.public_subnets]
+
+  filter {
+    name   = "availability-zone-id"
+    values = ["use1-az1"]
+  }
+  filter {
+    name   = "tag:public"
+    values = ["1"]
+  }
+}
+
 resource "aws_vpc_endpoint" "endpoint_interface" {
   count = var.px ? 1 : 0
 
   vpc_id             = module.vpc.vpc_id
   service_name       = "com.amazonaws.vpce.us-east-1.vpce-svc-0e576abdce6c1b866"
   vpc_endpoint_type  = "Interface"
-  subnet_ids         = [module.vpc.public_subnets[0]]
+  subnet_ids         = [data.aws_subnet.subnet_use1_az1.id]
   security_group_ids = [aws_security_group.epi_security_group.id]
 }
 
-#   Route53HostedZone:
-#     Type: "AWS::Route53::HostedZone"
-#     Properties: 
-#       Name: 'licenseupdate.trendmicro.com'
-#       VPCs: 
-#       - 
-#         VPCId: !Ref VPC
-#         VPCRegion: 'us-east-1'
 resource "aws_route53_zone" "route53_hosted_zone" {
   count = var.px ? 1 : 0
 
@@ -40,17 +36,6 @@ resource "aws_route53_zone" "route53_hosted_zone" {
   }
 }
 
-#   myDNS:
-#     Type: AWS::Route53::RecordSetGroup
-#     Properties:
-#       HostedZoneName: licenseupdate.trendmicro.com.
-#       RecordSets:
-#       - Name: licenseupdate.trendmicro.com.
-#         Type: A
-#         AliasTarget:
-#           HostedZoneId: !Select ['0', !Split [':', !Select ['0', !GetAtt EndpointInterface.DnsEntries]]]
-#           DNSName: !Select ['1', !Split [':', !Select ['0', !GetAtt EndpointInterface.DnsEntries]]]
-#     DependsOn: Route53HostedZone    
 resource "aws_route53_record" "licenseupdate_dns" {
   count = var.px ? 1 : 0
 
@@ -66,16 +51,6 @@ resource "aws_route53_record" "licenseupdate_dns" {
   }
 }
 
-#   epiSecurityGroup:
-#     Type: AWS::EC2::SecurityGroup
-#     Properties:
-#       GroupDescription: Enable inbound license check from deep security
-#       SecurityGroupIngress:
-#         - IpProtocol: tcp
-#           FromPort: '80'
-#           ToPort: '80'
-#           CidrIp: 10.0.1.0/24 # change with your deep security subnet CIDR if needed
-#       VpcId: !Ref VPC
 resource "aws_security_group" "epi_security_group" {
   name        = "epi-sg"
   description = "Enable inbound license check from deep security"

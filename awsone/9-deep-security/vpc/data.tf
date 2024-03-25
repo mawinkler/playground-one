@@ -1,4 +1,9 @@
 ################################################################################
 # Data
 ################################################################################
-data "aws_availability_zones" "available" {}
+data "aws_availability_zones" "available" {
+  filter {
+    name   = "zone-id"
+    values = ["use1-az1", "use1-az2"]
+  }
+}

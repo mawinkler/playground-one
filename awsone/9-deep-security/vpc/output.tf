@@ -5,6 +5,14 @@ output "vpc_id" {
   value = module.vpc.vpc_id
 }
 
+# output "azs" {
+#   value = local.azs
+# }
+
+# output "azs_available" {
+#   value = data.aws_availability_zones.available
+# }
+
 output "public_subnets" {
   value = module.vpc.public_subnets
 }
