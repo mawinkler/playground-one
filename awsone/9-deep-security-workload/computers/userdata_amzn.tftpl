@@ -14,6 +14,24 @@ mkdir -p /home/${linux_username_amzn}/download
 aws s3 cp s3://${s3_bucket}/download /home/${linux_username_amzn}/download --recursive
 chown ${linux_username_amzn}.${linux_username_amzn} -R /home/${linux_username_amzn}/download
 
+cat << EOF > /home/${linux_username_amzn}/TMServerAgent_Linux_deploy.sh
+#!/bin/bash
+
+cd ~/download
+
+archive=TMServerAgent_Linux.tar
+
+/usr/local/bin/aws s3 cp s3://${s3_bucket}/download/$archive ~/download/$archive
+
+if [ -f "${archive}" ]; then
+    tar xf ${archive}
+    sudo ./tmxbc install
+fi
+EOF
+
+chmod +x /home/${linux_username_amzn}/TMServerAgent_Linux_deploy.sh
+chown ${linux_username_amzn}.${linux_username_amzn} /home/${linux_username_amzn}/TMServerAgent_Linux_deploy.sh
+
 # Deep Security Agent
 ACTIVATIONURL='dsm://10.0.0.100:4120/'
 MANAGERURL='https://10.0.0.100:4119'
