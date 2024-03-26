@@ -4,6 +4,7 @@
 # Find the public subnet in availability zone id use1-az1
 data "aws_subnet" "subnet_use1_az1" {
   depends_on = [module.vpc.public_subnets]
+  count      = var.px ? 1 : 0
 
   filter {
     name   = "availability-zone-id"
@@ -21,7 +22,7 @@ resource "aws_vpc_endpoint" "endpoint_interface" {
   vpc_id             = module.vpc.vpc_id
   service_name       = "com.amazonaws.vpce.us-east-1.vpce-svc-0e576abdce6c1b866"
   vpc_endpoint_type  = "Interface"
-  subnet_ids         = [data.aws_subnet.subnet_use1_az1.id]
+  subnet_ids         = [data.aws_subnet.subnet_use1_az1[0].id]
   security_group_ids = [aws_security_group.epi_security_group.id]
 }
 
