@@ -918,7 +918,7 @@ function output() {
       ;;&
     dsw|all)
       tf dsw output
-      printf '%s\n' "public_instance_password_srv1 = $(terraform -chdir=${configs[dsw]} output -raw public_instance_password_windows1)"
+      printf '%s\n' "public_instance_password_windows1 = $(terraform -chdir=${configs[dsw]} output -raw public_instance_password_windows1)"
       ;;&
     kind|all)
       tf kind output
