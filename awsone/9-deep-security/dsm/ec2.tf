@@ -19,6 +19,10 @@ resource "aws_instance" "dsm" {
   iam_instance_profile = var.ec2_profile
   key_name             = var.key_name
 
+  root_block_device {
+    volume_size           = 20
+  }
+
   network_interface {
     network_interface_id = aws_network_interface.dsm.id
     device_index         = 0

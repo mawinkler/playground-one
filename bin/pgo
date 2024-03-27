@@ -686,6 +686,10 @@ function destroy() {
         cluster_name=$(terraform -chdir=${configs[eks-ec2]} output -raw cluster_name)
         kubectl config use-context ${cluster_name}
 
+        knsrm-finalizer attackers
+        knsrm-finalizer goat
+        knsrm-finalizer victims
+
         tf scenarios-ec2 destroy
 
         # cd "${configs[eks-ec2-deployments]}"
@@ -713,6 +717,10 @@ function destroy() {
         cluster_name=$(terraform -chdir=${configs[eks-fg]} output -raw cluster_name)
         kubectl config use-context ${cluster_name}
 
+        knsrm-finalizer attackers
+        knsrm-finalizer goat
+        knsrm-finalizer victims
+        
         tf scenarios-fg destroy
 
         # cd "${configs[eks-fg-deployments]}"
@@ -809,6 +817,10 @@ function destroy() {
       fi
       ;;&
     dsm|deepsecurity|all)
+      if checklock dsw ; then
+        printf '%s\n' "Destroy dsw configuration first"
+        exit 0
+      fi
       if checklock dsm ; then
         tf dsm destroy
       else

@@ -51,11 +51,25 @@ pgo --apply instances
 
 The Linux instances are detected by Vision One ASRM after some time when you configured your CAM stack properly. The full analysis which should lead to a potential attack path for the `db1` instance as seen in the below screenshot can take up to 48hs.
 
-![alt text](images/asrm-ec2-attack-path-01.png "Attack Path")
+![alt text](images/asrm-ec2-attack-path-v2-01.png "Risk Detection")
+
+![alt text](images/asrm-ec2-attack-path-v2-02.png "Attack Path")
 
 Below the Asset Graph of the high risk instance:
 
-![alt text](images/asrm-ec2-attack-path-02.png "Asset Graph")
+![alt text](images/asrm-ec2-attack-path-v2-03.png "Asset Graph")
+
+It's profile:
+
+![alt text](images/asrm-ec2-attack-path-v2-05.png "Asset Profile")
+
+The assigned policy:
+
+![alt text](images/asrm-ec2-attack-path-v2-04.png "Instance Policy")
+
+And where it's located:
+
+![alt text](images/asrm-ec2-attack-path-v2-06.png "Region View")
 
 🎉 Success 🎉
 
