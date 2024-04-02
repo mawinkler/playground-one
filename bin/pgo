@@ -504,7 +504,10 @@ function apply() {
       KUBECONFIG=~/.kube/config:${configs[aks]}/kubeconfig \
         kubectl config view --flatten > /tmp/config && \
         mv /tmp/config ~/.kube/config
-      kubectl config use-context $(terraform -chdir=${configs[aks]} output -raw cluster_name)
+      cluster_name=$(terraform -chdir=${configs[aks]} output -json cluster_name 2>/dev/null | jq -r .)
+      if [ -n "${cluster_name}"]; then
+        kubectl config use-context $(terraform -chdir=${configs[aks]} output -raw cluster_name)
+      fi
       tf aks-deployments apply
       ;;&
     ecs|all)
@@ -682,9 +685,10 @@ function destroy() {
       ;;&
     eks|eks-ec2|all)
       if checklock eks-ec2 ; then
-        # cd "${configs[eks-ec2]}"
-        cluster_name=$(terraform -chdir=${configs[eks-ec2]} output -raw cluster_name)
-        kubectl config use-context ${cluster_name}
+        cluster_name=$(terraform -chdir=${configs[eks-ec2]} output -json cluster_name 2>/dev/null | jq -r .)
+        if [ -n "${cluster_name}" ]; then
+          kubectl config use-context ${cluster_name}
+        fi
 
         knsrm-finalizer attackers
         knsrm-finalizer goat
@@ -692,7 +696,6 @@ function destroy() {
 
         tf scenarios-ec2 destroy
 
-        # cd "${configs[eks-ec2-deployments]}"
         cluster_id=$(terraform -chdir=${configs[eks-ec2-deployments]} output -json cluster_id 2>/dev/null | jq -r .)
         if [ -z "${cluster_id}" ]; then
           printf '%s\n' "Eventually delete cluster in Vision One manually"
@@ -713,9 +716,10 @@ function destroy() {
       ;;&
     eks-fg|all)
       if checklock eks-fg ; then
-        # cd "${configs[eks-fg]}"
-        cluster_name=$(terraform -chdir=${configs[eks-fg]} output -raw cluster_name)
-        kubectl config use-context ${cluster_name}
+        cluster_name=$(terraform -chdir=${configs[eks-fg]} output -json cluster_name 2>/dev/null | jq -r .)
+        if [ -n "${cluster_name}" ]; then
+          kubectl config use-context ${cluster_name}
+        fi
 
         knsrm-finalizer attackers
         knsrm-finalizer goat
@@ -723,7 +727,6 @@ function destroy() {
         
         tf scenarios-fg destroy
 
-        # cd "${configs[eks-fg-deployments]}"
         cluster_id=$(terraform -chdir=${configs[eks-fg-deployments]} output -json cluster_id 2>/dev/null | jq -r .)
         if [ -z "${cluster_id}" ]; then
           printf '%s\n' "Eventually delete cluster in Vision One manually"
@@ -744,14 +747,14 @@ function destroy() {
       ;;&
     aks|all)
       if checklock aks ; then
-        # cd "${configs[aks]}"
-        cluster_name=$(terraform -chdir=${configs[aks]} output -raw cluster_name)
-        cluster_username=$(terraform -chdir=${configs[aks]} output -raw cluster_username)
-        kubectl config use-context ${cluster_name}
+        cluster_name=$(terraform -chdir=${configs[aks]} output -json cluster_name 2>/dev/null | jq -r .)
+        cluster_username=$(terraform -chdir=${configs[aks]} output -json cluster_username 2>/dev/null | jq -r .)
+        if [ -n "${cluster_name}" ]; then
+          kubectl config use-context ${cluster_name}
+        fi
 
         tf scenarios-aks destroy
 
-        # cd "${configs[aks-deployments]}"
         cluster_id=$(terraform -chdir=${configs[aks-deployments]} output -json cluster_id 2>/dev/null | jq -r .)
         if [ -z "${cluster_id}" ]; then
           printf '%s\n' "Eventually delete cluster in Vision One manually"
@@ -765,9 +768,13 @@ function destroy() {
         tf aks-deployments destroy
         tf aks destroy
 
-        kubectl config delete-context ${cluster_name}
-        kubectl config delete-cluster ${cluster_name}
-        kubectl config delete-user ${cluster_username}
+        if [ -n "${cluster_name}" ]; then
+          kubectl config delete-context ${cluster_name}
+          kubectl config delete-cluster ${cluster_name}
+        fi
+        if [ -n "${cluster_username}" ]; then
+          kubectl config delete-user ${cluster_username}
+        fi
       else
         printf '%s\n' "Configuration aks is not applied"
       fi
@@ -858,7 +865,6 @@ function destroy() {
       ;;
     kind)
       if checklock kind ; then
-        # cd "${configs[kind-deployments]}"
         cluster_id=$(terraform -chdir=${configs[kind-deployments]} output -json cluster_id 2>/dev/null | jq -r .)
         if [ -z "${cluster_id}" ]; then
           printf '%s\n' "Eventually delete cluster in Vision One manually"

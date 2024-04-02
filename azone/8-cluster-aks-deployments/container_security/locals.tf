@@ -8,7 +8,7 @@ data "restapi_object" "cluster" {
   path         = "/beta/containerSecurity/kubernetesClusters"
   results_key  = "items"
   search_key   = "name"
-  search_value = replace(var.environment, "-", "_")
+  search_value = replace(var.cluster_name, "-", "_")
 }
 
 locals {
