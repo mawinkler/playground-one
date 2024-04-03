@@ -34,6 +34,12 @@ variable "network_plugin" {
   # default = "cilium"
 }
 
+variable "network_policy" {
+  type        = string
+  description = "Azure Network Policy"
+  default     = "azure"
+}
+
 #####
 
 variable "network_address_space" {
