@@ -163,6 +163,47 @@ us-east-1 | 18.206.107.24/29
 us-east-2 | 3.16.146.0/29
 us-west-1 | 13.52.6.112/29
 us-west-2 | 18.237.140.160/29
-```
 
 If you need any other reagion, please let me know.
+
+See:
+
+- [AWS Documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connect-linux-inst-eic.html)
+- [AWS IP Ranges](https://docs.aws.amazon.com/vpc/latest/userguide/aws-ip-ranges.html)
+
+## Know how to check the region and Data Center location details in Trend Vision One
+
+To find out API URLs and datacenter locations, check the Vision One Site URL you are using:
+
+Site | Vision One Site                      
+---- | -------------------------------------
+US   | https://portal.xdr.trendmicro.com/   
+EU   | https://portal.eu.xdr.trendmicro.com/
+JP   | https://portal.jp.xdr.trendmicro.com/
+SG   | https://portal.sg.xdr.trendmicro.com/
+AU   | https://portal.au.xdr.trendmicro.com/
+IN   | https://portal.in.xdr.trendmicro.com/
+
+This takes you to the Region Code and API URL:
+
+Site | Region Code    | API URL
+---- | -------------- | ---------------------------------
+US   | us-east-1      | https://api.xdr.trendmicro.com
+EU   | eu-central-1   | https://api.eu.xdr.trendmicro.com
+JP   | ap-northeast-1 | https://api.xdr.trendmicro.co.jp
+SG   | ap-southeast-1 | https://api.sg.xdr.trendmicro.com
+AU   | ap-southeast-2 | https://api.au.xdr.trendmicro.com 
+IN   | ap-south-1     | https://api.in.xdr.trendmicro.com
+
+The Data Centers for the locations are then listed below:
+
+Site | Data Center Name | Data Center Location Azure | Data Center Location AWS
+---- | ---------------- | -------------------------- | ------------------------
+US   | United States    | East US - N. Virginia      | East US - N. Virginia
+EU   | Germany          | West Europe - Netherlands  | Frankfurt, Germany
+JP   | Japan            | Tokyo, Japan               | Tokyo, Japan
+SG   | Singapore        | Singapore                  | Singapore
+AU   | Australia        | Australia Central          | Sidney, Australia
+IN   | India            | Mumbai                     | Mumbai
+
+Link: [Trend Micro Business Success Portal](https://success.trendmicro.com/dcx/s/solution/000296614?language=en_US)

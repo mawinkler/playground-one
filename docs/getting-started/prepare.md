@@ -193,6 +193,17 @@ Then, continue with [Configuration](configuration.md).
 
 ## Change Log
 
+### 0.2.6 (04/02/2024)
+
+#### Fixes
+
+- Various fixes and compatibility changes for Product Experience and Deep Security Migration Scenario.
+- Playground One now supports all Vision One Regions when interacting with the REST API.
+
+#### Changes
+
+- Bump version of DSM to 20.0.893
+
 ### 0.2.5 (03/21/2024)
 
 Playground One is now included in Trend Micro Product Experience.

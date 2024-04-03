@@ -347,6 +347,29 @@ function get_editor() {
   echo Editor: ${EDITOR}
 }
 
+function vision_one_map_api_url() {
+  case "$1" in
+    us-east-1)
+      vision_one_api_url=https://api.xdr.trendmicro.com
+      ;;
+    eu-central-1)
+      vision_one_api_url=https://api.eu.xdr.trendmicro.com
+      ;;
+    ap-south-1)
+      vision_one_api_url=https://api.in.xdr.trendmicro.com
+      ;;
+    ap-southeast-1)
+      vision_one_api_url=https://api.sg.xdr.trendmicro.com
+      ;;
+    ap-southeast-2)
+      vision_one_api_url=https://api.au.xdr.trendmicro.com 
+      ;;
+    ap-northeast-1)
+      vision_one_api_url=https://api.xdr.trendmicro.co.jp
+      ;;
+  esac
+}
+
 #######################################
 # Get config.yaml
 # Globals:
@@ -405,6 +428,7 @@ function get_config() {
     [[ "${vision_one_cs_enabled}" = "null" || "${vision_one_cs_enabled}" = "" ]] && vision_one_cs_enabled=false
     [[ "${vision_one_cs_policy}" = "null" || "${vision_one_cs_policy}" = "" ]] && vision_one_cs_policy="policy"
     [[ "${vision_one_asrm_create_attackpath}" = "null" || "${vision_one_asrm_create_attackpath}" = "" ]] && vision_one_asrm_create_attackpath=false
+    vision_one_map_api_url ${vision_one_region}
 
     # Deep Security
     deep_security_license="$(yq '.services.deep-security.license' $ONEPATH/config.yaml)"

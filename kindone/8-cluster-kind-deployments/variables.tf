@@ -18,6 +18,10 @@ variable "api_key" {
   type = string
 }
 
+variable "api_url" {
+  type = string
+}
+
 # Calico
 variable "calico" {
   type = bool

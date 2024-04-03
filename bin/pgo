@@ -295,6 +295,7 @@ function init() {
       vision_one_cs_enabled=${vision_one_cs_enabled} \
       vision_one_cs_policy=${vision_one_cs_policy} \
       vision_one_api_key=${vision_one_api_key} \
+      vision_one_api_url=${vision_one_api_url} \
       vision_one_region=${vision_one_region} \
       integrations_calico_enabled=${integrations_calico_enabled} \
       integrations_prometheus_enabled=${integrations_prometheus_enabled} \
@@ -321,6 +322,7 @@ function init() {
       vision_one_cs_enabled=${vision_one_cs_enabled} \
       vision_one_cs_policy=${vision_one_cs_policy} \
       vision_one_api_key=${vision_one_api_key} \
+      vision_one_api_url=${vision_one_api_url} \
       vision_one_region=${vision_one_region} \
       integrations_calico_enabled=${integrations_calico_enabled} \
       integrations_prometheus_enabled=${integrations_prometheus_enabled} \
@@ -347,6 +349,7 @@ function init() {
       vision_one_cs_enabled=${vision_one_cs_enabled} \
       vision_one_cs_policy=${vision_one_cs_policy} \
       vision_one_api_key=${vision_one_api_key} \
+      vision_one_api_url=${vision_one_api_url} \
       vision_one_region=${vision_one_region} \
       integrations_calico_enabled=${integrations_calico_enabled} \
       integrations_prometheus_enabled=${integrations_prometheus_enabled} \
@@ -450,6 +453,7 @@ function init() {
       vision_one_cs_enabled=${vision_one_cs_enabled} \
       vision_one_cs_policy=${vision_one_cs_policy} \
       vision_one_api_key=${vision_one_api_key} \
+      vision_one_api_url=${vision_one_api_url} \
       vision_one_region=${vision_one_region} \
       integrations_calico_enabled=${integrations_calico_enabled} \
       integrations_prometheus_enabled=${integrations_prometheus_enabled} \

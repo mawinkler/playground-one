@@ -57,7 +57,7 @@ terraform {
 
 provider "restapi" {
   alias                = "container_security"
-  uri                  = "https://api.xdr.trendmicro.com"
+  uri                  = var.api_url
   debug                = true
   write_returns_object = true
 
