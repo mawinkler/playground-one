@@ -193,12 +193,13 @@ Then, continue with [Configuration](configuration.md).
 
 ## Change Log
 
-### 0.2.6 (04/02/2024)
+### 0.2.6 (04/03/2024)
 
 #### Fixes
 
 - Various fixes and compatibility changes for Product Experience and Deep Security Migration Scenario.
 - Playground One now supports all Vision One Regions when interacting with the REST API.
+- App Gateway now functional on AKS cluster. Ingress for Scenarios to be done.
 
 #### Changes
 
