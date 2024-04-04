@@ -1,3 +1,6 @@
+# #############################################################################
+# Virtual Network and Subnets
+# #############################################################################
 resource "azurerm_virtual_network" "virtual_network" {
   name                = "${var.environment}-vnet-${random_pet.pet.id}"
   location            = var.resource_group_location

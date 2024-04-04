@@ -1,3 +1,6 @@
+# #############################################################################
+# Role Assignments
+# #############################################################################
 resource "azurerm_role_assignment" "Network_Contributor_subnet" {
   scope                = data.azurerm_subnet.appgwsubnet.id
   role_definition_name = "Network Contributor"

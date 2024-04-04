@@ -61,23 +61,24 @@ resource "kubernetes_service_v1" "java_goof_service" {
     external_traffic_policy = "Cluster"
     internal_traffic_policy = "Cluster"
     port {
-      port        = 8080
+      port        = 80
       target_port = 8080
     }
     selector = {
       app = "java-goof"
     }
-    type = "NodePort"
+    type = "LoadBalancer"
   }
 }
 
 resource "kubernetes_ingress_v1" "java_goof_ingress" {
-  depends_on = [kubernetes_namespace_v1.victims_namespace]
+  depends_on             = [kubernetes_namespace_v1.victims_namespace]
   wait_for_load_balancer = true
 
   metadata {
     annotations = {
-      "kubernetes.io/ingress.class"             = "addon-http-application-routing"
+      # "kubernetes.io/ingress.class"             = "addon-http-application-routing"
+      "kubernetes.io/ingress.class" = "azure/application-gateway"
       # "alb.ingress.kubernetes.io/inbound-cidrs" = var.access_ip
     }
     labels = {
@@ -94,7 +95,7 @@ resource "kubernetes_ingress_v1" "java_goof_ingress" {
             service {
               name = "java-goof-service"
               port {
-                number = 8080
+                number = 80
               }
             }
           }

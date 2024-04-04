@@ -347,6 +347,29 @@ function get_editor() {
   echo Editor: ${EDITOR}
 }
 
+function vision_one_map_api_url() {
+  case "$1" in
+    us-east-1)
+      vision_one_api_url=https://api.xdr.trendmicro.com
+      ;;
+    eu-central-1)
+      vision_one_api_url=https://api.eu.xdr.trendmicro.com
+      ;;
+    ap-south-1)
+      vision_one_api_url=https://api.in.xdr.trendmicro.com
+      ;;
+    ap-southeast-1)
+      vision_one_api_url=https://api.sg.xdr.trendmicro.com
+      ;;
+    ap-southeast-2)
+      vision_one_api_url=https://api.au.xdr.trendmicro.com 
+      ;;
+    ap-northeast-1)
+      vision_one_api_url=https://api.xdr.trendmicro.co.jp
+      ;;
+  esac
+}
+
 #######################################
 # Get config.yaml
 # Globals:
@@ -376,6 +399,7 @@ function get_config() {
 
     # Playground One
     pgo_access_ip="$(yq '.services.playground-one.access-ip' $ONEPATH/config.yaml)"
+    pgo_px="$(yq '.services.playground-one.px' $ONEPATH/config.yaml)"
     pgo_ec2_create_linux="$(yq '.services.playground-one.ec2.create-linux' $ONEPATH/config.yaml)"
     pgo_ec2_create_windows="$(yq '.services.playground-one.ec2.create-windows' $ONEPATH/config.yaml)"
     pgo_ec2_create_database="$(yq '.services.playground-one.ec2.create-database' $ONEPATH/config.yaml)"
@@ -384,6 +408,7 @@ function get_config() {
     pgo_ecs_create_ec2="$(yq '.services.playground-one.ecs.create-ec2' $ONEPATH/config.yaml)"
     pgo_ecs_create_fargate="$(yq '.services.playground-one.ecs.create-fargate' $ONEPATH/config.yaml)"
     [[ "${pgo_access_ip}" = "null" || "${pgo_access_ip}" = "" ]] && pgo_access_ip=[\"0.0.0.0/0\"]
+    [[ "${pgo_px}" = "null" || "${pgo_px}" = "" ]] && pgo_px=false
     [[ "${pgo_ec2_create_linux}" = "null" || "${pgo_ec2_create_linux}" = "" ]] && pgo_ec2_create_linux=true
     [[ "${pgo_ec2_create_windows}" = "null" || "${pgo_ec2_create_windows}" = "" ]] && pgo_ec2_create_windows=true
     [[ "${pgo_ec2_create_database}" = "null" || "${pgo_ec2_create_database}" = "" ]] && pgo_ec2_create_database=false
@@ -403,6 +428,7 @@ function get_config() {
     [[ "${vision_one_cs_enabled}" = "null" || "${vision_one_cs_enabled}" = "" ]] && vision_one_cs_enabled=false
     [[ "${vision_one_cs_policy}" = "null" || "${vision_one_cs_policy}" = "" ]] && vision_one_cs_policy="policy"
     [[ "${vision_one_asrm_create_attackpath}" = "null" || "${vision_one_asrm_create_attackpath}" = "" ]] && vision_one_asrm_create_attackpath=false
+    vision_one_map_api_url ${vision_one_region}
 
     # Deep Security
     deep_security_license="$(yq '.services.deep-security.license' $ONEPATH/config.yaml)"

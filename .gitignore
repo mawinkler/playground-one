@@ -49,6 +49,8 @@ TMServerAgent_Windows.zip
 .pgo.instances.lock
 .pgo.kind-deployments.lock
 .pgo.network.lock
+.pgo.aks-deployments.lock
+.pgo.scenarios-aks.lock
 *.out
 overrides.yaml
 dsm.properties

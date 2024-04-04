@@ -50,7 +50,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   ingress_application_gateway {
-    # subnet_id = data.azurerm_subnet.appgwsubnet.id
     gateway_id = azurerm_application_gateway.network.id
   }
 

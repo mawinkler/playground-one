@@ -6,29 +6,22 @@ data "terraform_remote_state" "aks" {
   }
 }
 
-# module "victims" {
-#   source      = "./victims"
-#   environment = var.environment
-#   access_ip   = var.access_ip
-#   namespace   = "victims"
-# }
-
-# module "default" {
-#   source      = "./default"
-#   environment = var.environment
-#   namespace   = "default"
-# }
-
-module "goat" {
-  source      = "./goat"
+module "victims" {
+  source      = "./victims"
   environment = var.environment
   access_ip   = var.access_ip
-  namespace   = "goat"
+  namespace   = "victims"
 }
 
-# module "attackers" {
-#   source      = "./attackers"
-#   environment = var.environment
-#   access_ip   = var.access_ip
-#   namespace   = "attackers"
-# }
+module "default" {
+  source      = "./default"
+  environment = var.environment
+  namespace   = "default"
+}
+
+module "attackers" {
+  source      = "./attackers"
+  environment = var.environment
+  access_ip   = var.access_ip
+  namespace   = "attackers"
+}
