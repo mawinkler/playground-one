@@ -63,19 +63,6 @@ So, this is my favorite part. This configuration creates an EKS cluster with som
 - Kubernetes Autoscaler
 - Cluster is located in the private subnets
 
-## EKS Fargate Cluster
-
-*Configuration located in `awsone/4-cluster-eks-fargate`*
-
-*Depends on `awsone/2-network`*
-
-This configuration creates a Fargate EKS cluster with some nice key features:
-
-- 100% Fargate
-- Nodes running as Spot instances to save money :-)
-- An additional AWS managed node group
-- Cluster is located in the private subnets
-
 ### Cluster Deployments
 
 *Configuration located in `awsone/8-cluster-ec2-deployments`*
@@ -89,7 +76,7 @@ Currently, the following deployments are defined:
 - Prometheus & Grafana
 - Trivy
 
-### Scenarios for EKS EC2
+### Scenarios
 
 *Configuration located in `awsone/7-scenarios-ec2`*
 
@@ -105,7 +92,31 @@ Currently, the following (vulnerable) deployments are defined:
 
 Automated attacks are running every full hour.
 
-### Scenarios for EKS Fargate
+## EKS Fargate Cluster
+
+*Configuration located in `awsone/4-cluster-eks-fargate`*
+
+*Depends on `awsone/2-network`*
+
+This configuration creates a Fargate EKS cluster with some nice key features:
+
+- Fargate Profiles
+- Nodes running as Spot instances to save money :-)
+- An additional AWS managed node group
+- Cluster is located in the private subnets
+
+### Cluster Deployments
+
+*Configuration located in `awsone/8-cluster-fargate-deployments`*
+
+*Depends on `awsone/4-cluster-eks-fargate`*
+
+Currently, the following deployments are defined:
+
+- Container Security
+- Calico
+
+### Scenarios
 
 *Configuration located in `awsone/7-scenarios-fargate`*
 
@@ -113,6 +124,7 @@ Automated attacks are running every full hour.
 
 Currently, the following (vulnerable) deployments are defined:
 
+- Java-Goof
 - Nginx
 
 Automated attacks are running every full hour.
@@ -157,7 +169,36 @@ To come:
 
 *Configuration located in `azone/4-cluster-aks`*
 
-This is work in progress and not finalized yet.
+This configuration creates a Fargate EKS cluster with some nice key features:
+
+- Azure Application Gateway as a web traffic (OSI layer 7) load balancer.
+- Autoscaling
+
+### Cluster Deployments
+
+*Configuration located in `azone/8-cluster-aks-deployments`*
+
+*Depends on `azone/4-cluster-aks`*
+
+Currently, the following deployments are defined:
+
+- Container Security
+- Calico
+- Prometheus & Grafana
+- Trivy
+
+### Scenarios
+
+*Configuration located in `azone/7-scenarios-aks`*
+
+*Depends on `azone/4-cluster-aks`*
+
+Currently, the following (vulnerable) deployments are defined:
+
+- Java-Goof
+- Nginx
+
+Automated attacks are running every full hour.
 
 ## Kind Cluster
 
