@@ -104,7 +104,7 @@ Deep Security     | Yes         | None         | V1 Server & Workload Protection
 
 Component         | Operational | Known Issues | Vision One Cloud Security
 ----------------- | ----------- | ------------ | ----------------------------------------------------------------
-AKS               | In progress | None         | V1CS Runtime Scanning<br>V1CS Runtime Security
+AKS               | Yes         | None         | V1CS Runtime Scanning<br>V1CS Runtime Security
 
 ### Other
 

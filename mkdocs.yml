@@ -3,8 +3,12 @@ nav:
   - Home: index.md
   - How it Works:
     - Orchestration: how-it-works/orchestration.md
-    - Configurations: how-it-works/configurations.md
-    - Versions: how-it-works/versions.md
+    - Configurations:
+      - Overview: how-it-works/configurations.md
+      - AWS: how-it-works/configurations-aws.md
+      - Azure: how-it-works/configurations-azure.md
+      - Kind: how-it-works/configurations-kind.md
+    # - Versions: how-it-works/versions.md
   - Getting Started:
     - Prepare: getting-started/prepare.md
     - Configuration: getting-started/configuration.md
