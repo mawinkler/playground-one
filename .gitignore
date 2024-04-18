@@ -77,3 +77,4 @@ log/calico/cni/cni.log
 log/calico/cni/config
 log/calico/cni/current
 log/calico/cni/lock
+.pgo.goat.lock

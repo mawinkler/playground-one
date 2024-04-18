@@ -12,7 +12,7 @@ data "aws_ami" "ecs_optimized_ami" {
 }
 
 data "template_file" "user_data" {
-  template = file("${path.module}/resources/ecs/user_data.tpl")
+  template = local.userdata_linux
 }
 
 data "template_file" "task_definition_json" {

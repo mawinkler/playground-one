@@ -56,6 +56,7 @@ configs=(
   ["scenarios-ec2"]=${ONEPATH}/awsone/7-scenarios-ec2
   ["scenarios-fg"]=${ONEPATH}/awsone/7-scenarios-fargate
   ["scenarios-aks"]=${ONEPATH}/azone/7-scenarios-aks
+  ["goat"]=${ONEPATH}/awsone/7-goat
   ["dsm"]=${ONEPATH}/awsone/9-deep-security
   ["dsw"]=${ONEPATH}/awsone/9-deep-security-workload
   ["kind"]=${ONEPATH}/kindone/4-cluster-kind
@@ -414,6 +415,16 @@ function init() {
 
       tf scenarios-aks init
       ;;&
+    goat|all)
+      printf '%s\n' "Create terraform.tfvars for goat deployments"
+      aws_region=${aws_region} \
+      environment_name=${environment_name} \
+      pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-7-goat.tfvars >${configs[goat]}/terraform.tfvars
+
+      tf goat init
+      ;;&
     dsm|deepsecurity|all)
       printf '%s\n' "Create terraform.tfvars for deep security"
       aws_region=${aws_region} \
@@ -528,6 +539,9 @@ function apply() {
       ;;&
     scenarios-aks|all)
       tf scenarios-aks apply
+      ;;&
+    goat|all)
+      tf goat apply
       ;;&
     dsm|deepsecurity|all)
       tf dsm apply
@@ -867,6 +881,13 @@ function destroy() {
         printf '%s\n' "Configuration scenarios-aks is not applied"
       fi
       ;;
+    goat|all)
+      if checklock goat ; then
+        tf goat destroy
+      else
+        printf '%s\n' "Configuration goat is not applied"
+      fi
+      ;;&
     kind)
       if checklock kind ; then
         cluster_id=$(terraform -chdir=${configs[kind-deployments]} output -json cluster_id 2>/dev/null | jq -r .)
@@ -934,6 +955,9 @@ function output() {
       ;;&
     scenarios-aks|all)
       tf scenarios-aks output
+      ;;&
+    goat|all)
+      tf goat output
       ;;&
     dsm|deepsecurity|all)
       tf dsm output
@@ -1016,6 +1040,9 @@ function state() {
     scenarios-aks|all)
       tf scenarios-aks state
       ;;&
+    goat|all)
+      tf goat state
+      ;;&
     dsm|deepsecurity|all)
       tf dsm state
       ;;&
@@ -1077,6 +1104,9 @@ function show() {
     scenarios-aks|all)
       tf scenarios-aks show
       ;;&
+    goat|all)
+      tf goat show
+      ;;&
     dsm|deepsecurity|all)
       tf dsm show
       ;;&
@@ -1136,6 +1166,9 @@ function validate() {
       ;;&
     scenarios-aks|all)
       tf scenarios-aks validate
+      ;;&
+    goat|all)
+      tf goat validate
       ;;&
     dsm|deepsecurity|all)
       tf dsm validate
@@ -1221,6 +1254,9 @@ function erase() {
       ;;&
     scenarios-aks|all)
       tf scenarios-aks erase
+      ;;&
+    goat|all)
+      tf goat erase
       ;;&
     dsm|deepsecurity|all)
       tf dsm erase

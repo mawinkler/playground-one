@@ -2,7 +2,7 @@
 # IAM
 # #############################################################################
 resource "aws_iam_role" "ecs-instance-role" {
-  name                 = "ecs-instance-role"
+  name                 = "${var.environment}-ecs-instance-role-${random_string.suffix.result}"
   path                 = "/"
   permissions_boundary = aws_iam_policy.instance_boundary_policy.arn
   assume_role_policy = jsonencode({
@@ -35,7 +35,7 @@ resource "aws_iam_role_policy_attachment" "ecs-instance-role-attachment-3" {
 }
 
 resource "aws_iam_policy" "ecs_instance_policy" {
-  name = "aws-goat-instance-policy"
+  name = "${var.environment}-ecs-policy-${random_string.suffix.result}"
   policy = jsonencode({
     "Statement" : [
       {
@@ -55,7 +55,7 @@ resource "aws_iam_policy" "ecs_instance_policy" {
 }
 
 resource "aws_iam_policy" "instance_boundary_policy" {
-  name = "aws-goat-instance-boundary-policy"
+  name = "${var.environment}-ecs-boundary-policy-${random_string.suffix.result}"
   policy = jsonencode({
     "Statement" : [
       {
@@ -83,12 +83,12 @@ resource "aws_iam_policy" "instance_boundary_policy" {
 }
 
 resource "aws_iam_instance_profile" "ec2-deployer-profile" {
-  name = "ec2Deployer"
+  name = "${var.environment}-ec2-deployer-${random_string.suffix.result}"
   path = "/"
   role = aws_iam_role.ec2-deployer-role.id
 }
 resource "aws_iam_role" "ec2-deployer-role" {
-  name = "ec2Deployer-role"
+  name = "${var.environment}-ec2-deployer-role-${random_string.suffix.result}"
   path = "/"
   assume_role_policy = jsonencode({
     "Version" : "2008-10-17",
@@ -106,7 +106,7 @@ resource "aws_iam_role" "ec2-deployer-role" {
 }
 
 resource "aws_iam_policy" "ec2_deployer_admin_policy" {
-  name = "ec2DeployerAdmin-policy"
+  name = "${var.environment}-ec2-deployer-policy-${random_string.suffix.result}"
   policy = jsonencode({
     "Statement" : [
       {
@@ -128,12 +128,12 @@ resource "aws_iam_role_policy_attachment" "ec2-deployer-role-attachment" {
 }
 
 resource "aws_iam_instance_profile" "ecs-instance-profile" {
-  name = "ecs-instance-profile"
+  name = "${var.environment}-ec2-instance-profile-${random_string.suffix.result}"
   path = "/"
   role = aws_iam_role.ecs-instance-role.id
 }
 resource "aws_iam_role" "ecs-task-role" {
-  name = "ecs-task-role"
+  name = "${var.environment}-ecs-task-role-${random_string.suffix.result}"
   path = "/"
   assume_role_policy = jsonencode({
     "Version" : "2012-10-17",

@@ -2,7 +2,7 @@
 # Security Groups
 # #############################################################################
 resource "aws_security_group" "ecs_sg" {
-  name        = "ECS-SG"
+  name        = "${var.environment}-ecs-sg-${random_string.suffix.result}"
   description = "SG for cluster created from terraform"
   vpc_id      = var.vpc_id
 
@@ -19,10 +19,17 @@ resource "aws_security_group" "ecs_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags = {
+    Name          = "${var.environment}-ecs-sg"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "goat"
+  }
 }
 
 resource "aws_security_group" "database-security-group" {
-  name        = "Database Security Group"
+  name        = "${var.environment}-db-sg-${random_string.suffix.result}"
   description = "Enable MYSQL Aurora access on Port 3306"
   vpc_id      = var.vpc_id #aws_vpc.lab-vpc.id
 
@@ -42,12 +49,15 @@ resource "aws_security_group" "database-security-group" {
   }
 
   tags = {
-    Name = "rds-db-sg"
+    Name          = "${var.environment}-db-sg"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "goat"
   }
 }
 
 resource "aws_security_group" "load_balancer_security_group" {
-  name        = "Load-Balancer-SG"
+  name        = "${var.environment}-lb-sg-${random_string.suffix.result}"
   description = "SG for load balancer created from terraform"
   vpc_id      = var.vpc_id #aws_vpc.lab-vpc.id
 
@@ -64,7 +74,11 @@ resource "aws_security_group" "load_balancer_security_group" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
   tags = {
-    Name = "aws-goat-m2-sg"
+    Name          = "${var.environment}-lb-sg"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "goat"
   }
 }

@@ -2,7 +2,7 @@
 # RDS MySQL
 # #############################################################################
 resource "aws_db_instance" "database-instance" {
-  identifier             = "aws-goat-db"
+  identifier             = "${var.environment}-db-${random_string.suffix.result}"
   allocated_storage      = 10
   instance_class         = "db.t3.micro"
   engine                 = "mysql"

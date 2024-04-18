@@ -2,26 +2,32 @@
 # Application Load Balancer
 # #############################################################################
 resource "aws_alb" "application_load_balancer" {
-  name               = "aws-goat-m2-alb"
+  name               = "${var.environment}-alb-${random_string.suffix.result}"
   internal           = false
   load_balancer_type = "application"
   subnets            = var.public_subnets #[aws_subnet.lab-subnet-public-1.id, aws_subnet.lab-subnet-public-1b.id]
   security_groups    = [aws_security_group.load_balancer_security_group.id]
 
   tags = {
-    Name = "aws-goat-m2-alb"
+    Name          = "${var.environment}-alb"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "goat"
   }
 }
 
 resource "aws_lb_target_group" "target_group" {
-  name        = "aws-goat-m2-tg"
+  name        = "${var.environment}-alb-tg-${random_string.suffix.result}"
   port        = 80
   protocol    = "HTTP"
   target_type = "instance"
   vpc_id      = var.vpc_id #aws_vpc.lab-vpc.id
 
   tags = {
-    Name = "aws-goat-m2-tg"
+    Name          = "${var.environment}-alb-tg"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "goat"
   }
 }
 

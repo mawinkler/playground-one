@@ -10,7 +10,7 @@ resource "aws_launch_configuration" "ecs_launch_config" {
 }
 
 resource "aws_autoscaling_group" "ecs_asg" {
-  name                 = "ECS-lab-asg"
+  name                 = "${var.environment}-ecs-asg-${random_string.suffix.result}"
   vpc_zone_identifier  = var.public_subnets
   launch_configuration = aws_launch_configuration.ecs_launch_config.name
   desired_capacity     = 1
@@ -19,10 +19,13 @@ resource "aws_autoscaling_group" "ecs_asg" {
 }
 
 resource "aws_ecs_cluster" "cluster" {
-  name = "ecs-lab-cluster"
+  name = "${var.environment}-ecs-ec2-${random_string.suffix.result}"
 
   tags = {
-    name = "ecs-cluster-name"
+    Name          = "${var.environment}-ecs-ec2"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "goat"
   }
 }
 
@@ -47,7 +50,7 @@ resource "aws_ecs_task_definition" "task_definition" {
 }
 
 resource "aws_ecs_service" "worker" {
-  name                              = "ecs_service_worker"
+  name                              = "${var.environment}-ecs-worker-${random_string.suffix.result}"
   cluster                           = aws_ecs_cluster.cluster.id
   task_definition                   = aws_ecs_task_definition.task_definition.arn
   desired_count                     = 1
