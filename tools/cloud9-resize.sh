@@ -8,22 +8,25 @@ VOLUMEID=$(aws ec2 describe-instances \
   --query "Reservations[0].Instances[0].BlockDeviceMappings[0].Ebs.VolumeId" \
   --output text)
 
-aws ec2 modify-volume --volume-id $VOLUMEID --size $SIZE
+if [ $(aws ec2 describe-volumes --volume-id $VOLUMEID  | jq -r .Volumes[0].Size) -lt 30 ]; then
+  aws ec2 modify-volume --volume-id $VOLUMEID --size $SIZE
 
-while [ \
-  "$(aws ec2 describe-volumes-modifications \
-    --volume-id $VOLUMEID \
-    --filters Name=modification-state,Values="optimizing","completed" \
-    --query "length(VolumesModifications)"\
-    --output text)" != "1" ]; do
-echo -n .
-sleep 1
-done
+  while [ \
+    "$(aws ec2 describe-volumes-modifications \
+      --volume-id $VOLUMEID \
+      --filters Name=modification-state,Values="optimizing","completed" \
+      --query "length(VolumesModifications)"\
+      --output text)" != "1" ]; do
+  echo -n .
+  sleep 1
+  done
 
-sudo growpart /dev/nvme0n1 1
+  sudo growpart /dev/nvme0n1 1
 
-if [ "$(df -T | grep -i '/$' | awk '{print $2}')" == "xfs" ]; then
-  sudo xfs_growfs -d /
-else
-  sudo resize2fs /dev/nvme0n1p1
+  if [ "$(df -T | grep -i '/$' | awk '{print $2}')" == "xfs" ]; then
+    sudo xfs_growfs -d /
+  else
+    devicename=$(sudo lsblk --json | jq -r '.blockdevices[] | select(.children) | .children[] | select(.mountpoints[] == "/") | .name')
+    sudo resize2fs /dev/${devicename}
+  fi
 fi
