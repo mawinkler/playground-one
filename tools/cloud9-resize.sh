@@ -21,12 +21,13 @@ if [ $(aws ec2 describe-volumes --volume-id $VOLUMEID  | jq -r .Volumes[0].Size)
   sleep 1
   done
 
-  sudo growpart /dev/nvme0n1 1
+  devicename=$(sudo lsblk --json | jq -r '.blockdevices[] | select(.children) | select(.children[].mountpoints[] == "/") | .name')
+  sudo growpart /dev/${devicename} 1
 
   if [ "$(df -T | grep -i '/$' | awk '{print $2}')" == "xfs" ]; then
     sudo xfs_growfs -d /
   else
-    devicename=$(sudo lsblk --json | jq -r '.blockdevices[] | select(.children) | .children[] | select(.mountpoints[] == "/") | .name')
-    sudo resize2fs /dev/${devicename}
+    devicename_root=$(sudo lsblk --json | jq -r '.blockdevices[] | select(.children) | .children[] | select(.mountpoints[] == "/") | .name')
+    sudo resize2fs /dev/${devicename_root}
   fi
 fi
