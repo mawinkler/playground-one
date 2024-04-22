@@ -193,12 +193,18 @@ Then, continue with [Configuration](configuration.md).
 
 ## Change Log
 
+### 0.2.8 (04/19/2024)
+
+#### Fixes
+
+- Resize file system now detects root volume device name.
+
 ### 0.2.7 (04/04/2024)
 
 #### Fixes
 
-- Fix in pgo cli to support Vision One Regions
-- Azure App Gateway functional with Java-Goof app of scenarios
+- Fix in pgo cli to support Vision One Regions.
+- Azure App Gateway functional with Java-Goof app of scenarios.
 
 ### 0.2.6 (04/03/2024)
 
