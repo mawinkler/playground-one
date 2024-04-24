@@ -193,6 +193,13 @@ Then, continue with [Configuration](configuration.md).
 
 ## Change Log
 
+### 0.2.9
+
+#### Changes
+
+- Bump EKS module to version 20.8.5
+- Reworked IAM for EKS-EC2 to not use am AWS admin account. Proper access permissions implemented. Minor IAM changes in EKS-FG.
+
 ### 0.2.8 (04/19/2024)
 
 #### Fixes

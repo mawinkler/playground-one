@@ -17,7 +17,7 @@ locals {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "19.21.0"
+  version = "20.8.5"
 
   cluster_name    = "${var.environment}-eks-fg-${random_string.suffix.result}"
   cluster_version = local.kubernetes_version
@@ -26,28 +26,38 @@ module "eks" {
   cluster_endpoint_public_access = true
   # cluster_endpoint_public_access_cidrs = var.access_ip
 
-  cluster_addons = {
-    kube-proxy = {
-      most_recent = true
-    }
-    vpc-cni = {
-      most_recent = true
-    }
-    aws-ebs-csi-driver = {
-      most_recent = true
-    }
-    coredns = {
-      configuration_values = jsonencode({
-        computeType = "Fargate"
-      })
-    }
-  }
+  enable_cluster_creator_admin_permissions = true
+
+  # Enable EFA support by adding necessary security group rules
+  # to the shared node security group
+  # enable_efa_support = true
 
   vpc_id                   = var.vpc_id
   subnet_ids               = var.private_subnets
   control_plane_subnet_ids = var.intra_subnets
 
   # enable_irsa = true
+
+  # kms_key_aliases = ["${var.environment}-eks-ec2-${random_string.suffix.result}"]
+  kms_key_deletion_window_in_days = 7
+
+  cluster_addons = {
+    coredns = {
+      configuration_values = jsonencode({
+        computeType = "Fargate"
+      })
+    }
+    kube-proxy = {
+      most_recent = true
+    }
+    vpc-cni = {
+      most_recent = true
+      before_compute = true
+    }
+    aws-ebs-csi-driver = {
+      most_recent = true
+    }
+  }
 
   # Fargate profiles use the cluster primary security group so these are not utilized
   create_cluster_security_group = false

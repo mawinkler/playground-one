@@ -24,7 +24,7 @@ module "eks" {
 
   # Enable EFA support by adding necessary security group rules
   # to the shared node security group
-  enable_efa_support = true
+  # enable_efa_support = true
 
   vpc_id                   = var.vpc_id
   subnet_ids               = var.private_subnets
