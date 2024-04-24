@@ -11,7 +11,7 @@ resource "random_string" "suffix" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "19.21.0"
+  version = "20.8.5"
 
   cluster_name    = "${var.environment}-eks-ec2-${random_string.suffix.result}"
   cluster_version = local.kubernetes_version
@@ -20,8 +20,15 @@ module "eks" {
   cluster_endpoint_public_access  = true
   # cluster_endpoint_public_access_cidrs = var.access_ip
 
-  vpc_id     = var.vpc_id
-  subnet_ids = var.private_subnets
+  enable_cluster_creator_admin_permissions = true
+
+  # Enable EFA support by adding necessary security group rules
+  # to the shared node security group
+  enable_efa_support = true
+
+  vpc_id                   = var.vpc_id
+  subnet_ids               = var.private_subnets
+  control_plane_subnet_ids = var.intra_subnets
 
   enable_irsa = true
 
@@ -40,24 +47,43 @@ module "eks" {
       most_recent = true
     }
     vpc-cni = {
-      most_recent = true
+      most_recent    = true
+      before_compute = true
+      configuration_values = jsonencode({
+        env = {
+          # Reference docs https://docs.aws.amazon.com/eks/latest/userguide/cni-increase-ip-addresses.html
+          ENABLE_PREFIX_DELEGATION = "true"
+          WARM_PREFIX_TARGET       = "1"
+        }
+      })
     }
     aws-ebs-csi-driver = {
       most_recent = true
     }
   }
 
-  # Self managed node groups will not automatically create the aws-auth configmap so we need to
-  # create_aws_auth_configmap = true
-  manage_aws_auth_configmap = true
+  access_entries = {
+    "${var.environment}-cluster-access" = {
+      kubernetes_groups = []
+      principal_arn     = aws_iam_role.this.arn
 
-  aws_auth_roles = [
-    {
-      rolearn  = module.eks_admins_iam_role.iam_role_arn
-      username = module.eks_admins_iam_role.iam_role_name
-      groups   = ["system:masters"]
-    },
-  ]
+      policy_associations = {
+        namespaced = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSEditPolicy"
+          access_scope = {
+            namespaces = ["default"]
+            type       = "namespace"
+          }
+        }
+        cluster = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSEditPolicy"
+          access_scope = {
+            type = "cluster"
+          }
+        }
+      }
+    }
+  }
 
   eks_managed_node_group_defaults = {
     ami_type                              = "AL2_x86_64"
@@ -75,26 +101,6 @@ module "eks" {
       to_port                    = 65535
       type                       = "ingress"
       source_node_security_group = true
-    }
-  }
-
-  node_security_group_additional_rules = {
-    ingress_self_all = {
-      description = "Node to node all ports/protocols"
-      protocol    = "-1"
-      from_port   = 0
-      to_port     = 0
-      type        = "ingress"
-      self        = true
-    }
-
-    egress_self_all = {
-      description = "Node to node all ports/protocols"
-      protocol    = "-1"
-      from_port   = 0
-      to_port     = 0
-      type        = "egress"
-      self        = true
     }
   }
 

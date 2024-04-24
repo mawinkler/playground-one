@@ -15,6 +15,8 @@ variable "key_name" {}
 
 variable "private_subnets" {}
 
+variable "intra_subnets" {}
+
 variable "private_security_group_id" {}
 
 # Autoscaler

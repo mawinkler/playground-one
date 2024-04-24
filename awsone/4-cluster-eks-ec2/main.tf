@@ -15,5 +15,6 @@ module "eks" {
   vpc_id                    = data.terraform_remote_state.vpc.outputs.vpc_id
   vpc_owner_id              = data.terraform_remote_state.vpc.outputs.vpc_owner_id
   private_subnets           = data.terraform_remote_state.vpc.outputs.private_subnets.*
+  intra_subnets             = data.terraform_remote_state.vpc.outputs.intra_subnets.*
   private_security_group_id = data.terraform_remote_state.vpc.outputs.private_security_group_id
 }
