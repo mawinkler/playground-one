@@ -212,6 +212,11 @@ function ensure_playground() {
 #######################################
 function ensure_essentials() {
 
+  # Patch autorestart daemon
+  echo "\$nrconf{restart} = 'a';" > /tmp/90-autorestart.conf && \
+    sudo mv /tmp/90-autorestart.conf /etc/needrestart/conf.d/90-autorestart.conf && \
+    sudo chown root.root /etc/needrestart/conf.d/90-autorestart.conf
+
   if is_linux; then
     printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading essential packages on linux"
     if [ "${PACKAGE_MANAGER}" == "apt" ]; then
