@@ -1,6 +1,6 @@
-locals {
-  k8s_config_path = pathexpand("~/.kube/config")
-}
+# #############################################################################
+# Kind Cluster
+# #############################################################################
 resource "kind_cluster" "kind" {
   name            = "${var.environment}-kind"
   kubeconfig_path = local.k8s_config_path
@@ -10,6 +10,13 @@ resource "kind_cluster" "kind" {
   kind_config {
     kind        = "Cluster"
     api_version = "kind.x-k8s.io/v1alpha4"
+
+    networking {
+      api_server_port     = 6443
+      # disable_default_cni = true
+      # pod_subnet          = "192.168.0.0/16"
+      pod_subnet = "10.10.0.0/16"
+    }
 
     node {
       role = "control-plane"
@@ -45,6 +52,7 @@ kind: InitConfiguration
 nodeRegistration:
   kubeletExtraArgs:
     node-labels: "ingress-ready=true"
+
 kind: ClusterConfiguration
 apiServer:
   extraArgs:
@@ -67,10 +75,12 @@ EOF
       extra_port_mappings {
         container_port = 80
         host_port      = 80
+        listen_address = "0.0.0.0"
       }
       extra_port_mappings {
         container_port = 443
         host_port      = 443
+        listen_address = "0.0.0.0"
       }
       # # Falco Sidekick-UI
       # extra_port_mappings {
