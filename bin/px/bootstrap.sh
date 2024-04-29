@@ -4,7 +4,6 @@ set -e
 #o errexit
 
 export DEBIAN_FRONTEND=noninteractive
-export NEEDRESTART_MODE=a
 
 # Source helpers
 if [ -f $ONEPATH/bin/playground-helpers.sh ]; then
@@ -217,7 +216,7 @@ function ensure_essentials() {
     printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading essential packages on linux"
     if [ "${PACKAGE_MANAGER}" == "apt" ]; then
       sudo apt-get update
-      sudo NEEDRESTART_MODE=a apt-get install -y jq apt-transport-https gnupg2 curl nginx apache2-utils pv unzip dialog software-properties-common gettext-base
+      sudo apt-get install -y jq apt-transport-https gnupg2 curl nginx apache2-utils pv unzip dialog software-properties-common gettext-base
     fi
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
       if ! command -v brew &>/dev/null; then
@@ -493,7 +492,7 @@ function ensure_azcli_apt() {
     #     sudo tee /etc/apt/sources.list.d/dotnetdev.list
 
     sudo apt-get update
-    sudo NEEDRESTART_MODE=a apt-get install -y azure-cli
+    sudo apt-get install -y azure-cli
 
     curl -fsSL https://aka.ms/downloadazcopy-v10-linux | tar xz --strip-components=1 -C /tmp
     sudo mv /tmp/azcopy /usr/local/bin
@@ -544,7 +543,7 @@ function ensure_container_engine_apt() {
     sudo add-apt-repository -y universe
     sudo add-apt-repository -y multiverse
     sudo apt-get update
-    sudo NEEDRESTART_MODE=a apt-get install ca-certificates curl
+    sudo apt-get install ca-certificates curl
     sudo install -m 0755 -d /etc/apt/keyrings
     sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
     sudo chmod a+r /etc/apt/keyrings/docker.asc
@@ -558,7 +557,7 @@ function ensure_container_engine_apt() {
 
     # Install Docker
     sudo apt-get update
-    sudo NEEDRESTART_MODE=a apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+    sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
     sudo usermod -aG docker $(whoami)
   else
     sudo apt-get upgrade -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
@@ -615,7 +614,7 @@ function ensure_terraform_apt() {
       https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
       sudo tee /etc/apt/sources.list.d/hashicorp.list
     sudo apt-get update
-    sudo NEEDRESTART_MODE=a apt-get install terraform
+    sudo apt-get install terraform
   else
     sudo apt-get upgrade -y terraform
   fi
@@ -654,7 +653,7 @@ function ensure_kubectl_apt() {
     # curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
     #   echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list && \
     sudo apt-get update &&
-    sudo NEEDRESTART_MODE=a apt-get install -y kubectl
+    sudo apt-get install -y kubectl
   else
     sudo apt-get upgrade -y kubectl
   fi
