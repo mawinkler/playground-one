@@ -31,6 +31,21 @@ GREEN=$(tput setaf 2)
 BOLD=$(tput bold)
 RESET=$(tput sgr0)
 
+ARCH=$(uname -m)
+case $ARCH in
+  armv5*) ARCH="armv5";;
+  armv6*) ARCH="armv6";;
+  armv7*) ARCH="arm";;
+  arm64) ARCH="arm64";;
+  aarch64) ARCH="arm64";;
+  x86) ARCH="386";;
+  x86_64) ARCH="amd64";;
+  i686) ARCH="386";;
+  i386) ARCH="386";;
+esac
+
+printf "${BLUE}${BOLD}%s${RESET}\n" "Bootstrapping on ${ARCH}"
+
 #######################################
 # Query AWS Keys
 #######################################
@@ -77,6 +92,51 @@ function is_ec2() {
     return
   fi
   false
+}
+
+function ensure_container_engine_apt() {
+
+  printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading Docker on linux"
+  if ! command -v docker &>/dev/null; then
+    # Enable Universe and Multiverse
+    sudo add-apt-repository -y universe
+    sudo add-apt-repository -y multiverse
+    sudo apt-get update
+    sudo apt-get install ca-certificates curl
+    sudo install -m 0755 -d /etc/apt/keyrings
+    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+    # Add the repository to Apt sources:
+    echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+      $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+      sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    sudo apt-get update
+
+    # Install Docker
+    sudo apt-get update
+    sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+    sudo usermod -aG docker $(whoami)
+
+    printf '%s\n' "Please run ./get_pgoc.sh a last time"
+    exec sg docker "newgrp `id -ng`"
+  else
+    sudo apt-get upgrade -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+  fi
+}
+
+function ensure_awscli_curl() {
+
+  case $ARCH in
+    amd64) AARCH="x86_64";;
+    arm64) AARCH="aarch64";;
+  esac
+
+  curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-${AARCH}.zip" -o "/tmp/awscliv2.zip"
+  unzip -q /tmp/awscliv2.zip -d /tmp
+  sudo /tmp/aws/install --update
+  rm -Rf /tmp/aws /tmp/awscliv2.zip
 }
 
 #######################################
@@ -245,7 +305,7 @@ function cloud9_resize() {
     --query "Reservations[0].Instances[0].BlockDeviceMappings[0].Ebs.VolumeId" \
     --output text)
 
-  if [ $(aws ec2 describe-volumes --volume-id $VOLUMEID  | jq -r .Volumes[0].Size) -lt 30 ]; then
+  if [ $(aws ec2 describe-volumes --volume-id $VOLUMEID  | ./jq -r .Volumes[0].Size) -lt 30 ]; then
     aws ec2 modify-volume --volume-id $VOLUMEID --size $SIZE
 
     while [ \
@@ -258,13 +318,13 @@ function cloud9_resize() {
     sleep 1
     done
 
-    devicename=$(sudo lsblk --json | jq -r '.blockdevices[] | select(.children) | select(.children[].mountpoints[] == "/") | .name')
+    devicename=$(sudo lsblk --json | ./jq -r '.blockdevices[] | select(.children) | select(.children[].mountpoints[] == "/") | .name')
     sudo growpart /dev/${devicename} 1
 
     if [ "$(df -T | grep -i '/$' | awk '{print $2}')" == "xfs" ]; then
       sudo xfs_growfs -d /
     else
-      devicename_root=$(sudo lsblk --json | jq -r '.blockdevices[] | select(.children) | .children[] | select(.mountpoints[] == "/") | .name')
+      devicename_root=$(sudo lsblk --json | ./jq -r '.blockdevices[] | select(.children) | .children[] | select(.mountpoints[] == "/") | .name')
       sudo resize2fs /dev/${devicename_root}
     fi
   fi
@@ -325,30 +385,47 @@ function create_workdir() {
 # Main
 #######################################
 
-if is_ec2 ; then
-  export METADATA_TOKEN=$(curl -sS --request PUT "http://169.254.169.254/latest/api/token" --header "X-aws-ec2-metadata-token-ttl-seconds: 3600")
+if [ ! -f "./pgoc" ]; then
+  if is_ec2 ; then
+    export METADATA_TOKEN=$(curl -sS --request PUT "http://169.254.169.254/latest/api/token" --header "X-aws-ec2-metadata-token-ttl-seconds: 3600")
 
-  if ! command -v ./jq &>/dev/null; then
-    curl -fsSL https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux64 -o jq
-    chmod +x jq
+    if ! command -v ./jq &>/dev/null; then
+      curl -fsSL https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux64 -o jq
+      chmod +x ./jq
+    fi
+
+    if ! command -v unzip &>/dev/null; then
+      sudo apt update
+      sudo apt install -y unzip
+    fi
+
+    # If we were piped to bash we can't read user input
+    if [ -p /dev/stdin ]; then
+      curl -fsSLO https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/get_pgoc.sh
+      chmod +x ./get_pgoc.sh
+
+      printf '%s\n' "Please run ./get_pgoc.sh"
+      exit 0
+    else
+      # Create instance role and increase volume size
+      ensure_awscli_curl
+      prepare_cloud9
+    fi
   fi
 
-  # If we were piped to bash we can't read user input
-  if [ -p /dev/stdin ]; then
-    curl -fsSLO https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/get_pgoc.sh
-    chmod +x ./get_pgoc.sh
+  # Download current version of pgoc
+  curl -fsSLO https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/pgoc
+  chmod +x pgoc
 
-    printf '%s\n' "Please run ./get_pgoc.sh"
-    exit 0
-  else
-    # Create instance role and increase volume size
-    prepare_cloud9
+  if is_ec2 ; then
+    # Patch autorestart daemon
+    echo "\$nrconf{restart} = 'a';" > /tmp/90-autorestart.conf && \
+      sudo mv /tmp/90-autorestart.conf /etc/needrestart/conf.d/90-autorestart.conf && \
+      sudo chown root.root /etc/needrestart/conf.d/90-autorestart.conf
+
+    ensure_container_engine_apt
   fi
 fi
-
-# Download current version of pgoc
-curl -fsSLO https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/pgoc
-chmod +x pgoc
 
 create_workdir
 
