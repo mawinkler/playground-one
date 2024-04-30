@@ -53,21 +53,23 @@ The Linux instances are detected by Vision One ASRM after some time when you con
 
 ![alt text](images/asrm-ec2-attack-path-v2-01.png "Risk Detection")
 
+As we can see, there is a high risk EC2 instance listed with a risk score of 72. Following the link of `i-0726e545c73222cbf` will explain us the cause of the risk rating. The instance is detected as an Internet-facing EC2 instance with unrestricted Access.
+
+Additionally, the full potential attack path is shown in the lower half of the screen. It shows that one might be able to reach out to an RDS instance due to the assigned IAM instance role.
+
 ![alt text](images/asrm-ec2-attack-path-v2-02.png "Attack Path")
 
-Below the Asset Graph of the high risk instance:
+Navigating to the tab `Asset Risk Graph` creates a graphical representaion on the currently inspected asset. The instance of interest is the in grey highlighted one. On it's right the EC2 instance role granting database access is shown.
+
+One can easily review the all the dependencies of this instance such as who can access the instance and why, the assigned security group and mounted volumes.
 
 ![alt text](images/asrm-ec2-attack-path-v2-03.png "Asset Graph")
 
-It's profile:
+The Asset Profile presents detailed information about the asset such as Region, Availability zone, VPC ID, Public IP, architecture, and tags. Based on the analyses of Vision One, this instance is of Medium criticality. Depending on it's business relevance this could be easily adapted, if required.
 
 ![alt text](images/asrm-ec2-attack-path-v2-05.png "Asset Profile")
 
-The assigned policy:
-
-![alt text](images/asrm-ec2-attack-path-v2-04.png "Instance Policy")
-
-And where it's located:
+Going back to `Attack Surface Discovery --> Cloud Assets` followed by enabling the `Cloud Risk Graph` in the top right we can use the region view, in this case `eu-central-1` to let Vision One visually present us a high level view on what is deployed in the region of interest. The highlighted subnet `subnet-03930b609d1dbc4cd` indicates that an EC2 with a high risk score of 72 exists in it.
 
 ![alt text](images/asrm-ec2-attack-path-v2-06.png "Region View")
 

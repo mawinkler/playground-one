@@ -402,6 +402,7 @@ function get_config() {
     pgo_px="$(yq '.services.playground-one.px' $ONEPATH/config.yaml)"
     pgo_ec2_create_linux="$(yq '.services.playground-one.ec2.create-linux' $ONEPATH/config.yaml)"
     pgo_ec2_create_windows="$(yq '.services.playground-one.ec2.create-windows' $ONEPATH/config.yaml)"
+    pgo_azvm_create_linux="$(yq '.services.playground-one.azvm.create-linux' $ONEPATH/config.yaml)"
     pgo_ec2_create_database="$(yq '.services.playground-one.ec2.create-database' $ONEPATH/config.yaml)"
     # pgo_eks_create_ec2="$(yq '.services.playground-one.eks.create-ec2' $ONEPATH/config.yaml)"
     # pgo_eks_create_fargate="$(yq '.services.playground-one.eks.create-fargate' $ONEPATH/config.yaml)"
@@ -411,6 +412,7 @@ function get_config() {
     [[ "${pgo_px}" = "null" || "${pgo_px}" = "" ]] && pgo_px=false
     [[ "${pgo_ec2_create_linux}" = "null" || "${pgo_ec2_create_linux}" = "" ]] && pgo_ec2_create_linux=true
     [[ "${pgo_ec2_create_windows}" = "null" || "${pgo_ec2_create_windows}" = "" ]] && pgo_ec2_create_windows=true
+    [[ "${pgo_azvm_create_linux}" = "null" || "${pgo_azvm_create_linux}" = "" ]] && pgo_azvm_create_linux=true
     [[ "${pgo_ec2_create_database}" = "null" || "${pgo_ec2_create_database}" = "" ]] && pgo_ec2_create_database=false
     # [[ "${pgo_eks_create_ec2}" = "null" || "${pgo_eks_create_ec2}" = "" ]] && pgo_eks_create_ec2=false
     # [[ "${pgo_eks_create_fargate}" = "null" || "${pgo_eks_create_fargate}" = "" ]] && pgo_eks_create_fargate=false
@@ -426,7 +428,7 @@ function get_config() {
     [[ "${vision_one_api_key}" = "null" || "${vision_one_api_key}" = "" ]] && vision_one_api_key="apikey"
     [[ "${vision_one_region}" = "null" || "${vision_one_region}" = "" ]] && vision_one_region="us-east-1"
     [[ "${vision_one_cs_enabled}" = "null" || "${vision_one_cs_enabled}" = "" ]] && vision_one_cs_enabled=false
-    [[ "${vision_one_cs_policy}" = "null" || "${vision_one_cs_policy}" = "" ]] && vision_one_cs_policy="policy"
+    [[ "${vision_one_cs_policy}" = "null" || "${vision_one_cs_policy}" = "" ]] && vision_one_cs_policy="LogOnlyPolicy"
     [[ "${vision_one_asrm_create_attackpath}" = "null" || "${vision_one_asrm_create_attackpath}" = "" ]] && vision_one_asrm_create_attackpath=false
     vision_one_map_api_url ${vision_one_region}
 

@@ -176,7 +176,7 @@ function update_pgo_config() {
     exit 0
   fi
 
-  key_desc="EC2 - create Linux EC2"
+  key_desc="AWS EC2 - create Linux EC2"
   read -p "${key_desc} [${pgo_ec2_create_linux}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     pgo_ec2_create_linux=${TEMP}
@@ -189,7 +189,7 @@ function update_pgo_config() {
     exit 0
   fi
 
-  key_desc="EC2 - create Windows EC2"
+  key_desc="AWS EC2 - create Windows EC2"
   read -p "${key_desc} [${pgo_ec2_create_windows}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     pgo_ec2_create_windows=${TEMP}
@@ -202,7 +202,20 @@ function update_pgo_config() {
     exit 0
   fi
 
-  key_desc="RDS - create RDS Database"
+  key_desc="Azure VM - create Linux EC2"
+  read -p "${key_desc} [${pgo_azvm_create_linux}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    pgo_azvm_create_linux=${TEMP}
+  fi
+  if [[ "${pgo_azvm_create_linux}" =~ ^true|false$ ]]; then
+    target_val=${pgo_azvm_create_linux} \
+      yq -i '.services.playground-one.azvm.create-linux = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  key_desc="AWS RDS - create RDS Database"
   read -p "${key_desc} [${pgo_ec2_create_database}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     pgo_ec2_create_database=${TEMP}
@@ -241,7 +254,7 @@ function update_pgo_config() {
   #   exit 0
   # fi
 
-  key_desc="ECS - utilize EC2 Nodes"
+  key_desc="AWS ECS - utilize EC2 Nodes"
   read -p "${key_desc} [${pgo_ecs_create_ec2}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     pgo_ecs_create_ec2=${TEMP}
@@ -254,7 +267,7 @@ function update_pgo_config() {
     exit 0
   fi
 
-  key_desc="ECS - utilize Fargate Nodes"
+  key_desc="AWS ECS - utilize Fargate Nodes"
   read -p "${key_desc} [${pgo_ecs_create_fargate}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     pgo_ecs_create_fargate=${TEMP}
