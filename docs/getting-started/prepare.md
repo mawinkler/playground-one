@@ -193,6 +193,12 @@ Then, continue with [Configuration](configuration.md).
 
 ## Change Log
 
+### 0.3.0
+
+#### Changes
+
+- Migrated V1CS api to v3.0.
+
 ### 0.2.9
 
 #### Changes

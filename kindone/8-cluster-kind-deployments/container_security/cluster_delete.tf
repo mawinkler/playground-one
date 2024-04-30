@@ -12,7 +12,7 @@
 #       curl -fsSL -X DELETE \
 #         -H "Content-Type: application/json" \
 #         -H "api-version: v1" -H "Authorization: Bearer ${self.triggers.api_key}" \
-#         "https://api.xdr.trendmicro.com/beta/containerSecurity/kubernetesClusters/${self.triggers.cluster_id}"
+#         "https://api.xdr.trendmicro.com/v3.0/containerSecurity/kubernetesClusters/${self.triggers.cluster_id}"
 #     SCRIPT
 #   }
 # }

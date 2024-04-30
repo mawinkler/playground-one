@@ -11,6 +11,7 @@ config.yaml
 config.yaml.bak
 env.sh
 venv
+.packages
 
 # Archive
 archive

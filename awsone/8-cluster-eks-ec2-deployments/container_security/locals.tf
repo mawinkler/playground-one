@@ -5,7 +5,7 @@
 data "restapi_object" "cluster" {
   depends_on   = [restapi_object.cluster]
   provider     = restapi.container_security
-  path         = "/beta/containerSecurity/kubernetesClusters"
+  path         = "/v3.0/containerSecurity/kubernetesClusters"
   results_key  = "items"
   search_key   = "name"
   search_value = replace(var.cluster_name, "-", "_")
