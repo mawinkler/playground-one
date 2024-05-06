@@ -1,8 +1,12 @@
 # #############################################################################
 # Look up the latest Ubuntu Focal 20.04 AMI
 # #############################################################################
+# Working AMIs as of 20240502 in us-east-1:
+# Amazon : ami-0fa6a49f8ee632a51
+# Ubuntu : ami-011e48799a29115e9
+# Windows: ami-0f496107db66676ff
 data "aws_ami" "ubuntu" {
-  most_recent = false
+  most_recent = true
   owners      = ["099720109477"] # Canonical
 
   filter {
