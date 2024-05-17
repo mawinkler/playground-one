@@ -14,7 +14,7 @@ resource "aws_s3_bucket" "playground_awsone_scenario" {
   tags = {
     Name          = "${var.environment}-s3-bucket"
     Environment   = "${var.environment}"
-    Product       = "playground-two"
+    Product       = "playground-one"
     Configuration = "ec2"
   }
 }

@@ -8,7 +8,7 @@ region="trend-us-1"
 
 # IaC code in
 iac=7-scenarios-cspm
-profile_id=qTyEiufy6
+profile_id=Tc0NcdFKU
 
 # Conformity API Key
 api_key=${C1CSPM_SCANNER_KEY}
