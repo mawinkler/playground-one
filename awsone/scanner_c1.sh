@@ -21,19 +21,19 @@ THRESHOLD=high
 # THRESHOLD=medium
 # THRESHOLD=low
 
-rm -f plan.json
+rm -f ${file_path}
 
 # Create template
 cd ${iac}
 terraform init
 # terraform plan -var="account_id=${AWS_ACCOUNT_ID}" -var="aws_region=${AWS_REGION}" -out=plan.out
 terraform plan -out=plan.out
-terraform show -json plan.out > ../plan.json
+terraform show -json plan.out > ../${file_path}
 rm -f plan.out
 cd ..
 
 # Create scan payload
-contents=$(cat plan.json | jq '.' -MRs)
+contents=$(cat ${file_path} | jq '.' -MRs)
 payload='{
            "data": {
              "attributes": {
@@ -50,7 +50,7 @@ curl -s -X POST \
      -H "Authorization: ApiKey ${api_key}" \
      -H "Content-Type: application/vnd.api+json" \
      ${api_base_url}/template-scanner/scan \
-     --data-binary "${payload}" > result.json
+     --data-binary "@data.txt" > result.json
 
 cp result.json result_c1.json
 
