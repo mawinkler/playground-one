@@ -326,14 +326,14 @@ def suppress_check(check_id) -> None:
         "Authorization": f"ApiKey {api_key}"
     }
 
-    # response = requests.patch(
-    #     url, data=json.dumps(data), headers=headers, verify=True, timeout=30
-    # ).json()
+    response = requests.patch(
+        url, data=json.dumps(data), headers=headers, verify=True, timeout=30
+    ).json()
 
-    # # Error handling
-    # if "message" in response:
-    #     if response["message"] == "User is not authorized to access this resource with an explicit deny":
-    #         raise ValueError("Invalid API Key")
+    # Error handling
+    if "message" in response:
+        if response["message"] == "User is not authorized to access this resource with an explicit deny":
+            raise ValueError("Invalid API Key")
 
     print(f"Check {check_id} suppressed")
 
