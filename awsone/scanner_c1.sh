@@ -77,4 +77,13 @@ fail=0
 
 echo ${fail}
 
+# risk_levels_high=$(cat result.json | jq -r '
+#   .data[] |
+#     select((.attributes.status == "FAILURE") and (.attributes."risk-level" == "HIGH")) |
+#       (.attributes * .relationships.rule.data | 
+#         {"risk-level", "rule-title", "tags", "id"})
+# ')
+
+# echo $risk_levels_high
+
 rm -f data.txt

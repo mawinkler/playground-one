@@ -79,3 +79,9 @@ log/calico/cni/config
 log/calico/cni/current
 log/calico/cni/lock
 .pgo.goat.lock
+awsone/exceeded
+awsone/plan.json
+awsone/result_c1.json
+awsone/result_v1.json
+awsone/result.json
+awsone/scan_result.json
