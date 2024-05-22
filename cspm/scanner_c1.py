@@ -1,4 +1,15 @@
 #!/usr/bin/env python3
+import argparse
+import json
+import os
+import os.path
+import sys
+import logging
+import requests
+import textwrap
+from datetime import datetime, timedelta, UTC
+from pprint import pprint as pp
+
 DOCUMENTATION = """
 ---
 module: scanner_c1.py
@@ -42,37 +53,29 @@ author:
 """
 
 EXAMPLES = """
-$ ./scanner_c1.py --configuration ../awsone/7-scenarios-cspm
+# Run template scan
+$ ./scanner_c1.py --scan ../awsone/7-scenarios-cspm
 
 # run approval workflows in engine, here implementing the approved workflow
-$ ./scanner_c1.py --configuration ../awsone/7-scenarios-cspm --exclude
+$ ./scanner_c1.py --exclude ../awsone/7-scenarios-cspm
 
 # apply configuration
-$ ./scanner_c1.py --configuration ../awsone/7-scenarios-cspm --apply
+$ ./scanner_c1.py --apply ../awsone/7-scenarios-cspm
 
-# trigger bot run and review report
+# trigger bot run
+$ ./scanner_c1.py --bot
 
 # suppress findings
 $ ./scanner_c1.py --suppress
 
-# trigger bot run and review report
+# trigger bot run
+$ ./scanner_c1.py --bot
 """
 
 RETURN = """
 None
 """
 
-# import ssl
-import argparse
-import json
-import os
-import os.path
-import sys
-import logging
-import requests
-import textwrap
-from datetime import datetime, timedelta, UTC
-from pprint import pprint as pp
 
 _LOGGER = logging.getLogger(__name__)
 logging.basicConfig(
@@ -164,6 +167,32 @@ def scan_template(contents) -> str:
         json.dump(response, scan_result, indent=2)
 
     _LOGGER.info("Template Scan done.")
+
+    return response
+
+
+# #############################################################################
+# Scan account
+# #############################################################################
+def scan_account() -> str:
+    """Initiate Conformity Account Scan."""
+
+    _LOGGER.info("Starting Account Scan...")
+
+    url = f"{API_BASE_URL}/accounts/{ACCOUNT_ID}/scan"
+
+    headers = {"Authorization": f"ApiKey {API_KEY}", "Content-Type": "application/vnd.api+json"}
+
+    data = {}
+
+    response = requests.post(url, data=json.dumps(data), headers=headers, verify=True, timeout=30).json()
+
+    # Error handling
+    if "message" in response:
+        if response["message"] == "User is not authorized to access this resource with an explicit deny":
+            raise ValueError("Invalid API Key")
+
+    _LOGGER.info("Account Scan initiated.")
 
     return response
 
@@ -317,7 +346,7 @@ def retrieve_bot_results():
     page_number = 0
     service_names = ""
     created_less_than_days = 5
-    risk_levels = ";".join(RISK_LEVEL[RISK_LEVEL.index(RISK_LEVEL_FAIL) :])
+    risk_levels = ";".join(RISK_LEVEL[RISK_LEVEL.index(RISK_LEVEL_FAIL):])
     compliances = ""  # "AWAF"
 
     findings = []
@@ -409,60 +438,74 @@ def suppress_check(check_id) -> None:
 def main():
     """Entry point."""
     parser = argparse.ArgumentParser(
-        prog="Template Scanner for Terraform",
+        prog="python3 scanner_c1.py",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description="Run template scans and handle scan exceptions and suppressions.",
         epilog=textwrap.dedent(
             """\
             Workflow Example:
             --------------------------------
-            $ ./scanner_c1.py --configuration ../awsone/7-scenarios-cspm
+            # Run template scan
+            $ ./scanner_c1.py --scan ../awsone/7-scenarios-cspm
 
             # run approval workflows in engine, here implementing the approved workflow
-            $ ./scanner_c1.py --configuration ../awsone/7-scenarios-cspm --exclude
+            $ ./scanner_c1.py --exclude ../awsone/7-scenarios-cspm
 
             # apply configuration
-            $ ./scanner_c1.py --configuration ../awsone/7-scenarios-cspm --apply
+            $ ./scanner_c1.py --apply ../awsone/7-scenarios-cspm
 
-            # trigger bot run and review report
+            # trigger bot run
+            $ ./scanner_c1.py --bot
 
             # suppress findings
             $ ./scanner_c1.py --suppress
 
-            # trigger bot run and review report
+            # trigger bot run
+            $ ./scanner_c1.py --bot
             """
         ),
     )
-    parser.add_argument("--configuration", type=str, help="scan configuration")
-    parser.add_argument("--apply", action="store_const", const=True, default=False, help="apply configuration")
-    parser.add_argument("--destroy", action="store_const", const=True, default=False, help="destroy configuration")
+    parser.add_argument("--scan", type=str, nargs=1, metavar="CONFIG", help="scan configuration")
+    parser.add_argument("--exclude", type=str, nargs=1, metavar="CONFIG", help="scan configuration and exclude findings")
+    parser.add_argument("--apply", type=str, nargs=1, metavar="CONFIG", help="apply configuration")
+    parser.add_argument("--destroy", type=str, nargs=1, metavar="CONFIG", help="destroy configuration")
+    parser.add_argument("--bot", action="store_const", const=True, default=False, help="scan account")
     parser.add_argument("--suppress", action="store_const", const=True, default=False, help="suppress findings")
-    parser.add_argument("--exclude", action="store_const", const=True, default=False, help="exclude findings")
     parser.add_argument("--clear", action="store_const", const=True, default=False, help="clear exceptions")
     args = parser.parse_args()
+
+    if args.scan:
+        _LOGGER.info("Scan configuration %s", args.scan[0])
+        plan = terraform_plan(args.scan[0])
+        scan_result = scan_template(plan)
+        scan_failures(scan_result, False)
+
+    if args.exclude:
+        _LOGGER.info("Scan configuration %s and exclude findings", args.exclude[0])
+        plan = terraform_plan(args.exclude[0])
+        scan_result = scan_template(plan)
+        scan_failures(scan_result, True)
+
+    if args.apply:
+        _LOGGER.info("Apply configuration %s", args.apply[0])
+        terraform_apply(args.apply[0])
+
+    if args.destroy:
+        _LOGGER.info("Destroy configuration %s", args.destroy[0])
+        terraform_destroy(args.destroy[0])
+
+    if args.bot:
+        _LOGGER.debug("Scan account")
+        scan_account()
 
     if args.suppress:
         _LOGGER.debug("Suppression enabled")
         bot_findings = retrieve_bot_results()
         match_scan_result_with_findings(bot_findings)
-    else:
-        if args.clear:
-            _LOGGER.debug("Clear enabled")
-            clear_exceptions()
-        else:
-            if args.destroy:
-                _LOGGER.debug("Destroy enabled")
-                terraform_destroy(args.configuration)
-            else:
-                if args.apply:
-                    _LOGGER.debug("Apply enabled")
-                    terraform_apply(args.configuration)
-                else:
-                    if args.configuration:
-                        _LOGGER.debug("Configuration provided")
-                        plan = terraform_plan(args.configuration)
-                        scan_result = scan_template(plan)
-                        scan_failures(scan_result, args.exclude)
+
+    if args.clear:
+        _LOGGER.debug("Clear enabled")
+        clear_exceptions()
 
 
 if __name__ == "__main__":
