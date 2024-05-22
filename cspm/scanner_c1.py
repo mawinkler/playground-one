@@ -31,6 +31,7 @@ import os.path
 import sys
 import logging
 import requests
+import textwrap
 from datetime import datetime, timedelta, UTC
 from pprint import pprint as pp
 
@@ -354,7 +355,28 @@ def suppress_check(check_id) -> None:
 # #############################################################################
 def main():
     """Entry point."""
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        prog='Template Scanner for Terraform',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description='Run template scans and handle scan exceptions and suppressions.',
+        epilog=textwrap.dedent('''\
+            Workflow Example:
+            --------------------------------
+            $ ./scanner_c1.py --configuration ../awsone/7-scenarios-cspm
+
+            # run approval workflows in engine, here implementing the approved workflow
+            $ ./scanner_c1.py --configuration ../awsone/7-scenarios-cspm --exclude
+            
+            # apply configuration
+            $ ./scanner_c1.py --configuration ../awsone/7-scenarios-cspm --apply
+            
+            # trigger bot run and review report
+            
+            # suppress findings
+            $ ./scanner_c1.py --suppress
+            
+            # trigger bot run and review report
+            '''))
     parser.add_argument("--configuration", type=str, help="scan configuration")
     parser.add_argument("--apply", action="store_const", const=True, default=False, help="apply configuration")
     parser.add_argument("--destroy", action="store_const", const=True, default=False, help="destroy configuration")
