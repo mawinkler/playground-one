@@ -1,26 +1,65 @@
 #!/usr/bin/env python3
 DOCUMENTATION = """
 ---
-module: scanner_c1_exception
+module: scanner_c1.py
 
-short_description: 
+short_description: Implements for following functionality:
+    - Create Terrafrom Plan of Configuration and run Conformity Template Scan
+    - Create Terraform Apply of Configuration
+    - Create Terraform Destroy of Configuration
+    - Create exceptions in Scan Profile based on Tags assigned to the resource
+    - Remove Exceptions in Scan Profile
+    - Suppress Findings in Account Profile
 
 description:
-    - "TODO"
+    - Implements the required functionality for Template Scan, Exception
+      approval workflows and temporary suppression of findings in Conformity
+      Account Profile.
+
+requirements:
+    - Set environment variable C1CSPM_SCANNER_KEY with the API key of the
+      Conformity Scanner owning Full Access to the Conformity Account.
+    - Adapt the following constants to your requirements below:
+        REGION = "trend-us-1"
+        SCAN_PROFILE_ID = "Tc0NcdFKU"
+        ACCOUNT_ID = "ed68602b-0eb1-4cbb-ad0b-64676877fadf"
+        RISK_LEVEL_FAIL = "MEDIUM"
 
 options:
-    --query       cves to handle
+    --configuration     Terraform Configuration location
+    --apply             Apply Terraform Configuration specified with
+                        --configuration.
+    --destroy           Destroy Terraform Configuration specified with
+                        --configuration.
+    --exclude           Create Exceptions in Scan Profile when scanning the
+                        Terraform Configuration specified with --configuration.
+    --suppress          Suppress Findings in Account Profile for the scan 
+                        findings for the duration of 1 week.
+    --clear             Removes Exceptions from Scan Profile.
 
 author:
     - Markus Winkler (markus_winkler@trendmicro.com)
 """
 
 EXAMPLES = """
-TODO
+$ ./scanner_c1.py --configuration ../awsone/7-scenarios-cspm
+
+# run approval workflows in engine, here implementing the approved workflow
+$ ./scanner_c1.py --configuration ../awsone/7-scenarios-cspm --exclude
+
+# apply configuration
+$ ./scanner_c1.py --configuration ../awsone/7-scenarios-cspm --apply
+
+# trigger bot run and review report
+
+# suppress findings
+$ ./scanner_c1.py --suppress
+
+# trigger bot run and review report
 """
 
 RETURN = """
-TODO
+None
 """
 
 # import ssl
@@ -35,12 +74,6 @@ import textwrap
 from datetime import datetime, timedelta, UTC
 from pprint import pprint as pp
 
-# from python_terraform import Terraform, TerraformCommandError
-# ssl._create_default_https_context = ssl._create_unverified_context
-# import urllib3
-
-# urllib3.disable_warnings()
-
 _LOGGER = logging.getLogger(__name__)
 logging.basicConfig(
     stream=sys.stdout,
@@ -53,12 +86,12 @@ logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 RISK_LEVEL = ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
 
-region = "trend-us-1"
-api_key = os.environ["C1CSPM_SCANNER_KEY"]
-api_base_url = f"https://conformity.{region}.cloudone.trendmicro.com/api"
-scan_profile_id = "Tc0NcdFKU"
-account_id = "ed68602b-0eb1-4cbb-ad0b-64676877fadf"
-risk_level_fail = "MEDIUM"
+REGION = "trend-us-1"  # Adapt when needed
+API_KEY = os.environ["C1CSPM_SCANNER_KEY"]
+API_BASE_URL = f"https://conformity.{REGION}.cloudone.trendmicro.com/api"
+SCAN_PROFILE_ID = "Tc0NcdFKU"  # Adapt when needed
+ACCOUNT_ID = "ed68602b-0eb1-4cbb-ad0b-64676877fadf"  # Adapt when needed
+RISK_LEVEL_FAIL = "MEDIUM"  # Adapt when needed
 
 
 # #############################################################################
@@ -114,9 +147,11 @@ def scan_template(contents) -> str:
 
     _LOGGER.info("Starting Template Scan...")
 
-    url = f"{api_base_url}/template-scanner/scan"
-    data = {"data": {"attributes": {"profileId": scan_profile_id, "type": "terraform-template", "contents": contents}}}
-    headers = {"Authorization": f"ApiKey {api_key}", "Content-Type": "application/vnd.api+json"}
+    url = f"{API_BASE_URL}/template-scanner/scan"
+
+    headers = {"Authorization": f"ApiKey {API_KEY}", "Content-Type": "application/vnd.api+json"}
+
+    data = {"data": {"attributes": {"profileId": SCAN_PROFILE_ID, "type": "terraform-template", "contents": contents}}}
 
     response = requests.post(url, data=json.dumps(data), headers=headers, verify=True, timeout=30).json()
 
@@ -140,26 +175,34 @@ def scan_failures(contents, exclude=False) -> None:
     """Parse scan result for failures and set exceptions."""
 
     for finding in contents.get("data", []):
+
         if finding["attributes"]["status"] == "FAILURE":
             risk_level = finding.get("attributes", {}).get("risk-level", None)
-            if RISK_LEVEL.index(risk_level) < RISK_LEVEL.index(risk_level_fail):
+
+            if RISK_LEVEL.index(risk_level) < RISK_LEVEL.index(RISK_LEVEL_FAIL):
                 continue
+
             rule_title = finding.get("attributes", {}).get("rule-title", None)
             tags = finding.get("attributes", {}).get("tags", {})
             rule_id = finding.get("relationships", {}).get("rule", {}).get("data", {}).get("id", None)
 
             if exclude:
-                _LOGGER.info(f"Setting Exception for rule {rule_id} with Risk Level {risk_level}, Rule Title: {rule_title}")
+                _LOGGER.info(
+                    "Setting Exception for rule %s with Risk Level %s, Rule Title: %s", rule_id, risk_level, rule_title
+                )
                 set_exception(rule_id, risk_level, tags)
             else:
-                _LOGGER.info(f"Skipping Exception for rule {rule_id} with Risk Level {risk_level}, Rule Title: {rule_title}")
+                _LOGGER.info(
+                    "Skipping Exception for rule %s with Risk Level %s, Rule Title: %s", rule_id, risk_level, rule_title
+                )
 
 
 def rule_tags_set(rule_id) -> str:
     """Retrive tags in exception"""
 
-    url = f"{api_base_url}/profiles/{scan_profile_id}?includes=ruleSettings"
-    headers = {"Content-Type": "application/vnd.api+json", "Authorization": f"ApiKey {api_key}"}
+    url = f"{API_BASE_URL}/profiles/{SCAN_PROFILE_ID}?includes=ruleSettings"
+
+    headers = {"Content-Type": "application/vnd.api+json", "Authorization": f"ApiKey {API_KEY}"}
 
     response = requests.get(url, headers=headers, verify=True, timeout=30).json()
 
@@ -175,7 +218,10 @@ def set_exception(rule_id, risk_level, tags):
     existing_tags = rule_tags_set(rule_id)
     tags = existing_tags + list(set(tags) - set(existing_tags))
 
-    url = f"{api_base_url}/profiles/{scan_profile_id}"
+    url = f"{API_BASE_URL}/profiles/{SCAN_PROFILE_ID}"
+
+    headers = {"Content-Type": "application/vnd.api+json", "Authorization": f"ApiKey {API_KEY}"}
+
     data = {
         "included": [
             {
@@ -192,13 +238,11 @@ def set_exception(rule_id, risk_level, tags):
         ],
         "data": {
             "type": "profiles",
-            "id": scan_profile_id,
+            "id": SCAN_PROFILE_ID,
             "attributes": {"name": "AWS Scanner", "description": "Scan exclusions"},
             "relationships": {"ruleSettings": {"data": [{"type": "rules", "id": rule_id}]}},
         },
     }
-
-    headers = {"Content-Type": "application/vnd.api+json", "Authorization": f"ApiKey {api_key}"}
 
     response = requests.patch(url, data=json.dumps(data), headers=headers, verify=True, timeout=30).json()
 
@@ -207,26 +251,28 @@ def set_exception(rule_id, risk_level, tags):
         if response["message"] == "User is not authorized to access this resource with an explicit deny":
             raise ValueError("Invalid API Key")
 
-    _LOGGER.info(f"Exception for {rule_id} in Profile {scan_profile_id} set for Tags {tags}")
+    _LOGGER.info("Exception for %s in Profile %s set for Tags %s", rule_id, SCAN_PROFILE_ID, tags)
 
 
 def clear_exceptions():
     """Remove all exceptions from profile."""
 
     # TODO: How to completely remove a rule setting?
-    
-    url = f"{api_base_url}/profiles/{scan_profile_id}?includes=ruleSettings"
 
-    headers = {"Content-Type": "application/vnd.api+json", "Authorization": f"ApiKey {api_key}"}
+    url = f"{API_BASE_URL}/profiles/{SCAN_PROFILE_ID}?includes=ruleSettings"
+
+    headers = {"Content-Type": "application/vnd.api+json", "Authorization": f"ApiKey {API_KEY}"}
 
     response = requests.get(url, headers=headers, verify=True, timeout=30).json()
 
-    url = f"{api_base_url}/profiles/{scan_profile_id}"
-    
+    url = f"{API_BASE_URL}/profiles/{SCAN_PROFILE_ID}"
+
     for rule in response.get("included", []):
+
         rule_id = rule.get("id", None)
         risk_level = rule.get("attributes", []).get("riskLevel", None)
-        _LOGGER.info(f"Removing Exception for {rule_id} in Profile {scan_profile_id}")
+
+        _LOGGER.info("Removing Exception for %s in Profile %s", rule_id, SCAN_PROFILE_ID)
 
         data = {
             "included": [
@@ -244,14 +290,13 @@ def clear_exceptions():
             ],
             "data": {
                 "type": "profiles",
-                "id": scan_profile_id,
+                "id": SCAN_PROFILE_ID,
                 "attributes": {"name": "AWS Scanner", "description": "Scan exclusions"},
                 "relationships": {"ruleSettings": {"data": [{"type": "rules", "id": rule_id}]}},
             },
         }
 
         response = requests.patch(url, data=json.dumps(data), headers=headers, verify=True, timeout=30).json()
-
         # pp(response)
 
         # Error handling
@@ -259,26 +304,26 @@ def clear_exceptions():
             if response["message"] == "User is not authorized to access this resource with an explicit deny":
                 raise ValueError("Invalid API Key")
 
-        _LOGGER.info(f"Scan Exceptions in Profile {scan_profile_id} for rule {rule_id} removed")
+        _LOGGER.info("Scan Exceptions in Profile %s for rule %s removed", SCAN_PROFILE_ID, rule_id)
 
-    
+
 # #############################################################################
 # Suppress findings in AWS Account
 # #############################################################################
 def retrieve_bot_results():
     """Retrieve Bot results from AWS Account"""
 
-    page_size = 5
+    page_size = 10
     page_number = 0
     service_names = ""
     created_less_than_days = 5
-    risk_levels = ";".join(RISK_LEVEL[RISK_LEVEL.index(risk_level_fail) :])
+    risk_levels = ";".join(RISK_LEVEL[RISK_LEVEL.index(RISK_LEVEL_FAIL) :])
     compliances = ""  # "AWAF"
 
     findings = []
     while True:
-        url = f"{api_base_url}/checks"
-        url += f"?accountIds={account_id}"
+        url = f"{API_BASE_URL}/checks"
+        url += f"?accountIds={ACCOUNT_ID}"
         url += f"&page[size]={page_size}"
         url += f"&page[number]={page_number}"
         url += f"&filter[services]={service_names}"
@@ -288,7 +333,7 @@ def retrieve_bot_results():
         url += "&filter[statuses]=FAILURE"
         url += "&consistentPagination=true"
 
-        headers = {"Content-Type": "application/vnd.api+json", "Authorization": f"ApiKey {api_key}"}
+        headers = {"Content-Type": "application/vnd.api+json", "Authorization": f"ApiKey {API_KEY}"}
 
         response = requests.get(url, headers=headers, verify=True, timeout=30).json()
 
@@ -299,8 +344,8 @@ def retrieve_bot_results():
         if (page_number * page_size) >= total:
             break
         page_number += 1
-        
-        _LOGGER.debug(f"Retrieved {len(findings)} of {total} findings")
+
+        _LOGGER.debug("Retrieved %s of %s findings", len(findings), total)
 
     # pp(findings)
 
@@ -313,15 +358,23 @@ def match_scan_result_with_findings(bot_findings):
     with open("scan_result.json", "r", encoding="utf-8") as json_file:
         scan_results = json.load(json_file)
 
+    _LOGGER.info("Analysing %s Bot findings", len(bot_findings))
     for scan_result in scan_results.get("data", []):
+
         if scan_result.get("attributes", {}).get("status") == "FAILURE":
             scan_rule_id = scan_result.get("relationships", {}).get("rule", {}).get("data", {}).get("id", None)
             scan_tags = scan_result.get("attributes", {}).get("tags", {})
+
             for bot_finding in bot_findings:
+
                 if bot_finding.get("relationships", {}).get("rule", {}).get("data", {}).get("id", None) == scan_rule_id:
-                    if set(bot_finding.get("attributes", {}).get("tags", {})) == set(scan_tags):
+                    _LOGGER.info("Bot finding match %s", scan_rule_id)
+
+                    if set(scan_tags).issubset(set(bot_finding.get("attributes", {}).get("tags", {}))):
                         suppress_check(bot_finding.get("id", None))
                         continue
+                    else:
+                        _LOGGER.info("Scan tags %s", format(scan_tags))
 
 
 def suppress_check(check_id) -> None:
@@ -330,15 +383,15 @@ def suppress_check(check_id) -> None:
     now = datetime.now(UTC).replace(tzinfo=None)
     suppress_until = int((now + timedelta(days=7)).timestamp() * 1000)
 
-    _LOGGER.info(f"Setting Suppression for Check {check_id}")
+    _LOGGER.info("Setting Suppression for Check %s", format(check_id))
 
-    url = f"{api_base_url}/checks/{check_id}"
+    url = f"{API_BASE_URL}/checks/{check_id}"
     data = {
         "data": {"type": "checks", "attributes": {"suppressed": True, "suppressed-until": suppress_until}},
         "meta": {"note": "suppressed for 1 week, failure not-applicable"},
     }
 
-    headers = {"Content-Type": "application/vnd.api+json", "Authorization": f"ApiKey {api_key}"}
+    headers = {"Content-Type": "application/vnd.api+json", "Authorization": f"ApiKey {API_KEY}"}
 
     response = requests.patch(url, data=json.dumps(data), headers=headers, verify=True, timeout=30).json()
 
@@ -347,7 +400,7 @@ def suppress_check(check_id) -> None:
         if response["message"] == "User is not authorized to access this resource with an explicit deny":
             raise ValueError("Invalid API Key")
 
-    _LOGGER.info(f"Check {check_id} suppressed")
+    _LOGGER.info("Check %s suppressed", check_id)
 
 
 # #############################################################################
@@ -356,27 +409,30 @@ def suppress_check(check_id) -> None:
 def main():
     """Entry point."""
     parser = argparse.ArgumentParser(
-        prog='Template Scanner for Terraform',
+        prog="Template Scanner for Terraform",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description='Run template scans and handle scan exceptions and suppressions.',
-        epilog=textwrap.dedent('''\
+        description="Run template scans and handle scan exceptions and suppressions.",
+        epilog=textwrap.dedent(
+            """\
             Workflow Example:
             --------------------------------
             $ ./scanner_c1.py --configuration ../awsone/7-scenarios-cspm
 
             # run approval workflows in engine, here implementing the approved workflow
             $ ./scanner_c1.py --configuration ../awsone/7-scenarios-cspm --exclude
-            
+
             # apply configuration
             $ ./scanner_c1.py --configuration ../awsone/7-scenarios-cspm --apply
-            
+
             # trigger bot run and review report
-            
+
             # suppress findings
             $ ./scanner_c1.py --suppress
-            
+
             # trigger bot run and review report
-            '''))
+            """
+        ),
+    )
     parser.add_argument("--configuration", type=str, help="scan configuration")
     parser.add_argument("--apply", action="store_const", const=True, default=False, help="apply configuration")
     parser.add_argument("--destroy", action="store_const", const=True, default=False, help="destroy configuration")
@@ -398,15 +454,15 @@ def main():
                 _LOGGER.debug("Destroy enabled")
                 terraform_destroy(args.configuration)
             else:
-                if args.configuration:
-                    _LOGGER.debug("Configuration provided")
-                    plan = terraform_plan(args.configuration)
-                    scan_result = scan_template(plan)
-                    scan_failures(scan_result, args.exclude)
-
                 if args.apply:
                     _LOGGER.debug("Apply enabled")
                     terraform_apply(args.configuration)
+                else:
+                    if args.configuration:
+                        _LOGGER.debug("Configuration provided")
+                        plan = terraform_plan(args.configuration)
+                        scan_result = scan_template(plan)
+                        scan_failures(scan_result, args.exclude)
 
 
 if __name__ == "__main__":
