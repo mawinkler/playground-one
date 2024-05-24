@@ -124,6 +124,7 @@ def terraform_apply(working_dir) -> None:
     _LOGGER.info("Apply Terraform Configuration...")
 
     os.system(f"terraform -chdir={working_dir} apply -auto-approve")
+    os.system("cp scan_result.json scan_result_applied.json")
 
     print()
 
@@ -384,7 +385,7 @@ def retrieve_bot_results():
 def match_scan_result_with_findings(bot_findings):
     """Match Scan Results with Findings."""
 
-    with open("scan_result.json", "r", encoding="utf-8") as json_file:
+    with open("scan_result_applied.json", "r", encoding="utf-8") as json_file:
         scan_results = json.load(json_file)
 
     _LOGGER.info("Analysing %s Bot findings", len(bot_findings))
