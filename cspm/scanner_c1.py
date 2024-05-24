@@ -29,7 +29,7 @@ description:
 
 requirements:
     - Set environment variable C1CSPM_SCANNER_KEY with the API key of the
-      Conformity Scanner owning Full Access to the Conformity Account.
+      Conformity Scanner owning Power User Access to the Conformity Account.
     - Adapt the following constants to your requirements below:
         REGION = "trend-us-1"
         SCAN_PROFILE_ID = "Tc0NcdFKU"
