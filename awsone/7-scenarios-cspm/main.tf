@@ -1,9 +1,7 @@
-data "terraform_remote_state" "vpc" {
-  backend = "local"
-
-  config = {
-    path = "../2-network/terraform.tfstate"
-  }
+resource "random_string" "random_root" {
+  length  = 8
+  special = false
+  upper   = false
 }
 
 module "s3" {
