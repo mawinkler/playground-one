@@ -37,16 +37,14 @@ requirements:
         RISK_LEVEL_FAIL = "MEDIUM"
 
 options:
-    --configuration     Terraform Configuration location
-    --apply             Apply Terraform Configuration specified with
-                        --configuration.
-    --destroy           Destroy Terraform Configuration specified with
-                        --configuration.
-    --exclude           Create Exceptions in Scan Profile when scanning the
-                        Terraform Configuration specified with --configuration.
-    --suppress          Suppress Findings in Account Profile for the scan 
-                        findings for the duration of 1 week.
-    --clear             Removes Exceptions from Scan Profile.
+  -h, --help        show this help message and exit
+  --scan CONFIG     scan configuration
+  --exclude CONFIG  scan configuration and exclude findings
+  --apply CONFIG    apply configuration
+  --destroy CONFIG  destroy configuration
+  --bot             scan account
+  --suppress        suppress findings
+  --clear           clear exceptions
 
 author:
     - Markus Winkler (markus_winkler@trendmicro.com)
@@ -153,15 +151,31 @@ def scan_template(contents) -> str:
 
     url = f"{API_BASE_URL}/template-scanner/scan"
 
-    headers = {"Authorization": f"ApiKey {API_KEY}", "Content-Type": "application/vnd.api+json"}
+    headers = {
+        "Authorization": f"ApiKey {API_KEY}",
+        "Content-Type": "application/vnd.api+json",
+    }
 
-    data = {"data": {"attributes": {"profileId": SCAN_PROFILE_ID, "type": "terraform-template", "contents": contents}}}
+    data = {
+        "data": {
+            "attributes": {
+                "profileId": SCAN_PROFILE_ID,
+                "type": "terraform-template",
+                "contents": contents,
+            }
+        }
+    }
 
-    response = requests.post(url, data=json.dumps(data), headers=headers, verify=True, timeout=30).json()
+    response = requests.post(
+        url, data=json.dumps(data), headers=headers, verify=True, timeout=30
+    ).json()
 
     # Error handling
     if "message" in response:
-        if response["message"] == "User is not authorized to access this resource with an explicit deny":
+        if (
+            response["message"]
+            == "User is not authorized to access this resource with an explicit deny"
+        ):
             raise ValueError("Invalid API Key")
 
     with open("scan_result.json", "w", encoding="utf-8") as scan_result:
@@ -182,15 +196,23 @@ def scan_account() -> str:
 
     url = f"{API_BASE_URL}/accounts/{ACCOUNT_ID}/scan"
 
-    headers = {"Authorization": f"ApiKey {API_KEY}", "Content-Type": "application/vnd.api+json"}
+    headers = {
+        "Authorization": f"ApiKey {API_KEY}",
+        "Content-Type": "application/vnd.api+json",
+    }
 
     data = {}
 
-    response = requests.post(url, data=json.dumps(data), headers=headers, verify=True, timeout=30).json()
+    response = requests.post(
+        url, data=json.dumps(data), headers=headers, verify=True, timeout=30
+    ).json()
 
     # Error handling
     if "message" in response:
-        if response["message"] == "User is not authorized to access this resource with an explicit deny":
+        if (
+            response["message"]
+            == "User is not authorized to access this resource with an explicit deny"
+        ):
             raise ValueError("Invalid API Key")
 
     _LOGGER.info("Account Scan initiated.")
@@ -205,7 +227,6 @@ def scan_failures(contents, exclude=False) -> None:
     """Parse scan result for failures and set exceptions."""
 
     for finding in contents.get("data", []):
-
         if finding["attributes"]["status"] == "FAILURE":
             risk_level = finding.get("attributes", {}).get("risk-level", None)
 
@@ -214,16 +235,27 @@ def scan_failures(contents, exclude=False) -> None:
 
             rule_title = finding.get("attributes", {}).get("rule-title", None)
             tags = finding.get("attributes", {}).get("tags", {})
-            rule_id = finding.get("relationships", {}).get("rule", {}).get("data", {}).get("id", None)
+            rule_id = (
+                finding.get("relationships", {})
+                .get("rule", {})
+                .get("data", {})
+                .get("id", None)
+            )
 
             if exclude:
                 _LOGGER.info(
-                    "Setting Exception for rule %s with Risk Level %s, Rule Title: %s", rule_id, risk_level, rule_title
+                    "Setting Exception for rule %s with Risk Level %s, Rule Title: %s",
+                    rule_id,
+                    risk_level,
+                    rule_title,
                 )
                 set_exception(rule_id, risk_level, tags)
             else:
                 _LOGGER.info(
-                    "Skipping Exception for rule %s with Risk Level %s, Rule Title: %s", rule_id, risk_level, rule_title
+                    "Finding of rule %s with Risk Level %s, Rule Title: %s",
+                    rule_id,
+                    risk_level,
+                    rule_title,
                 )
 
 
@@ -232,13 +264,18 @@ def rule_tags_set(rule_id) -> str:
 
     url = f"{API_BASE_URL}/profiles/{SCAN_PROFILE_ID}?includes=ruleSettings"
 
-    headers = {"Content-Type": "application/vnd.api+json", "Authorization": f"ApiKey {API_KEY}"}
+    headers = {
+        "Content-Type": "application/vnd.api+json",
+        "Authorization": f"ApiKey {API_KEY}",
+    }
 
     response = requests.get(url, headers=headers, verify=True, timeout=30).json()
 
     for rule in response.get("included", []):
         if rule["id"] == rule_id:
-            return rule.get("attributes", {}).get("exceptions", {}).get("filterTags", [])
+            return (
+                rule.get("attributes", {}).get("exceptions", {}).get("filterTags", [])
+            )
     return []
 
 
@@ -250,7 +287,10 @@ def set_exception(rule_id, risk_level, tags):
 
     url = f"{API_BASE_URL}/profiles/{SCAN_PROFILE_ID}"
 
-    headers = {"Content-Type": "application/vnd.api+json", "Authorization": f"ApiKey {API_KEY}"}
+    headers = {
+        "Content-Type": "application/vnd.api+json",
+        "Authorization": f"ApiKey {API_KEY}",
+    }
 
     data = {
         "included": [
@@ -270,18 +310,27 @@ def set_exception(rule_id, risk_level, tags):
             "type": "profiles",
             "id": SCAN_PROFILE_ID,
             "attributes": {"name": "AWS Scanner", "description": "Scan exclusions"},
-            "relationships": {"ruleSettings": {"data": [{"type": "rules", "id": rule_id}]}},
+            "relationships": {
+                "ruleSettings": {"data": [{"type": "rules", "id": rule_id}]}
+            },
         },
     }
 
-    response = requests.patch(url, data=json.dumps(data), headers=headers, verify=True, timeout=30).json()
+    response = requests.patch(
+        url, data=json.dumps(data), headers=headers, verify=True, timeout=30
+    ).json()
 
     # Error handling
     if "message" in response:
-        if response["message"] == "User is not authorized to access this resource with an explicit deny":
+        if (
+            response["message"]
+            == "User is not authorized to access this resource with an explicit deny"
+        ):
             raise ValueError("Invalid API Key")
 
-    _LOGGER.info("Exception for %s in Profile %s set for Tags %s", rule_id, SCAN_PROFILE_ID, tags)
+    _LOGGER.info(
+        "Exception for %s in Profile %s set for Tags %s", rule_id, SCAN_PROFILE_ID, tags
+    )
 
 
 def clear_exceptions():
@@ -291,18 +340,22 @@ def clear_exceptions():
 
     url = f"{API_BASE_URL}/profiles/{SCAN_PROFILE_ID}?includes=ruleSettings"
 
-    headers = {"Content-Type": "application/vnd.api+json", "Authorization": f"ApiKey {API_KEY}"}
+    headers = {
+        "Content-Type": "application/vnd.api+json",
+        "Authorization": f"ApiKey {API_KEY}",
+    }
 
     response = requests.get(url, headers=headers, verify=True, timeout=30).json()
 
     url = f"{API_BASE_URL}/profiles/{SCAN_PROFILE_ID}"
 
     for rule in response.get("included", []):
-
         rule_id = rule.get("id", None)
         risk_level = rule.get("attributes", []).get("riskLevel", None)
 
-        _LOGGER.info("Removing Exception for %s in Profile %s", rule_id, SCAN_PROFILE_ID)
+        _LOGGER.info(
+            "Removing Exception for %s in Profile %s", rule_id, SCAN_PROFILE_ID
+        )
 
         data = {
             "included": [
@@ -322,19 +375,30 @@ def clear_exceptions():
                 "type": "profiles",
                 "id": SCAN_PROFILE_ID,
                 "attributes": {"name": "AWS Scanner", "description": "Scan exclusions"},
-                "relationships": {"ruleSettings": {"data": [{"type": "rules", "id": rule_id}]}},
+                "relationships": {
+                    "ruleSettings": {"data": [{"type": "rules", "id": rule_id}]}
+                },
             },
         }
 
-        response = requests.patch(url, data=json.dumps(data), headers=headers, verify=True, timeout=30).json()
+        response = requests.patch(
+            url, data=json.dumps(data), headers=headers, verify=True, timeout=30
+        ).json()
         # pp(response)
 
         # Error handling
         if "message" in response:
-            if response["message"] == "User is not authorized to access this resource with an explicit deny":
+            if (
+                response["message"]
+                == "User is not authorized to access this resource with an explicit deny"
+            ):
                 raise ValueError("Invalid API Key")
 
-        _LOGGER.info("Scan Exceptions in Profile %s for rule %s removed", SCAN_PROFILE_ID, rule_id)
+        _LOGGER.info(
+            "Scan Exceptions in Profile %s for rule %s removed",
+            SCAN_PROFILE_ID,
+            rule_id,
+        )
 
 
 # #############################################################################
@@ -347,7 +411,7 @@ def retrieve_bot_results():
     page_number = 0
     service_names = ""
     created_less_than_days = 5
-    risk_levels = ";".join(RISK_LEVEL[RISK_LEVEL.index(RISK_LEVEL_FAIL):])
+    risk_levels = ";".join(RISK_LEVEL[RISK_LEVEL.index(RISK_LEVEL_FAIL) :])
     compliances = ""  # "AWAF"
 
     findings = []
@@ -363,7 +427,10 @@ def retrieve_bot_results():
         url += "&filter[statuses]=FAILURE"
         url += "&consistentPagination=true"
 
-        headers = {"Content-Type": "application/vnd.api+json", "Authorization": f"ApiKey {API_KEY}"}
+        headers = {
+            "Content-Type": "application/vnd.api+json",
+            "Authorization": f"ApiKey {API_KEY}",
+        }
 
         response = requests.get(url, headers=headers, verify=True, timeout=30).json()
 
@@ -390,17 +457,28 @@ def match_scan_result_with_findings(bot_findings):
 
     _LOGGER.info("Analysing %s Bot findings", len(bot_findings))
     for scan_result in scan_results.get("data", []):
-
         if scan_result.get("attributes", {}).get("status") == "FAILURE":
-            scan_rule_id = scan_result.get("relationships", {}).get("rule", {}).get("data", {}).get("id", None)
+            scan_rule_id = (
+                scan_result.get("relationships", {})
+                .get("rule", {})
+                .get("data", {})
+                .get("id", None)
+            )
             scan_tags = scan_result.get("attributes", {}).get("tags", {})
 
             for bot_finding in bot_findings:
-
-                if bot_finding.get("relationships", {}).get("rule", {}).get("data", {}).get("id", None) == scan_rule_id:
+                if (
+                    bot_finding.get("relationships", {})
+                    .get("rule", {})
+                    .get("data", {})
+                    .get("id", None)
+                    == scan_rule_id
+                ):
                     _LOGGER.info("Bot finding match %s", scan_rule_id)
 
-                    if set(scan_tags).issubset(set(bot_finding.get("attributes", {}).get("tags", {}))):
+                    if set(scan_tags).issubset(
+                        set(bot_finding.get("attributes", {}).get("tags", {}))
+                    ):
                         suppress_check(bot_finding.get("id", None))
                         continue
                     else:
@@ -417,17 +495,28 @@ def suppress_check(check_id) -> None:
 
     url = f"{API_BASE_URL}/checks/{check_id}"
     data = {
-        "data": {"type": "checks", "attributes": {"suppressed": True, "suppressed-until": suppress_until}},
+        "data": {
+            "type": "checks",
+            "attributes": {"suppressed": True, "suppressed-until": suppress_until},
+        },
         "meta": {"note": "suppressed for 1 week, failure not-applicable"},
     }
 
-    headers = {"Content-Type": "application/vnd.api+json", "Authorization": f"ApiKey {API_KEY}"}
+    headers = {
+        "Content-Type": "application/vnd.api+json",
+        "Authorization": f"ApiKey {API_KEY}",
+    }
 
-    response = requests.patch(url, data=json.dumps(data), headers=headers, verify=True, timeout=30).json()
+    response = requests.patch(
+        url, data=json.dumps(data), headers=headers, verify=True, timeout=30
+    ).json()
 
     # Error handling
     if "message" in response:
-        if response["message"] == "User is not authorized to access this resource with an explicit deny":
+        if (
+            response["message"]
+            == "User is not authorized to access this resource with an explicit deny"
+        ):
             raise ValueError("Invalid API Key")
 
     _LOGGER.info("Check %s suppressed", check_id)
@@ -466,13 +555,39 @@ def main():
             """
         ),
     )
-    parser.add_argument("--scan", type=str, nargs=1, metavar="CONFIG", help="scan configuration")
-    parser.add_argument("--exclude", type=str, nargs=1, metavar="CONFIG", help="scan configuration and exclude findings")
-    parser.add_argument("--apply", type=str, nargs=1, metavar="CONFIG", help="apply configuration")
-    parser.add_argument("--destroy", type=str, nargs=1, metavar="CONFIG", help="destroy configuration")
-    parser.add_argument("--bot", action="store_const", const=True, default=False, help="scan account")
-    parser.add_argument("--suppress", action="store_const", const=True, default=False, help="suppress findings")
-    parser.add_argument("--clear", action="store_const", const=True, default=False, help="clear exceptions")
+    parser.add_argument(
+        "--scan", type=str, nargs=1, metavar="CONFIG", help="scan configuration"
+    )
+    parser.add_argument(
+        "--exclude",
+        type=str,
+        nargs=1,
+        metavar="CONFIG",
+        help="scan configuration and exclude findings",
+    )
+    parser.add_argument(
+        "--apply", type=str, nargs=1, metavar="CONFIG", help="apply configuration"
+    )
+    parser.add_argument(
+        "--destroy", type=str, nargs=1, metavar="CONFIG", help="destroy configuration"
+    )
+    parser.add_argument(
+        "--bot", action="store_const", const=True, default=False, help="scan account"
+    )
+    parser.add_argument(
+        "--suppress",
+        action="store_const",
+        const=True,
+        default=False,
+        help="suppress findings",
+    )
+    parser.add_argument(
+        "--clear",
+        action="store_const",
+        const=True,
+        default=False,
+        help="clear exceptions",
+    )
     args = parser.parse_args()
 
     if args.scan:
