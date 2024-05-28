@@ -284,7 +284,7 @@ def set_exception(rule_id, risk_level, tags):
     # Retrieve exceptions set by this script
     exceptions = {}
     exceptions_file = "exceptions.json"
-    if os.path.isfile("exceptions.json"):
+    if os.path.isfile(exceptions_file):
         with open(exceptions_file) as json_file:
             exceptions = json.load(json_file)
 
@@ -580,6 +580,13 @@ def match_scan_result_with_findings(bot_findings):
 def suppress_check(check_id) -> None:
     """Suppress Check."""
 
+    # Retrieve suppressions set by this script
+    suppressions = {}
+    suppressions_file = "suppressions.json"
+    if os.path.isfile(suppressions_file):
+        with open(suppressions_file) as json_file:
+            suppressions = json.load(json_file)
+            
     now = datetime.now(UTC).replace(tzinfo=None)
     suppress_until = int((now + timedelta(days=7)).timestamp() * 1000)
 
@@ -603,6 +610,7 @@ def suppress_check(check_id) -> None:
         url, data=json.dumps(data), headers=headers, verify=True, timeout=30
     ).json()
 
+    pp(response)
     # Error handling
     if "message" in response:
         if (
@@ -611,6 +619,17 @@ def suppress_check(check_id) -> None:
         ):
             raise ValueError("Invalid API Key")
 
+    # Writing new suppressions file
+    suppressions[response.get("data", {}).get("id", {})] = {
+        "rule_id": response.get("data", {}).get("relationships", {}).get("rule", {}).get("data", {}).get("id", {}),
+        "scan_profile_id": SCAN_PROFILE_ID,
+        "tags": response.get("data", {}).get("attributes", {}).get("tags", {}),
+        "suppress_until": suppress_until
+    }
+
+    with open(suppressions_file, "w", encoding="utf-8") as json_file:
+        json.dump(suppressions, json_file, indent=2)
+        
     _LOGGER.info("Check %s suppressed", check_id)
 
 
