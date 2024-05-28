@@ -85,5 +85,5 @@ cspm/result_c1.json
 cspm/result_v1.json
 cspm/result.json
 cspm/scan_result.json
-cspm/scan_result_applied.json
 cspm/exceptions.json
+cspm/suppressions.json

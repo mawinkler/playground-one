@@ -45,6 +45,8 @@ options:
   --bot             scan account
   --suppress        suppress findings
   --clear           clear exceptions
+  --expire          expire exceptions
+  --reset           reset profile
 
 author:
     - Markus Winkler (markus_winkler@trendmicro.com)
@@ -68,6 +70,20 @@ $ ./scanner_c1.py --suppress
 
 # trigger bot run
 $ ./scanner_c1.py --bot
+
+# suppressions are active for 1 week
+$ ./scanner_c1.py --expire
+
+# wait for suppressions to expire
+$ ./scanner_c1.py --expire
+
+
+# Quick run through
+$ python3 scanner_c1.py --exclude ../awsone/7-scenarios-cspm && \
+    python3 scanner_c1.py --apply ../awsone/7-scenarios-cspm && \
+    python3 scanner_c1.py --bot
+$ python3 scanner_c1.py --suppress
+$ python3 scanner_c1.py --expire
 """
 
 RETURN = """
@@ -86,6 +102,10 @@ logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 RISK_LEVEL = ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+EXCEPTIONS_FILE = "exceptions.json"
+SUPPRESSIONS_FILE = "suppressions.json"
+PLAN_FILE = "plan.json"
+SCAN_RESULT_FILE = "scan_result.json"
 
 REGION = "trend-us-1"  # Adapt when needed
 API_KEY = os.environ["C1CSPM_SCANNER_KEY"]
@@ -105,10 +125,10 @@ def terraform_plan(working_dir) -> str:
 
     os.system(f"terraform -chdir={working_dir} init")
     os.system(f"terraform -chdir={working_dir} plan -out=plan.out")
-    os.system(f"terraform -chdir={working_dir} show -json plan.out > plan.json")
+    os.system(f"terraform -chdir={working_dir} show -json plan.out > {PLAN_FILE}")
     os.system(f"rm {working_dir}/plan.out")
 
-    with open("plan.json", "r", encoding="utf-8") as json_file:
+    with open(PLAN_FILE, "r", encoding="utf-8") as json_file:
         plan = json_file.read()
 
     print()
@@ -177,7 +197,7 @@ def scan_template(contents) -> str:
         ):
             raise ValueError("Invalid API Key")
 
-    with open("scan_result.json", "w", encoding="utf-8") as scan_result:
+    with open(SCAN_RESULT_FILE, "w", encoding="utf-8") as scan_result:
         json.dump(response, scan_result, indent=2)
 
     _LOGGER.info("Template Scan done.")
@@ -283,9 +303,8 @@ def set_exception(rule_id, risk_level, tags):
 
     # Retrieve exceptions set by this script
     exceptions = {}
-    exceptions_file = "exceptions.json"
-    if os.path.isfile(exceptions_file):
-        with open(exceptions_file) as json_file:
+    if os.path.isfile(EXCEPTIONS_FILE):
+        with open(EXCEPTIONS_FILE) as json_file:
             exceptions = json.load(json_file)
 
     # Merge tags from rule with tags from exception
@@ -348,7 +367,7 @@ def set_exception(rule_id, risk_level, tags):
         "tags": merged_tags,
     }
 
-    with open(exceptions_file, "w", encoding="utf-8") as json_file:
+    with open(EXCEPTIONS_FILE, "w", encoding="utf-8") as json_file:
         json.dump(exceptions, json_file, indent=2)
 
     _LOGGER.info(
@@ -360,7 +379,7 @@ def set_exception(rule_id, risk_level, tags):
 
 
 def clear_exceptions():
-    """Remove all exceptions from profile."""
+    """Remove all exceptions created by this script from profile."""
 
     url = f"{API_BASE_URL}/profiles/{SCAN_PROFILE_ID}?includes=ruleSettings"
 
@@ -374,9 +393,8 @@ def clear_exceptions():
 
     # Retrieve exceptions set by this script
     exceptions = {}
-    exceptions_file = "exceptions.json"
-    if os.path.isfile("exceptions.json"):
-        with open(exceptions_file) as json_file:
+    if os.path.isfile(EXCEPTIONS_FILE):
+        with open(EXCEPTIONS_FILE) as json_file:
             exceptions = json.load(json_file)
 
     # Container for the updated profile
@@ -455,7 +473,7 @@ def clear_exceptions():
     # Clean up exceptions file
     exceptions = {}
 
-    with open(exceptions_file, "w", encoding="utf-8") as json_file:
+    with open(EXCEPTIONS_FILE, "w", encoding="utf-8") as json_file:
         json.dump(exceptions, json_file, indent=2)
 
     _LOGGER.info(
@@ -464,8 +482,182 @@ def clear_exceptions():
     )
 
 
+def remove_expired_exceptions():
+    """Remove expired exceptions from profile."""
+
+    url = f"{API_BASE_URL}/profiles/{SCAN_PROFILE_ID}?includes=ruleSettings"
+
+    headers = {
+        "Content-Type": "application/vnd.api+json",
+        "Authorization": f"ApiKey {API_KEY}",
+    }
+
+    # Retrieve current profile
+    current_profile = requests.get(url, headers=headers, verify=True, timeout=30).json()
+
+    # Retrieve exceptions set by this script
+    exceptions = {}
+    if os.path.isfile(EXCEPTIONS_FILE):
+        with open(EXCEPTIONS_FILE) as json_file:
+            exceptions = json.load(json_file)
+
+    # Retrieve suppressions set by this script
+    suppressions = {}
+    if os.path.isfile(SUPPRESSIONS_FILE):
+        with open(SUPPRESSIONS_FILE) as json_file:
+            suppressions = json.load(json_file)
+
+    # Container for the updated profile
+    updated_profile = {
+        "included": [],
+        "data": {
+            "type": "profiles",
+            "id": SCAN_PROFILE_ID,
+            "attributes": {"name": "AWS Scanner", "description": "Scan exclusions"},
+            "relationships": {},
+        },
+    }
+
+    updated_exceptions = {}
+    updated_suppressions = {}
+
+    # Building updated profile
+    for rule in current_profile.get("included", []):
+        rule_id = rule.get("id", None)
+        exception = exceptions.get(rule_id, None)
+        suppressions_rule_id = []
+        for suppression in suppressions:
+            if suppressions.get(suppression, {}).get("rule_id", None) == rule_id:
+                suppressions_rule_id.append(suppression)
+
+        if exception is not None and len(suppressions_rule_id) > 0:
+            for suppression in suppressions:
+                # Test for Suppression expired
+                now = datetime.timestamp(datetime.now(UTC).replace(tzinfo=None)) * 1000
+
+                # _LOGGER.warning("Fast forward 1 week to fake expiration")
+                # now = datetime.now(UTC).replace(tzinfo=None)
+                # now = int((now + timedelta(days=7)).timestamp() * 1000)
+
+                if now > suppressions.get(suppression, {}).get("suppress_until", None):
+                    _LOGGER.info(
+                        "Suppression expired, removing Exception Tags for %s in Profile %s",
+                        rule_id,
+                        SCAN_PROFILE_ID,
+                    )
+                else:
+                    _LOGGER.info(
+                        "Suppression still valid for %s in Profile %s",
+                        rule_id,
+                        SCAN_PROFILE_ID,
+                    )
+                    if exception is not None:
+                        updated_exceptions[rule_id] = exception
+                    if suppression is not None:
+                        updated_suppressions[suppression] = suppressions.get(
+                            suppression, {}
+                        )
+                    continue
+
+                # Compare filter tags
+                rule_exception_filtertags = (
+                    rule.get("attributes", {})
+                    .get("exceptions", {})
+                    .get("filterTags", [])
+                )
+                exception_exception_filtertags = exception.get("tags", [])
+                suppression_filtertags = suppressions.get(suppression, {}).get(
+                    "tags", []
+                )
+
+                if set(exception_exception_filtertags).issubset(
+                    set(suppression_filtertags)
+                ):
+                    _LOGGER.info(
+                        "Exception Filter Tags included in Suppression Filter Tags for %s in Profile %s",
+                        rule_id,
+                        SCAN_PROFILE_ID,
+                    )
+
+                    # Remove filter Tags from exception
+                    resulting_exception_filtertags = list(
+                        set(rule_exception_filtertags)
+                        - set(exception_exception_filtertags)
+                    )
+
+                    _LOGGER.info(
+                        "Removing Exception Tags for %s in Profile %s",
+                        rule_id,
+                        SCAN_PROFILE_ID,
+                    )
+                    if len(resulting_exception_filtertags) > 0:
+                        rule["attributes"]["exceptions"]["filterTags"] = (
+                            resulting_exception_filtertags
+                        )
+                        updated_profile["included"].append(rule)
+                        data = (
+                            updated_profile.get("data", {})
+                            .get("relationships", {})
+                            .get("ruleSettings", {})
+                            .get("data", [])
+                        )
+                        data.append({"id": rule_id, "type": "rules"})
+                        updated_profile["data"]["relationships"]["ruleSettings"] = {
+                            "data": data
+                        }
+
+                    _LOGGER.info(
+                        "Removing Exception from storage with Profile %s",
+                        SCAN_PROFILE_ID,
+                    )
+        else:
+            _LOGGER.info(
+                "Not changing Exception Tags for %s in Profile %s",
+                rule_id,
+                SCAN_PROFILE_ID,
+            )
+            updated_profile["included"].append(rule)
+            data = (
+                updated_profile.get("data", {})
+                .get("relationships", {})
+                .get("ruleSettings", {})
+                .get("data", [])
+            )
+            data.append({"id": rule_id, "type": "rules"})
+            updated_profile["data"]["relationships"]["ruleSettings"] = {"data": data}
+            if exception is not None:
+                updated_exceptions[rule_id] = exception
+
+    url = f"{API_BASE_URL}/profiles/"
+
+    response = requests.post(
+        url, data=json.dumps(updated_profile), headers=headers, verify=True, timeout=30
+    ).json()
+
+    # Error handling
+    if "message" in response:
+        if (
+            response["message"]
+            == "User is not authorized to access this resource with an explicit deny"
+        ):
+            raise ValueError("Invalid API Key")
+
+    # pp(updated_exceptions)
+    # pp(updated_suppressions)
+    with open(EXCEPTIONS_FILE, "w", encoding="utf-8") as json_file:
+        json.dump(updated_exceptions, json_file, indent=2)
+
+    with open(SUPPRESSIONS_FILE, "w", encoding="utf-8") as json_file:
+        json.dump(updated_suppressions, json_file, indent=2)
+
+    _LOGGER.info(
+        "Scan Exceptions updated in Profile %s",
+        SCAN_PROFILE_ID,
+    )
+
+
 def reset_profile():
-    """Reset all rule configurations in profile."""
+    """Reset all rule configurations in scan profile."""
 
     url = f"{API_BASE_URL}/profiles/"
 
@@ -495,6 +687,10 @@ def reset_profile():
             == "User is not authorized to access this resource with an explicit deny"
         ):
             raise ValueError("Invalid API Key")
+
+    updated_exceptions = {}
+    with open(EXCEPTIONS_FILE, "w", encoding="utf-8") as json_file:
+        json.dump(updated_exceptions, json_file, indent=2)
 
     _LOGGER.info("Removed all Rule configurations in Profile %s", SCAN_PROFILE_ID)
 
@@ -542,17 +738,15 @@ def retrieve_bot_results():
 
         _LOGGER.debug("Retrieved %s of %s findings", len(findings), total)
 
-    # pp(findings)
-
     return findings
 
 
 def match_scan_result_with_findings(bot_findings):
     """Match Scan Results with Findings."""
 
-    with open("exceptions.json", "r", encoding="utf-8") as json_file:
+    with open(EXCEPTIONS_FILE, "r", encoding="utf-8") as json_file:
         exceptions_profile = json.load(json_file)
-        
+
     _LOGGER.info("Analysing %s Bot findings", len(bot_findings))
     for exception_id in exceptions_profile.keys():
         exception_tags = exceptions_profile.get(exception_id, {}).get("tags", {})
@@ -566,7 +760,6 @@ def match_scan_result_with_findings(bot_findings):
                 .get("id", None)
                 == exception_id
             ):
-
                 # Check if tags match with exception tags
                 if set(exception_tags).issubset(
                     set(bot_finding.get("attributes", {}).get("tags", {}))
@@ -574,7 +767,10 @@ def match_scan_result_with_findings(bot_findings):
                     _LOGGER.info("Bot finding match %s", exception_id)
                     suppress_check(bot_finding.get("id", None))
                 else:
-                    _LOGGER.info("Bot finding match, Scan Tags not included: %s", format(exception_tags))
+                    _LOGGER.info(
+                        "Bot finding match, Scan Tags not included: %s",
+                        format(exception_tags),
+                    )
 
 
 def suppress_check(check_id) -> None:
@@ -582,11 +778,10 @@ def suppress_check(check_id) -> None:
 
     # Retrieve suppressions set by this script
     suppressions = {}
-    suppressions_file = "suppressions.json"
-    if os.path.isfile(suppressions_file):
-        with open(suppressions_file) as json_file:
+    if os.path.isfile(SUPPRESSIONS_FILE):
+        with open(SUPPRESSIONS_FILE) as json_file:
             suppressions = json.load(json_file)
-            
+
     now = datetime.now(UTC).replace(tzinfo=None)
     suppress_until = int((now + timedelta(days=7)).timestamp() * 1000)
 
@@ -610,7 +805,6 @@ def suppress_check(check_id) -> None:
         url, data=json.dumps(data), headers=headers, verify=True, timeout=30
     ).json()
 
-    pp(response)
     # Error handling
     if "message" in response:
         if (
@@ -621,15 +815,19 @@ def suppress_check(check_id) -> None:
 
     # Writing new suppressions file
     suppressions[response.get("data", {}).get("id", {})] = {
-        "rule_id": response.get("data", {}).get("relationships", {}).get("rule", {}).get("data", {}).get("id", {}),
+        "rule_id": response.get("data", {})
+        .get("relationships", {})
+        .get("rule", {})
+        .get("data", {})
+        .get("id", {}),
         "scan_profile_id": SCAN_PROFILE_ID,
         "tags": response.get("data", {}).get("attributes", {}).get("tags", {}),
-        "suppress_until": suppress_until
+        "suppress_until": suppress_until,
     }
 
-    with open(suppressions_file, "w", encoding="utf-8") as json_file:
+    with open(SUPPRESSIONS_FILE, "w", encoding="utf-8") as json_file:
         json.dump(suppressions, json_file, indent=2)
-        
+
     _LOGGER.info("Check %s suppressed", check_id)
 
 
@@ -644,22 +842,10 @@ def main():
         description="Run template scans and handle scan exceptions and suppressions.",
         epilog=textwrap.dedent(
             """\
-            Workflow Example:
+            Examples:
             --------------------------------
             # Run template scan
             $ ./scanner_c1.py --scan ../awsone/7-scenarios-cspm
-
-            # run approval workflows in engine, here implementing the approved workflow
-            $ ./scanner_c1.py --exclude ../awsone/7-scenarios-cspm
-
-            # apply configuration
-            $ ./scanner_c1.py --apply ../awsone/7-scenarios-cspm
-
-            # trigger bot run
-            $ ./scanner_c1.py --bot
-
-            # suppress findings
-            $ ./scanner_c1.py --suppress
 
             # trigger bot run
             $ ./scanner_c1.py --bot
@@ -698,6 +884,13 @@ def main():
         const=True,
         default=False,
         help="clear exceptions",
+    )
+    parser.add_argument(
+        "--expire",
+        action="store_const",
+        const=True,
+        default=False,
+        help="expire exceptions",
     )
     parser.add_argument(
         "--reset",
@@ -740,6 +933,10 @@ def main():
     if args.clear:
         _LOGGER.debug("Clear enabled")
         clear_exceptions()
+
+    if args.expire:
+        _LOGGER.debug("Expire enabled")
+        remove_expired_exceptions()
 
     if args.reset:
         _LOGGER.debug("Reset profile")
