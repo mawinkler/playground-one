@@ -234,7 +234,7 @@ def scan_failures(contents, exclude=False) -> None:
                 continue
 
             rule_title = finding.get("attributes", {}).get("rule-title", None)
-            tags = finding.get("attributes", {}).get("tags", {})
+            tags = list(finding.get("attributes", {}).get("tags", {}))
             rule_id = (
                 finding.get("relationships", {})
                 .get("rule", {})
@@ -282,8 +282,18 @@ def rule_tags_set(rule_id) -> str:
 def set_exception(rule_id, risk_level, tags):
     """Set Rule Exception in Profile."""
 
-    existing_tags = rule_tags_set(rule_id)
-    tags = existing_tags + list(set(tags) - set(existing_tags))
+    # Retrieve exceptions set by this script
+    exceptions = {}
+    exceptions_file = "exceptions.json"
+    if os.path.isfile("exceptions.json"):
+        with open(exceptions_file) as json_file:
+            exceptions = json.load(json_file)
+
+    # Merge tags from rule with tags from exception
+    merged_tags = rule_tags_set(rule_id)
+    for tag in tags:
+        if tag not in merged_tags:
+            merged_tags.append(tag)
 
     url = f"{API_BASE_URL}/profiles/{SCAN_PROFILE_ID}"
 
@@ -292,6 +302,7 @@ def set_exception(rule_id, risk_level, tags):
         "Authorization": f"ApiKey {API_KEY}",
     }
 
+    # Patch profile with updated exception
     data = {
         "included": [
             {
@@ -299,7 +310,11 @@ def set_exception(rule_id, risk_level, tags):
                 "id": rule_id,
                 "attributes": {
                     "enabled": True,
-                    "exceptions": {"tags": [], "filterTags": tags, "resources": []},
+                    "exceptions": {
+                        "tags": [],
+                        "filterTags": merged_tags,
+                        "resources": [],
+                    },
                     "extraSettings": [],
                     "riskLevel": risk_level,
                     "provider": "aws",
@@ -328,15 +343,25 @@ def set_exception(rule_id, risk_level, tags):
         ):
             raise ValueError("Invalid API Key")
 
+    # Writing new exceptions file
+    exceptions[rule_id] = {
+        "scan_profile_id": SCAN_PROFILE_ID,
+        "tags": merged_tags,
+    }
+
+    with open(exceptions_file, "w", encoding="utf-8") as json_file:
+        json.dump(exceptions, json_file, indent=2)
+
     _LOGGER.info(
-        "Exception for %s in Profile %s set for Tags %s", rule_id, SCAN_PROFILE_ID, tags
+        "Exception for %s in Profile %s set for Tags %s",
+        rule_id,
+        SCAN_PROFILE_ID,
+        merged_tags,
     )
 
 
 def clear_exceptions():
     """Remove all exceptions from profile."""
-
-    # TODO: How to completely remove a rule setting?
 
     url = f"{API_BASE_URL}/profiles/{SCAN_PROFILE_ID}?includes=ruleSettings"
 
@@ -345,60 +370,134 @@ def clear_exceptions():
         "Authorization": f"ApiKey {API_KEY}",
     }
 
-    response = requests.get(url, headers=headers, verify=True, timeout=30).json()
+    # Retrieve current profile
+    current_profile = requests.get(url, headers=headers, verify=True, timeout=30).json()
 
-    url = f"{API_BASE_URL}/profiles/{SCAN_PROFILE_ID}"
+    # Retrieve exceptions set by this script
+    exceptions = {}
+    exceptions_file = "exceptions.json"
+    if os.path.isfile("exceptions.json"):
+        with open(exceptions_file) as json_file:
+            exceptions = json.load(json_file)
 
-    for rule in response.get("included", []):
+    # Container for the updated profile
+    updated_profile = {
+        "included": [],
+        "data": {
+            "type": "profiles",
+            "id": SCAN_PROFILE_ID,
+            "attributes": {"name": "AWS Scanner", "description": "Scan exclusions"},
+            "relationships": {},
+        },
+    }
+
+    # Building updated profile
+    for rule in current_profile.get("included", []):
         rule_id = rule.get("id", None)
-        risk_level = rule.get("attributes", []).get("riskLevel", None)
+        exception = exceptions.get(rule_id, None)
+        if exception is not None:
+            rule_exception_filtertags = (
+                rule.get("attributes", {}).get("exceptions", {}).get("filterTags", [])
+            )
+            exception_exception_filtertags = exception.get("tags", [])
 
-        _LOGGER.info(
-            "Removing Exception for %s in Profile %s", rule_id, SCAN_PROFILE_ID
-        )
+            resulting_exception_filtertags = list(
+                set(rule_exception_filtertags) - set(exception_exception_filtertags)
+            )
 
-        data = {
-            "included": [
-                {
-                    "type": "rules",
-                    "id": rule_id,
-                    "attributes": {
-                        "enabled": True,
-                        "exceptions": {"tags": [], "filterTags": [], "resources": []},
-                        "extraSettings": [],
-                        "riskLevel": risk_level,
-                        "provider": "aws",
-                    },
+            _LOGGER.info(
+                "Removing Exception Tags for %s in Profile %s", rule_id, SCAN_PROFILE_ID
+            )
+            if len(resulting_exception_filtertags) > 0:
+                rule["attributes"]["exceptions"]["filterTags"] = (
+                    resulting_exception_filtertags
+                )
+                updated_profile["included"].append(rule)
+                data = (
+                    updated_profile.get("data", {})
+                    .get("relationships", {})
+                    .get("ruleSettings", {})
+                    .get("data", [])
+                )
+                data.append({"id": rule_id, "type": "rules"})
+                updated_profile["data"]["relationships"]["ruleSettings"] = {
+                    "data": data
                 }
-            ],
-            "data": {
-                "type": "profiles",
-                "id": SCAN_PROFILE_ID,
-                "attributes": {"name": "AWS Scanner", "description": "Scan exclusions"},
-                "relationships": {
-                    "ruleSettings": {"data": [{"type": "rules", "id": rule_id}]}
-                },
-            },
-        }
+        else:
+            _LOGGER.info(
+                "Not changing Exception Tags for %s in Profile %s",
+                rule_id,
+                SCAN_PROFILE_ID,
+            )
+            updated_profile["included"].append(rule)
+            data = (
+                updated_profile.get("data", {})
+                .get("relationships", {})
+                .get("ruleSettings", {})
+                .get("data", [])
+            )
+            data.append({"id": rule_id, "type": "rules"})
+            updated_profile["data"]["relationships"]["ruleSettings"] = {"data": data}
 
-        response = requests.patch(
-            url, data=json.dumps(data), headers=headers, verify=True, timeout=30
-        ).json()
-        # pp(response)
+    url = f"{API_BASE_URL}/profiles/"
 
-        # Error handling
-        if "message" in response:
-            if (
-                response["message"]
-                == "User is not authorized to access this resource with an explicit deny"
-            ):
-                raise ValueError("Invalid API Key")
+    response = requests.post(
+        url, data=json.dumps(updated_profile), headers=headers, verify=True, timeout=30
+    ).json()
 
-        _LOGGER.info(
-            "Scan Exceptions in Profile %s for rule %s removed",
-            SCAN_PROFILE_ID,
-            rule_id,
-        )
+    # Error handling
+    if "message" in response:
+        if (
+            response["message"]
+            == "User is not authorized to access this resource with an explicit deny"
+        ):
+            raise ValueError("Invalid API Key")
+
+    # Clean up exceptions file
+    exceptions = {}
+
+    with open(exceptions_file, "w", encoding="utf-8") as json_file:
+        json.dump(exceptions, json_file, indent=2)
+
+    _LOGGER.info(
+        "Scan Exceptions updated in Profile %s",
+        SCAN_PROFILE_ID,
+    )
+
+
+def reset_profile():
+    """Reset all rule configurations in profile."""
+
+    url = f"{API_BASE_URL}/profiles/"
+
+    headers = {
+        "Content-Type": "application/vnd.api+json",
+        "Authorization": f"ApiKey {API_KEY}",
+    }
+
+    data = {
+        "included": [],
+        "data": {
+            "type": "profiles",
+            "id": SCAN_PROFILE_ID,
+            "attributes": {"name": "AWS Scanner", "description": "Scan exclusions"},
+            "relationships": {},
+        },
+    }
+
+    response = requests.post(
+        url, data=json.dumps(data), headers=headers, verify=True, timeout=30
+    ).json()
+
+    # Error handling
+    if "message" in response:
+        if (
+            response["message"]
+            == "User is not authorized to access this resource with an explicit deny"
+        ):
+            raise ValueError("Invalid API Key")
+
+    _LOGGER.info("Removed all Rule configurations in Profile %s", SCAN_PROFILE_ID)
 
 
 # #############################################################################
@@ -588,6 +687,13 @@ def main():
         default=False,
         help="clear exceptions",
     )
+    parser.add_argument(
+        "--reset",
+        action="store_const",
+        const=True,
+        default=False,
+        help="reset profile",
+    )
     args = parser.parse_args()
 
     if args.scan:
@@ -622,6 +728,10 @@ def main():
     if args.clear:
         _LOGGER.debug("Clear enabled")
         clear_exceptions()
+
+    if args.reset:
+        _LOGGER.debug("Reset profile")
+        reset_profile()
 
 
 if __name__ == "__main__":
