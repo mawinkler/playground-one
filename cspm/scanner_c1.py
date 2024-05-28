@@ -122,7 +122,6 @@ def terraform_apply(working_dir) -> None:
     _LOGGER.info("Apply Terraform Configuration...")
 
     os.system(f"terraform -chdir={working_dir} apply -auto-approve")
-    os.system("cp scan_result.json scan_result_applied.json")
 
     print()
 
@@ -551,37 +550,31 @@ def retrieve_bot_results():
 def match_scan_result_with_findings(bot_findings):
     """Match Scan Results with Findings."""
 
-    with open("scan_result_applied.json", "r", encoding="utf-8") as json_file:
-        scan_results = json.load(json_file)
-
+    with open("exceptions.json", "r", encoding="utf-8") as json_file:
+        exceptions_profile = json.load(json_file)
+        
     _LOGGER.info("Analysing %s Bot findings", len(bot_findings))
-    for scan_result in scan_results.get("data", []):
-        if scan_result.get("attributes", {}).get("status") == "FAILURE":
-            scan_rule_id = (
-                scan_result.get("relationships", {})
+    for exception_id in exceptions_profile.keys():
+        exception_tags = exceptions_profile.get(exception_id, {}).get("tags", {})
+
+        # Check if rule id matches with exception id
+        for bot_finding in bot_findings:
+            if (
+                bot_finding.get("relationships", {})
                 .get("rule", {})
                 .get("data", {})
                 .get("id", None)
-            )
-            scan_tags = scan_result.get("attributes", {}).get("tags", {})
+                == exception_id
+            ):
 
-            for bot_finding in bot_findings:
-                if (
-                    bot_finding.get("relationships", {})
-                    .get("rule", {})
-                    .get("data", {})
-                    .get("id", None)
-                    == scan_rule_id
+                # Check if tags match with exception tags
+                if set(exception_tags).issubset(
+                    set(bot_finding.get("attributes", {}).get("tags", {}))
                 ):
-                    _LOGGER.info("Bot finding match %s", scan_rule_id)
-
-                    if set(scan_tags).issubset(
-                        set(bot_finding.get("attributes", {}).get("tags", {}))
-                    ):
-                        suppress_check(bot_finding.get("id", None))
-                        continue
-                    else:
-                        _LOGGER.info("Scan tags %s", format(scan_tags))
+                    _LOGGER.info("Bot finding match %s", exception_id)
+                    suppress_check(bot_finding.get("id", None))
+                else:
+                    _LOGGER.info("Bot finding match, Scan Tags not included: %s", format(exception_tags))
 
 
 def suppress_check(check_id) -> None:
