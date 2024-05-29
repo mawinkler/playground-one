@@ -79,8 +79,8 @@ $ ./scanner_c1.py --expire
 
 
 # Quick run through
-$ python3 scanner_c1.py --exclude ../awsone/7-scenarios-cspm && \
-    python3 scanner_c1.py --apply ../awsone/7-scenarios-cspm && \
+$ python3 scanner_c1.py --exclude ../awsone/2-network && \
+    python3 scanner_c1.py --apply ../awsone/2-network && \
     python3 scanner_c1.py --bot
 $ python3 scanner_c1.py --suppress
 $ python3 scanner_c1.py --expire
@@ -551,6 +551,17 @@ def remove_expired_exceptions():
                         rule_id,
                         SCAN_PROFILE_ID,
                     )
+
+                    updated_profile["included"].append(rule)
+                    data = (
+                        updated_profile.get("data", {})
+                        .get("relationships", {})
+                        .get("ruleSettings", {})
+                        .get("data", [])
+                    )
+                    data.append({"id": rule_id, "type": "rules"})
+                    updated_profile["data"]["relationships"]["ruleSettings"] = {"data": data}
+
                     if exception is not None:
                         updated_exceptions[rule_id] = exception
                     if suppression is not None:
@@ -761,8 +772,8 @@ def match_scan_result_with_findings(bot_findings):
                 == exception_id
             ):
                 # Check if tags match with exception tags
-                if set(exception_tags).issubset(
-                    set(bot_finding.get("attributes", {}).get("tags", {}))
+                if set(bot_finding.get("attributes", {}).get("tags", {})).issubset(
+                    set(exception_tags)
                 ):
                     _LOGGER.info("Bot finding match %s", exception_id)
                     suppress_check(bot_finding.get("id", None))
