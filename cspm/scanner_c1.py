@@ -47,6 +47,7 @@ options:
   --clear           clear exceptions
   --expire          expire exceptions
   --reset           reset profile
+  --report          download latest report
 
 author:
     - Markus Winkler (markus_winkler@trendmicro.com)
@@ -106,6 +107,7 @@ EXCEPTIONS_FILE = "exceptions.json"
 SUPPRESSIONS_FILE = "suppressions.json"
 PLAN_FILE = "plan.json"
 SCAN_RESULT_FILE = "scan_result.json"
+REPORT_TITLE = "Workflow Tests"
 
 REGION = "trend-us-1"  # Adapt when needed
 API_KEY = os.environ["C1CSPM_SCANNER_KEY"]
@@ -240,10 +242,51 @@ def scan_account() -> str:
 
 
 # #############################################################################
+# Report functions
+# #############################################################################
+def download_report() -> None:
+    url = f"{API_BASE_URL}/reports?accountId={ACCOUNT_ID}"
+
+    headers = {
+        "Content-Type": "application/vnd.api+json",
+        "Authorization": f"ApiKey {API_KEY}",
+    }
+
+    response = requests.get(url, headers=headers, verify=True, timeout=30).json()
+
+    download_endpoint = None
+    created_date = 0
+    for report in response.get("data", []):
+        if (
+            report["attributes"]["title"] == REPORT_TITLE
+            and report["attributes"]["created-date"] > created_date
+        ):
+            created_date = report["attributes"]["created-date"]
+            included = report.get("attributes", {}).get("included", {})
+            for include in included:
+                if include["type"] == "PDF":
+                    download_endpoint = include["report-download-endpoint"]
+
+    if download_endpoint is None:
+        _LOGGER.info("No report found.")
+        return None
+
+    response = requests.get(download_endpoint, headers=headers, verify=True, timeout=30)
+
+    if response.ok:
+        report_url = response.json().get("url")
+        response = requests.get(report_url, verify=True, timeout=30)
+
+        with open("report.pdf", "wb") as report:
+            report.write(response.content)
+        _LOGGER.info("Report saved to report.pdf.")
+
+
+# #############################################################################
 # Handle scan failures in scan profile
 # #############################################################################
 def scan_failures(contents, exclude=False) -> None:
-    """Parse scan result for failures and set exceptions."""
+    """Parse scan result for failures and set exceptions in exclude == True."""
 
     for finding in contents.get("data", []):
         if finding["attributes"]["status"] == "FAILURE":
@@ -560,7 +603,9 @@ def remove_expired_exceptions():
                         .get("data", [])
                     )
                     data.append({"id": rule_id, "type": "rules"})
-                    updated_profile["data"]["relationships"]["ruleSettings"] = {"data": data}
+                    updated_profile["data"]["relationships"]["ruleSettings"] = {
+                        "data": data
+                    }
 
                     if exception is not None:
                         updated_exceptions[rule_id] = exception
@@ -910,6 +955,13 @@ def main():
         default=False,
         help="reset profile",
     )
+    parser.add_argument(
+        "--report",
+        action="store_const",
+        const=True,
+        default=False,
+        help="download latest report",
+    )
     args = parser.parse_args()
 
     if args.scan:
@@ -952,6 +1004,10 @@ def main():
     if args.reset:
         _LOGGER.debug("Reset profile")
         reset_profile()
+
+    if args.report:
+        _LOGGER.debug("Download report")
+        download_report()
 
 
 if __name__ == "__main__":
