@@ -113,6 +113,7 @@ REGION = "trend-us-1"  # Adapt when needed
 API_KEY = os.environ["C1CSPM_SCANNER_KEY"]
 API_BASE_URL = f"https://conformity.{REGION}.cloudone.trendmicro.com/api"
 SCAN_PROFILE_ID = "Tc0NcdFKU"  # Adapt when needed
+SCAN_PROFILE_NAME = "Scan Profile Benelux"
 ACCOUNT_ID = "ed68602b-0eb1-4cbb-ad0b-64676877fadf"  # Adapt when needed
 RISK_LEVEL_FAIL = "MEDIUM"  # Adapt when needed
 
@@ -241,6 +242,36 @@ def scan_account() -> str:
     return response
 
 
+def bot_status_account() -> str:
+    """Retrieve Conformity Bot Status."""
+
+    _LOGGER.info("Retrieving Conformity Bot Status...")
+
+    url = f"{API_BASE_URL}/accounts/{ACCOUNT_ID}"
+
+    headers = {
+        "Authorization": f"ApiKey {API_KEY}",
+        "Content-Type": "application/vnd.api+json",
+    }
+
+    response = requests.get(
+        url, headers=headers, verify=True, timeout=30
+    ).json()
+
+    bot_status = response.get('data', {}).get('attributes', {}).get('bot-status')
+
+    # Error handling
+    if "message" in response:
+        if (
+            response["message"]
+            == "User is not authorized to access this resource with an explicit deny"
+        ):
+            raise ValueError("Invalid API Key")
+
+    _LOGGER.info("Account Bot status: %s", bot_status)
+
+    return response
+
 # #############################################################################
 # Report functions
 # #############################################################################
@@ -297,6 +328,7 @@ def scan_failures(contents, exclude=False) -> None:
 
             rule_title = finding.get("attributes", {}).get("rule-title", None)
             tags = list(finding.get("attributes", {}).get("tags", {}))
+            resource = finding.get("attributes", {}).get("resource", None)
             rule_id = (
                 finding.get("relationships", {})
                 .get("rule", {})
@@ -306,18 +338,20 @@ def scan_failures(contents, exclude=False) -> None:
 
             if exclude:
                 _LOGGER.info(
-                    "Setting Exception for rule %s with Risk Level %s, Rule Title: %s",
+                    "Setting Exception for rule %s with Risk Level %s, Rule Title: %s for Resource: %s",
                     rule_id,
                     risk_level,
                     rule_title,
+                    resource,
                 )
                 set_exception(rule_id, risk_level, tags)
             else:
                 _LOGGER.info(
-                    "Finding of rule %s with Risk Level %s, Rule Title: %s",
+                    "Finding of rule %s with Risk Level %s, Rule Title: %s for Resource: %s",
                     rule_id,
                     risk_level,
                     rule_title,
+                    resource,
                 )
 
 
@@ -354,7 +388,8 @@ def set_exception(rule_id, risk_level, tags):
     merged_tags = rule_tags_set(rule_id)
     for tag in tags:
         if tag not in merged_tags:
-            merged_tags.append(tag)
+            if tag.startswith("Name::"):
+                merged_tags.append(tag)
 
     url = f"{API_BASE_URL}/profiles/{SCAN_PROFILE_ID}"
 
@@ -385,7 +420,7 @@ def set_exception(rule_id, risk_level, tags):
         "data": {
             "type": "profiles",
             "id": SCAN_PROFILE_ID,
-            "attributes": {"name": "AWS Scanner", "description": "Scan exclusions"},
+            "attributes": {"name": SCAN_PROFILE_NAME, "description": "Scan exclusions"},
             "relationships": {
                 "ruleSettings": {"data": [{"type": "rules", "id": rule_id}]}
             },
@@ -446,7 +481,7 @@ def clear_exceptions():
         "data": {
             "type": "profiles",
             "id": SCAN_PROFILE_ID,
-            "attributes": {"name": "AWS Scanner", "description": "Scan exclusions"},
+            "attributes": {"name": SCAN_PROFILE_NAME, "description": "Scan exclusions"},
             "relationships": {},
         },
     }
@@ -556,7 +591,7 @@ def remove_expired_exceptions():
         "data": {
             "type": "profiles",
             "id": SCAN_PROFILE_ID,
-            "attributes": {"name": "AWS Scanner", "description": "Scan exclusions"},
+            "attributes": {"name": SCAN_PROFILE_NAME, "description": "Scan exclusions"},
             "relationships": {},
         },
     }
@@ -813,14 +848,26 @@ def match_scan_result_with_findings(bot_findings):
                 bot_finding.get("relationships", {})
                 .get("rule", {})
                 .get("data", {})
-                .get("id", None)
+                .get("id")
                 == exception_id
             ):
                 # Check if tags match with exception tags
-                if set(bot_finding.get("attributes", {}).get("tags", {})).issubset(
+                bot_finding_tags = bot_finding.get("attributes", {}).get(
+                    "tags"
+                )
+
+                if bot_finding_tags is None or len(bot_finding_tags) == 0:
+                    # Skip bot findings without tags
+                    continue
+                if ('Name::' in '\t'.join(bot_finding_tags)) is False:
+                    # Skip bot findings without Name tags
+                    continue
+                name_tags = [tag for tag in bot_finding_tags if 'Name::' in tag]
+
+                if len(name_tags) > 0 and set(name_tags).issubset(
                     set(exception_tags)
                 ):
-                    _LOGGER.info("Bot finding match %s", exception_id)
+                    _LOGGER.info("Bot finding match %s for Scan Tags %s", exception_id, name_tags)
                     suppress_check(bot_finding.get("id", None))
                 else:
                     _LOGGER.info(
@@ -928,6 +975,9 @@ def main():
         "--bot", action="store_const", const=True, default=False, help="scan account"
     )
     parser.add_argument(
+        "--botstatus", action="store_const", const=True, default=False, help="account bot status"
+    )
+    parser.add_argument(
         "--suppress",
         action="store_const",
         const=True,
@@ -987,6 +1037,10 @@ def main():
     if args.bot:
         _LOGGER.debug("Scan account")
         scan_account()
+
+    if args.botstatus:
+        _LOGGER.debug("Account bot status")
+        bot_status_account()
 
     if args.suppress:
         _LOGGER.debug("Suppression enabled")
