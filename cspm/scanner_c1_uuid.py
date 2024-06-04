@@ -9,33 +9,36 @@ import requests
 import textwrap
 import uuid
 from datetime import datetime, timedelta, UTC
-from pprint import pprint as pp
+# from pprint import pprint as pp
 
 DOCUMENTATION = """
 ---
-module: scanner_c1.py
+module: scanner_c1_uuid.py
 
 short_description: Implements for following functionality:
     - Create Terrafrom Plan of Configuration and run Conformity Template Scan
+    - Set Exceptions in Scan Profile based on Name-Tags assigned to the resource
     - Create Terraform Apply of Configuration
     - Create Terraform Destroy of Configuration
-    - Create exceptions in Scan Profile based on Tags assigned to the resource
-    - Remove Exceptions in Scan Profile
+    - Remove Exceptions in Scan Profile or reset the Scan Profile
     - Suppress Findings in Account Profile
+    - Expire Findings in Account Profile
+    - Run Conformity Bot and request status
+    - Download latest Report
 
 description:
-    - Implements the required functionality for Template Scan, Exception
+    - Implements required functionality for Terraform Template Scan, Exception
       approval workflows and temporary suppression of findings in Conformity
       Account Profile.
 
 requirements:
     - Set environment variable C1CSPM_SCANNER_KEY with the API key of the
       Conformity Scanner owning Power User Access to the Conformity Account.
-    - Adapt the following constants to your requirements below:
-        REGION = "trend-us-1"
-        SCAN_PROFILE_ID = "Tc0NcdFKU"
-        ACCOUNT_ID = "ed68602b-0eb1-4cbb-ad0b-64676877fadf"
-        RISK_LEVEL_FAIL = "MEDIUM"
+    - Adapt the following constants in between
+      # HERE
+      and
+      # /HERE
+      to your requirements
 
 options:
   -h, --help        show this help message and exit
@@ -44,6 +47,7 @@ options:
   --apply CONFIG    apply configuration
   --destroy CONFIG  destroy configuration
   --bot             scan account
+  --botstatus       account bot status
   --suppress        suppress findings
   --clear           clear exceptions
   --expire          expire exceptions
@@ -103,20 +107,24 @@ logging.basicConfig(
 logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 
+# HERE
+REGION = "trend-us-1"
+SCAN_PROFILE_ID = "Tc0NcdFKU"
+ACCOUNT_ID = "ed68602b-0eb1-4cbb-ad0b-64676877fadf"
+SCAN_PROFILE_NAME = "Scan Profile Benelux"
+REPORT_TITLE = "Workflow Tests"
+RISK_LEVEL_FAIL = "MEDIUM"
+# /HERE
+
+# Do not change
 RISK_LEVEL = ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
 EXCEPTIONS_FILE = "exceptions.json"
 SUPPRESSIONS_FILE = "suppressions.json"
 PLAN_FILE = "plan.json"
 SCAN_RESULT_FILE = "scan_result.json"
-REPORT_TITLE = "Workflow Tests"
-
-REGION = "trend-us-1"  # Adapt when needed
 API_KEY = os.environ["C1CSPM_SCANNER_KEY"]
 API_BASE_URL = f"https://conformity.{REGION}.cloudone.trendmicro.com/api"
-SCAN_PROFILE_ID = "Tc0NcdFKU"  # Adapt when needed
-SCAN_PROFILE_NAME = "Scan Profile Benelux"
-ACCOUNT_ID = "ed68602b-0eb1-4cbb-ad0b-64676877fadf"  # Adapt when needed
-RISK_LEVEL_FAIL = "MEDIUM"  # Adapt when needed
+# /Do not change
 
 
 # #############################################################################
@@ -614,7 +622,7 @@ def remove_expired_exceptions():
         rule_id = rule.get("id")
         exception = exceptions.get(rule_id)
         suppressions_rule_id = []
-        
+
         # Check if rule has any suppressions and create list of suppressions
         for suppression in suppressions:
             if suppressions.get(suppression, {}).get("rule_id") == rule_id:
@@ -815,7 +823,7 @@ def retrieve_bot_results():
     page_number = 0
     service_names = ""
     created_less_than_days = 5
-    risk_levels = ";".join(RISK_LEVEL[RISK_LEVEL.index(RISK_LEVEL_FAIL) :])
+    risk_levels = ";".join(RISK_LEVEL[RISK_LEVEL.index(RISK_LEVEL_FAIL):])
     compliances = ""  # "AWAF"
 
     findings = []

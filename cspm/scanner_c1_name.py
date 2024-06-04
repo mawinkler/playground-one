@@ -8,33 +8,36 @@ import logging
 import requests
 import textwrap
 from datetime import datetime, timedelta, UTC
-from pprint import pprint as pp
+# from pprint import pprint as pp
 
 DOCUMENTATION = """
 ---
-module: scanner_c1.py
+module: scanner_c1_name.py
 
 short_description: Implements for following functionality:
     - Create Terrafrom Plan of Configuration and run Conformity Template Scan
+    - Set Exceptions in Scan Profile based on Name-Tags assigned to the resource
     - Create Terraform Apply of Configuration
     - Create Terraform Destroy of Configuration
-    - Create exceptions in Scan Profile based on Tags assigned to the resource
-    - Remove Exceptions in Scan Profile
+    - Remove Exceptions in Scan Profile or reset the Scan Profile
     - Suppress Findings in Account Profile
+    - Expire Findings in Account Profile
+    - Run Conformity Bot and request status
+    - Download latest Report
 
 description:
-    - Implements the required functionality for Template Scan, Exception
+    - Implements required functionality for Terraform Template Scan, Exception
       approval workflows and temporary suppression of findings in Conformity
       Account Profile.
 
 requirements:
     - Set environment variable C1CSPM_SCANNER_KEY with the API key of the
       Conformity Scanner owning Power User Access to the Conformity Account.
-    - Adapt the following constants to your requirements below:
-        REGION = "trend-us-1"
-        SCAN_PROFILE_ID = "Tc0NcdFKU"
-        ACCOUNT_ID = "ed68602b-0eb1-4cbb-ad0b-64676877fadf"
-        RISK_LEVEL_FAIL = "MEDIUM"
+    - Adapt the following constants in between
+      # HERE
+      and
+      # /HERE
+      to your requirements
 
 options:
   -h, --help        show this help message and exit
@@ -43,6 +46,7 @@ options:
   --apply CONFIG    apply configuration
   --destroy CONFIG  destroy configuration
   --bot             scan account
+  --botstatus       account bot status
   --suppress        suppress findings
   --clear           clear exceptions
   --expire          expire exceptions
@@ -55,36 +59,36 @@ author:
 
 EXAMPLES = """
 # Run template scan
-$ ./scanner_c1.py --scan ../awsone/7-scenarios-cspm
+$ ./scanner_c1_name.py --scan 2-network
 
 # run approval workflows in engine, here implementing the approved workflow
-$ ./scanner_c1.py --exclude ../awsone/7-scenarios-cspm
+$ ./scanner_c1_name.py --exclude 2-network
+
+# now add the exclusion tags to the corresponding resources
+# in the Terraform template
 
 # apply configuration
-$ ./scanner_c1.py --apply ../awsone/7-scenarios-cspm
+$ ./scanner_c1_name.py --apply 2-network
 
 # trigger bot run
-$ ./scanner_c1.py --bot
+$ ./scanner_c1_name.py --bot
 
 # suppress findings
-$ ./scanner_c1.py --suppress
+$ ./scanner_c1_name.py --suppress
 
 # trigger bot run
-$ ./scanner_c1.py --bot
+$ ./scanner_c1_name.py --bot
 
 # suppressions are active for 1 week
-$ ./scanner_c1.py --expire
+$ ./scanner_c1_name.py --expire
 
 # wait for suppressions to expire
-$ ./scanner_c1.py --expire
+$ ./scanner_c1_name.py --expire
 
-
-# Quick run through
-$ python3 scanner_c1.py --exclude ../awsone/2-network && \
-    python3 scanner_c1.py --apply ../awsone/2-network && \
-    python3 scanner_c1.py --bot
-$ python3 scanner_c1.py --suppress
-$ python3 scanner_c1.py --expire
+# cleanup
+$ ./scanner_c1_name.py --destroy 2-network
+$ ./scanner_c1_name.py --reset
+$ ./scanner_c1_name.py --expire
 """
 
 RETURN = """
@@ -102,20 +106,24 @@ logging.basicConfig(
 logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 
+# HERE
+REGION = "trend-us-1"
+SCAN_PROFILE_ID = "Tc0NcdFKU"
+ACCOUNT_ID = "ed68602b-0eb1-4cbb-ad0b-64676877fadf"
+SCAN_PROFILE_NAME = "Scan Profile Benelux"
+REPORT_TITLE = "Workflow Tests"
+RISK_LEVEL_FAIL = "MEDIUM"
+# /HERE
+
+# Do not change
 RISK_LEVEL = ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
 EXCEPTIONS_FILE = "exceptions.json"
 SUPPRESSIONS_FILE = "suppressions.json"
 PLAN_FILE = "plan.json"
 SCAN_RESULT_FILE = "scan_result.json"
-REPORT_TITLE = "Workflow Tests"
-
-REGION = "trend-us-1"  # Adapt when needed
 API_KEY = os.environ["C1CSPM_SCANNER_KEY"]
 API_BASE_URL = f"https://conformity.{REGION}.cloudone.trendmicro.com/api"
-SCAN_PROFILE_ID = "Tc0NcdFKU"  # Adapt when needed
-SCAN_PROFILE_NAME = "Scan Profile Benelux"
-ACCOUNT_ID = "ed68602b-0eb1-4cbb-ad0b-64676877fadf"  # Adapt when needed
-RISK_LEVEL_FAIL = "MEDIUM"  # Adapt when needed
+# /Do not change
 
 
 # #############################################################################
@@ -272,6 +280,7 @@ def bot_status_account() -> str:
 
     return response
 
+
 # #############################################################################
 # Report functions
 # #############################################################################
@@ -355,7 +364,7 @@ def scan_failures(contents, exclude=False) -> None:
                 )
 
 
-def rule_tags_set(rule_id) -> str:
+def rule_tags_existing(rule_id) -> str:
     """Retrive tags in exception"""
 
     url = f"{API_BASE_URL}/profiles/{SCAN_PROFILE_ID}?includes=ruleSettings"
@@ -379,13 +388,13 @@ def set_exception(rule_id, risk_level, tags):
     """Set Rule Exception in Profile."""
 
     # Retrieve exceptions set by this script
-    exceptions = {}
+    exceptions_profile = {}
     if os.path.isfile(EXCEPTIONS_FILE):
         with open(EXCEPTIONS_FILE) as json_file:
-            exceptions = json.load(json_file)
+            exceptions_profile = json.load(json_file)
 
     # Merge tags from rule with tags from exception
-    merged_tags = rule_tags_set(rule_id)
+    merged_tags = rule_tags_existing(rule_id)
     for tag in tags:
         if tag not in merged_tags:
             if tag.startswith("Name::"):
@@ -440,20 +449,20 @@ def set_exception(rule_id, risk_level, tags):
             raise ValueError("Invalid API Key")
 
     # Writing new exceptions file
-    exceptions[rule_id] = {
+    exceptions_profile[rule_id] = {
         "scan_profile_id": SCAN_PROFILE_ID,
         "tags": merged_tags,
     }
 
     with open(EXCEPTIONS_FILE, "w", encoding="utf-8") as json_file:
-        json.dump(exceptions, json_file, indent=2)
+        json.dump(exceptions_profile, json_file, indent=2)
 
-    _LOGGER.info(
-        "Exception for %s in Profile %s set for Tags %s",
-        rule_id,
-        SCAN_PROFILE_ID,
-        merged_tags,
-    )
+    # _LOGGER.info(
+    #     "Exception for %s and %s in Profile %s set",
+    #     merged_tags,
+    #     rule_id,
+    #     SCAN_PROFILE_ID,
+    # )
 
 
 def clear_exceptions():
@@ -600,30 +609,38 @@ def remove_expired_exceptions():
     updated_suppressions = {}
 
     # Building updated profile
+    # Iterating over customized rules in scan profile
     for rule in current_profile.get("included", []):
-        rule_id = rule.get("id", None)
-        exception = exceptions.get(rule_id, None)
+        rule_id = rule.get("id")
+        exception = exceptions.get(rule_id)
         suppressions_rule_id = []
+
+        # Check if rule has any suppressions and create list of suppressions
         for suppression in suppressions:
-            if suppressions.get(suppression, {}).get("rule_id", None) == rule_id:
+            if suppressions.get(suppression, {}).get("rule_id") == rule_id:
                 suppressions_rule_id.append(suppression)
 
+        # Test if an exception is set for this rule which has suppressions assigned
         if exception is not None and len(suppressions_rule_id) > 0:
-            for suppression in suppressions:
-                # Test for Suppression expired
+
+            for suppression in suppressions_rule_id:
                 now = datetime.timestamp(datetime.now(UTC).replace(tzinfo=None)) * 1000
 
-                # _LOGGER.warning("Fast forward 1 week to fake expiration")
-                # now = datetime.now(UTC).replace(tzinfo=None)
-                # now = int((now + timedelta(days=7)).timestamp() * 1000)
+                # if suppressions.get(suppression, {}).get("rule_id") == "EC2-001":
+                #     _LOGGER.warning("Fast forward 1 week to fake expiration")
+                #     now = datetime.now(UTC).replace(tzinfo=None)
+                #     now = int((now + timedelta(days=7)).timestamp() * 1000)
 
-                if now > suppressions.get(suppression, {}).get("suppress_until", None):
+                # Test for Suppression expired
+                if now > suppressions.get(suppression, {}).get("suppress_until"):
+                    # Suppression expired, remove Exception Tags
                     _LOGGER.info(
                         "Suppression expired, removing Exception Tags for %s in Profile %s",
                         rule_id,
                         SCAN_PROFILE_ID,
                     )
                 else:
+                    # Suppression still valid, keep exception
                     _LOGGER.info(
                         "Suppression still valid for %s in Profile %s",
                         rule_id,
@@ -701,6 +718,8 @@ def remove_expired_exceptions():
                         "Removing Exception from storage with Profile %s",
                         SCAN_PROFILE_ID,
                     )
+
+        # Rule has no exception assigned and/or no suppressions assigned
         else:
             _LOGGER.info(
                 "Not changing Exception Tags for %s in Profile %s",
@@ -796,7 +815,7 @@ def retrieve_bot_results():
     page_number = 0
     service_names = ""
     created_less_than_days = 5
-    risk_levels = ";".join(RISK_LEVEL[RISK_LEVEL.index(RISK_LEVEL_FAIL) :])
+    risk_levels = ";".join(RISK_LEVEL[RISK_LEVEL.index(RISK_LEVEL_FAIL):])
     compliances = ""  # "AWAF"
 
     findings = []
@@ -835,6 +854,7 @@ def retrieve_bot_results():
 def match_scan_result_with_findings(bot_findings):
     """Match Scan Results with Findings."""
 
+    exceptions_profile = {}
     with open(EXCEPTIONS_FILE, "r", encoding="utf-8") as json_file:
         exceptions_profile = json.load(json_file)
 
@@ -868,7 +888,7 @@ def match_scan_result_with_findings(bot_findings):
                     set(exception_tags)
                 ):
                     _LOGGER.info("Bot finding match %s for Scan Tags %s", exception_id, name_tags)
-                    suppress_check(bot_finding.get("id", None))
+                    suppress_check(bot_finding.get("id", None), exception_tags)
                 else:
                     _LOGGER.info(
                         "Bot finding match, Scan Tags not included: %s",
@@ -876,7 +896,7 @@ def match_scan_result_with_findings(bot_findings):
                     )
 
 
-def suppress_check(check_id) -> None:
+def suppress_check(check_id, exception_tags) -> None:
     """Suppress Check."""
 
     # Retrieve suppressions set by this script
@@ -924,7 +944,7 @@ def suppress_check(check_id) -> None:
         .get("data", {})
         .get("id", {}),
         "scan_profile_id": SCAN_PROFILE_ID,
-        "tags": response.get("data", {}).get("attributes", {}).get("tags", {}),
+        "tags": exception_tags,
         "suppress_until": suppress_until,
     }
 
@@ -948,10 +968,10 @@ def main():
             Examples:
             --------------------------------
             # Run template scan
-            $ ./scanner_c1.py --scan ../awsone/7-scenarios-cspm
+            $ ./scanner_c1_name.py --scan ../awsone/7-scenarios-cspm
 
             # trigger bot run
-            $ ./scanner_c1.py --bot
+            $ ./scanner_c1_name.py --bot
             """
         ),
     )
