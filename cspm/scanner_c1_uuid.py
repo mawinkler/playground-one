@@ -356,7 +356,7 @@ def scan_failures(contents, exclude=False) -> None:
                 )
 
 
-def rule_tags_set(rule_id) -> str:
+def rule_tags_existing(rule_id) -> str:
     """Retrive tags in exception"""
 
     url = f"{API_BASE_URL}/profiles/{SCAN_PROFILE_ID}?includes=ruleSettings"
@@ -380,28 +380,24 @@ def set_exception(rule_id, risk_level, tags, resource):
     """Set Rule Exception in Profile."""
 
     # Retrieve exceptions set by this script
-    exceptions = {}
+    exceptions_profile = {}
     if os.path.isfile(EXCEPTIONS_FILE):
         with open(EXCEPTIONS_FILE) as json_file:
-            exceptions = json.load(json_file)
+            exceptions_profile = json.load(json_file)
 
-    # Merge tags from rule with tags from exception
-    merged_tags = rule_tags_set(rule_id)
-    merged_resources = exceptions.get(rule_id, {}).get("resources", [])
+    # Retrieve already existing tags from rule
+    merged_tags = rule_tags_existing(rule_id)
 
-    # tags = [f"ExceptionId-{rule_id}::{uuid.uuid4()}"]
-    tags = [f"{uuid.uuid4()}::{resource}"]
-    # Test if resource already got an id assigned
-    for resource_entry in merged_resources:
-        if resource_entry["resource"] == resource:
-            tags = [resource_entry["tag"]]
-
-    for tag in tags:
-        if tag not in merged_tags:
-            # if tag.startswith("Name::"):
-            #     merged_tags.append(tag)
-            merged_tags.append(tag)
-            merged_resources.append({"resource": resource, "tag": tag})
+    # Test if a tag for the resource already exists
+    tag = [tag for tag in merged_tags if f"::{resource}_{rule_id}" in tag]
+    if len(tag) == 0:
+        _LOGGER.info(
+            "Creating new Exception tag for %s in Profile %s",
+            resource,
+            SCAN_PROFILE_ID,
+        )
+        tag = f"{uuid.uuid4()}::{resource}_{rule_id}"
+        merged_tags.append(tag)
 
     url = f"{API_BASE_URL}/profiles/{SCAN_PROFILE_ID}"
 
@@ -452,21 +448,20 @@ def set_exception(rule_id, risk_level, tags, resource):
             raise ValueError("Invalid API Key")
 
     # Writing new exceptions file
-    exceptions[rule_id] = {
+    exceptions_profile[rule_id] = {
         "scan_profile_id": SCAN_PROFILE_ID,
         "tags": merged_tags,
     }
-    exceptions[rule_id]["resources"] = merged_resources
-    
-    with open(EXCEPTIONS_FILE, "w", encoding="utf-8") as json_file:
-        json.dump(exceptions, json_file, indent=2)
 
-    _LOGGER.info(
-        "Exception for %s in Profile %s set for Tags %s",
-        rule_id,
-        SCAN_PROFILE_ID,
-        merged_tags,
-    )
+    with open(EXCEPTIONS_FILE, "w", encoding="utf-8") as json_file:
+        json.dump(exceptions_profile, json_file, indent=2)
+
+    # _LOGGER.info(
+    #     "Exception for %s and %s in Profile %s set",
+    #     resource,
+    #     rule_id,
+    #     SCAN_PROFILE_ID,
+    # )
 
 
 def clear_exceptions():
@@ -848,6 +843,7 @@ def retrieve_bot_results():
 def match_scan_result_with_findings(bot_findings):
     """Match Scan Results with Findings."""
 
+    exceptions_profile = {}
     with open(EXCEPTIONS_FILE, "r", encoding="utf-8") as json_file:
         exceptions_profile = json.load(json_file)
 
@@ -869,18 +865,15 @@ def match_scan_result_with_findings(bot_findings):
                     "tags"
                 )
 
+                # Filter bot finding tags on rule id
+                bot_finding_tags = [tag for tag in bot_finding_tags if f"_{exception_id}" in tag]
+
                 if bot_finding_tags is None or len(bot_finding_tags) == 0:
                     # Skip bot findings without tags
                     continue
-                if ('Name::' in '\t'.join(bot_finding_tags)) is False:
-                    # Skip bot findings without Name tags
-                    continue
-                name_tags = [tag for tag in bot_finding_tags if 'Name::' in tag]
 
-                if len(name_tags) > 0 and set(name_tags).issubset(
-                    set(exception_tags)
-                ):
-                    _LOGGER.info("Bot finding match %s for Scan Tags %s", exception_id, name_tags)
+                if len(exception_tags) > 0 and set(bot_finding_tags).issubset(set(exception_tags)):
+                    _LOGGER.info("Bot finding match %s for Scan Tags %s", exception_id, bot_finding_tags)
                     suppress_check(bot_finding.get("id", None))
                 else:
                     _LOGGER.info(
