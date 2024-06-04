@@ -56,36 +56,36 @@ author:
 
 EXAMPLES = """
 # Run template scan
-$ ./scanner_c1.py --scan ../awsone/7-scenarios-cspm
+$ ./scanner_c1_uuid.py --scan 2-network
 
 # run approval workflows in engine, here implementing the approved workflow
-$ ./scanner_c1.py --exclude ../awsone/7-scenarios-cspm
+$ ./scanner_c1_uuid.py --exclude 2-network
+
+# now add the exclusion tags to the corresponding resources
+# in the Terraform template
 
 # apply configuration
-$ ./scanner_c1.py --apply ../awsone/7-scenarios-cspm
+$ ./scanner_c1_uuid.py --apply 2-network
 
 # trigger bot run
-$ ./scanner_c1.py --bot
+$ ./scanner_c1_uuid.py --bot
 
 # suppress findings
-$ ./scanner_c1.py --suppress
+$ ./scanner_c1_uuid.py --suppress
 
 # trigger bot run
-$ ./scanner_c1.py --bot
+$ ./scanner_c1_uuid.py --bot
 
 # suppressions are active for 1 week
-$ ./scanner_c1.py --expire
+$ ./scanner_c1_uuid.py --expire
 
 # wait for suppressions to expire
-$ ./scanner_c1.py --expire
+$ ./scanner_c1_uuid.py --expire
 
-
-# Quick run through
-$ python3 scanner_c1.py --exclude ../awsone/2-network && \
-    python3 scanner_c1.py --apply ../awsone/2-network && \
-    python3 scanner_c1.py --bot
-$ python3 scanner_c1.py --suppress
-$ python3 scanner_c1.py --expire
+# cleanup
+$ ./scanner_c1_uuid.py --destroy 2-network
+$ ./scanner_c1_uuid.py --reset
+$ ./scanner_c1_uuid.py --expire
 """
 
 RETURN = """
@@ -272,6 +272,7 @@ def bot_status_account() -> str:
     _LOGGER.info("Account Bot status: %s", bot_status)
 
     return response
+
 
 # #############################################################################
 # Report functions
@@ -608,30 +609,38 @@ def remove_expired_exceptions():
     updated_suppressions = {}
 
     # Building updated profile
+    # Iterating over customized rules in scan profile
     for rule in current_profile.get("included", []):
-        rule_id = rule.get("id", None)
-        exception = exceptions.get(rule_id, None)
+        rule_id = rule.get("id")
+        exception = exceptions.get(rule_id)
         suppressions_rule_id = []
+        
+        # Check if rule has any suppressions and create list of suppressions
         for suppression in suppressions:
-            if suppressions.get(suppression, {}).get("rule_id", None) == rule_id:
+            if suppressions.get(suppression, {}).get("rule_id") == rule_id:
                 suppressions_rule_id.append(suppression)
 
+        # Test if an exception is set for this rule which has suppressions assigned
         if exception is not None and len(suppressions_rule_id) > 0:
-            for suppression in suppressions:
-                # Test for Suppression expired
+
+            for suppression in suppressions_rule_id:
                 now = datetime.timestamp(datetime.now(UTC).replace(tzinfo=None)) * 1000
 
-                # _LOGGER.warning("Fast forward 1 week to fake expiration")
-                # now = datetime.now(UTC).replace(tzinfo=None)
-                # now = int((now + timedelta(days=7)).timestamp() * 1000)
+                # if suppressions.get(suppression, {}).get("rule_id") == "EC2-001":
+                #     _LOGGER.warning("Fast forward 1 week to fake expiration")
+                #     now = datetime.now(UTC).replace(tzinfo=None)
+                #     now = int((now + timedelta(days=7)).timestamp() * 1000)
 
-                if now > suppressions.get(suppression, {}).get("suppress_until", None):
+                # Test for Suppression expired
+                if now > suppressions.get(suppression, {}).get("suppress_until"):
+                    # Suppression expired, remove Exception Tags
                     _LOGGER.info(
                         "Suppression expired, removing Exception Tags for %s in Profile %s",
                         rule_id,
                         SCAN_PROFILE_ID,
                     )
                 else:
+                    # Suppression still valid, keep exception
                     _LOGGER.info(
                         "Suppression still valid for %s in Profile %s",
                         rule_id,
@@ -709,6 +718,8 @@ def remove_expired_exceptions():
                         "Removing Exception from storage with Profile %s",
                         SCAN_PROFILE_ID,
                     )
+
+        # Rule has no exception assigned and/or no suppressions assigned
         else:
             _LOGGER.info(
                 "Not changing Exception Tags for %s in Profile %s",
@@ -874,7 +885,7 @@ def match_scan_result_with_findings(bot_findings):
 
                 if len(exception_tags) > 0 and set(bot_finding_tags).issubset(set(exception_tags)):
                     _LOGGER.info("Bot finding match %s for Scan Tags %s", exception_id, bot_finding_tags)
-                    suppress_check(bot_finding.get("id", None))
+                    suppress_check(bot_finding.get("id", None), exception_tags)
                 else:
                     _LOGGER.info(
                         "Bot finding match, Scan Tags not included: %s",
@@ -882,7 +893,7 @@ def match_scan_result_with_findings(bot_findings):
                     )
 
 
-def suppress_check(check_id) -> None:
+def suppress_check(check_id, exception_tags) -> None:
     """Suppress Check."""
 
     # Retrieve suppressions set by this script
@@ -930,7 +941,7 @@ def suppress_check(check_id) -> None:
         .get("data", {})
         .get("id", {}),
         "scan_profile_id": SCAN_PROFILE_ID,
-        "tags": response.get("data", {}).get("attributes", {}).get("tags", {}),
+        "tags": exception_tags,
         "suppress_until": suppress_until,
     }
 
@@ -954,10 +965,10 @@ def main():
             Examples:
             --------------------------------
             # Run template scan
-            $ ./scanner_c1.py --scan ../awsone/7-scenarios-cspm
+            $ ./scanner_c1_uuid.py --scan ../awsone/7-scenarios-cspm
 
             # trigger bot run
-            $ ./scanner_c1.py --bot
+            $ ./scanner_c1_uuid.py --bot
             """
         ),
     )
