@@ -9,7 +9,6 @@ import requests
 import textwrap
 import uuid
 from datetime import datetime, timedelta, UTC
-# from pprint import pprint as pp
 
 DOCUMENTATION = """
 ---
@@ -62,31 +61,31 @@ EXAMPLES = """
 # Run template scan
 $ ./scanner_c1_uuid.py --scan 2-network
 
-# run approval workflows in engine, here implementing the approved workflow
+# Run approval workflows in engine, here implementing the approved workflow
 $ ./scanner_c1_uuid.py --exclude 2-network
 
-# now add the exclusion tags to the corresponding resources
+# Now add the exclusion tags to the corresponding resources
 # in the Terraform template
 
-# apply configuration
+# Run template scan again to verify that the scan result is clean
+$ ./scanner_c1_uuid.py --scan 2-network
+
+# Apply configuration
 $ ./scanner_c1_uuid.py --apply 2-network
 
-# trigger bot run
+# Trigger bot run
 $ ./scanner_c1_uuid.py --bot
 
-# suppress findings
+# Suppress findings
 $ ./scanner_c1_uuid.py --suppress
 
-# trigger bot run
-$ ./scanner_c1_uuid.py --bot
-
-# suppressions are active for 1 week
+# Suppressions are active for 1 week
 $ ./scanner_c1_uuid.py --expire
 
-# wait for suppressions to expire
+# Wait for suppressions to expire
 $ ./scanner_c1_uuid.py --expire
 
-# cleanup
+# Cleanup
 $ ./scanner_c1_uuid.py --destroy 2-network
 $ ./scanner_c1_uuid.py --reset
 $ ./scanner_c1_uuid.py --expire
@@ -125,6 +124,33 @@ SCAN_RESULT_FILE = "scan_result.json"
 API_KEY = os.environ["C1CSPM_SCANNER_KEY"]
 API_BASE_URL = f"https://conformity.{REGION}.cloudone.trendmicro.com/api"
 # /Do not change
+
+
+# #############################################################################
+# Errors
+# #############################################################################
+class ConformityError(Exception):
+    """Define a base error."""
+
+    pass
+
+
+class ConformityAuthorizationError(ConformityError):
+    """Define an error related to invalid API Permissions."""
+
+    pass
+
+
+class ConformityValidationError(ConformityError):
+    """Define an error related to a validation error from a request."""
+
+    pass
+
+
+class ConformityNotFoundError(ConformityError):
+    """Define an error related to requested information not found."""
+
+    pass
 
 
 # #############################################################################
@@ -197,18 +223,48 @@ def scan_template(contents) -> str:
         }
     }
 
-    response = requests.post(
-        url, data=json.dumps(data), headers=headers, verify=True, timeout=30
-    ).json()
+    response = None
+    try:
+        response = requests.post(
+            url, data=json.dumps(data), headers=headers, verify=True, timeout=30
+        )
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as errh:
+        _LOGGER.error(errh.args[0])
+        raise
+    except requests.exceptions.ReadTimeout:
+        _LOGGER.error("Time out")
+        raise
+    except requests.exceptions.ConnectionError:
+        _LOGGER.error("Connection error")
+        raise
+    except requests.exceptions.RequestException:
+        _LOGGER.error("Exception request")
+        raise
+    finally:
+        # Error handling
+        if not response.ok:
+            match response.status_code:
+                case 400:
+                    raise ConformityError("400 Bad request")
+                case 401:
+                    raise ConformityAuthorizationError(
+                        "401 Unauthorized. The requesting user does not have enough privilege."
+                    )
+                case 403:
+                    raise ConformityAuthorizationError(
+                        "403 Forbidden. The requesting user does not have enough privilege."
+                    )
+                case 404:
+                    raise ConformityNotFoundError("404 Not found")
+                case 500:
+                    raise ConformityError("500 The parsing of the template file failed")
+                case 503:
+                    raise ConformityError("503 Service unavailable")
+                case _:
+                    raise ConformityError(response.text)
 
-    # Error handling
-    if "message" in response:
-        if (
-            response["message"]
-            == "User is not authorized to access this resource with an explicit deny"
-        ):
-            raise ValueError("Invalid API Key")
-
+    response = response.json()
     with open(SCAN_RESULT_FILE, "w", encoding="utf-8") as scan_result:
         json.dump(response, scan_result, indent=2)
 
@@ -234,17 +290,40 @@ def scan_account() -> str:
 
     data = {}
 
-    response = requests.post(
-        url, data=json.dumps(data), headers=headers, verify=True, timeout=30
-    ).json()
-
-    # Error handling
-    if "message" in response:
-        if (
-            response["message"]
-            == "User is not authorized to access this resource with an explicit deny"
-        ):
-            raise ValueError("Invalid API Key")
+    response = None
+    try:
+        response = requests.post(
+            url, data=json.dumps(data), headers=headers, verify=True, timeout=30
+        )
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as errh:
+        _LOGGER.error(errh.args[0])
+        raise
+    except requests.exceptions.ReadTimeout:
+        _LOGGER.error("Time out")
+        raise
+    except requests.exceptions.ConnectionError:
+        _LOGGER.error("Connection error")
+        raise
+    except requests.exceptions.RequestException:
+        _LOGGER.error("Exception request")
+        raise
+    finally:
+        # Error handling
+        if not response.ok:
+            match response.status_code:
+                case 400:
+                    raise ConformityError("400 Bad request")
+                case 401:
+                    raise ConformityAuthorizationError(
+                        "401 Unauthorized. The requesting user does not have enough privilege."
+                    )
+                case 500:
+                    raise ConformityError("500 Internal server error")
+                case 503:
+                    raise ConformityError("503 Service unavailable")
+                case _:
+                    raise ConformityError(response.text)
 
     _LOGGER.info("Account Scan initiated.")
 
@@ -263,19 +342,41 @@ def bot_status_account() -> str:
         "Content-Type": "application/vnd.api+json",
     }
 
-    response = requests.get(
-        url, headers=headers, verify=True, timeout=30
-    ).json()
+    response = None
+    try:
+        response = requests.get(url, headers=headers, verify=True, timeout=30)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as errh:
+        _LOGGER.error(errh.args[0])
+        raise
+    except requests.exceptions.ReadTimeout:
+        _LOGGER.error("Time out")
+        raise
+    except requests.exceptions.ConnectionError:
+        _LOGGER.error("Connection error")
+        raise
+    except requests.exceptions.RequestException:
+        _LOGGER.error("Exception request")
+        raise
+    finally:
+        # Error handling
+        if not response.ok:
+            match response.status_code:
+                case 400:
+                    raise ConformityError("400 Bad request")
+                case 401:
+                    raise ConformityAuthorizationError(
+                        "401 Unauthorized. The requesting user does not have enough privilege."
+                    )
+                case 500:
+                    raise ConformityError("500 Internal server error")
+                case 503:
+                    raise ConformityError("503 Service unavailable")
+                case _:
+                    raise ConformityError(response.text)
 
-    bot_status = response.get('data', {}).get('attributes', {}).get('bot-status')
-
-    # Error handling
-    if "message" in response:
-        if (
-            response["message"]
-            == "User is not authorized to access this resource with an explicit deny"
-        ):
-            raise ValueError("Invalid API Key")
+    response = response.json()
+    bot_status = response.get("data", {}).get("attributes", {}).get("bot-status")
 
     _LOGGER.info("Account Bot status: %s", bot_status)
 
@@ -293,7 +394,40 @@ def download_report() -> None:
         "Authorization": f"ApiKey {API_KEY}",
     }
 
-    response = requests.get(url, headers=headers, verify=True, timeout=30).json()
+    response = None
+    try:
+        response = requests.get(url, headers=headers, verify=True, timeout=30)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as errh:
+        _LOGGER.error(errh.args[0])
+        raise
+    except requests.exceptions.ReadTimeout:
+        _LOGGER.error("Time out")
+        raise
+    except requests.exceptions.ConnectionError:
+        _LOGGER.error("Connection error")
+        raise
+    except requests.exceptions.RequestException:
+        _LOGGER.error("Exception request")
+        raise
+    finally:
+        # Error handling
+        if not response.ok:
+            match response.status_code:
+                case 400:
+                    raise ConformityError("400 Bad request")
+                case 403:
+                    raise ConformityAuthorizationError(
+                        "403 Forbidden. The requesting user does not have enough privilege."
+                    )
+                case 500:
+                    raise ConformityError("500 Internal server error")
+                case 503:
+                    raise ConformityError("503 Service unavailable")
+                case _:
+                    raise ConformityError(response.text)
+
+    response = response.json()
 
     download_endpoint = None
     created_date = 0
@@ -312,15 +446,79 @@ def download_report() -> None:
         _LOGGER.info("No report found.")
         return None
 
-    response = requests.get(download_endpoint, headers=headers, verify=True, timeout=30)
+    response = None
+    try:
+        response = requests.get(
+            download_endpoint, headers=headers, verify=True, timeout=30
+        )
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as errh:
+        _LOGGER.error(errh.args[0])
+        raise
+    except requests.exceptions.ReadTimeout:
+        _LOGGER.error("Time out")
+        raise
+    except requests.exceptions.ConnectionError:
+        _LOGGER.error("Connection error")
+        raise
+    except requests.exceptions.RequestException:
+        _LOGGER.error("Exception request")
+        raise
+    finally:
+        # Error handling
+        if not response.ok:
+            match response.status_code:
+                case 400:
+                    raise ConformityError("400 Bad request")
+                case 403:
+                    raise ConformityAuthorizationError(
+                        "403 Forbidden. The requesting user does not have enough privilege."
+                    )
+                case 500:
+                    raise ConformityError("500 Internal server error")
+                case 503:
+                    raise ConformityError("503 Service unavailable")
+                case _:
+                    raise ConformityError(response.text)
 
-    if response.ok:
-        report_url = response.json().get("url")
+    response = response.json()
+    report_url = response.get("url")
+
+    try:
         response = requests.get(report_url, verify=True, timeout=30)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as errh:
+        _LOGGER.error(errh.args[0])
+        raise
+    except requests.exceptions.ReadTimeout:
+        _LOGGER.error("Time out")
+        raise
+    except requests.exceptions.ConnectionError:
+        _LOGGER.error("Connection error")
+        raise
+    except requests.exceptions.RequestException:
+        _LOGGER.error("Exception request")
+        raise
+    finally:
+        # Error handling
+        if not response.ok:
+            match response.status_code:
+                case 400:
+                    raise ConformityError("400 Bad request")
+                case 403:
+                    raise ConformityAuthorizationError(
+                        "403 Forbidden. The requesting user does not have enough privilege."
+                    )
+                case 500:
+                    raise ConformityError("500 Internal server error")
+                case 503:
+                    raise ConformityError("503 Service unavailable")
+                case _:
+                    raise ConformityError(response.text)
 
-        with open("report.pdf", "wb") as report:
-            report.write(response.content)
-        _LOGGER.info("Report saved to report.pdf.")
+    with open("report.pdf", "wb") as report:
+        report.write(response.content)
+    _LOGGER.info("Report saved to report.pdf.")
 
 
 # #############################################################################
@@ -375,7 +573,40 @@ def rule_tags_existing(rule_id) -> str:
         "Authorization": f"ApiKey {API_KEY}",
     }
 
-    response = requests.get(url, headers=headers, verify=True, timeout=30).json()
+    response = None
+    try:
+        response = requests.get(url, headers=headers, verify=True, timeout=30)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as errh:
+        _LOGGER.error(errh.args[0])
+        raise
+    except requests.exceptions.ReadTimeout:
+        _LOGGER.error("Time out")
+        raise
+    except requests.exceptions.ConnectionError:
+        _LOGGER.error("Connection error")
+        raise
+    except requests.exceptions.RequestException:
+        _LOGGER.error("Exception request")
+        raise
+    finally:
+        # Error handling
+        if not response.ok:
+            match response.status_code:
+                case 400:
+                    raise ConformityError("400 Bad request")
+                case 403:
+                    raise ConformityAuthorizationError(
+                        "403 Forbidden. The requesting user does not have enough privilege."
+                    )
+                case 500:
+                    raise ConformityError("500 Internal server error")
+                case 503:
+                    raise ConformityError("503 Service unavailable")
+                case _:
+                    raise ConformityError(response.text)
+
+    response = response.json()
 
     for rule in response.get("included", []):
         if rule["id"] == rule_id:
@@ -396,7 +627,6 @@ def set_exception(rule_id, risk_level, tags, resource):
 
     # Retrieve already existing tags from rule
     merged_tags = rule_tags_existing(rule_id)
-
     # Test if a tag for the resource already exists
     tag = [tag for tag in merged_tags if f"::{resource}_{rule_id}" in tag]
     if len(tag) == 0:
@@ -444,17 +674,50 @@ def set_exception(rule_id, risk_level, tags, resource):
         },
     }
 
-    response = requests.patch(
-        url, data=json.dumps(data), headers=headers, verify=True, timeout=30
-    ).json()
+    response = None
+    try:
+        response = requests.patch(
+            url, data=json.dumps(data), headers=headers, verify=True, timeout=30
+        )
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as errh:
+        _LOGGER.error(errh.args[0])
+        raise
+    except requests.exceptions.ReadTimeout:
+        _LOGGER.error("Time out")
+        raise
+    except requests.exceptions.ConnectionError:
+        _LOGGER.error("Connection error")
+        raise
+    except requests.exceptions.RequestException:
+        _LOGGER.error("Exception request")
+        raise
+    finally:
+        # Error handling
+        if not response.ok:
+            match response.status_code:
+                case 400:
+                    raise ConformityError("400 Bad request")
+                case 401:
+                    raise ConformityAuthorizationError(
+                        "401 Unauthorized. The requesting user does not have enough privilege."
+                    )
+                case 403:
+                    raise ConformityAuthorizationError(
+                        "403 Forbidden. The requesting user does not have enough privilege."
+                    )
+                case 422:
+                    raise ConformityValidationError(
+                        "500 Unprocessed Entity. Validation error"
+                    )
+                case 500:
+                    raise ConformityError("500 Internal server error")
+                case 503:
+                    raise ConformityError("503 Service unavailable")
+                case _:
+                    raise ConformityError(response.text)
 
-    # Error handling
-    if "message" in response:
-        if (
-            response["message"]
-            == "User is not authorized to access this resource with an explicit deny"
-        ):
-            raise ValueError("Invalid API Key")
+    response = response.json()
 
     # Writing new exceptions file
     exceptions_profile[rule_id] = {
@@ -484,7 +747,40 @@ def clear_exceptions():
     }
 
     # Retrieve current profile
-    current_profile = requests.get(url, headers=headers, verify=True, timeout=30).json()
+    current_profile = None
+    try:
+        current_profile = requests.get(url, headers=headers, verify=True, timeout=30)
+        current_profile.raise_for_status()
+    except requests.exceptions.HTTPError as errh:
+        _LOGGER.error(errh.args[0])
+        raise
+    except requests.exceptions.ReadTimeout:
+        _LOGGER.error("Time out")
+        raise
+    except requests.exceptions.ConnectionError:
+        _LOGGER.error("Connection error")
+        raise
+    except requests.exceptions.RequestException:
+        _LOGGER.error("Exception request")
+        raise
+    finally:
+        # Error handling
+        if not current_profile.ok:
+            match current_profile.status_code:
+                case 400:
+                    raise ConformityError("400 Bad request")
+                case 403:
+                    raise ConformityAuthorizationError(
+                        "403 Forbidden. The requesting user does not have enough privilege."
+                    )
+                case 500:
+                    raise ConformityError("500 Internal server error")
+                case 503:
+                    raise ConformityError("503 Service unavailable")
+                case _:
+                    raise ConformityError(current_profile.text)
+
+    current_profile = current_profile.json()
 
     # Retrieve exceptions set by this script
     exceptions = {}
@@ -553,17 +849,50 @@ def clear_exceptions():
 
     url = f"{API_BASE_URL}/profiles/"
 
-    response = requests.post(
-        url, data=json.dumps(updated_profile), headers=headers, verify=True, timeout=30
-    ).json()
+    response = None
+    try:
+        response = requests.post(
+            url,
+            data=json.dumps(updated_profile),
+            headers=headers,
+            verify=True,
+            timeout=30,
+        )
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as errh:
+        _LOGGER.error(errh.args[0])
+        raise
+    except requests.exceptions.ReadTimeout:
+        _LOGGER.error("Time out")
+        raise
+    except requests.exceptions.ConnectionError:
+        _LOGGER.error("Connection error")
+        raise
+    except requests.exceptions.RequestException:
+        _LOGGER.error("Exception request")
+        raise
+    finally:
+        # Error handling
+        if not response.ok:
+            match response.status_code:
+                case 400:
+                    raise ConformityError("400 Bad request")
+                case 401:
+                    raise ConformityAuthorizationError(
+                        "401 Unauthorized. The requesting user does not have enough privilege."
+                    )
+                case 422:
+                    raise ConformityValidationError(
+                        "500 Unprocessed Entity. Validation error"
+                    )
+                case 500:
+                    raise ConformityError("500 Internal server error")
+                case 503:
+                    raise ConformityError("503 Service unavailable")
+                case _:
+                    raise ConformityError(response.text)
 
-    # Error handling
-    if "message" in response:
-        if (
-            response["message"]
-            == "User is not authorized to access this resource with an explicit deny"
-        ):
-            raise ValueError("Invalid API Key")
+    response = response.json()
 
     # Clean up exceptions file
     exceptions = {}
@@ -588,7 +917,40 @@ def remove_expired_exceptions():
     }
 
     # Retrieve current profile
-    current_profile = requests.get(url, headers=headers, verify=True, timeout=30).json()
+    current_profile = None
+    try:
+        current_profile = requests.get(url, headers=headers, verify=True, timeout=30)
+        current_profile.raise_for_status()
+    except requests.exceptions.HTTPError as errh:
+        _LOGGER.error(errh.args[0])
+        raise
+    except requests.exceptions.ReadTimeout:
+        _LOGGER.error("Time out")
+        raise
+    except requests.exceptions.ConnectionError:
+        _LOGGER.error("Connection error")
+        raise
+    except requests.exceptions.RequestException:
+        _LOGGER.error("Exception request")
+        raise
+    finally:
+        # Error handling
+        if not current_profile.ok:
+            match current_profile.status_code:
+                case 400:
+                    raise ConformityError("400 Bad request")
+                case 403:
+                    raise ConformityAuthorizationError(
+                        "403 Forbidden. The requesting user does not have enough privilege."
+                    )
+                case 500:
+                    raise ConformityError("500 Internal server error")
+                case 503:
+                    raise ConformityError("503 Service unavailable")
+                case _:
+                    raise ConformityError(current_profile.text)
+
+    current_profile = current_profile.json()
 
     # Retrieve exceptions set by this script
     exceptions = {}
@@ -630,7 +992,6 @@ def remove_expired_exceptions():
 
         # Test if an exception is set for this rule which has suppressions assigned
         if exception is not None and len(suppressions_rule_id) > 0:
-
             for suppression in suppressions_rule_id:
                 now = datetime.timestamp(datetime.now(UTC).replace(tzinfo=None)) * 1000
 
@@ -748,17 +1109,49 @@ def remove_expired_exceptions():
 
     url = f"{API_BASE_URL}/profiles/"
 
-    response = requests.post(
-        url, data=json.dumps(updated_profile), headers=headers, verify=True, timeout=30
-    ).json()
+    response = None
+    try:
+        response = requests.post(
+            url,
+            data=json.dumps(updated_profile),
+            headers=headers,
+            verify=True,
+            timeout=30,
+        )
 
-    # Error handling
-    if "message" in response:
-        if (
-            response["message"]
-            == "User is not authorized to access this resource with an explicit deny"
-        ):
-            raise ValueError("Invalid API Key")
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as errh:
+        _LOGGER.error(errh.args[0])
+        raise
+    except requests.exceptions.ReadTimeout:
+        _LOGGER.error("Time out")
+        raise
+    except requests.exceptions.ConnectionError:
+        _LOGGER.error("Connection error")
+        raise
+    except requests.exceptions.RequestException:
+        _LOGGER.error("Exception request")
+        raise
+    finally:
+        # Error handling
+        if not response.ok:
+            match response.status_code:
+                case 400:
+                    raise ConformityError("400 Bad request")
+                case 401:
+                    raise ConformityAuthorizationError(
+                        "401 Unauthorized. The requesting user does not have enough privilege."
+                    )
+                case 422:
+                    raise ConformityValidationError(
+                        "500 Unprocessed Entity. Validation error"
+                    )
+                case 500:
+                    raise ConformityError("500 Internal server error")
+                case 503:
+                    raise ConformityError("503 Service unavailable")
+                case _:
+                    raise ConformityError(response.text)
 
     # pp(updated_exceptions)
     # pp(updated_suppressions)
@@ -794,17 +1187,44 @@ def reset_profile():
         },
     }
 
-    response = requests.post(
-        url, data=json.dumps(data), headers=headers, verify=True, timeout=30
-    ).json()
-
-    # Error handling
-    if "message" in response:
-        if (
-            response["message"]
-            == "User is not authorized to access this resource with an explicit deny"
-        ):
-            raise ValueError("Invalid API Key")
+    response = None
+    try:
+        response = requests.post(
+            url, data=json.dumps(data), headers=headers, verify=True, timeout=30
+        )
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as errh:
+        _LOGGER.error(errh.args[0])
+        raise
+    except requests.exceptions.ReadTimeout:
+        _LOGGER.error("Time out")
+        raise
+    except requests.exceptions.ConnectionError:
+        _LOGGER.error("Connection error")
+        raise
+    except requests.exceptions.RequestException:
+        _LOGGER.error("Exception request")
+        raise
+    finally:
+        # Error handling
+        if not response.ok:
+            match response.status_code:
+                case 400:
+                    raise ConformityError("400 Bad request")
+                case 401:
+                    raise ConformityAuthorizationError(
+                        "401 Unauthorized. The requesting user does not have enough privilege."
+                    )
+                case 422:
+                    raise ConformityValidationError(
+                        "500 Unprocessed Entity. Validation error"
+                    )
+                case 500:
+                    raise ConformityError("500 Internal server error")
+                case 503:
+                    raise ConformityError("503 Service unavailable")
+                case _:
+                    raise ConformityError(response.text)
 
     updated_exceptions = {}
     with open(EXCEPTIONS_FILE, "w", encoding="utf-8") as json_file:
@@ -844,7 +1264,48 @@ def retrieve_bot_results():
             "Authorization": f"ApiKey {API_KEY}",
         }
 
-        response = requests.get(url, headers=headers, verify=True, timeout=30).json()
+        response = None
+        try:
+            response = requests.get(url, headers=headers, verify=True, timeout=30)
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as errh:
+            _LOGGER.error(errh.args[0])
+            raise
+        except requests.exceptions.ReadTimeout:
+            _LOGGER.error("Time out")
+            raise
+        except requests.exceptions.ConnectionError:
+            _LOGGER.error("Connection error")
+            raise
+        except requests.exceptions.RequestException:
+            _LOGGER.error("Exception request")
+            raise
+        finally:
+            # Error handling
+            if not response.ok:
+                match response.status_code:
+                    case 400:
+                        raise ConformityError("400 Bad request")
+                    case 401:
+                        raise ConformityAuthorizationError(
+                            "401 Unauthorized. The requesting user does not have enough privilege."
+                        )
+                    case 403:
+                        raise ConformityAuthorizationError(
+                            "403 Forbidden. The requesting user does not have enough privilege."
+                        )
+                    case 422:
+                        raise ConformityValidationError(
+                            "500 Unprocessed Entity. Validation error"
+                        )
+                    case 500:
+                        raise ConformityError("500 Internal server error")
+                    case 503:
+                        raise ConformityError("503 Service unavailable")
+                    case _:
+                        raise ConformityError(response.text)
+
+        response = response.json()
 
         additional_findings = response.get("data", [])
         findings += additional_findings
@@ -880,19 +1341,25 @@ def match_scan_result_with_findings(bot_findings):
                 == exception_id
             ):
                 # Check if tags match with exception tags
-                bot_finding_tags = bot_finding.get("attributes", {}).get(
-                    "tags"
-                )
+                bot_finding_tags = bot_finding.get("attributes", {}).get("tags")
 
                 # Filter bot finding tags on rule id
-                bot_finding_tags = [tag for tag in bot_finding_tags if f"_{exception_id}" in tag]
+                bot_finding_tags = [
+                    tag for tag in bot_finding_tags if f"_{exception_id}" in tag
+                ]
 
                 if bot_finding_tags is None or len(bot_finding_tags) == 0:
                     # Skip bot findings without tags
                     continue
 
-                if len(exception_tags) > 0 and set(bot_finding_tags).issubset(set(exception_tags)):
-                    _LOGGER.info("Bot finding match %s for Scan Tags %s", exception_id, bot_finding_tags)
+                if len(exception_tags) > 0 and set(bot_finding_tags).issubset(
+                    set(exception_tags)
+                ):
+                    _LOGGER.info(
+                        "Bot finding match %s for Scan Tags %s",
+                        exception_id,
+                        bot_finding_tags,
+                    )
                     suppress_check(bot_finding.get("id", None), exception_tags)
                 else:
                     _LOGGER.info(
@@ -929,17 +1396,46 @@ def suppress_check(check_id, exception_tags) -> None:
         "Authorization": f"ApiKey {API_KEY}",
     }
 
-    response = requests.patch(
-        url, data=json.dumps(data), headers=headers, verify=True, timeout=30
-    ).json()
+    response = None
+    try:
+        response = requests.patch(
+            url, data=json.dumps(data), headers=headers, verify=True, timeout=30
+        )
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as errh:
+        _LOGGER.error(errh.args[0])
+        raise
+    except requests.exceptions.ReadTimeout:
+        _LOGGER.error("Time out")
+        raise
+    except requests.exceptions.ConnectionError:
+        _LOGGER.error("Connection error")
+        raise
+    except requests.exceptions.RequestException:
+        _LOGGER.error("Exception request")
+        raise
+    finally:
+        # Error handling
+        if not response.ok:
+            match response.status_code:
+                case 400:
+                    raise ConformityError("400 Bad request")
+                case 401:
+                    raise ConformityAuthorizationError(
+                        "401 Unauthorized. The requesting user does not have enough privilege."
+                    )
+                case 403:
+                    raise ConformityAuthorizationError(
+                        "403 Forbidden. The requesting user does not have enough privilege."
+                    )
+                case 500:
+                    raise ConformityError("500 Internal server error")
+                case 503:
+                    raise ConformityError("503 Service unavailable")
+                case _:
+                    raise ConformityError(response.text)
 
-    # Error handling
-    if "message" in response:
-        if (
-            response["message"]
-            == "User is not authorized to access this resource with an explicit deny"
-        ):
-            raise ValueError("Invalid API Key")
+    response = response.json()
 
     # Writing new suppressions file
     suppressions[response.get("data", {}).get("id", {})] = {
@@ -1000,7 +1496,11 @@ def main():
         "--bot", action="store_const", const=True, default=False, help="scan account"
     )
     parser.add_argument(
-        "--botstatus", action="store_const", const=True, default=False, help="account bot status"
+        "--botstatus",
+        action="store_const",
+        const=True,
+        default=False,
+        help="account bot status",
     )
     parser.add_argument(
         "--suppress",
