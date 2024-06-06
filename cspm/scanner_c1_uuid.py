@@ -9,6 +9,7 @@ import requests
 import textwrap
 import uuid
 from datetime import datetime, timedelta, UTC
+#from pprint import pprint as pp
 
 DOCUMENTATION = """
 ---
@@ -632,21 +633,18 @@ def clear_exceptions():
             _LOGGER.info(
                 "Removing Exception Tags for %s in Profile %s", rule_id, SCAN_PROFILE_ID
             )
-            if len(resulting_exception_filtertags) > 0:
-                rule["attributes"]["exceptions"]["filterTags"] = (
-                    resulting_exception_filtertags
-                )
-                updated_profile["included"].append(rule)
-                data = (
-                    updated_profile.get("data", {})
-                    .get("relationships", {})
-                    .get("ruleSettings", {})
-                    .get("data", [])
-                )
-                data.append({"id": rule_id, "type": "rules"})
-                updated_profile["data"]["relationships"]["ruleSettings"] = {
-                    "data": data
-                }
+            rule["attributes"]["exceptions"]["filterTags"] = (
+                resulting_exception_filtertags
+            )
+            updated_profile["included"].append(rule)
+            data = (
+                updated_profile.get("data", {})
+                .get("relationships", {})
+                .get("ruleSettings", {})
+                .get("data", [])
+            )
+            data.append({"id": rule_id, "type": "rules"})
+            updated_profile["data"]["relationships"]["ruleSettings"] = {"data": data}
         else:
             _LOGGER.info(
                 "Not changing Exception Tags for %s in Profile %s",
@@ -1034,7 +1032,7 @@ def main():
             Examples:
             --------------------------------
             # Run template scan
-            $ ./scanner_c1_uuid.py --scan ../awsone/7-scenarios-cspm
+            $ ./scanner_c1_uuid.py --scan 7-scenarios-cspm
 
             # trigger bot run
             $ ./scanner_c1_uuid.py --bot
@@ -1105,52 +1103,47 @@ def main():
     args = parser.parse_args()
 
     if args.scan:
-        _LOGGER.info("Scan configuration %s", args.scan[0])
         plan = terraform_plan(args.scan[0])
         scan_result = scan_template(plan)
         scan_failures(scan_result, False)
 
     if args.exclude:
-        _LOGGER.info("Scan configuration %s and exclude findings", args.exclude[0])
         plan = terraform_plan(args.exclude[0])
         scan_result = scan_template(plan)
         scan_failures(scan_result, True)
 
     if args.apply:
-        _LOGGER.info("Apply configuration %s", args.apply[0])
         terraform_apply(args.apply[0])
 
     if args.destroy:
-        _LOGGER.info("Destroy configuration %s", args.destroy[0])
         terraform_destroy(args.destroy[0])
 
     if args.bot:
-        _LOGGER.debug("Scan account")
         scan_account()
 
     if args.botstatus:
-        _LOGGER.debug("Account bot status")
         bot_status_account()
 
     if args.suppress:
-        _LOGGER.debug("Suppression enabled")
         bot_findings = retrieve_bot_results()
         match_scan_result_with_findings(bot_findings)
 
     if args.clear:
-        _LOGGER.debug("Clear enabled")
-        clear_exceptions()
+        msg = "Sure to clear exceptions in scan profile?\n  Only 'Yes' will be accepted to approve.\n\nEnter a value: "
+        confirm = str(input(msg))
+        if confirm == "Yes":
+            clear_exceptions()
 
     if args.expire:
-        _LOGGER.debug("Expire enabled")
         remove_expired_exceptions()
 
     if args.reset:
-        _LOGGER.debug("Reset profile")
-        reset_profile()
+        msg = "Sure to reset scan profile?\n  Only 'Yes' will be accepted to approve.\n\nEnter a value: "
+        confirm = str(input(msg))
+        if confirm == "Yes":
+            reset_profile()
 
     if args.report:
-        _LOGGER.debug("Download report")
         download_report()
 
 
