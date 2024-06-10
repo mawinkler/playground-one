@@ -60,6 +60,7 @@ configs=(
   ["dsm"]=${ONEPATH}/awsone/9-deep-security
   ["dsw"]=${ONEPATH}/awsone/9-deep-security-workload
   ["kind"]=${ONEPATH}/kindone/4-cluster-kind
+  ["scenarios-kind"]=${ONEPATH}/kindone/7-scenarios-kind
   ["kind-deployments"]=${ONEPATH}/kindone/8-cluster-kind-deployments
 )
 
@@ -476,7 +477,14 @@ function init() {
 
       tf kind init
       tf kind-deployments init
-      ;;
+      ;;&
+    scenarios-kind|all)
+      printf '%s\n' "Create terraform.tfvars for scenarios-kind deployments"
+      environment_name=${environment_name} \
+        envsubst <$ONEPATH/templates/terraform-7-scenarios-kind.tfvars >${configs[scenarios-kind]}/terraform.tfvars
+
+      tf scenarios-kind init
+      ;;&
   esac
   printf '%s\n' "💬 Terraform terraform.tfvars dropped to configurations"
 }
@@ -553,6 +561,9 @@ function apply() {
     kind|all)
       tf kind apply
       tf kind-deployments apply
+      ;;&
+    scenarios-kind|all)
+      tf scenarios-kind apply
       ;;
   esac
 }
@@ -881,7 +892,7 @@ function destroy() {
         printf '%s\n' "Configuration scenarios-aks is not applied"
       fi
       ;;
-    goat|all)
+    goat)
       if checklock goat ; then
         tf goat destroy
       else
@@ -899,11 +910,20 @@ function destroy() {
             -H "api-version: v1" -H "Authorization: Bearer ${vision_one_api_key}" \
             "${vision_one_api_url}/v3.0/containerSecurity/kubernetesClusters/${cluster_id}"
         fi
+        tf scenarios-kind destroy
+
         tf kind-deployments destroy
 
         tf kind destroy
       else
         printf '%s\n' "Configuration kind is not applied"
+      fi
+      ;;
+    scenarios-kind)
+      if checklock scenarios-kind ; then
+        tf scenarios-kind destroy
+      else
+        printf '%s\n' "Configuration scenarios-kind is not applied"
       fi
       ;;
   esac
@@ -969,6 +989,9 @@ function output() {
     kind|all)
       tf kind output
       tf kind-deployments output
+      ;;&
+    scenarios-kind|all)
+      tf scenarios-kind output
       ;;
   esac
 }
@@ -1052,6 +1075,9 @@ function state() {
     kind|all)
       tf kind state
       tf kind-deployments state
+      ;;&
+    scenarios-kind|all)
+      tf scenarios-kind state
       ;;
   esac
 }
@@ -1116,6 +1142,9 @@ function show() {
     kind|all)
       tf kind show
       tf kind-deployments show
+      ;;&
+    scenarios-kind|all)
+      tf scenarios-kind show
       ;;
   esac
 }
@@ -1179,6 +1208,9 @@ function validate() {
     kind|all)
       tf kind validate
       tf kind-deployments validate
+      ;;&
+    scenarios-kind|all)
+      tf scenarios-kind validate
       ;;
   esac
 }

@@ -56,6 +56,9 @@ nav:
       - Migrate Deep Security to Vision One: scenarios/ds/ds-migrate.md
       - Integrate Workload Security with Vision One: scenarios/ds/ws-integrate.md
     #   - Migrate Workload Security to Vision One: scenarios/ds/ws-migrate.md
+    - Big Data:
+      - Setup Splunk: scenarios/bigdata/splunk-setup.md
+      - Integrate Splunk with Vision One XDR: scenarios/bigdata/splunk-integrate-vision-one-xdr.md
   - FAQ: faq.md
   - Bloopers: bloopers.md
 theme:

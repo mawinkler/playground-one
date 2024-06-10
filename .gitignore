@@ -87,3 +87,5 @@ cspm/result.json
 cspm/scan_result.json
 cspm/exceptions.json
 cspm/suppressions.json
+cspm/report.pdf
+.pgo.scenarios-kind.lock
