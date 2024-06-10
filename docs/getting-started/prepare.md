@@ -193,6 +193,15 @@ Then, continue with [Configuration](configuration.md).
 
 ## Change Log
 
+### 0.3.1
+
+#### Changes
+
+- Kind cluster now supports Workbench and OAT generation
+- Cloud One Conformity Exception Workflows inspired by customer
+- New Scenario section: Big Data
+  - Integrate Vision One with Splunk
+
 ### 0.3.0
 
 #### Changes

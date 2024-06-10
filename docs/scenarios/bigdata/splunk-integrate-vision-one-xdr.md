@@ -39,6 +39,8 @@ Click on `[Generate]` and in the `Add API Key`-dialog on `[Add]`.
 
 ![alt text](images/splunk-app-v1xdr-06.png "Integration")
 
+![alt text](images/splunk-app-v1xdr-06b.png "Integration")
+
 Save the generated API Key in a secure location.
 
 Next, go back to your Splunk and the XDR App we just installed. In the apps menu select `Configuration` and click on the pencil button of the `default_account`.
@@ -47,7 +49,7 @@ Next, go back to your Splunk and the XDR App we just installed. In the apps menu
 
 As URL type `https://api.xdr.trendmicro.com` for an US instance of Vision One. Adapt the URL if your instance is located in another region (see [FAQ](../../faq.md#know-how-to-check-the-region-and-data-center-location-details-in-trend-vision-one)).
 
-As the `Authentication toke` paste the API Key generated in Vision One beforehand.
+As the `Authentication token` paste the API Key generated in Vision One beforehand.
 
 ![alt text](images/splunk-app-v1xdr-08.png "Integration")
 
@@ -58,3 +60,17 @@ From now on, any new Workbench Alerts and OATs should show up in Splunk.
 ## (Optional) Generate Detections Locally
 
 If you want to automatically generate Workbenches and OATs deploy any of the provided Scenario configurations of Playground One (EKS with EC2 or Fargate, or Kind).
+
+Below, how to do this using the built in Kind cluster:
+
+***Prerequisite: Vision One Container Security configured in Playground One configuration.***
+
+```sh
+pgo --init kind
+pgo --apply kind
+pgo --apply scenarios-kind
+```
+
+The Kind scenarios will generate findings every full hour.
+
+![alt text](images/splunk-app-v1xdr-09.png "Splunk")
