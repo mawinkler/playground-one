@@ -4,7 +4,7 @@
 
 - Playground One EKS EC2 Cluster
 - Playground One Scenarios
-  - Running app: Hunger Check
+    - Running app: Hunger Check
 
 Ensure to have the EKS EC2 Cluster including the Scenarios up and running:
 

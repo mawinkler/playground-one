@@ -9,8 +9,8 @@
 ## Prerequisites
 
 - Clouud One API-Key with the following permissions:
-  - Conformity
-    - PowerUser
+    - Conformity
+        - PowerUser
 - GitHub Account.
 - Forked [playground-one-template-scanner](https://github.com/mawinkler/playground-one-template-scanner).
 

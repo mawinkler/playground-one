@@ -4,7 +4,7 @@
 
 - Vision One Container Security
 - Playground One EKS EC2 Cluster
-  - Running app: 
+    - Running app: 
 
 ## Exploiting
 

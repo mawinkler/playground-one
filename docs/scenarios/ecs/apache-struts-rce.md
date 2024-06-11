@@ -4,7 +4,7 @@
 
 - Vision One connected to your AWS Account
 - Playground One ECS Cluster (Any variant)
-  - Running app: Java-Goof running on vulnerable Tomcat
+    - Running app: Java-Goof running on vulnerable Tomcat
 - Extracted contents of `exploit.zip`
 
 Ensure to have an ECS Cluster up and running:

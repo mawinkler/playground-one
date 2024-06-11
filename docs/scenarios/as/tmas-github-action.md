@@ -5,9 +5,9 @@
 ## Prerequisites
 
 - Vision One Container Security Artifact Scanner API-Key with the following permissions:
-  - Cloud Security Operations
-    - Container Protection
-      - Run artifact scan
+    - Cloud Security Operations
+        - Container Protection
+            - Run artifact scan
 - GitHub Account.
 - Forked [playground-one-scenario-github-action](https://github.com/mawinkler/playground-one-scenario-github-action).
 - Kubernetes Cluster (ideally) with Vision One Container Security deployed.

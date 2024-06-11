@@ -1,4 +1,5 @@
 site_name: Playground One
+repo_url: https://github.com/mawinkler/playground-one
 nav:
   - Home: index.md
   - How it Works:
@@ -19,6 +20,7 @@ nav:
     - Container Security: integrations/container-security.md
     - Deep Security: integrations/deep-security.md
     - Prometheus & Grafana: integrations/prometheus-grafana.md
+    - Splunk: integrations/splunk.md
   - Scenarios:
     - EKS:
       - Escape to Host System: scenarios/eks/escape.md
@@ -64,9 +66,12 @@ nav:
   - Bloopers: bloopers.md
 theme:
   features:
-  #   - navigation.tabs
+    - navigation.tabs
+    - navigation.path
     - content.tabs.link
     - content.code.copy
+    - search.suggest
+    - search.highlight
   favicon: images/playground-icon.png
   palette:
     - scheme: slate

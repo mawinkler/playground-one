@@ -3,9 +3,9 @@
 ## Prerequisites
 
 - Vision One Cloud Security File Scanner API-Key with the following permissions:
-  - Cloud Security Operations
-    - File Security
-      - Run file scan via SDK
+    - Cloud Security Operations
+        - File Security
+            - Run file scan via SDK
 
 Ensure to have the latest `tmfs` deployed:
 

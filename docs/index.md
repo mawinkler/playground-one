@@ -138,9 +138,9 @@ kubie | See [github.com/sbstp/kubie](https://github.com/sbstp/kubie?tab=readme-o
 
 - Cloud One Conformity Exception Workflows inspired by customer
 - New Scenario section: Big Data
-  - Setup Splunk
-  - Integrate Vision One with Splunk
-  - Integrate V1CS Customer Runtime Security Rules with Splunk
+    - Setup Splunk
+    - Integrate Vision One with Splunk
+    - Integrate V1CS Customer Runtime Security Rules with Splunk
 
 *Changes*
 

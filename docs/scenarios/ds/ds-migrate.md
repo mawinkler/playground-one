@@ -3,18 +3,18 @@
 ## Why Migrate to Vision One SaaS
 
 - Power of the Cloud.
-  - Get the latest features continuously.
-  - Infinitely scalable architecture.
-  - Remove physical infrastructure costs & maintenance.
+    - Get the latest features continuously.
+    - Infinitely scalable architecture.
+    - Remove physical infrastructure costs & maintenance.
 - Data Privacy, Security & Compliance.
-  - Compliance certified: PCI-DSS, ISO, SOC.
-  - Multiple Regional Data Centers.
-  - Data privacy.
-  - Reduce time spent on audits.
+    - Compliance certified: PCI-DSS, ISO, SOC.
+    - Multiple Regional Data Centers.
+    - Data privacy.
+    - Reduce time spent on audits.
 - Simplified Operations & Monitoring.
-  - 24 x 7 x 365 always available.
-  - Physically secure cloud environment.
-  - Monitored by Trend Micro staff.
+    - 24 x 7 x 365 always available.
+    - Physically secure cloud environment.
+    - Monitored by Trend Micro staff.
 
 ## Prerequisites
 

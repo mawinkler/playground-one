@@ -29,8 +29,8 @@ To come:
 
 - Documentation of integraion scenarios:
   - DS with V1ES
-  - WS with V1ES
+    - WS with V1ES
 - Documentation of migration scenarios:
-  - DS --> V1ES
-  - WS --> V1ES
+    - DS --> V1ES
+    - WS --> V1ES
 - Creation of protected instances and policies.

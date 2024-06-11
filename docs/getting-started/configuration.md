@@ -131,7 +131,7 @@ Set/update:
 - `ECS - utilize EC2 Nodes`: Enable/disable ECS cluster with EC2 nodes.
 - `ECS - utilize Fargate Nodes`: Enable/disable ECS cluster with Fargate nodes.
 
-> If your IP address has changed see [FAQ](../faq.md#my-ip-address-has-changed-and-i-cannot-access-my-apps-anymore).
+> If your IP address has changed see [FAQ](../faq.md#my-ip-address-has-changed-and-i-cannot-access-my-environment-anymore).
 
 ### Section: Vision One Configuration
 

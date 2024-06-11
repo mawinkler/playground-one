@@ -7,7 +7,7 @@
 - Playground One EKS Cluster
 - Vision One Container Security
 - Playground One Scenarios
-  - Running app: Java-Goof running on vulnerable Tomcat
+    - Running app: Java-Goof running on vulnerable Tomcat
 - Extracted contents of `exploit.zip`
 
 Ensure to have an ECS Cluster up and running:

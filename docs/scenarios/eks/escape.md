@@ -5,7 +5,7 @@
 - Playground One EKS EC2 Cluster
 - Vision One Container Security
 - Playground One Scenarios
-  - Running app: System Monitor
+    - Running app: System Monitor
 
 Ensure to have the EKS EC2 Cluster including the Scenarios up and running:
 

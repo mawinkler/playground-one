@@ -26,8 +26,6 @@ First, start a terminal and ensure to have a running container engine, eventuall
 > Example:
 >
 > `echo "0.2" >.PGO_VERSION`
->
-> See [Change Log](#change-log).
 
 Then simply run
 
