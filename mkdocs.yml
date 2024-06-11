@@ -59,7 +59,7 @@ nav:
     - Big Data:
       - Setup Splunk: scenarios/bigdata/splunk-setup.md
       - Integrate Splunk with Vision One XDR: scenarios/bigdata/splunk-integrate-vision-one-xdr.md
-      - Integrate V1CS Customer Runtime Security Rules with Splunk: scenarios/bigdata/plunk-integrate-vision-one-custom-rules.md
+      - Integrate V1CS Customer Runtime Security Rules with Splunk: scenarios/bigdata/splunk-integrate-vision-one-custom-rules.md
   - FAQ: faq.md
   - Bloopers: bloopers.md
 theme:
