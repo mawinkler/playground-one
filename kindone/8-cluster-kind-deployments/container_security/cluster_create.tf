@@ -3,8 +3,7 @@
 # ####################################
 resource "helm_release" "container_security" {
   depends_on   = [kubernetes_namespace_v1.trendmicro_system]
-  # chart        = "https://github.com/trendmicro/cloudone-container-security-helm/archive/master.tar.gz"
-  chart        = "${path.module}/../../../.packages/cloudone-container-security-helm-master"
+  chart        = "https://github.com/trendmicro/cloudone-container-security-helm/archive/master.tar.gz"
   name         = "container-security"
   namespace    = var.namespace
   reuse_values = true
@@ -43,18 +42,6 @@ resource "helm_release" "container_security" {
     name  = "cloudOne.runtimeSecurity.enabled"
     value = true
   }
-
-
-
-  # set {
-  #   name  = "cloudOne.runtimeSecurity.customRules.enabled"
-  #   value = true
-  # }
-
-  # set {
-  #   name  = "cloudOne.runtimeSecurity.customRules.output.json"
-  #   value = true
-  # }
 
   set {
     name  = "cloudOne.vulnerabilityScanning.enabled"
