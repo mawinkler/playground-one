@@ -89,3 +89,4 @@ cspm/exceptions.json
 cspm/suppressions.json
 cspm/report.pdf
 .pgo.scenarios-kind.lock
+customrules

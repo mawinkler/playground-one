@@ -6,12 +6,46 @@
 
 - Docker Engine with Compose enabled
 
+## Install Compose (if required)
+
+Use the following command to download:
+
+```sh
+mkdir -p ~/.docker/cli-plugins/
+curl -SL https://github.com/docker/compose/releases/download/v2.3.3/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
+```
+
+Next, set the correct permissions so that the docker compose command is executable:
+
+```sh
+chmod +x ~/.docker/cli-plugins/docker-compose
+```
+
+To verify that the installation was successful, you can run:
+
+```sh
+docker compose version
+```
+
+You’ll see output similar to this:
+
+```sh
+Output
+Docker Compose version v2.3.3
+```
+
+Docker Compose is now successfully installed on your system. In the next section, you’ll see how to set up a `docker-compose.yaml` file and get a containerized environment up and running with this tool.
+
 ## The `docker-compose.yaml`-File
 
-Create a file named `docker-compose.yaml` with the following content:
+Create a file named [`~/docker-compose.yaml`](files/splunk/docker-compose.yaml) with the following content:
+
+```sh
+vi ~/docker-compose.yaml
+```
 
 ```yaml
-version: "3.2"
+version: "3.7"
 services:
 
   splunk:

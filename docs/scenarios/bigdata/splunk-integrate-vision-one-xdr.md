@@ -37,10 +37,6 @@ In Vision One head over to `Workflow and Automation -> Third-Party Ingegration` 
 
 Click on `[Generate]` and in the `Add API Key`-dialog on `[Add]`.
 
-![alt text](images/splunk-app-v1xdr-06.png "Integration")
-
-![alt text](images/splunk-app-v1xdr-06b.png "Integration")
-
 Save the generated API Key in a secure location.
 
 Next, go back to your Splunk and the XDR App we just installed. In the apps menu select `Configuration` and click on the pencil button of the `default_account`.
