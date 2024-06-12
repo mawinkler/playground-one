@@ -6,6 +6,6 @@ Splunk is an advanced and scalable form of software that indexes and searches fo
 
 Splunk’s software can be used to examine, monitor, and search for machine-generated big data through a browser-like interface. It makes searching for a particular piece of data quick and easy, and more importantly, does not require a database to store data as it uses indexes for storage.
 
-Site: <https://www.splunk.com/>
+Link: <https://www.splunk.com/>
 
 Vision One has the capability to integrate with Splunk in various ways. Some of these are covered in [Scenarios](../scenarios/bigdata/).

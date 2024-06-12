@@ -1,13 +1,22 @@
-version: "3.7"
-services:
+version: "3.8"
 
+volumes:
+  opt-splunk-etc:
+  opt-splunk-var:
+
+networks:
+  default:
+    name: splunk
+    external: false
+
+services:
   splunk:
     container_name: splunk
     hostname: splunk
     image: ${SPLUNK_IMAGE:-splunk/splunk:latest}
     environment:
       - SPLUNK_START_ARGS=--accept-license --answer-yes --no-prompt --gen-and-print-passwd --seed-passwd TrendMicro.1
-      - SPLUNK_USER=admin
+      - SPLUNK_USER=root
       - SPLUNK_PASSWORD=TrendMicro.1
       - SPLUNK_ENABLE_LISTEN=9997
       - SPLUNK_ADD=tcp 1514
@@ -31,11 +40,3 @@ services:
       - "10706:10706/udp"
       - "10707:10707/udp"
     restart: always
-
-# ##########################################################################
-# Volumes
-# ##########################################################################
-
-volumes:
-  opt-splunk-etc:
-  opt-splunk-var:

@@ -21,6 +21,7 @@ nav:
     - Deep Security: integrations/deep-security.md
     - Prometheus & Grafana: integrations/prometheus-grafana.md
     - Splunk: integrations/splunk.md
+    - Elastic Stack: integrations/elastic-stack.md
   - Scenarios:
     - EKS:
       - Escape to Host System: scenarios/eks/escape.md
@@ -58,10 +59,12 @@ nav:
       - Migrate Deep Security to Vision One: scenarios/ds/ds-migrate.md
       - Integrate Workload Security with Vision One: scenarios/ds/ws-integrate.md
     #   - Migrate Workload Security to Vision One: scenarios/ds/ws-migrate.md
-    - Big Data:
+    - Big Data & SIEM:
       - Setup Splunk: scenarios/bigdata/splunk-setup.md
       - Integrate Splunk with Vision One XDR: scenarios/bigdata/splunk-integrate-vision-one-xdr.md
       - Integrate V1CS Customer Runtime Security Rules with Splunk: scenarios/bigdata/splunk-integrate-vision-one-custom-rules.md
+      - Setup Elastic Stack: scenarios/bigdata/elastic-stack.md
+      - Integrate Elastic Stack with Vision One: scenarios/bigdata/elastic-stack-vision-one.md
   - FAQ: faq.md
   - Bloopers: bloopers.md
 theme:

@@ -37,7 +37,7 @@ Name it `v1cs_custom_rule_events`, and change App to `Splunk Analytics Workspace
 
 Leave all the rest as default and click `[Save]`.
 
-Back at the Input Settings, move the newly created index to the right box by clicking on it.
+Back at the Input Settings, move the newly created index to the right by clicking on it.
 
 ![alt text](images/splunk-app-v1cs-custom-07.png "Splunk")
 
@@ -47,7 +47,9 @@ Proceed with `[Submit >]` in the upper right.
 
 ![alt text](images/splunk-app-v1cs-custom-08.png "Splunk")
 
-Finally, move back to `Settings -> Data -> Data inputs` and select `HTTP Event Collector` which now shows our just created collector. You now want to copy the `Token Value` and paste it to your notes.
+You now want to copy the `Token Value` and paste it to your notes.
+
+The `Token Value` is also shown on `Settings -> Data -> Data inputs`, select `HTTP Event Collector` which shows our just created collector and the `Token Value`.
 
 ![alt text](images/splunk-app-v1cs-custom-09.png "Splunk")
 
@@ -123,10 +125,11 @@ cd ${ONEPATH}/customrules
 we create an additional overrides file which enables custom rules in Container Security. Run
 
 ```sh
-# splunk_http_event_collector=http://<IP address of your docker host>:8088
-splunk_http_event_collector=http://192.168.1.122:8088
-# splunk_token_value=<Token Value from the previous step>
-splunk_token_value=e21a2ff0-3c17-4be7-9871-2417f3c9e19f
+splunk_http_event_collector=http://<IP address of your docker host>:8088
+splunk_token_value=<Token Value from the previous step>
+# Example:
+# splunk_http_event_collector=http://192.168.1.122:8088
+# splunk_token_value=e21a2ff0-3c17-4be7-9871-2417f3c9e19f
 
 cat <<EOF >./overrides-custom-rules.yaml
 cloudOne:
