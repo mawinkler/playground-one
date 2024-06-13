@@ -81,8 +81,6 @@ log/calico/cni/lock
 .pgo.goat.lock
 cspm/exceeded
 cspm/plan.json
-cspm/result_c1.json
-cspm/result_v1.json
 cspm/result.json
 cspm/scan_result.json
 cspm/exceptions.json
@@ -90,3 +88,5 @@ cspm/suppressions.json
 cspm/report.pdf
 .pgo.scenarios-kind.lock
 customrules
+filebeat_ingest_data
+logstash_ingest_data

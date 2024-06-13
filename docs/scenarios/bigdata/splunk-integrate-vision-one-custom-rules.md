@@ -247,6 +247,17 @@ Simply append the yamls below to your `/config/customrules/playground_rules.yaml
   tags: [escape]
 ```
 
+And don't forget to upgrade the helm deployment of Container Security in your cluster.
+
+```sh
+helm get values --namespace trendmicro-system container-security | \
+  helm upgrade container-security \
+    --namespace trendmicro-system \
+    --values - \
+    --values overrides-custom-rules.yaml \
+    cloudone-container-security-helm-2.3.38
+```
+
 *Exploit Container Escape with `nsenter`:*
 
 Start a privileged container in Kubernetes:
@@ -256,6 +267,8 @@ kubectl run -it --image=alpine s --restart=Never --rm --overrides '{"spec":{"hos
 ```
 
 From within the container run: `nsenter -t 1 -m -u -i -n sh`
+
+With the below we're detecting if a shell is created within a pod, whereby we differentiate if it is a root-shell or a regular user shell.
 
 ```yaml
 # ################################################################################
