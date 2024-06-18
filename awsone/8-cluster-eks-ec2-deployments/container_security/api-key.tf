@@ -12,7 +12,7 @@ resource "restapi_object" "cluster" {
       "name": "${replace(var.cluster_name, "-", "_")}",
       "description": "Playground Cluster",
       "policyID": "${local.cluster_policy}",
-      "arn": "${var.cluster_arn}"
+      "resourceId": "${var.cluster_arn}"
     }
   EOT
 }
