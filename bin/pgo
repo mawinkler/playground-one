@@ -947,7 +947,9 @@ function output() {
   case $1 in
     nw|network|all)
       tf network output
-      printf '%s\n' "mad_admin_password = $(terraform -chdir=${configs[network]} output -raw mad_admin_password)"
+      if [ "${pgo_active_directory}" == 'true' ]; then
+        printf '%s\n' "mad_admin_password = $(terraform -chdir=${configs[network]} output -raw mad_admin_password)"
+      fi
       ;;&
     ec2|instances|all)
       tf instances output

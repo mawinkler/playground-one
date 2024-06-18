@@ -85,6 +85,7 @@ Playground One native installation:
 
 Component         | Operational | Known Issues | Vision One Cloud Security
 ----------------- | ----------- | ------------ | ----------------------------------------------------------------
+Network           | Yes         | MAD and Service Gateway experimental | Service Gateway
 EC2 Linux         | Yes         | None         | V1 Server & Workload Protection<br>ASRM
 EC2 Windows       | Yes         | None         | V1 Server & Workload Protection
 EKS EC2           | Yes         | None         | V1CS Runtime Scanning<br>V1CS Runtime Security<br>OAT&WB Generation
@@ -132,15 +133,31 @@ kubie | See [github.com/sbstp/kubie](https://github.com/sbstp/kubie?tab=readme-o
 
 ## Change Log
 
+***0.3.2***
+
+*New*
+
+- The network configuration can now optionally create an AWS Managed Active Directory within the private subnet. Plan is to support Identity Security scenarios in the future.
+- The same configuration can now optionally deploy a Vision One Service Gateway to the public subnet.
+- There are two new scenarios for the above:
+  - [Deploy Service Gateway on AWS manually](https://mawinkler.github.io/playground-one-pages/scenarios/vision-one/v1-aws-service-gateway-manually/)
+  - [Deploy Service Gateway on AWS automatically](https://mawinkler.github.io/playground-one-pages/scenarios/vision-one/v1-aws-service-gateway-automatically/)
+- New Scenario section: Big Data
+  - [Setup Elastic (ELK Stack)](https://mawinkler.github.io/playground-one-pages/scenarios/bigdata/elastic-stack/)
+
+*Fixes*
+
+- The deployment of Vision Container Security did use an incorrect API call when creating the cluster. Instead of `resourceId` the key `arn` from the old beta API was used.
+
 ***0.3.1***
 
 *New*
 
 - Cloud One Conformity Exception Workflows inspired by customer
 - New Scenario section: Big Data
-    - Setup Splunk
-    - Integrate Vision One with Splunk
-    - Integrate V1CS Customer Runtime Security Rules with Splunk
+    - [Setup Splunk](https://mawinkler.github.io/playground-one-pages/scenarios/bigdata/splunk-setup/)
+    - [Integrate Vision One with Splunk](https://mawinkler.github.io/playground-one-pages/scenarios/bigdata/splunk-integrate-vision-one-xdr/)
+    - [Integrate V1CS Customer Runtime Security Rules with Splunk](https://mawinkler.github.io/playground-one-pages/scenarios/bigdata/splunk-integrate-vision-one-custom-rules/)
 
 *Changes*
 
