@@ -176,6 +176,32 @@ function update_pgo_config() {
     exit 0
   fi
 
+  key_desc="AWS MAD - create Active Directory"
+  read -p "${key_desc} [${pgo_active_directory}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    pgo_active_directory=${TEMP}
+  fi
+  if [[ "${pgo_active_directory}" =~ ^true|false$ ]]; then
+    target_val=${pgo_active_directory} \
+      yq -i '.services.aws.active-directory = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  key_desc="AWS SG - create Service Gateway"
+  read -p "${key_desc} [${pgo_service_gateway}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    pgo_service_gateway=${TEMP}
+  fi
+  if [[ "${pgo_service_gateway}" =~ ^true|false$ ]]; then
+    target_val=${pgo_service_gateway} \
+      yq -i '.services.aws.service-gateway = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
   key_desc="AWS EC2 - create Linux EC2"
   read -p "${key_desc} [${pgo_ec2_create_linux}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then

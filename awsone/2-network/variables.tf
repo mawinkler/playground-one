@@ -3,11 +3,11 @@ variable "aws_region" {
 }
 
 variable "access_ip" {
-  type = list
+  type = list(any)
 }
 
 variable "environment" {
-  type    = string
+  type = string
 }
 
 variable "one_path" {
@@ -22,5 +22,15 @@ variable "one_path" {
 # create attack path
 #
 variable "create_attackpath" {
+  type = bool
+}
+
+# MAD
+variable "active_directory" {
+  type = bool
+}
+
+# Service Gateway
+variable "service_gateway" {
   type = bool
 }

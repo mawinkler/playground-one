@@ -17,3 +17,9 @@ one_path = "${ONEPATH}"
 
 # create attack path
 create_attackpath = ${vision_one_asrm_create_attackpath}
+
+# active directory
+active_directory = ${active_directory}
+
+# Vision One Security Gateway
+service_gateway = ${service_gateway}

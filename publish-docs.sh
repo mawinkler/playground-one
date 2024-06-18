@@ -19,4 +19,7 @@ if [[ "${TEMP}" == "yes" ]]; then
   git add .
   git commit . -m "update"
   git push
+else
+  echo
+  echo "${bold}Error:${normal} error asking for approval: interrupted"
 fi

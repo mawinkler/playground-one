@@ -69,3 +69,34 @@ output "private_key_path" {
 output "nat_public_ip" {
   value = module.vpc.nat_public_ip
 }
+
+# AD
+output "ds_managed_ad_id" {
+  value = var.active_directory ? module.ad[0].ds_managed_ad_id : null
+}
+
+output "ds_managed_ad_ips" {
+  value = var.active_directory ? module.ad[0].ds_managed_ad_ips : null
+}
+
+output "managed_ad_password_secret_id" {
+  value = var.active_directory ? module.ad[0].managed_ad_password_secret_id : null
+}
+
+output "mad_admin_password" {
+  value     = var.active_directory ? module.ad[0].mad_admin_password : null
+  sensitive = true
+}
+
+output "public_instance_id_sg_va" {
+  value = var.service_gateway ? module.sg[0].public_instance_id_sg_va : null
+}
+
+output "public_instance_ip_sg_va" {
+  value = var.service_gateway ? module.sg[0].public_instance_ip_sg_va : null
+}
+
+output "ssh_instance_sg_va" {
+  description = "Command to ssh to instance sg_va"
+  value       = var.service_gateway ? module.sg[0].ssh_instance_sg_va : null
+}
