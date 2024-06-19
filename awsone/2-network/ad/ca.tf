@@ -64,7 +64,7 @@ Add-WindowsFeature Adcs-Web-Enrollment
 Write-Log -message "Certification Authority Web Enrollment installed" -level "INFO"
 
 Install-ADcsCertificationAuthority –Credential $credential -CAType EnterpriseRootCa -Force
-Install-AdcsWebEnrollment –Credential $credential -Force
+Install-AdcsWebEnrollment –Credential $credential  -Force
 Write-Log -message "Certification Authority set as root CA" -level "INFO"
 
 #[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
