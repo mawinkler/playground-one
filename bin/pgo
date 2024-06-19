@@ -721,9 +721,11 @@ function destroy() {
           kubectl config use-context ${cluster_name}
         fi
 
-        knsrm-finalizer attackers
-        knsrm-finalizer goat
-        knsrm-finalizer victims
+        if checklock scenarios-ec2 ; then
+          knsrm-finalizer attackers
+          knsrm-finalizer goat
+          knsrm-finalizer victims
+        fi
 
         tf scenarios-ec2 destroy
 
@@ -752,9 +754,11 @@ function destroy() {
           kubectl config use-context ${cluster_name}
         fi
 
-        knsrm-finalizer attackers
-        knsrm-finalizer goat
-        knsrm-finalizer victims
+        if checklock scenarios-fg ; then
+          knsrm-finalizer attackers
+          knsrm-finalizer goat
+          knsrm-finalizer victims
+        fi
         
         tf scenarios-fg destroy
 
@@ -912,6 +916,11 @@ function destroy() {
             -H "api-version: v1" -H "Authorization: Bearer ${vision_one_api_key}" \
             "${vision_one_api_url}/v3.0/containerSecurity/kubernetesClusters/${cluster_id}"
         fi
+
+        if checklock scenarios-kind ; then
+          knsrm-finalizer attackers
+        fi
+
         tf scenarios-kind destroy
 
         tf kind-deployments destroy
