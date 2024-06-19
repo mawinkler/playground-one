@@ -26,7 +26,7 @@ variable "create_attackpath" {
 }
 
 # MAD
-variable "active_directory" {
+variable "managed_active_directory" {
   type = bool
 }
 

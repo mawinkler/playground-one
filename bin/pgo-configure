@@ -177,13 +177,13 @@ function update_pgo_config() {
   fi
 
   key_desc="AWS MAD - create Active Directory"
-  read -p "${key_desc} [${pgo_active_directory}]: " TEMP
+  read -p "${key_desc} [${pgo_managed_active_directory}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
-    pgo_active_directory=${TEMP}
+    pgo_managed_active_directory=${TEMP}
   fi
-  if [[ "${pgo_active_directory}" =~ ^true|false$ ]]; then
-    target_val=${pgo_active_directory} \
-      yq -i '.services.aws.active-directory = env(target_val)' ${ONEPATH}/config.yaml
+  if [[ "${pgo_managed_active_directory}" =~ ^true|false$ ]]; then
+    target_val=${pgo_managed_active_directory} \
+      yq -i '.services.aws.managed-active-directory = env(target_val)' ${ONEPATH}/config.yaml
   else
     echo "Error: Invalid ${key_desc} input."
     exit 0

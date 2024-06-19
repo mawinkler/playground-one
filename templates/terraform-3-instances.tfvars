@@ -23,5 +23,5 @@ environment = "${environment_name}"
 rds_name = "db1"
 rds_username = "db1"
 
-# create attack path
+# Create Attack Path
 create_attackpath = ${vision_one_asrm_create_attackpath}

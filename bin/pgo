@@ -263,7 +263,7 @@ function init() {
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip} \
       vision_one_asrm_create_attackpath=${vision_one_asrm_create_attackpath} \
-      active_directory=${pgo_active_directory} \
+      active_directory=${pgo_managed_active_directory} \
       service_gateway=${pgo_service_gateway} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-2-network.tfvars >${configs[network]}/terraform.tfvars
@@ -956,7 +956,7 @@ function output() {
   case $1 in
     nw|network|all)
       tf network output
-      if [ "${pgo_active_directory}" == 'true' ]; then
+      if [ "${pgo_managed_active_directory}" == 'true' ]; then
         printf '%s\n' "mad_admin_password = $(terraform -chdir=${configs[network]} output -raw mad_admin_password)"
       fi
       ;;&

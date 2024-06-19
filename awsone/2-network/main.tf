@@ -17,10 +17,10 @@ module "ec2" {
   create_attackpath   = var.create_attackpath
 }
 
-module "ad" {
-  count = var.active_directory ? 1 : 0
+module "mad" {
+  count = var.managed_active_directory ? 1 : 0
 
-  source = "./ad"
+  source = "./mad"
 
   vpc_id          = module.vpc.vpc_id
   private_subnets = module.vpc.private_subnets
