@@ -16,6 +16,7 @@ resource "aws_security_group" "sg" {
       to_port     = ingress.value.to
       protocol    = ingress.value.protocol
       cidr_blocks = ingress.value.cidr_blocks
+      # description = ingress.value.description
     }
   }
 
@@ -49,9 +50,10 @@ resource "aws_security_group" "sg_inet" {
       to_port     = ingress.value.to
       protocol    = ingress.value.protocol
       cidr_blocks = var.create_attackpath ? ["0.0.0.0/0"] : ingress.value.cidr_blocks
+      # description = ingress.value.description
     }
   }
-  
+
   egress {
     from_port   = 0
     to_port     = 0

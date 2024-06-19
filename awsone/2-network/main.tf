@@ -9,12 +9,13 @@ module "vpc" {
 module "ec2" {
   source = "./ec2"
 
-  access_ip           = var.access_ip
-  environment         = var.environment
-  one_path            = var.one_path
-  vpc_id              = module.vpc.vpc_id
-  public_subnets_cidr = module.vpc.public_subnet_cidr_blocks
-  create_attackpath   = var.create_attackpath
+  access_ip            = var.access_ip
+  environment          = var.environment
+  one_path             = var.one_path
+  vpc_id               = module.vpc.vpc_id
+  public_subnets_cidr  = module.vpc.public_subnet_cidr_blocks
+  private_subnets_cidr = module.vpc.private_subnet_cidr_blocks
+  create_attackpath    = var.create_attackpath
 }
 
 module "mad" {
@@ -25,6 +26,7 @@ module "mad" {
   environment     = var.environment
   vpc_id          = module.vpc.vpc_id
   private_subnets = module.vpc.private_subnets
+  public_subnets  = module.vpc.public_subnets
 }
 
 module "ad" {
@@ -32,9 +34,17 @@ module "ad" {
 
   source = "./ad"
 
-  environment     = var.environment
-  vpc_id          = module.vpc.vpc_id
-  private_subnets = module.vpc.private_subnets
+  environment                 = var.environment
+  vpc_id                      = module.vpc.vpc_id
+  private_subnets             = module.vpc.private_subnets
+  public_subnets              = module.vpc.public_subnets
+  public_security_group_id    = module.ec2.public_security_group_id
+  key_name                    = module.ec2.key_name
+  windows_ad_domain_name      = "${var.environment}.local"
+  windows_ad_nebios_name      = "ADFS"
+  windows_ad_user_name        = "Administrator"
+  windows_ad_safe_password    = "TrendMicro.1"
+  windows_domain_member_count = 2
 }
 
 module "sg" {

@@ -70,24 +70,39 @@ output "nat_public_ip" {
   value = module.vpc.nat_public_ip
 }
 
-# AD
+# Managed Active Directory
 output "mad_id" {
-  value = var.managed_active_directory ? module.ad[0].mad_id : null
+  value = var.managed_active_directory ? module.mad[0].mad_id : null
 }
 
 output "mad_ips" {
-  value = var.managed_active_directory ? module.ad[0].mad_ips : null
+  value = var.managed_active_directory ? module.mad[0].mad_ips : null
 }
 
 output "mad_secret_id" {
-  value = var.managed_active_directory ? module.ad[0].mad_secret_id : null
+  value = var.managed_active_directory ? module.mad[0].mad_secret_id : null
 }
 
 output "mad_admin_password" {
-  value     = var.managed_active_directory ? module.ad[0].mad_admin_password : null
+  value     = var.managed_active_directory ? module.mad[0].mad_admin_password : null
   sensitive = true
 }
 
+# Active Directory
+output "ad_ip" {
+  value = var.active_directory ? module.ad[0].ad_ip : null
+}
+
+output "ca_ip" {
+  value = var.active_directory ? module.ad[0].ca_ip : null
+}
+
+output "ad_admin_password" {
+  value     = var.active_directory ? module.ad[0].ad_admin_password : null
+  sensitive = true
+}
+
+# Service Gateway
 output "public_instance_id_sg_va" {
   value = var.service_gateway ? module.sg[0].public_instance_id_sg_va : null
 }

@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 import argparse
 import json
+import logging
 import os
 import os.path
 import sys
-import logging
-import requests
 import textwrap
 import uuid
-from datetime import datetime, timedelta, UTC
-#from pprint import pprint as pp
+from datetime import UTC, datetime, timedelta
+
+import requests
+
+# from pprint import pprint as pp
 
 DOCUMENTATION = """
 ---
@@ -17,7 +19,7 @@ module: scanner_c1_uuid.py
 
 short_description: Implements for following functionality:
     - Create Terrafrom Plan of Configuration and run Conformity Template Scan
-    - Set Exceptions in Scan Profile based on Name-Tags assigned to the resource
+    - Set Exceptions in Scan Profile based on unique Tags assigned to the resource
     - Create Terraform Apply of Configuration
     - Create Terraform Destroy of Configuration
     - Remove Exceptions in Scan Profile or reset the Scan Profile
@@ -633,9 +635,9 @@ def clear_exceptions():
             _LOGGER.info(
                 "Removing Exception Tags for %s in Profile %s", rule_id, SCAN_PROFILE_ID
             )
-            rule["attributes"]["exceptions"]["filterTags"] = (
-                resulting_exception_filtertags
-            )
+            rule["attributes"]["exceptions"][
+                "filterTags"
+            ] = resulting_exception_filtertags
             updated_profile["included"].append(rule)
             data = (
                 updated_profile.get("data", {})
@@ -801,9 +803,9 @@ def remove_expired_exceptions():
                         SCAN_PROFILE_ID,
                     )
                     if len(resulting_exception_filtertags) > 0:
-                        rule["attributes"]["exceptions"]["filterTags"] = (
-                            resulting_exception_filtertags
-                        )
+                        rule["attributes"]["exceptions"][
+                            "filterTags"
+                        ] = resulting_exception_filtertags
                         updated_profile["included"].append(rule)
                         data = (
                             updated_profile.get("data", {})
@@ -892,7 +894,7 @@ def retrieve_bot_results():
     page_number = 0
     service_names = ""
     created_less_than_days = 5
-    risk_levels = ";".join(RISK_LEVEL[RISK_LEVEL.index(RISK_LEVEL_FAIL):])
+    risk_levels = ";".join(RISK_LEVEL[RISK_LEVEL.index(RISK_LEVEL_FAIL) :])
     compliances = ""  # "AWAF"
 
     findings = []

@@ -9,7 +9,7 @@ nav:
       - AWS: how-it-works/configurations-aws.md
       - Azure: how-it-works/configurations-azure.md
       - Kind: how-it-works/configurations-kind.md
-    # - Versions: how-it-works/versions.md
+    - Add-Ons: how-it-works/add-ons.md
   - Getting Started:
     - Prepare: getting-started/prepare.md
     - Configuration: getting-started/configuration.md

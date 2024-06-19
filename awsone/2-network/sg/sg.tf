@@ -12,7 +12,6 @@ resource "aws_security_group" "sg_sg_va" {
     for_each = each.value.ingress
 
     content {
-
       from_port   = ingress.value.from
       to_port     = ingress.value.to
       protocol    = ingress.value.protocol

@@ -85,21 +85,23 @@ Playground One native installation:
 
 Component         | Operational | Known Issues | Vision One Cloud Security
 ----------------- | ----------- | ------------ | ----------------------------------------------------------------
-Network           | Yes         | MAD and Service Gateway experimental | Service Gateway
+Network           | Yes         | See 1)       | Service Gateway<br>Identity Security
 EC2 Linux         | Yes         | None         | V1 Server & Workload Protection<br>ASRM
 EC2 Windows       | Yes         | None         | V1 Server & Workload Protection
 EKS EC2           | Yes         | None         | V1CS Runtime Scanning<br>V1CS Runtime Security<br>OAT&WB Generation
 EKS Fargate       | Yes         | None         | V1CS Runtime Scanning<br>V1CS Runtime Security<br>OAT&WB Generation
-ECS EC2           | Yes         | See 1)       | V1CS Runtime Scanning<br>V1CS Runtime Security
-ECS Fargate       | Yes         | See 2)       | V1CS Runtime Scanning<br>V1CS Runtime Security
+ECS EC2           | Yes         | See 2)       | V1CS Runtime Scanning<br>V1CS Runtime Security
+ECS Fargate       | Yes         | See 3)       | V1CS Runtime Scanning<br>V1CS Runtime Security
 Calico            | Yes         | EKS EC2 only |
 Prometheus        | Yes         | EKS EC2 only |
 Trivy             | Yes         | EKS EC2 only |
 Deep Security     | Yes         | None         | V1 Server & Workload Protection
 
-1) Deleting the cluster requires the deactivation runtime scanning and runtime security before destroying the cluster. If destroy process `module.ecs-ec2[0].module.ecs_service.aws_ecs_service.this[0]: Still destroying...` hangs for a couple of minutes manually terminate the autoscaling group `pgo4-ecs-ec2-asg-spot-...` in AWS.
+1) In addition to the network itself the following services can be enabled: Active Directory, AWS Managed Active Directory, and Trend Service Gateway. The Active Directories are experimental and to be integrated deeper in the Playground One over time. They will support additional scenarios with Identity Security, Data Security, and more.
 
-2) Activating Runtime Security requires some manual steps, see [documentation](https://docs.trendmicro.com/en-us/enterprise/trend-vision-one/cloudsecurityoperati/about-container-secu/next-steps/containerinventory/ecs-fargate-deployme/ecs-fargate-add.aspx). Deleting the cluster requires the deactivation of runtime scanning and runtime security before destroying the cluster. Newly created task definitions must be removed manually.
+2) Deleting the cluster requires the deactivation runtime scanning and runtime security before destroying the cluster. If destroy process `module.ecs-ec2[0].module.ecs_service.aws_ecs_service.this[0]: Still destroying...` hangs for a couple of minutes manually terminate the autoscaling group `pgo4-ecs-ec2-asg-spot-...` in AWS.
+
+3) Activating Runtime Security requires some manual steps, see [documentation](https://docs.trendmicro.com/en-us/enterprise/trend-vision-one/cloudsecurityoperati/about-container-secu/next-steps/containerinventory/ecs-fargate-deployme/ecs-fargate-add.aspx). Deleting the cluster requires the deactivation of runtime scanning and runtime security before destroying the cluster. Newly created task definitions must be removed manually.
 
 ### Azure
 
@@ -133,11 +135,17 @@ kubie | See [github.com/sbstp/kubie](https://github.com/sbstp/kubie?tab=readme-o
 
 ## Change Log
 
+***0.3.3***
+
+*New*
+
+- The network configuration can now optionally create an Active Directory (the PGO-style) within the VPC. Plan is to support Identity Security scenarios in the future. This is cheaper than the AWS Managed Active Directory.
+
 ***0.3.2***
 
 *New*
 
-- The network configuration can now optionally create an AWS Managed Active Directory within the private subnet. Plan is to support Identity Security scenarios in the future.
+- The network configuration can now optionally create an AWS Managed Active Directory within the VPC. Plan is to support Identity Security scenarios in the future.
 - The same configuration can now optionally deploy a Vision One Service Gateway to the public subnet.
 - There are two new scenarios for the above:
   - [Deploy Service Gateway on AWS manually](https://mawinkler.github.io/playground-one-pages/scenarios/vision-one/v1-aws-service-gateway-manually/)

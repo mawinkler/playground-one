@@ -10,7 +10,8 @@ resource "aws_directory_service_directory" "ds_managed_ad" {
 
   vpc_settings {
     vpc_id     = var.vpc_id
-    subnet_ids = [var.private_subnets[0], var.private_subnets[1]]
+    # subnet_ids = [var.private_subnets[0], var.private_subnets[1]]
+    subnet_ids = [var.public_subnets[0], var.public_subnets[1]]
   }
 }
 

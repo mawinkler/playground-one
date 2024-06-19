@@ -26,7 +26,13 @@ The following chapters describe the different configurations on a high level, re
 
 *Configuration located in `awsone/2-network`*
 
-This configuration defines a network with the most commonly used architecture, private and public subnets accross three availability zones. It includes everything what a VPC should have, this is amongst others an internet gateway, NAT gateway, security groups, etc. Since a VPC is cheap there's no real need to destroy the networking configuration everyday, just leave it as it is and reuse it the next time. This eases the handling of other components like Vision One XDR for Containers.
+This configuration defines a network with the most commonly used architecture, private and public subnets accross three availability zones. It includes everything what a VPC should have, this is amongst others an internet gateway, NAT gateway, security groups, etc. Since a VPC is cheap there's no real need to destroy the networking configuration everyday, just leave it as it is and reuse it the next time. This eases the handling of other components.
+
+In addition to the networking things the following central services can be deployed optionally:
+
+- Active Directory including a Certification Authority: An AD the PGO way based on cheap `t2.micro` instances.
+- AWS Managed Active Directory: The AWS native variant. This is more on the expensive side (USD 96.48/mo).
+- Trend Service Gateway.
 
 ## Virtual Instances
 

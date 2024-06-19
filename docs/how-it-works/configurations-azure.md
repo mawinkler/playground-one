@@ -33,6 +33,8 @@ Currently, the following deployments are defined:
 - Prometheus & Grafana
 - Trivy
 
+Automated attacks are running every full hour.
+
 ### Scenarios
 
 *Configuration located in `azone/7-scenarios-aks`*

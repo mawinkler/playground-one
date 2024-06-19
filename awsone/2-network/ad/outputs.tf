@@ -1,16 +1,12 @@
-# output "mad_id" {
-#   value = aws_directory_service_directory.ds_managed_ad.id
-# }
+output "ad_ip" {
+  value = aws_instance.windows-server-dc.public_ip
+}
 
-# output "mad_ips" {
-#   value = aws_directory_service_directory.ds_managed_ad.dns_ip_addresses
-# }
+output "ca_ip" {
+  value = aws_instance.windows-server-ca.public_ip
+}
 
-# output "mad_secret_id" {
-#   value = aws_secretsmanager_secret.mad_admin_secret.id
-# }
-
-# output "mad_admin_password" {
-#     value = random_password.mad_admin_password.result
-#     sensitive = true
-# }
+output "ad_admin_password" {
+  value     = var.windows_ad_safe_password
+  sensitive = true
+}
