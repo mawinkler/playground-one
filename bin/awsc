@@ -1,0 +1,89 @@
+#!/bin/bash
+
+# Source: https://docs.aws.amazon.com/general/latest/gr/sigv4-signed-request-examples.html
+
+[[ -n "${AWS_ACCESS_KEY_ID}" ]]     || { echo "AWS_ACCESS_KEY_ID required" >&2; exit 1; }
+[[ -n "${AWS_SECRET_ACCESS_KEY}" ]] || { echo "AWS_SECRET_ACCESS_KEY required" >&2; exit 1; }
+
+readonly parameterName="SlawekTestParam"
+
+readonly method="POST"
+readonly service="ssm"
+readonly region="eu-central-1"
+readonly host="ssm.${region}.amazonaws.com"
+readonly endpoint="https://${host}/"
+readonly contentType="application/x-amz-json-1.1"
+readonly amazonTarget="AmazonSSM.GetParameter"
+readonly requestParameters="$(printf '{"Name":"%s","WithDecryption":true}' "${parameterName}")"
+readonly amazonDate="$(date --utc +'%Y%m%dT%H%M%SZ')"
+readonly dateStamp="$(date --utc +'%Y%m%d')"
+# readonly amazonDate="20200429T093445Z"
+# readonly dateStamp="20200429"
+
+function sha256 {
+    echo -ne "$1" | openssl dgst -sha256 -hex
+}
+
+function hex {
+    echo -ne "$1" | hexdump | sed -e 's/^[0-9a-f]*//' -e 's/ //g' | tr -d '\n'
+}
+
+function sign {
+    local hexKey="$1"
+    local msg="$2"
+
+    echo -ne "${msg}" | openssl dgst -sha256 -mac hmac -macopt "hexkey:${hexKey}"
+}
+
+function getSignatureKey {
+    local key="$1"
+    local dateStamp1="$2"
+    local regionName="$3"
+    local serviceName="$4"
+    local kDate kRegion kService kSigning
+
+    kDate="$(sign "$(hex "AWS4${key}")" "${dateStamp1}")"
+    kRegion="$(sign "${kDate}" "${regionName}")"
+    kService="$(sign "${kRegion}" "${serviceName}")"
+    kSigning="$(sign "${kService}" "aws4_request")"
+
+    echo -ne "${kSigning}"
+}
+
+# --- TASK 1: create canonical request ---
+
+readonly canonicalUri="/"
+readonly canonicalQueryString=""
+readonly canonicalHeaders="content-type:${contentType}\nhost:${host}\nx-amz-date:${amazonDate}\nx-amz-target:${amazonTarget}\n"
+readonly signedHeaders="content-type;host;x-amz-date;x-amz-target"
+readonly payloadHash="$(sha256 "${requestParameters}")"
+
+readonly canonicalRequest="${method}\n${canonicalUri}\n${canonicalQueryString}\n${canonicalHeaders}\n${signedHeaders}\n${payloadHash}"
+
+# --- TASK 2: create the string to sign ---
+
+readonly algorithm="AWS4-HMAC-SHA256"
+readonly credentialScope="${dateStamp}/${region}/${service}/aws4_request"
+
+readonly stringToSign="${algorithm}\n${amazonDate}\n${credentialScope}\n$(sha256 "${canonicalRequest}")"
+
+# --- TASK 3: calculate the signature ---
+
+readonly signingKey="$(getSignatureKey "${AWS_SECRET_ACCESS_KEY}" "${dateStamp}" "${region}" "${service}")"
+
+readonly signature="$(sign "${signingKey}" "${stringToSign}")"
+
+# --- TASK 4: add signing information to the request ---
+
+readonly authorizationHeader="${algorithm} Credential=${AWS_ACCESS_KEY_ID}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}"
+
+# --- SEND REQUEST ---
+
+curl --fail --silent \
+    "${endpoint}" \
+    --data "${requestParameters}" \
+    --header "Accept-Encoding: identity" \
+    --header "Content-Type: ${contentType}" \
+    --header "X-Amz-Date: ${amazonDate}" \
+    --header "X-Amz-Target: ${amazonTarget}" \
+    --header "Authorization: ${authorizationHeader}"

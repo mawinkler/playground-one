@@ -16,7 +16,7 @@ resource "random_string" "suffix" {
 }
 
 resource "aws_secretsmanager_secret" "mad_admin_secret" {
-  name = "${var.ds_managed_ad_directory_name}-${local.ds_managed_ad_admin_secret_sufix}-${random_string.suffix.result}"
+  name = "${var.environment}-mad.local-${local.ds_managed_ad_admin_secret_sufix}-${random_string.suffix.result}"
   #   kms_key_id = var.ds_managed_ad_secret_key
   recovery_window_in_days = 30
 }

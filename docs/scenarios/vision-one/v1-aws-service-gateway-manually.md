@@ -6,7 +6,7 @@
 
 - Playground One Network with Managed Active Directory enabled
 
-Verify, that you have `AWS MAD - create Active Directory` enabled in your configuration.
+Verify, that you have `AWS MAD - create Managed Active Directory` enabled in your configuration.
 
 ```sh
 pgo --config
@@ -14,7 +14,7 @@ pgo --config
 
 ```sh
 ...
-AWS MAD - create Active Directory [true]:
+AWS MAD - create Managed Active Directory [true]:
 ...
 ```
 
@@ -83,8 +83,8 @@ pgo --output network
 
 ```sh
 ...
-ds_managed_ad_id = "d-99677cba24"
-ds_managed_ad_ips = toset([
+mad_id = "d-99677cba24"
+mad_ips = toset([
   "10.0.0.37",
   "10.0.1.229",
 ])
@@ -130,8 +130,8 @@ pgo --output network
 
 ```sh
 ...
-ds_managed_ad_id = "d-99677cba24"
-ds_managed_ad_ips = toset([
+mad_id = "d-99677cba24"
+mad_ips = toset([
   "10.0.0.37",
   "10.0.1.229",
 ])
@@ -142,11 +142,11 @@ mad_admin_password = <sensitive>
 mad_admin_password = XrJ*5VPDZGmhhL70
 ```
 
-The interesting values are now `ds_managed_ad_ips` and the `mad_admin_password`.
+The interesting values are now `mad_ips` and the `mad_admin_password`.
 
 Lastly, in the Connection Settings choose the following parameters:
 
-- Server address: One of the private IPs out of `ds_managed_ad_ips`
+- Server address: One of the private IPs out of `mad_ips`
 - Encryption: `NONE` (the MAD built by Playground One does not have a certificate yet)
 - Port: `389`
 - Permission scope: `Read & write`

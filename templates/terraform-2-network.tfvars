@@ -17,7 +17,10 @@ one_path = "${ONEPATH}"
 create_attackpath = ${vision_one_asrm_create_attackpath}
 
 # AWS Managed Active Directory
-managed_active_directory = ${active_directory}
+managed_active_directory = ${managed_active_directory}
+
+# AWS PGO Active Directory
+active_directory = ${active_directory}
 
 # Vision One Security Gateway
 service_gateway = ${service_gateway}

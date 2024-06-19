@@ -71,16 +71,16 @@ output "nat_public_ip" {
 }
 
 # AD
-output "ds_managed_ad_id" {
-  value = var.managed_active_directory ? module.ad[0].ds_managed_ad_id : null
+output "mad_id" {
+  value = var.managed_active_directory ? module.ad[0].mad_id : null
 }
 
-output "ds_managed_ad_ips" {
-  value = var.managed_active_directory ? module.ad[0].ds_managed_ad_ips : null
+output "mad_ips" {
+  value = var.managed_active_directory ? module.ad[0].mad_ips : null
 }
 
-output "managed_ad_password_secret_id" {
-  value = var.managed_active_directory ? module.ad[0].managed_ad_password_secret_id : null
+output "mad_secret_id" {
+  value = var.managed_active_directory ? module.ad[0].mad_secret_id : null
 }
 
 output "mad_admin_password" {

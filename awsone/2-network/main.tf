@@ -22,12 +22,19 @@ module "mad" {
 
   source = "./mad"
 
+  environment     = var.environment
   vpc_id          = module.vpc.vpc_id
   private_subnets = module.vpc.private_subnets
+}
 
-  ds_managed_ad_directory_name = "${var.environment}.local"
-  ds_managed_ad_short_name     = var.environment
-  ds_managed_ad_edition        = "Standard"
+module "ad" {
+  count = var.active_directory ? 1 : 0
+
+  source = "./ad"
+
+  environment     = var.environment
+  vpc_id          = module.vpc.vpc_id
+  private_subnets = module.vpc.private_subnets
 }
 
 module "sg" {

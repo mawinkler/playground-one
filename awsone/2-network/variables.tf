@@ -25,8 +25,13 @@ variable "create_attackpath" {
   type = bool
 }
 
-# MAD
+# AWS Managed Active Directory
 variable "managed_active_directory" {
+  type = bool
+}
+
+# AWS PGO Active Directory
+variable "active_directory" {
   type = bool
 }
 

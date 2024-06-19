@@ -2,10 +2,10 @@
 # MAD deployment
 # #############################################################################
 resource "aws_directory_service_directory" "ds_managed_ad" {
-  name       = var.ds_managed_ad_directory_name
-  short_name = var.ds_managed_ad_short_name
+  name       = "${var.environment}-mad.local"
+  short_name = "${var.environment}-mad"
   password   = aws_secretsmanager_secret_version.mad_admin_secret_version.secret_string
-  edition    = var.ds_managed_ad_edition
+  edition    = "Standard"
   type       = local.ds_managed_ad_type
 
   vpc_settings {

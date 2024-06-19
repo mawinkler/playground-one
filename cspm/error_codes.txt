@@ -1,0 +1,63 @@
+POST url = f"{API_BASE_URL}/template-scanner/scan"
+
+200200 response
+401Unauthorized. The requesting user does not have enough privilege.
+403Forbidden. This happens when a valid api key is not provided or the user does not have access to the supplied account.
+404Not Found. The profile that was requested was not found.
+500The parsing of the template file failed
+
+POST url = f"{API_BASE_URL}/accounts/{ACCOUNT_ID}/scan"
+
+200OK
+401Unauthorized. The requesting user does not have enough privilege.
+
+GET url = f"{API_BASE_URL}/accounts/{ACCOUNT_ID}"
+
+200OK
+401Unauthorized. The requesting user does not have enough privilege.
+
+GET url = f"{API_BASE_URL}/reports?accountId={ACCOUNT_ID}"
+
+200OK
+403Unauthorized. User is not authorized to access this resource with an explicit deny.
+
+GET url = f"{API_BASE_URL}/profiles/{SCAN_PROFILE_ID}?includes=ruleSettings"
+
+200OK
+403Forbidden. The requesting user does not have enough privilege.
+
+PATCH url = f"{API_BASE_URL}/profiles/{SCAN_PROFILE_ID}"
+
+200OK
+401Unauthorized. The requesting user does not have enough privilege.
+403Forbidden. The requesting user does not have enough privilege.
+422Unprocessed Entity. Validation error.
+
+POST url = f"{API_BASE_URL}/profiles/"
+
+200OK
+401Unauthorized. The requesting user does not have enough privilege.
+422Unprocessed Entity. Validation error.
+
+GET url = f"{API_BASE_URL}/checks"
+
+200OK
+400Bad Request. Cannot process request due to a client error.
+401Unauthorized. The requesting user does not have enough privilege.
+403Forbidden. This happens when a valid api key is not provided or the user does not have access to the profile.
+422Unprocessable Entity
+500Bad Request. Cannot process request due to a server error.
+
+PATCH url = f"{API_BASE_URL}/checks/{check_id}"
+
+200OK
+401Unauthorized. The requesting user does not have enough privilege.
+403Forbidden. This happens when a valid api key is not provided or the user does not have access to the profile.
+500Bad Request. Cannot process request due to a server error.
+
+
+
+class ConformityError(Exception):
+class ConformityAuthorizationError(ConformityError):
+class ConformityValidationError(ConformityError):
+class ConformityNotFoundError(ConformityError):
