@@ -13,7 +13,7 @@ variable "key_name" {}
 variable "windows_instance_type" {
   type        = string
   description = "EC2 instance type for Windows Server"
-  default     = "t2.micro"
+  default     = "t3.medium"
 }
 
 variable "windows_root_volume_size" {

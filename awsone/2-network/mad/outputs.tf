@@ -3,7 +3,7 @@ output "mad_id" {
 }
 
 output "mad_ips" {
-  value = aws_directory_service_directory.ds_managed_ad.dns_ip_addresses
+  value = "${tolist(aws_directory_service_directory.ds_managed_ad.dns_ip_addresses)}"
 }
 
 output "mad_secret_id" {

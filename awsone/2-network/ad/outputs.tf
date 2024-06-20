@@ -1,8 +1,8 @@
-output "ad_ip" {
+output "ad_dc_ip" {
   value = aws_instance.windows-server-dc.public_ip
 }
 
-output "ca_ip" {
+output "ad_ca_ip" {
   value = aws_instance.windows-server-ca.public_ip
 }
 

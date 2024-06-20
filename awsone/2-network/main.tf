@@ -61,4 +61,5 @@ module "sg" {
   key_name                 = module.ec2.key_name
   public_key               = module.ec2.public_key
   private_key_path         = module.ec2.private_key_path
+  instance_type            = "c5.2xlarge"
 }

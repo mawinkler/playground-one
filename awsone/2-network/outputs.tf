@@ -1,3 +1,4 @@
+# VPC
 output "vpc_id" {
   value = module.vpc.vpc_id
 }
@@ -6,6 +7,7 @@ output "vpc_owner_id" {
   value = module.vpc.vpc_owner_id
 }
 
+# Security Groups
 output "public_security_group_id" {
   value = module.ec2.public_security_group_id
 }
@@ -22,6 +24,7 @@ output "private_security_group_inet_id" {
   value = module.ec2.private_security_group_inet_id
 }
 
+# Subnets
 output "public_subnets" {
   value = module.vpc.public_subnets
 }
@@ -54,6 +57,7 @@ output "database_subnet_group" {
   value = module.vpc.database_subnet_group
 }
 
+# Key pair
 output "key_name" {
   value = module.ec2.key_name
 }
@@ -66,15 +70,12 @@ output "private_key_path" {
   value = module.ec2.private_key_path
 }
 
+# NAT Gateway
 output "nat_public_ip" {
   value = module.vpc.nat_public_ip
 }
 
 # Managed Active Directory
-output "mad_id" {
-  value = var.managed_active_directory ? module.mad[0].mad_id : null
-}
-
 output "mad_ips" {
   value = var.managed_active_directory ? module.mad[0].mad_ips : null
 }
@@ -89,12 +90,12 @@ output "mad_admin_password" {
 }
 
 # Active Directory
-output "ad_ip" {
-  value = var.active_directory ? module.ad[0].ad_ip : null
+output "ad_dc_ip" {
+  value = var.active_directory ? module.ad[0].ad_dc_ip : null
 }
 
-output "ca_ip" {
-  value = var.active_directory ? module.ad[0].ca_ip : null
+output "ad_ca_ip" {
+  value = var.active_directory ? module.ad[0].ad_ca_ip : null
 }
 
 output "ad_admin_password" {
@@ -103,15 +104,15 @@ output "ad_admin_password" {
 }
 
 # Service Gateway
-output "public_instance_id_sg_va" {
-  value = var.service_gateway ? module.sg[0].public_instance_id_sg_va : null
-}
+# output "public_instance_id_sg_va" {
+#   value = var.service_gateway ? module.sg[0].public_instance_id_sg_va : null
+# }
 
-output "public_instance_ip_sg_va" {
+output "sg_va_ip" {
   value = var.service_gateway ? module.sg[0].public_instance_ip_sg_va : null
 }
 
-output "ssh_instance_sg_va" {
+output "sg_va_ssh" {
   description = "Command to ssh to instance sg_va"
   value       = var.service_gateway ? module.sg[0].ssh_instance_sg_va : null
 }

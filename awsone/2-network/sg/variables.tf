@@ -20,3 +20,5 @@ variable "private_key_path" {}
 variable "public_subnets_cidr" {}
 
 variable "private_subnets_cidr" {}
+
+variable "instance_type" {}

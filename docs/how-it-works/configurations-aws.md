@@ -32,7 +32,7 @@ In addition to the networking things the following central services can be deplo
 
 - Active Directory including a Certification Authority: An AD the PGO way based on cheap `t2.micro` instances.
 - AWS Managed Active Directory: The AWS native variant. This is more on the expensive side (USD 96.48/mo).
-- Trend Service Gateway.
+- Trend Service Gateway. The configured and recommended instance type `c5.2xlarge` (8 vCPU, 16GiB, 10 Gigabit) is 0.388 USD/h, just to note.
 
 ## Virtual Instances
 
@@ -154,3 +154,12 @@ This configuration is to simulate an on-premise Deep Security environment meant 
 The workload configuration creates a demo configuration for Deep Security and two custom policies. Two linux and one windows instances are created and activated with Deep Security. Some minutes after instance creation the activated computers will run a recommendation scan.
 
 Check the Scenarios section to see available integration and migration scenarios.
+
+## Instance Types in Use as of 06/20/24
+
+Instance name | On-Demand hourly rate | vCPU | Memory | Storage | Network performance | Configuration
+------------- | --------------------- | ---- | ------ | ------- | ------------------- | -------------
+t2.micro | $0.0134 | 1 | 1 GiB | EBS Only | Low to Moderate | Deep Security Bastion
+t3.medium | $0.048 | 2 | 4 GiB | EBS Only | Up to 5 Gigabit | Various
+t3.xlarge | $0.192 | 4 | 16 GiB | EBS Only | Up to 5 Gigabit | Deep Security Manager
+c5.2xlarge | $0.388 | 8 | 16 GiB | EBS Only | Up to 10 Gigabit | Service Gateway
