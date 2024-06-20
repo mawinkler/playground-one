@@ -62,6 +62,7 @@ nav:
     - Vision One:
       - Deploy Service Gateway on AWS Manually: scenarios/vision-one/v1-aws-service-gateway-manually.md
       - Deploy Service Gateway on AWS Automatically: scenarios/vision-one/v1-aws-service-gateway-automatically.md
+      - Integrate an Active Directory via Service Gateway on AWS: scenarios/vision-one/v1-integrate-active-directory.md
     - Big Data & SIEM:
       - Setup Splunk: scenarios/bigdata/splunk-setup.md
       - Integrate Splunk with Vision One XDR: scenarios/bigdata/splunk-integrate-vision-one-xdr.md

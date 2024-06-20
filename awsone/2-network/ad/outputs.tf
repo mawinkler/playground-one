@@ -2,6 +2,10 @@ output "ad_dc_ip" {
   value = aws_instance.windows-server-dc.public_ip
 }
 
+output "ad_dc_pip" {
+  value = aws_instance.windows-server-dc.private_ip
+}
+
 output "ad_ca_ip" {
   value = aws_instance.windows-server-ca.public_ip
 }

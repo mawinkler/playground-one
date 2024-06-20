@@ -55,6 +55,7 @@ configs=(
   ["s3scanner"]=${ONEPATH}/awsone/6-bucket-scanner
   ["scenarios-ec2"]=${ONEPATH}/awsone/7-scenarios-ec2
   ["scenarios-fg"]=${ONEPATH}/awsone/7-scenarios-fargate
+  ["scenarios-identity"]=${ONEPATH}/awsone/7-scenarios-identity
   ["scenarios-aks"]=${ONEPATH}/azone/7-scenarios-aks
   ["goat"]=${ONEPATH}/awsone/7-goat
   ["dsm"]=${ONEPATH}/awsone/9-deep-security
@@ -409,6 +410,17 @@ function init() {
 
       tf scenarios-fg init
       ;;&
+    scenarios-identity|all)
+      printf '%s\n' "Create terraform.tfvars for scenarios-identity deployments"
+      aws_region=${aws_region} \
+      environment_name=${environment_name} \
+      managed_active_directory=${pgo_managed_active_directory} \
+      active_directory=${pgo_active_directory} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-7-scenarios-identity.tfvars >${configs[scenarios-identity]}/terraform.tfvars
+
+      tf scenarios-identity init
+      ;;&
     scenarios-aks|all)
       printf '%s\n' "Create terraform.tfvars for scenarios-aks deployments"
       azure_subscription_id=${azure_subscription_id} \
@@ -547,6 +559,9 @@ function apply() {
       ;;&
     scenarios-fg|all)
       tf scenarios-fg apply
+      ;;&
+    scenarios-identity|all)
+      tf scenarios-identity apply
       ;;&
     scenarios-aks|all)
       tf scenarios-aks apply
@@ -892,6 +907,13 @@ function destroy() {
         printf '%s\n' "Configuration scenarios-fg is not applied"
       fi
       ;;
+    scenarios-identity)
+      if checklock scenarios-identity ; then
+        tf scenarios-identity destroy
+      else
+        printf '%s\n' "Configuration scenarios-identity is not applied"
+      fi
+      ;;
     scenarios-aks)
       if checklock scenarios-aks ; then
         tf scenarios-aks destroy
@@ -991,6 +1013,9 @@ function output() {
     scenarios-fg|all)
       tf scenarios-fg output
       ;;&
+    scenarios-identity|all)
+      tf scenarios-identity output
+      ;;&
     scenarios-aks|all)
       tf scenarios-aks output
       ;;&
@@ -1078,6 +1103,9 @@ function state() {
     scenarios-fg|all)
       tf scenarios-fg state
       ;;&
+    scenarios-identity|all)
+      tf scenarios-identity state
+      ;;&
     scenarios-aks|all)
       tf scenarios-aks state
       ;;&
@@ -1145,6 +1173,9 @@ function show() {
     scenarios-fg|all)
       tf scenarios-fg show
       ;;&
+    scenarios-identity|all)
+      tf scenarios-identity show
+      ;;&
     scenarios-aks|all)
       tf scenarios-aks show
       ;;&
@@ -1210,6 +1241,9 @@ function validate() {
       ;;&
     scenarios-fg|all)
       tf scenarios-fg validate
+      ;;&
+    scenarios-identity|all)
+      tf scenarios-identity validate
       ;;&
     scenarios-aks|all)
       tf scenarios-aks validate
@@ -1302,6 +1336,9 @@ function erase() {
     scenarios-fg|all)
       tf scenarios-fg erase
       ;;&
+    scenarios-identity|all)
+      tf scenarios-identity erase
+      ;;&
     scenarios-aks|all)
       tf scenarios-aks erase
       ;;&
@@ -1383,20 +1420,21 @@ function helpcmd() {
   printf '%s\n' "  -p --plan      Plan apply and destroy"
   printf '%s\n' ""
   printf '%s\n' "Available configurations:"
-  printf '%s\n' "  nw             Network configuration"
-  printf '%s\n' "  ec2            EC2 configuration"
-  printf '%s\n' "  eks-ec2        EKS configuration"
-  printf '%s\n' "  eks-fg         EKS configuration"
-  printf '%s\n' "  aks            AKS configuration"
-  printf '%s\n' "  ecs            ECS configurations"
-  printf '%s\n' "  s3scanner      S3 Bucket scanner"
-  printf '%s\n' "  kind           Kind configuration"
-  printf '%s\n' "  scenarios-ec2  Scenario configuration"
-  printf '%s\n' "  scenarios-fg   Scenario configuration"
-  printf '%s\n' "  scenarios-aks  Scenario configuration"
-  printf '%s\n' "  dsm            Deep Security configuration"
-  printf '%s\n' "  dsw            Deep Security Workload configuration"
-  printf '%s\n' "  all            All configurations"
+  printf '%s\n' "  nw                  Network configuration"
+  printf '%s\n' "  ec2                 EC2 configuration"
+  printf '%s\n' "  eks-ec2             EKS configuration"
+  printf '%s\n' "  eks-fg              EKS configuration"
+  printf '%s\n' "  aks                 AKS configuration"
+  printf '%s\n' "  ecs                 ECS configurations"
+  printf '%s\n' "  s3scanner           S3 Bucket scanner"
+  printf '%s\n' "  kind                Kind configuration"
+  printf '%s\n' "  scenarios-ec2       Scenario configuration"
+  printf '%s\n' "  scenarios-fg        Scenario configuration"
+  printf '%s\n' "  scenarios-identity  Scenario configuration"
+  printf '%s\n' "  scenarios-aks       Scenario configuration"
+  printf '%s\n' "  dsm                 Deep Security configuration"
+  printf '%s\n' "  dsw                 Deep Security Workload configuration"
+  printf '%s\n' "  all                 All configurations"
   printf '%s\n' ""
   printf '%s\n' "Examples:"
   printf '%s\n' "  pgo --apply nw"

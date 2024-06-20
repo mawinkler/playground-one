@@ -1,10 +1,10 @@
-# Scenario: Deploy Vision One Service Gateway on AWS and connect AWS Managed AD - Automatically
+# Scenario: Deploy Vision One Service Gateway on AWS Automatically
 
 ***DRAFT***
 
 ## Prerequisites
 
-- Playground One Network with Managed Active Directory enabled
+- Playground One Network
 - Activated Marketplace AMI for Trend Service Gateway BYOL
 
 You need to have activated the Trend Service Gateway BYOL AMI in Marketplace once. To do this, on the AWS Console choose the service EC2 and navigate to `Images --> AMI Catalog`. Select the tab `AWS Marketplace AMIs` and seach for `Trend Micro Service Gateway`.
@@ -17,7 +17,7 @@ There should only be one AMI shown for your current region. Click on `[Select]` 
 
 Now, check your Playground One configuration.
 
-Verify, that you have `AWS MAD - create Managed Active Directory` and `AWS SG - create Service Gateway` enabled in your configuration.
+Verify, that you have `AWS SG - create Service Gateway` enabled in your configuration.
 
 ```sh
 pgo --config
@@ -25,17 +25,16 @@ pgo --config
 
 ```sh
 ...
-AWS MAD - create Managed Active Directory [true]:
 AWS SG - create Service Gateway [true]:
 ...
 ```
 
 ```sh
-# With MAD and SG enabled
+# With SG enabled
 pgo --apply network
 ```
 
-The Service Gateway gets a dedicated AWS Security Group assigned with allows SSH from your configured access IP(s) only. All other ports are only accessible from within the public and private subnets.
+The Service Gateway gets a dedicated AWS Security Group assigned which allows SSH from your configured access IP(s) only. All other ports are only accessible from within the public and private subnets.
 
 ## Get the Vision One API Key
 
@@ -78,47 +77,6 @@ enable
 register <your API Token from the first step>
 ```
 
-## Connect the Managed Active Directory
-
-Now to the last step. In Vision One head over to `Workflow and Automation -> Service Gateway Management` again. There should now be a Service Gateway listed. Select it, click on `Manage Services` just in the center, and download the `On-premise directory connection` to the gateway.
-
-![alt text](images/v1-aws-sgm-13.png "Vision One")
-
-![alt text](images/v1-aws-sgm-14.png "Vision One")
-
-From within your console/shell run the following command (or find the output from the previous step):
-
-```sh
-pgo --output network
-```
-
-```sh
-...
-mad_id = "d-99677cba24"
-mad_ips = toset([
-  "10.0.0.37",
-  "10.0.1.229",
-])
-...
-key_name = "pgo-key-pair-oaxuizlr"
-mad_admin_password = <sensitive>
-...
-mad_admin_password = XrJ*5VPDZGmhhL70
-```
-
-The interesting values are now `mad_ips` and the `mad_admin_password`.
-
-Lastly, in the Connection Settings choose the following parameters:
-
-- Server address: One of the private IPs out of `mad_ips`
-- Encryption: `NONE` (the MAD built by Playground One does not have a certificate yet)
-- Port: `389`
-- Permission scope: `Read & write`
-- User Name: `admin`
-- Password: `mad_admin_password`
-
-![alt text](images/v1-aws-sgm-15.png "Vision One")
-
-This should connect the Active Directory to Vision One via the Service Gateway.
+It can take some time for the Service Gateway to show up in the console.
 
 🎉 Success 🎉

@@ -1,25 +1,12 @@
-# Scenario: Deploy Vision One Service Gateway on AWS and connect AWS Managed AD - Manually
+# Scenario: Deploy Vision One Service Gateway on AWS Manually
 
 ***DRAFT***
 
 ## Prerequisites
 
-- Playground One Network with Managed Active Directory enabled
-
-Verify, that you have `AWS MAD - create Managed Active Directory` enabled in your configuration.
+- Playground One Network
 
 ```sh
-pgo --config
-```
-
-```sh
-...
-AWS MAD - create Managed Active Directory [true]:
-...
-```
-
-```sh
-# With MAD enabled
 pgo --apply network
 ```
 
@@ -114,47 +101,6 @@ enable
 register <your API Token from the first step>
 ```
 
-## Connect the Managed Active Directory
-
-Now to the last step. In Vision One head over to `Workflow and Automation -> Service Gateway Management` again. There should now be a Service Gateway listed. Select it, click on `Manage Services` just in the center, and download the `On-premise directory connection` to the gateway.
-
-![alt text](images/v1-aws-sgm-13.png "Vision One")
-
-![alt text](images/v1-aws-sgm-14.png "Vision One")
-
-From within your console/shell run the following command (or find the output from the previous step):
-
-```sh
-pgo --output network
-```
-
-```sh
-...
-mad_id = "d-99677cba24"
-mad_ips = toset([
-  "10.0.0.37",
-  "10.0.1.229",
-])
-...
-key_name = "pgo-key-pair-oaxuizlr"
-mad_admin_password = <sensitive>
-...
-mad_admin_password = XrJ*5VPDZGmhhL70
-```
-
-The interesting values are now `mad_ips` and the `mad_admin_password`.
-
-Lastly, in the Connection Settings choose the following parameters:
-
-- Server address: One of the private IPs out of `mad_ips`
-- Encryption: `NONE` (the MAD built by Playground One does not have a certificate yet)
-- Port: `389`
-- Permission scope: `Read & write`
-- User Name: `admin`
-- Password: `mad_admin_password`
-
-![alt text](images/v1-aws-sgm-15.png "Vision One")
-
-This should connect the Active Directory to Vision One via the Service Gateway.
+It can take some time for the Service Gateway to show up in the console.
 
 🎉 Success 🎉

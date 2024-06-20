@@ -157,6 +157,8 @@ Check the Scenarios section to see available integration and migration scenarios
 
 ## Instance Types in Use as of 06/20/24
 
+Region: `eu-central-1`
+
 Instance name | On-Demand hourly rate | vCPU | Memory | Storage | Network performance | Configuration
 ------------- | --------------------- | ---- | ------ | ------- | ------------------- | -------------
 t2.micro | $0.0134 | 1 | 1 GiB | EBS Only | Low to Moderate | Deep Security Bastion

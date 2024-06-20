@@ -108,3 +108,4 @@ cspm/infra/vpc/output.tf
 cspm/infra/vpc/variables.tf
 cspm/infra/vpc/vpc_endpoints.tf
 cspm/infra/vpc/vpc.tf
+.pgo.scenarios-identity.lock
