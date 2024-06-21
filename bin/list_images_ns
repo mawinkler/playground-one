@@ -1,0 +1,16 @@
+#!/bin/bash
+
+ns_list=$(kubectl get ns -o json | jq -r '.items[].metadata.name')
+
+for ns in ${ns_list}; do
+  echo -n "${ns}: " 
+  kubectl get pods -n ${ns} -o jsonpath="{.items[*].spec['initContainers', 'containers'][*].image}" |\
+  tr -s '[[:space:]]' '\n' |\
+  sort |\
+  uniq -c | wc -l
+
+  kubectl get pods -n ${ns} -o jsonpath="{.items[*].spec['initContainers', 'containers'][*].image}" |\
+  tr -s '[[:space:]]' '\n' |\
+  sort |\
+  uniq -c
+done

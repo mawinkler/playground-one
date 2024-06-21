@@ -70,6 +70,32 @@ Example with environment name `pgo-id`:
 
 This should connect the Active Directory to Vision One via the Service Gateway.
 
+Using the PGO Active Directory allows you to utilize the Security Event Forwarding. For this functionality you need to download the current installation package on the Domain Controller and walk through the installation procedure.
+
+Let's start from the beginning:
+
+First, head over to `Workflow and Automation -> Service Gateway Management` and obtain your API Key (top right, this will be the same for all Service Gateways connected) the private IP of your Service Gateway, here `10.0.4.40`.
+
+![alt text](images/v1-aws-sef-00.png "Vision One")
+
+Next, in `Workflow and Automation -> Service Gateway Management -> Active Directory (on-premise)` open the tab `Security Event Forwarding` and click the button `[Download Installation Package]` to copy the link.
+
+![alt text](images/v1-aws-sef-01.png "Vision One")
+
+Connect to the Domain Controller and download the agent via the browser by pasting the link from above.
+
+Open the downloaded executable and install. 
+
+![alt text](images/v1-aws-sef-02.png "Vision One")
+
+Follow the workflow and file in the IP and API Key of your Service Gateway.
+
+![alt text](images/v1-aws-sef-06.png "Vision One")
+
+Heading back to the Active Directory integration of Vision One the agent should be listed after a short period of time.
+
+![alt text](images/v1-aws-sef-07.png "Vision One")
+
 ### Connect the Managed Active Directory
 
 From within your console/shell run the following command (or find the output from the previous step):
