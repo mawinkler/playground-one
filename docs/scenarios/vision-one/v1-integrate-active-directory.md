@@ -88,6 +88,12 @@ Open the downloaded executable and install.
 
 ![alt text](images/v1-aws-sef-02.png "Vision One")
 
+![alt text](images/v1-aws-sef-03.png "Vision One")
+
+![alt text](images/v1-aws-sef-04.png "Vision One")
+
+![alt text](images/v1-aws-sef-05.png "Vision One")
+
 Follow the workflow and file in the IP and API Key of your Service Gateway.
 
 ![alt text](images/v1-aws-sef-06.png "Vision One")
