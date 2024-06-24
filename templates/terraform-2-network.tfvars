@@ -21,6 +21,8 @@ managed_active_directory = ${managed_active_directory}
 
 # AWS PGO Active Directory
 active_directory = ${active_directory}
+ad_domain_name   = "${environment_name}.local"
+ad_nebios_name   = "ADFS"
 
 # Vision One Security Gateway
 service_gateway = ${service_gateway}

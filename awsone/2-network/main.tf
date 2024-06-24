@@ -40,17 +40,18 @@ module "ad" {
   public_subnets              = module.vpc.public_subnets
   public_security_group_id    = module.ec2.public_security_group_id
   key_name                    = module.ec2.key_name
-  windows_ad_domain_name      = "${var.environment}.local"
-  windows_ad_nebios_name      = "ADFS"
-  windows_ad_user_name        = "Administrator"
-  windows_ad_safe_password    = "TrendMicro.1"
+  windows_ad_domain_name      = var.ad_domain_name
+  windows_ad_nebios_name      = var.ad_nebios_name
+  windows_ad_user_name        = var.ad_domain_admin
+  windows_ad_safe_password    = var.ad_admin_password
   windows_domain_member_count = 2
 }
 
 module "sg" {
   count = var.service_gateway ? 1 : 0
 
-  source                   = "./sg"
+  source = "./sg"
+
   access_ip                = var.access_ip
   environment              = var.environment
   vpc_id                   = module.vpc.vpc_id

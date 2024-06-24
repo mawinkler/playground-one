@@ -6,34 +6,20 @@ data "terraform_remote_state" "vpc" {
   }
 }
 
-
-# module "mad" {
-#   count = var.managed_active_directory ? 1 : 0
-
-#   source = "./mad"
-
-#   environment     = var.environment
-#   vpc_id          = module.vpc.vpc_id
-#   private_subnets = module.vpc.private_subnets
-#   public_subnets  = module.vpc.public_subnets
-# }
-
 module "ec2" {
   count = var.active_directory ? 1 : 0
 
   source = "./ec2"
 
-  environment = var.environment
-  # vpc_id                      = module.vpc.vpc_id
-  private_subnets          = data.terraform_remote_state.vpc.outputs.private_subnets
-  public_subnets           = data.terraform_remote_state.vpc.outputs.public_subnets
-  public_security_group_id = data.terraform_remote_state.vpc.outputs.public_security_group_id
-  key_name                 = data.terraform_remote_state.vpc.outputs.key_name
-  windows_ad_domain_name   = "${var.environment}.local"
-  # windows_ad_nebios_name      = "ADFS"
-  windows_ad_user_name        = "Administrator"
-  windows_ad_safe_password    = "TrendMicro.1"
-  windows_domain_member_count = 1
+  environment                 = var.environment
+  private_subnets             = data.terraform_remote_state.vpc.outputs.private_subnets
+  public_subnets              = data.terraform_remote_state.vpc.outputs.public_subnets
+  public_security_group_id    = data.terraform_remote_state.vpc.outputs.public_security_group_id
+  key_name                    = data.terraform_remote_state.vpc.outputs.key_name
+  windows_ad_domain_name      = try(data.terraform_remote_state.vpc.outputs.ad_domain_name, "")
+  windows_ad_user_name        = try(data.terraform_remote_state.vpc.outputs.ad_domain_admin, "")
+  windows_ad_safe_password    = try(data.terraform_remote_state.vpc.outputs.ad_admin_password, "")
+  windows_domain_member_count = 2
 }
 
 module "ad" {
@@ -41,6 +27,12 @@ module "ad" {
 
   source = "./ad"
 
-  environment = var.environment
-  # vpc_id                      = module.vpc.vpc_id
+  environment            = var.environment
+  windows_ad_domain_name = try(data.terraform_remote_state.vpc.outputs.ad_domain_name, "")
+  users_dn = "CN=Users,DC=${
+    split(".", try(data.terraform_remote_state.vpc.outputs.ad_domain_name, ""))[0]},DC=${
+  split(".", try(data.terraform_remote_state.vpc.outputs.ad_domain_name, ""))[1]}"
+  domain_admins_dn = "CN=Domain Admins,CN=Users,DC=${
+    split(".", try(data.terraform_remote_state.vpc.outputs.ad_domain_name, ""))[0]},DC=${
+  split(".", try(data.terraform_remote_state.vpc.outputs.ad_domain_name, ""))[1]}"
 }

@@ -90,6 +90,10 @@ output "mad_admin_password" {
 }
 
 # Active Directory
+output "ad_domain_name" {
+  value = var.active_directory ? var.ad_domain_name : null
+}
+
 output "ad_dc_ip" {
   value = var.active_directory ? module.ad[0].ad_dc_ip : null
 }
@@ -100,6 +104,10 @@ output "ad_dc_pip" {
 
 output "ad_ca_ip" {
   value = var.active_directory ? module.ad[0].ad_ca_ip : null
+}
+
+output "ad_domain_admin" {
+  value = var.active_directory ? var.ad_domain_admin : null
 }
 
 output "ad_admin_password" {

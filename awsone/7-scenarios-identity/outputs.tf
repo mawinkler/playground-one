@@ -1,31 +1,35 @@
-# # Managed Active Directory
-# output "mad_ips" {
-#   value = var.managed_active_directory ? module.mad[0].mad_ips : null
-# }
 
-# output "mad_secret_id" {
-#   value = var.managed_active_directory ? module.mad[0].mad_secret_id : null
-# }
+output "ad_domain_name" {
+  value = var.active_directory ? data.terraform_remote_state.vpc.outputs.ad_domain_name : null
+}
 
-# output "mad_admin_password" {
-#   value     = var.managed_active_directory ? module.mad[0].mad_admin_password : null
-#   sensitive = true
-# }
+output "ad_dc_ip" {
+  value = var.active_directory ? data.terraform_remote_state.vpc.outputs.ad_dc_ip : null
+}
 
-# # Active Directory
-# output "ad_dc_ip" {
-#   value = var.active_directory ? module.ad[0].ad_dc_ip : null
-# }
+output "ad_dc_pip" {
+  value = var.active_directory ? data.terraform_remote_state.vpc.outputs.ad_dc_pip : null
+}
 
-# output "ad_ca_ip" {
-#   value = var.active_directory ? module.ad[0].ad_ca_ip : null
-# }
+output "ad_ca_ip" {
+  value = var.active_directory ? data.terraform_remote_state.vpc.outputs.ad_ca_ip : null
+}
 
-# output "ad_admin_password" {
-#   value     = var.active_directory ? module.ad[0].ad_admin_password : null
-#   sensitive = true
-# }
+output "ad_domain_admin" {
+  value = var.active_directory ? data.terraform_remote_state.vpc.outputs.ad_domain_admin : null
+}
 
-output "computer_dns_names" {
-  value = module.ec2[0].computer_dns_names
+output "member_dns_names" {
+  value = module.ec2.*.member_dns_names
+}
+
+output "ad_admin_password" {
+  value     = var.active_directory ? data.terraform_remote_state.vpc.outputs.ad_admin_password : null
+  sensitive = true
+}
+
+output "users_dn" {
+  value = "CN=Users,DC=${
+    split(".", try(data.terraform_remote_state.vpc.outputs.ad_domain_name, ""))[0]},DC=${
+  split(".", try(data.terraform_remote_state.vpc.outputs.ad_domain_name, ""))[1]}"
 }

@@ -35,6 +35,26 @@ variable "active_directory" {
   type = bool
 }
 
+variable "ad_domain_name" {
+  type = string
+}
+
+variable "ad_nebios_name" {
+  type = string
+}
+
+variable "ad_domain_admin" {
+  type        = string
+  description = "Domain Administrator Name"
+  default     = "Administrator"
+}
+
+variable "ad_admin_password" {
+  type        = string
+  description = "Domain Administrator Password"
+  default     = "TrendMicro.1"
+}
+
 # Service Gateway
 variable "service_gateway" {
   type = bool

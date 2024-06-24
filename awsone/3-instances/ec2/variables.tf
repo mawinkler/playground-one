@@ -28,3 +28,9 @@ variable "windows_username" {}
 variable "create_linux" {}
 
 variable "create_windows" {}
+
+variable "windows_ad_domain_name" {}
+
+variable "windows_ad_user_name" {}
+
+variable "windows_ad_safe_password" {}

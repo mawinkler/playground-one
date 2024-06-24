@@ -228,7 +228,7 @@ function check_network() {
   #   envsubst <$ONEPATH/templates/terraform-2-network.tfvars >${configs[network]}/terraform.tfvars
 
   # Check locks
-  for config in instances eks-ec2 eks-fg ecs ; do
+  for config in instances eks-ec2 eks-fg ecs scenarios-identity ; do
     # init ${config}
     if checklock ${config} ; then
       printf 'Destroy %s configuration first\n' "${config}"
@@ -1015,6 +1015,9 @@ function output() {
       ;;&
     scenarios-identity|all)
       tf scenarios-identity output
+      if [ "${pgo_active_directory}" == 'true' ]; then
+        printf '%s\n' "ad_admin_password = $(terraform -chdir=${configs[scenarios-identity]} output -raw ad_admin_password)"
+      fi
       ;;&
     scenarios-aks|all)
       tf scenarios-aks output
