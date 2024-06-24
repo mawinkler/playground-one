@@ -29,8 +29,8 @@ module "computers" {
   ec2_profile              = data.terraform_remote_state.deep_security.outputs.ec2_profile
   s3_bucket                = data.terraform_remote_state.deep_security.outputs.s3_bucket
 
-  create_linux        = var.create_linux
-  create_windows      = var.create_windows
+  create_linux        = true
+  create_windows      = true
   linux_username_amzn = var.linux_username_amzn
   linux_username_ubnt = var.linux_username_ubnt
   linux_policy_id     = module.dsm.linux_policy_id
