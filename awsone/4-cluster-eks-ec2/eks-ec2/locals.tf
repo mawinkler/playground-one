@@ -2,7 +2,7 @@
 # Locals
 # #############################################################################
 locals {
-  kubernetes_version                 = 1.28
+  kubernetes_version                 = 1.29
   autoscaler_helm_chart_name         = "cluster-autoscaler"
   autoscaler_helm_chart_release_name = "cluster-autoscaler"
   autoscaler_helm_chart_repo         = "https://kubernetes.github.io/autoscaler"
