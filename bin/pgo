@@ -1450,6 +1450,9 @@ function erase() {
     kind|all)
       tf kind erase
       tf kind-deployments erase
+      ;;&
+    scenarios-kind|all)
+      tf scenarios-kind erase
       ;;
   esac
 }
@@ -1526,6 +1529,7 @@ function helpcmd() {
   printf '%s\n' "  scenarios-fg        Scenario configuration"
   printf '%s\n' "  scenarios-cspm      Scenario configuration"
   printf '%s\n' "  scenarios-identity  Scenario configuration"
+  printf '%s\n' "  scenarios-kind      Scenario configuration"
   printf '%s\n' "  scenarios-aks       Scenario configuration"
   printf '%s\n' "  dsm                 Deep Security configuration"
   printf '%s\n' "  dsw                 Deep Security Workload configuration"

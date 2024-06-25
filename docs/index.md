@@ -135,6 +135,13 @@ kubie | See [github.com/sbstp/kubie](https://github.com/sbstp/kubie?tab=readme-o
 
 ## Change Log
 
+***0.4.0***
+
+*Changes*
+
+- AWS ECS configurations are now split into two separate configurations `ecs-ec2` and `ecs-fg`. This simplifies the deployment and now works the same way as AWS EKS.
+- All Terraform Modules and Providers are now version fixed.
+
 ***0.3.3***
 
 *New*

@@ -52,7 +52,7 @@ provider "restapi" {
 }
 
 # ####################################
-# Container Security API Configuration
+# Provider Configuration
 # ####################################
 terraform {
   required_version = ">= 1.6"

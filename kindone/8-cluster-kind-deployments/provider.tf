@@ -20,19 +20,6 @@ provider "helm" {
   # }
 }
 
-# ####################################
-# Container Security API Configuration
-# ####################################
-terraform {
-  required_providers {
-    restapi = {
-      source  = "Mastercard/restapi"
-      version = "~> 1.18.2"
-    }
-  }
-  required_version = ">= 1.6"
-}
-
 provider "restapi" {
   alias                = "container_security"
   uri                  = var.api_url
@@ -43,5 +30,36 @@ provider "restapi" {
     Authorization = "Bearer ${var.api_key}"
     Content-Type  = "application/json"
     api-version   = "v1"
+  }
+}
+
+terraform {
+  required_version = ">= 1.6"
+
+  required_providers {
+    kubectl = {
+      source = "gavinbunney/kubectl"
+      version = "~> 1.14.0"
+    }
+    external = {
+      source  = "hashicorp/external"
+      version = "~> 2.3.3"
+    }
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.14.0"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.31.0"
+    }
+    random = { 
+      source  = "hashicorp/random"
+      version = "~> 3.6.2"
+    }
+    restapi = {
+      source  = "Mastercard/restapi"
+      version = "1.19.1"
+    }
   }
 }

@@ -126,15 +126,26 @@ Currently, the following (vulnerable) deployments are defined:
 
 Automated attacks are running every full hour.
 
-## ECS Clusters
+## ECS EC2 Cluster
 
-*Configuration located in `awsone/5-cluster-ecs`*
+*Configuration located in `awsone/5-cluster-ecs-ec2`*
 
 *Depends on `awsone/2-network`*
 
-Here we're building an ECS cluster using EC2 instances and/or Fargate profile. Key features:
+Here we're building an ECS cluster using EC2 instances. Key features:
 
-- Autoscaling group for spot instances when using the EC2 variant. On-demand autoscaler can be enabled in Terraform script.
+- Autoscaling group for spot instances. On-demand autoscaler can be enabled in Terraform script.
+- ALB Load Balancer
+- Automatic deployment of a vulnerable service (Java-Goof)
+
+## ECS Fargate Cluster
+
+*Configuration located in `awsone/5-cluster-ecs-fargate`*
+
+*Depends on `awsone/2-network`*
+
+Here we're building an ECS cluster using Fargate profile. Key features:
+
 - Fargate profile with spot instances. Fargate with on-demand instances can be enabled in Terraform script.
 - ALB Load Balancer
 - Automatic deployment of a vulnerable service (Java-Goof)

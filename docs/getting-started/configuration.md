@@ -31,8 +31,6 @@ The available commands for execution are listed below.
 The primary workflow commands are given first, followed by
 less common or more advanced commands.
 
-Available configurations: vpc, nw, ec2, eks-ec2, eks-fg, ecs, scenarios-ec2, scenarios-fg
-
 Main commands:
   -c --config    Set/update Playground One main configuration
   -i --init      Prepare a configuration for other commands
@@ -52,19 +50,24 @@ Other commands:
   -p --plan      Plan apply and destroy
 
 Available configurations:
-  nw             Network configuration (synonym: network)
-  ec2            EC2 configuration (synonym: instances)
-  eks-ec2        EKS configuration (synonym: eks)
-  eks-fg         EKS configuration
-  aks            AKS configuration
-  ecs            ECS configurations
-  kind           Kind configuration
-  scenarios-ec2  Scenario configuration (synonym: scenarios)
-  scenarios-fg   Scenario configuration
-  scenarios-aks  Scenario configuration
-  dsm            Deep Security configuration (synonym: deepsecurity)
-  dsw            Deep Security Workload configuration
-  all            All configurations
+  nw                  Network configuration
+  ec2                 EC2 configuration
+  eks-ec2             EKS configuration
+  eks-fg              EKS configuration
+  ecs-ec2             ECS configuration
+  ecs-fg              ECS configuration
+  s3scanner           S3 Bucket scanner
+  kind                Kind configuration
+  scenarios-ec2       Scenario configuration
+  scenarios-fg        Scenario configuration
+  scenarios-cspm      Scenario configuration
+  scenarios-identity  Scenario configuration
+  scenarios-kind      Scenario configuration
+  scenarios-aks       Scenario configuration
+  dsm                 Deep Security configuration
+  dsw                 Deep Security Workload configuration
+  aks                 AKS configuration
+  all                 All configurations
 
 Examples:
   pgo --apply nw
