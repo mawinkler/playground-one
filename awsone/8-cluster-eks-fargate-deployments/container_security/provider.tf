@@ -5,7 +5,7 @@ terraform {
   required_providers {
     restapi = {
       source                = "Mastercard/restapi"
-      version               = "~> 1.18.2"
+      version               = "1.19.1"
       configuration_aliases = [restapi.container_security]
     }
   }

@@ -1,6 +1,7 @@
+# #############################################################################
+# Variables
+# #############################################################################
 variable "environment" {}
-
-# variable "vpc_id" {}
 
 variable "private_subnets" {}
 
@@ -32,12 +33,6 @@ variable "windows_ad_domain_name" {
   type        = string
   description = "Active Directory Domain Name"
 }
-
-# variable "windows_ad_nebios_name" {
-#   type        = string
-#   description = "Active Directory NetBIOS Name"
-#   default     = "ADFS"
-# }
 
 variable "windows_ad_safe_password" {
   type        = string

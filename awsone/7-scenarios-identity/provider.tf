@@ -6,10 +6,6 @@ provider "aws" {
   # profile = "default"
 }
 
-terraform {
-  required_version = ">= 1.6"
-}
-
 provider "ad" {
   winrm_hostname = data.terraform_remote_state.vpc.outputs.ad_dc_ip
   winrm_username = data.terraform_remote_state.vpc.outputs.ad_domain_admin
@@ -18,4 +14,19 @@ provider "ad" {
   winrm_port     = 5986
   winrm_proto    = "https"
   winrm_insecure = true
+}
+
+terraform {
+  required_version = ">= 1.6"
+
+  required_providers {
+    ad = {
+      source  = "hashicorp/ad"
+      version = "~> 0.5.0"
+    }
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.55.0"
+    }
+  }
 }

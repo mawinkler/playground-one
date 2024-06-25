@@ -19,7 +19,7 @@ resource "random_string" "rds_password" {
 
 module "db" {
   source  = "terraform-aws-modules/rds/aws"
-  version = "6.3.0"
+  version = "~> 6.7.0"
 
   identifier = "${var.environment}-rds-${random_string.suffix.result}"
 

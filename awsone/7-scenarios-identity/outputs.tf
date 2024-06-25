@@ -1,4 +1,6 @@
-
+# #############################################################################
+# Outputs
+# #############################################################################
 output "ad_domain_name" {
   value = var.active_directory ? data.terraform_remote_state.vpc.outputs.ad_domain_name : null
 }

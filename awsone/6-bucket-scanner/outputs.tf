@@ -1,6 +1,6 @@
-#
+# #############################################################################
 # Outputs
-#
+# #############################################################################
 output "aws_s3_bucket_name" {
   description = "S3 Scanning Bucket name"
   value       = module.scanner.aws_s3_bucket_name

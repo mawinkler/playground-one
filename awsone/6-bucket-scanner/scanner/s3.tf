@@ -1,5 +1,5 @@
 # #############################################################################
-# Create S3 bucket
+# S3 bucket
 # #############################################################################
 resource "aws_s3_bucket" "playground_awsone" {
   bucket        = "${var.environment}-scanning-bucket-${random_string.random_suffix.result}"

@@ -243,24 +243,24 @@ if ('${windows_ad_domain_name}' -ne '') {
     # Comment
     $Stoploop = $false
     [int]$Retrycount = "0"
-        
+
     do {
         try {
-        Add-Computer -DomainName ${windows_ad_domain_name} -Credential $credential -Passthru -Verbose -Force 
-        # -Restart
-        Write-Log -message "Domain join successful" -level "INFO"
-        $Stoploop = $true
-        Restart-Computer -Force;
-        } catch {
-        Write-log -message $_.Exception.message -level "ERROR"
-        if ($Retrycount -gt 20) {
-            Write-Log -message "Domain join failed after 20 retrys" -level "ERROR"
+            Add-Computer -DomainName ${windows_ad_domain_name} -Credential $credential -Passthru -Verbose -Force 
+            # -Restart
+            Write-Log -message "Domain join successful" -level "INFO"
             $Stoploop = $true
-        } else {
-            Write-Log -message "Could not join domain, retrying in 60 seconds..." -level "WARN"
-            Start-Sleep -Seconds 60
-            $Retrycount = $Retrycount + 1
-        }
+            Restart-Computer -Force;
+            } catch {
+            Write-log -message $_.Exception.message -level "ERROR"
+            if ($Retrycount -gt 20) {
+                Write-Log -message "Domain join failed after 20 retrys" -level "ERROR"
+                $Stoploop = $true
+            } else {
+                Write-Log -message "Could not join domain, retrying in 60 seconds..." -level "WARN"
+                Start-Sleep -Seconds 60
+                $Retrycount = $Retrycount + 1
+            }
         }
     } While ($Stoploop -eq $false)
     }

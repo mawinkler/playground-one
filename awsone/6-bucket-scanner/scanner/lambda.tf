@@ -1,10 +1,6 @@
 # #############################################################################
-# Create S3 bucket
+# Lambda Function
 # #############################################################################
-data "template_file" "pgo_scanner_lambda_policy" {
-  template = file("${path.module}/policy.json")
-}
-
 resource "aws_lambda_function" "create_action_handler" {
 
   function_name = "${var.environment}-bucket-scanner-${random_string.random_suffix.result}"

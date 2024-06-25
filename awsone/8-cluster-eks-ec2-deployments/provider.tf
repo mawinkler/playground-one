@@ -3,18 +3,14 @@
 # ####################################
 provider "aws" {
   region = var.aws_region
-  # access_key = var.aws_access_key
-  # secret_key = var.aws_secret_key
   # profile = "default"
 }
 
 data "aws_eks_cluster" "eks" {
-  # name = "${var.environment}-eks"
   name = data.terraform_remote_state.eks.outputs.cluster_name
 }
 
 data "aws_eks_cluster_auth" "eks" {
-  # name = "${var.environment}-eks"
   name = data.terraform_remote_state.eks.outputs.cluster_name
 }
 
@@ -42,19 +38,6 @@ provider "helm" {
   }
 }
 
-# ####################################
-# Container Security API Configuration
-# ####################################
-terraform {
-  required_providers {
-    restapi = {
-      source  = "Mastercard/restapi"
-      version = "~> 1.18.2"
-    }
-  }
-  required_version = ">= 1.6"
-}
-
 provider "restapi" {
   alias                = "container_security"
   uri                  = var.api_url
@@ -65,5 +48,35 @@ provider "restapi" {
     Authorization = "Bearer ${var.api_key}"
     Content-Type  = "application/json"
     api-version   = "v1"
+  }
+}
+
+# ####################################
+# Container Security API Configuration
+# ####################################
+terraform {
+  required_version = ">= 1.6"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.55.0"
+    }
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.14.0"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.31.0"
+    }
+    null = {
+      source  = "hashicorp/null"
+      version = "~> 3.2.2"
+    }
+    restapi = {
+      source  = "Mastercard/restapi"
+      version = "1.19.1"
+    }
   }
 }

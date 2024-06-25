@@ -3,7 +3,32 @@
 # #############################################################################
 provider "aws" {
   region = var.aws_region
-  # access_key = var.aws_access_key
-  # secret_key = var.aws_secret_key
   # profile = "default"
+}
+
+terraform {
+  required_version = ">= 1.6"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.55.0"
+    }
+    local = {
+      source  = "hashicorp/local"
+      version = "~> 2.5.1"
+    }
+    null = {
+      source  = "hashicorp/null"
+      version = "~> 3.2.2"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.6.2"
+    }
+    tls = {
+      source  = "hashicorp/tls"
+      version = "~> 4.0.5"
+    }
+  }
 }

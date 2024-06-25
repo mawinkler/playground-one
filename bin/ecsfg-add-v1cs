@@ -9,7 +9,7 @@ aws_region="$(yq '.services.aws.region' $ONEPATH/config.yaml)"
 
 # Remind on runtime security enabled
 printf '%s\n' "Runtime Security enabled?"
-sleep 3
+sleep 5
 
 mkdir -p ${ONEPATH}/.ecsfg
 
@@ -84,12 +84,22 @@ else
   # Uncontained
   ecsfg_path=${ONEPATH}
 fi
+
+# Get latest image version of taskdef patcher
+dockerhub_repo=trendmicrocloudone
+dockerhub_image=ecs-taskdef-patcher
+taskdef_tag=$(curl -Ls --fail "https://hub.docker.com/v2/repositories/${dockerhub_repo}/${dockerhub_image}/tags/?page_size=1000" | \
+	jq '.results | .[] | .name' -r | \
+	sed 's/latest//' | \
+	sort --version-sort | \
+	tail -n 1)
+
 # Patch task definition
 printf '%s\n' "  Patching task definition..."
 docker run -ti \
   -v ${ecsfg_path}/.ecsfg:/mnt/input \
   -v ${ecsfg_path}/.ecsfg:/mnt/output \
-  trendmicrocloudone/ecs-taskdef-patcher:2.3.30 \
+  trendmicrocloudone/ecs-taskdef-patcher:${taskdef_tag} \
   -i /mnt/input/task-definition.json \
   -o /mnt/output/task-definition-patched.json
 printf '%s\n' "  Patched task definition written to .ecsfg"

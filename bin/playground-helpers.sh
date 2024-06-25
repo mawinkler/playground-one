@@ -405,12 +405,8 @@ function get_config() {
     pgo_service_gateway="$(yq '.services.aws.service-gateway' $ONEPATH/config.yaml)"
     pgo_ec2_create_linux="$(yq '.services.playground-one.ec2.create-linux' $ONEPATH/config.yaml)"
     pgo_ec2_create_windows="$(yq '.services.playground-one.ec2.create-windows' $ONEPATH/config.yaml)"
-    pgo_azvm_create_linux="$(yq '.services.playground-one.azvm.create-linux' $ONEPATH/config.yaml)"
     pgo_ec2_create_database="$(yq '.services.playground-one.ec2.create-database' $ONEPATH/config.yaml)"
-    # pgo_eks_create_ec2="$(yq '.services.playground-one.eks.create-ec2' $ONEPATH/config.yaml)"
-    # pgo_eks_create_fargate="$(yq '.services.playground-one.eks.create-fargate' $ONEPATH/config.yaml)"
-    pgo_ecs_create_ec2="$(yq '.services.playground-one.ecs.create-ec2' $ONEPATH/config.yaml)"
-    pgo_ecs_create_fargate="$(yq '.services.playground-one.ecs.create-fargate' $ONEPATH/config.yaml)"
+    pgo_azvm_create_linux="$(yq '.services.playground-one.azvm.create-linux' $ONEPATH/config.yaml)"
     [[ "${pgo_access_ip}" = "null" || "${pgo_access_ip}" = "" ]] && pgo_access_ip=[\"0.0.0.0/0\"]
     [[ "${pgo_px}" = "null" || "${pgo_px}" = "" ]] && pgo_px=false
     [[ "${pgo_managed_active_directory}" = "null" || "${pgo_managed_active_directory}" = "" ]] && pgo_managed_active_directory=false
@@ -418,12 +414,8 @@ function get_config() {
     [[ "${pgo_service_gateway}" = "null" || "${pgo_service_gateway}" = "" ]] && pgo_service_gateway=false
     [[ "${pgo_ec2_create_linux}" = "null" || "${pgo_ec2_create_linux}" = "" ]] && pgo_ec2_create_linux=true
     [[ "${pgo_ec2_create_windows}" = "null" || "${pgo_ec2_create_windows}" = "" ]] && pgo_ec2_create_windows=true
-    [[ "${pgo_azvm_create_linux}" = "null" || "${pgo_azvm_create_linux}" = "" ]] && pgo_azvm_create_linux=true
     [[ "${pgo_ec2_create_database}" = "null" || "${pgo_ec2_create_database}" = "" ]] && pgo_ec2_create_database=false
-    # [[ "${pgo_eks_create_ec2}" = "null" || "${pgo_eks_create_ec2}" = "" ]] && pgo_eks_create_ec2=false
-    # [[ "${pgo_eks_create_fargate}" = "null" || "${pgo_eks_create_fargate}" = "" ]] && pgo_eks_create_fargate=false
-    [[ "${pgo_ecs_create_ec2}" = "null" || "${pgo_ecs_create_ec2}" = "" ]] && pgo_ecs_create_ec2=true
-    [[ "${pgo_ecs_create_fargate}" = "null" || "${pgo_ecs_create_fargate}" = "" ]] && pgo_ecs_create_fargate=true
+    [[ "${pgo_azvm_create_linux}" = "null" || "${pgo_azvm_create_linux}" = "" ]] && pgo_azvm_create_linux=true
 
     # Vision One
     vision_one_cs_enabled="$(yq '.services.vision-one.container-security.enabled' $ONEPATH/config.yaml)"

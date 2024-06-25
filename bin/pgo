@@ -51,10 +51,12 @@ configs=(
   ["eks-fg-deployments"]=${ONEPATH}/awsone/8-cluster-eks-fargate-deployments
   ["aks"]=${ONEPATH}/azone/4-cluster-aks
   ["aks-deployments"]=${ONEPATH}/azone/8-cluster-aks-deployments
-  ["ecs"]=${ONEPATH}/awsone/5-cluster-ecs
+  ["ecs-ec2"]=${ONEPATH}/awsone/5-cluster-ecs-ec2
+  ["ecs-fg"]=${ONEPATH}/awsone/5-cluster-ecs-fargate
   ["s3scanner"]=${ONEPATH}/awsone/6-bucket-scanner
   ["scenarios-ec2"]=${ONEPATH}/awsone/7-scenarios-ec2
   ["scenarios-fg"]=${ONEPATH}/awsone/7-scenarios-fargate
+  ["scenarios-cspm"]=${ONEPATH}/awsone/7-scenarios-cspm
   ["scenarios-identity"]=${ONEPATH}/awsone/7-scenarios-identity
   ["scenarios-aks"]=${ONEPATH}/azone/7-scenarios-aks
   ["goat"]=${ONEPATH}/awsone/7-goat
@@ -95,6 +97,7 @@ function tf() {
   case "$action" in
     init)
       terraform -chdir=${configs[$config]} init
+      # versions ${configs[$config]}
       ;;
     apply)
       if [ "${dryrun}" == "True" ] ; then
@@ -228,7 +231,7 @@ function check_network() {
   #   envsubst <$ONEPATH/templates/terraform-2-network.tfvars >${configs[network]}/terraform.tfvars
 
   # Check locks
-  for config in instances eks-ec2 eks-fg ecs scenarios-identity ; do
+  for config in instances eks-ec2 eks-fg ecs-ec2 ecs-fg scenarios-identity ; do
     # init ${config}
     if checklock ${config} ; then
       printf 'Destroy %s configuration first\n' "${config}"
@@ -367,17 +370,25 @@ function init() {
       tf aks init
       tf aks-deployments init
       ;;&
-    ecs|all)
-      printf '%s\n' "Create terraform.tfvars for cluster-ecs"
+    ecs-ec2|all)
+      printf '%s\n' "Create terraform.tfvars for cluster-ecs-ec2"
       aws_region=${aws_region} \
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip} \
-      pgo_ecs_create_ec2=${pgo_ecs_create_ec2} \
-      pgo_ecs_create_fargate=${pgo_ecs_create_fargate} \
       ONEPATH=${ONEPATH} \
-        envsubst <$ONEPATH/templates/terraform-5-cluster-ecs.tfvars >${configs[ecs]}/terraform.tfvars
+        envsubst <$ONEPATH/templates/terraform-5-cluster-ecs-ec2.tfvars >${configs[ecs-ec2]}/terraform.tfvars
 
-      tf ecs init
+      tf ecs-ec2 init
+      ;;&
+    ecs-fg|all)
+      printf '%s\n' "Create terraform.tfvars for cluster-ecs-fg"
+      aws_region=${aws_region} \
+      environment_name=${environment_name} \
+      pgo_access_ip=${pgo_access_ip} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-5-cluster-ecs-fargate.tfvars >${configs[ecs-fg]}/terraform.tfvars
+
+      tf ecs-fg init
       ;;&
     s3scanner|all)
       printf '%s\n' "Create terraform.tfvars for s3scanner"
@@ -410,11 +421,19 @@ function init() {
 
       tf scenarios-fg init
       ;;&
+    scenarios-cspm|all)
+      printf '%s\n' "Create terraform.tfvars for scenarios-cspm deployments"
+      aws_region=${aws_region} \
+      environment_name=${environment_name} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-7-scenarios-cspm.tfvars >${configs[scenarios-cspm]}/terraform.tfvars
+
+      tf scenarios-identity init
+      ;;&
     scenarios-identity|all)
       printf '%s\n' "Create terraform.tfvars for scenarios-identity deployments"
       aws_region=${aws_region} \
       environment_name=${environment_name} \
-      managed_active_directory=${pgo_managed_active_directory} \
       active_directory=${pgo_active_directory} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-7-scenarios-identity.tfvars >${configs[scenarios-identity]}/terraform.tfvars
@@ -548,8 +567,11 @@ function apply() {
       fi
       tf aks-deployments apply
       ;;&
-    ecs|all)
-      tf ecs apply
+    ecs-ec2|all)
+      tf ecs-ec2 apply
+      ;;&
+    ecs-fg|all)
+      tf ecs-fg apply
       ;;&
     s3scanner|all)
       tf s3scanner apply
@@ -559,6 +581,9 @@ function apply() {
       ;;&
     scenarios-fg|all)
       tf scenarios-fg apply
+      ;;&
+    scenarios-cspm|all)
+      tf scenarios-cspm apply
       ;;&
     scenarios-identity|all)
       tf scenarios-identity apply
@@ -636,7 +661,7 @@ function update_ip() {
     exit 0
   fi
 
-  for config in network eks-ec2 eks-fg aks ecs scenarios-ec2 scenarios-fg scenarios-aks dsm dsw ; do
+  for config in network eks-ec2 eks-fg aks ecs-ec2 ecs-fg scenarios-ec2 scenarios-fg scenarios-aks dsm dsw ; do
     init ${config}
     if checklock ${config} ; then
       apply ${config}
@@ -737,14 +762,6 @@ function destroy() {
           kubectl config use-context ${cluster_name}
         fi
 
-        if checklock scenarios-ec2 ; then
-          knsrm-finalizer attackers
-          knsrm-finalizer goat
-          knsrm-finalizer victims
-        fi
-
-        tf scenarios-ec2 destroy
-
         cluster_id=$(terraform -chdir=${configs[eks-ec2-deployments]} output -json cluster_id 2>/dev/null | jq -r .)
         if [ -z "${cluster_id}" ]; then
           printf '%s\n' "Eventually delete cluster in Vision One manually"
@@ -756,6 +773,15 @@ function destroy() {
         fi
 
         tf eks-ec2-deployments destroy
+
+        if checklock scenarios-ec2 ; then
+          knsrm-finalizer attackers
+          knsrm-finalizer goat
+          knsrm-finalizer victims
+        fi
+
+        tf scenarios-ec2 destroy
+
         tf eks-ec2 destroy
 
         kubectl config delete-context ${cluster_name}
@@ -770,14 +796,6 @@ function destroy() {
           kubectl config use-context ${cluster_name}
         fi
 
-        if checklock scenarios-fg ; then
-          knsrm-finalizer attackers
-          knsrm-finalizer goat
-          knsrm-finalizer victims
-        fi
-        
-        tf scenarios-fg destroy
-
         cluster_id=$(terraform -chdir=${configs[eks-fg-deployments]} output -json cluster_id 2>/dev/null | jq -r .)
         if [ -z "${cluster_id}" ]; then
           printf '%s\n' "Eventually delete cluster in Vision One manually"
@@ -789,6 +807,15 @@ function destroy() {
         fi
 
         tf eks-fg-deployments destroy
+
+        if checklock scenarios-fg ; then
+          knsrm-finalizer attackers
+          knsrm-finalizer goat
+          knsrm-finalizer victims
+        fi
+        
+        tf scenarios-fg destroy
+
         tf eks-fg destroy
 
         kubectl config delete-context ${cluster_name}
@@ -830,8 +857,8 @@ function destroy() {
         printf '%s\n' "Configuration aks is not applied"
       fi
       ;;&
-    ecs|all)
-      if checklock ecs ; then
+    ecs-ec2|all)
+      if checklock ecs-ec2 ; then
         # Workaround for Terraform bug described in FAQ
         # Delete eventually existing autoscaling groups belonging to the ecs clusters
         asg_groups=$(aws autoscaling describe-auto-scaling-groups --region ${aws_region} | \
@@ -854,9 +881,38 @@ function destroy() {
         #   fi
         # done
 
-        tf ecs destroy
+        tf ecs-ec2 destroy
       else
-        printf '%s\n' "Configuration ecs is not applied"
+        printf '%s\n' "Configuration ecs-ec2 is not applied"
+      fi
+      ;;&
+    ecs-fg|all)
+      if checklock ecs-fg ; then
+        # Workaround for Terraform bug described in FAQ
+        # Delete eventually existing autoscaling groups belonging to the ecs clusters
+        # asg_groups=$(aws autoscaling describe-auto-scaling-groups --region ${aws_region} | \
+        #   jq -r --arg environment_name "$environment_name-ecs-" '.AutoScalingGroups[] | select(.AutoScalingGroupName | startswith($environment_name)) | .AutoScalingGroupName')
+        # for group in ${asg_groups} ; do
+        #   printf '%s\n' "Deleting auto scaling group ${group}"
+        #   aws autoscaling delete-auto-scaling-group --auto-scaling-group-name ${group} --region ${aws_region} --force-delete
+        # done
+        
+        # Delete eventually existing trendmicro scout service before cluster destroy
+        # ecs_fargate_cluster=$(aws ecs list-clusters | jq -r --arg environment_name "$environment_name-ecs-fargate" '.clusterArns[]' | sed 's:.*/::')
+        # if [[ "${ecs_fargate_cluster}" != "" ]] ; then
+        #   ecs_services=$(aws ecs list-services --cluster $ecs_fargate_cluster | \
+        #     jq -r --arg environment_name "$environment_name-ecs-fargate" '.serviceArns[] | select(. | endswith($environment_name) | not)' | sed 's:.*/::')
+        # fi
+        # for service in "${ecs_services}" ; do
+        #   if [[ "${service}" != "" ]] ; then
+        #     printf '%s\n' "Deleting Scout service ${service}"
+        #     aws ecs delete-service --service ${service} --cluster ${ecs_fargate_cluster} --force
+        #   fi
+        # done
+
+        tf ecs-fg destroy
+      else
+        printf '%s\n' "Configuration ecs-fg is not applied"
       fi
       ;;&
     s3scanner|all)
@@ -905,6 +961,13 @@ function destroy() {
         tf scenarios-fg destroy
       else
         printf '%s\n' "Configuration scenarios-fg is not applied"
+      fi
+      ;;
+    scenarios-cspm)
+      if checklock scenarios-cspm ; then
+        tf scenarios-cspm destroy
+      else
+        printf '%s\n' "Configuration scenarios-cspm is not applied"
       fi
       ;;
     scenarios-identity)
@@ -1001,8 +1064,11 @@ function output() {
       tf aks output
       tf aks-deployments output
       ;;&
-    ecs|all)
-      tf ecs output
+    ecs-ec2|all)
+      tf ecs-ec2 output
+      ;;&
+    ecs-fg|all)
+      tf ecs-fg output
       ;;&
     s3scanner|all)
       tf s3scanner output
@@ -1012,6 +1078,9 @@ function output() {
       ;;&
     scenarios-fg|all)
       tf scenarios-fg output
+      ;;&
+    scenarios-cspm|all)
+      tf scenarios-cspm output
       ;;&
     scenarios-identity|all)
       tf scenarios-identity output
@@ -1094,8 +1163,11 @@ function state() {
       tf aks state
       tf aks-deployments state
       ;;&
-    ecs|all)
-      tf ecs state
+    ecs-ec2|all)
+      tf ecs-ec2 state
+      ;;&
+    ecs-fg|all)
+      tf ecs-fg state
       ;;&
     s3scanner|all)
       tf s3scanner state
@@ -1105,6 +1177,9 @@ function state() {
       ;;&
     scenarios-fg|all)
       tf scenarios-fg state
+      ;;&
+    scenarios-cspm|all)
+      tf scenarios-cspm state
       ;;&
     scenarios-identity|all)
       tf scenarios-identity state
@@ -1164,8 +1239,11 @@ function show() {
       tf aks show
       tf aks-deployments show
       ;;&
-    ecs|all)
-      tf ecs show
+    ecs-ec2|all)
+      tf ecs-ec2 show
+      ;;&
+    ecs-fg|all)
+      tf ecs-fg show
       ;;&
     s3scanner|all)
       tf s3scanner show
@@ -1175,6 +1253,9 @@ function show() {
       ;;&
     scenarios-fg|all)
       tf scenarios-fg show
+      ;;&
+    scenarios-cspm|all)
+      tf scenarios-cspm show
       ;;&
     scenarios-identity|all)
       tf scenarios-identity show
@@ -1233,8 +1314,11 @@ function validate() {
       tf aks validate
       tf aks-deployments validate
       ;;&
-    ecs|all)
-      tf ecs validate
+    ecs-ec2|all)
+      tf ecs-ec2 validate
+      ;;&
+    ecs-fg|all)
+      tf ecs-fg validate
       ;;&
     s3scanner|all)
       tf s3scanner validate
@@ -1244,6 +1328,9 @@ function validate() {
       ;;&
     scenarios-fg|all)
       tf scenarios-fg validate
+      ;;&
+    scenarios-cspm|all)
+      tf scenarios-cspm validate
       ;;&
     scenarios-identity|all)
       tf scenarios-identity validate
@@ -1327,8 +1414,11 @@ function erase() {
       tf aks erase
       tf aks-deployments erase
       ;;&
-    ecs|all)
-      tf ecs erase
+    ecs-ec2|all)
+      tf ecs-ec2 erase
+      ;;&
+    ecs-fg|all)
+      tf ecs-fg erase
       ;;&
     s3scanner|all)
       tf s3scanner erase
@@ -1338,6 +1428,9 @@ function erase() {
       ;;&
     scenarios-fg|all)
       tf scenarios-fg erase
+      ;;&
+    scenarios-cspm|all)
+      tf scenarios-cspm erase
       ;;&
     scenarios-identity|all)
       tf scenarios-identity erase
@@ -1402,8 +1495,6 @@ function helpcmd() {
   printf '%s\n' "The primary workflow commands are given first, followed by"
   printf '%s\n' "less common or more advanced commands."
   printf '%s\n' ""
-  printf '%s\n' "Available configurations: vpc, nw, ec2, eks-ec2, eks-fg, ecs, scenarios-ec2, scenarios-fg"
-  printf '%s\n' ""
   printf '%s\n' "Main commands:"
   printf '%s\n' "  -c --config    Set/update Playground One main configuration"
   printf '%s\n' "  -i --init      Prepare a configuration for other commands"
@@ -1427,16 +1518,18 @@ function helpcmd() {
   printf '%s\n' "  ec2                 EC2 configuration"
   printf '%s\n' "  eks-ec2             EKS configuration"
   printf '%s\n' "  eks-fg              EKS configuration"
-  printf '%s\n' "  aks                 AKS configuration"
-  printf '%s\n' "  ecs                 ECS configurations"
+  printf '%s\n' "  ecs-ec2             ECS configuration"
+  printf '%s\n' "  ecs-fg              ECS configuration"
   printf '%s\n' "  s3scanner           S3 Bucket scanner"
   printf '%s\n' "  kind                Kind configuration"
   printf '%s\n' "  scenarios-ec2       Scenario configuration"
   printf '%s\n' "  scenarios-fg        Scenario configuration"
+  printf '%s\n' "  scenarios-cspm      Scenario configuration"
   printf '%s\n' "  scenarios-identity  Scenario configuration"
   printf '%s\n' "  scenarios-aks       Scenario configuration"
   printf '%s\n' "  dsm                 Deep Security configuration"
   printf '%s\n' "  dsw                 Deep Security Workload configuration"
+  printf '%s\n' "  aks                 AKS configuration"
   printf '%s\n' "  all                 All configurations"
   printf '%s\n' ""
   printf '%s\n' "Examples:"

@@ -1,0 +1,82 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+  pwd
+else
+  cd $1
+fi
+
+output_file="versions.md"
+rm -f ${output_file}
+
+printf '%s\n' "# Modules" | tee -a ${output_file}
+printf '%s\n' "" | tee -a ${output_file}
+
+printf '%s\n' "## Modules in use" | tee -a ${output_file}
+printf '%s\n' "" | tee -a ${output_file}
+printf '%s\n' "current module | version | module" | tee -a ${output_file}
+printf '%s\n' "-------------- | ------- | ------" | tee -a ${output_file}
+cat .terraform/modules/modules.json | \
+  jq -r '.Modules[] | select(.Version) | "\(.Source) | \(.Version) | \(.Key)" ' | \
+  sort | uniq | tee -a ${output_file}
+
+printf '%s\n' "" | tee -a ${output_file}
+printf '%s\n' "## Modules available" | tee -a ${output_file}
+printf '%s\n' "" | tee -a ${output_file}
+
+modules=$(cat .terraform/modules/modules.json | \
+  jq -r '.Modules[] | select(.Version) | .Source ' | \
+  sed 's/\/\/.*//' | sed 's/registry.terraform.io\///' | \
+  sort | uniq
+)
+
+printf '%s\n' "available module | version" | tee -a ${output_file}
+printf '%s\n' "---------------- | -------" | tee -a ${output_file}
+
+for module in ${modules}; do
+  version=$(curl -s https://registry.terraform.io/v1/modules/${module} | jq -r .version)
+
+  printf '%s\n' "registry.terraform.io/${module} | ${version}" | tee -a ${output_file}
+done
+
+printf '%s\n' "" | tee -a ${output_file}
+printf '%s\n' "# Providers" | tee -a ${output_file}
+printf '%s\n' "" | tee -a ${output_file}
+
+printf '%s\n' "## Providers in use" | tee -a ${output_file}
+printf '%s\n' "" | tee -a ${output_file}
+
+printf '%s\n' "current provider | version" | tee -a ${output_file}
+printf '%s\n' "---------------- | -------" | tee -a ${output_file}
+terraform version -json | jq -r '.provider_selections | keys[] as $k | "\($k) | \(.[$k])"' | tee -a ${output_file}
+
+printf '%s\n' "" | tee -a ${output_file}
+
+printf '%s\n' "## Providers available" | tee -a ${output_file}
+printf '%s\n' "" | tee -a ${output_file}
+
+printf '%s\n' "available provider | version" | tee -a ${output_file}
+printf '%s\n' "------------------ | -------" | tee -a ${output_file}
+
+providers="
+  hashicorp/aws
+  hashicorp/cloudinit
+  hashicorp/helm
+  hashicorp/kubernetes
+  hashicorp/null
+  hashicorp/random
+  hashicorp/time
+  hashicorp/tls
+"
+providers=$(terraform version -json | jq -r '.provider_selections | keys[] as $k | "\($k)"' | \
+   sed 's/registry.terraform.io\///' | \
+  sort | uniq
+)
+
+for provider in ${providers}; do
+  version=$(curl -s https://registry.terraform.io/v1/providers/${provider} | jq -r .version)
+
+  printf '%s\n' "registry.terraform.io/${provider} | ${version}" | tee -a ${output_file}
+done
+
+code ${output_file}
