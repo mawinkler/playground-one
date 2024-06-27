@@ -124,14 +124,18 @@ Besides the obvious cli tools like `kubectl`, etc. the Playground offers you add
 
 Command | Function
 ------- | --------
-pgo | The command line interface for Playground One
-dsm | Start or stop a deployed Deep Security
-tmcli-update | Update TMAS and TMFS to the latest version
-stern | Tail logs from multiple pods simultaneously
-syft | See [github.com/anchore/syft](https://github.com/anchore/syft)
-grype | See [github.com/anchore/grype](https://github.com/anchore/grype)
-k9s | See [k9scli.io](https://k9scli.io/)
-kubie | See [github.com/sbstp/kubie](https://github.com/sbstp/kubie?tab=readme-ov-file#usage)
+pgo | The command line interface for Playground One.
+dsm | Start or stop a deployed Deep Security.
+tmcli-update | Update TMAS and TMFS to the latest version.
+stern | Tail logs from multiple pods simultaneously.
+syft | See [github.com/anchore/syft](https://github.com/anchore/syft).
+grype | See [github.com/anchore/grype](https://github.com/anchore/grype).
+k9s | See [k9scli.io](https://k9scli.io/).
+kubie | See [github.com/sbstp/kubie](https://github.com/sbstp/kubie?tab=readme-ov-file#usage).
+list_images_ns | Lists and counts all unique images by namespace.
+knsrm-finalizer | Removes finalizer from namespace. Helpful when a namespace cannot be destroyed.
+collect_logs | Collects logs and configuration of Container Security. Usage: `RELEASE=container-security collect_logs`.
+pgoc | Starts, stops or updates the Playground One Container.
 
 ## Change Log
 
@@ -141,6 +145,8 @@ kubie | See [github.com/sbstp/kubie](https://github.com/sbstp/kubie?tab=readme-o
 
 - AWS ECS configurations are now split into two separate configurations `ecs-ec2` and `ecs-fg`. This simplifies the deployment and now works the same way as AWS EKS.
 - All Terraform Modules and Providers are now version fixed.
+- Improved Naming of instances in regards to the PGO Active Directory
+- `pgo --config` does now allow to disable initialization of Terraform after a first run. This speeds up configuration changes dramatically.
 
 ***0.3.3***
 

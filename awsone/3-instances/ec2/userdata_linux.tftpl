@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# set hostname
+hostname -b ${linux_hostname}
+
 # install essential packages
 apt-get update
 apt-get install -y unzip

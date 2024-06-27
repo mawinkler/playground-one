@@ -44,7 +44,6 @@ module "ad" {
   windows_ad_nebios_name      = var.ad_nebios_name
   windows_ad_user_name        = var.ad_domain_admin
   windows_ad_safe_password    = var.ad_admin_password
-  windows_domain_member_count = 2
 }
 
 module "sg" {

@@ -23,11 +23,19 @@ variable "s3_bucket" {}
 
 variable "linux_username" {}
 
+variable "linux_db_hostname" {}
+
+variable "linux_web_hostname" {}
+
 variable "windows_username" {}
+
+variable "windows_hostname" {}
 
 variable "create_linux" {}
 
 variable "create_windows" {}
+
+variable "active_directory" {}
 
 variable "windows_ad_domain_name" {}
 

@@ -21,10 +21,14 @@ module "ec2" {
   s3_bucket                     = module.s3.s3_bucket
   linux_username                = var.linux_username
   windows_username              = var.windows_username
+  windows_hostname              = "Windows-Server"
   create_linux                  = var.create_linux
+  linux_db_hostname             = "linuxdb"
+  linux_web_hostname            = "linuxweb"
   create_windows                = var.create_windows
 
   # PGO Active Directory
+  active_directory         = var.active_directory
   windows_ad_domain_name   = try(data.terraform_remote_state.vpc.outputs.ad_domain_name, "")
   windows_ad_user_name     = try(data.terraform_remote_state.vpc.outputs.ad_domain_admin, "")
   windows_ad_safe_password = try(data.terraform_remote_state.vpc.outputs.ad_admin_password, "")

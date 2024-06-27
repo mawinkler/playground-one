@@ -32,7 +32,7 @@ variable "environment" {
 }
 
 #
-# db1 Database
+# linux-db Database
 #
 variable "rds_name" {
   type = string
@@ -43,8 +43,15 @@ variable "rds_username" {
 }
 
 #
-# create attack path
+# Create Attack Path
 #
 variable "create_attackpath" {
+  type = bool
+}
+
+#
+# Active Directory
+#
+variable "active_directory" {
   type = bool
 }

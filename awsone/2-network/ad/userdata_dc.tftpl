@@ -87,7 +87,6 @@ function Configure-WinRMService {
     } catch  { Write-log -message "configure winrm service - "+ $_.Exception.message -level "ERROR"}
 }
 
-
 net user Administrator "${windows_ad_safe_password}"
 $Password = ConvertTo-SecureString "${windows_ad_safe_password}" -AsPlainText -Force;
 

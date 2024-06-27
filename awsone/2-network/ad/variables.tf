@@ -49,9 +49,3 @@ variable "windows_ad_user_name" {
   description = "Username used for the local Administrator"
   default     = "Administrator"
 }
-
-variable "windows_domain_member_count" {
-  type        = number
-  description = "Number of domain members to add to this domain"
-  default     = "2"
-}

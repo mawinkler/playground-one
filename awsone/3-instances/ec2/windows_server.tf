@@ -9,7 +9,7 @@ resource "random_password" "windows_password" {
   override_special = "!#$%&*()-_=+[]{}<>:?"
 }
 
-resource "aws_instance" "srv1" {
+resource "aws_instance" "windows-server" {
 
   count = var.create_windows ? 1 : 0
 
@@ -21,7 +21,7 @@ resource "aws_instance" "srv1" {
   key_name               = var.key_name
 
   tags = {
-    Name          = "${var.environment}-srv1"
+    Name          = "${var.environment}-windows-server"
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "ec2"
@@ -41,22 +41,22 @@ resource "aws_instance" "srv1" {
   }
 
   # connection {
-  #     host = length(aws_instance.srv1) > 0 ? aws_instance.srv1[0].public_ip : ""
+  #     host = length(aws_instance.windows-server) > 0 ? aws_instance.windows-server[0].public_ip : ""
   #     type = "ssh"
   #     user = "${var.windows_username}"
   #     private_key = "${file("${aws_key_pair.key_pair.key_name}.pem")}"
   # }
 
   # Download packages from S3
-  provisioner "remote-exec" {
-    inline = [
-      "PowerShell -Command Read-S3Object -BucketName ${var.s3_bucket} -KeyPrefix download -Folder Downloads"
-    ]
-  }
+  # provisioner "remote-exec" {
+  #   inline = [
+  #     "PowerShell -Command Read-S3Object -BucketName ${var.s3_bucket} -KeyPrefix download -Folder Downloads"
+  #   ]
+  # }
 
-  provisioner "remote-exec" {
-    inline = [
-      "powershell.exe -ExecutionPolicy Unrestricted -File Downloads/TMServerAgent_Windows_deploy.ps1"
-    ]
-  }
+  # provisioner "remote-exec" {
+  #   inline = [
+  #     "powershell.exe -ExecutionPolicy Unrestricted -File Downloads/TMServerAgent_Windows_deploy.ps1"
+  #   ]
+  # }
 }

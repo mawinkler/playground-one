@@ -1,29 +1,30 @@
-output "public_instance_id_web1" {
-  value = module.ec2.public_instance_id_web1
+output "instance_ip_linux_web" {
+  value = module.ec2.instance_ip_linux_web
 }
 
-output "public_instance_ip_web1" {
-  value = module.ec2.public_instance_ip_web1
+output "instance_ip_linux_db" {
+  value = module.ec2.instance_ip_linux_db
 }
 
-output "public_instance_id_db1" {
-  value = module.ec2.public_instance_id_db1
+output "instance_username_linux_server" {
+  value = module.ec2.instance_username_linux_server
 }
 
-output "public_instance_ip_db1" {
-  value = module.ec2.public_instance_ip_db1
+output "instance_ip_windows_server" {
+  value = module.ec2.instance_ip_windows_server
 }
 
-output "public_instance_id_srv1" {
-  value = module.ec2.public_instance_id_srv1
+output "instance_username_windows_server" {
+  value     = module.ec2.instance_username_windows_server
 }
 
-output "public_instance_ip_srv1" {
-  value = module.ec2.public_instance_ip_srv1
+output "instance_password_windows_server" {
+  value     = module.ec2.instance_password_windows_server
+  sensitive = true
 }
 
-output "public_instance_password_srv1" {
-  value     = module.ec2.windows_password
+output "instance_password_windows_server_local" {
+  value     = module.ec2.instance_password_windows_server_local
   sensitive = true
 }
 
@@ -31,16 +32,16 @@ output "s3_bucket" {
   value = module.s3.s3_bucket
 }
 
-output "ssh_instance_db1" {
-  value = module.ec2.ssh_instance_db1
+output "ssh_instance_linux_db" {
+  value = module.ec2.ssh_instance_linux_db
 }
 
-output "ssh_instance_web1" {
-  value = module.ec2.ssh_instance_web1
+output "ssh_instance_linux_web" {
+  value = module.ec2.ssh_instance_linux_web
 }
 
-output "ssh_instance_srv1" {
-  value = module.ec2.ssh_instance_srv1
+output "ssh_instance_windows_server" {
+  value = module.ec2.ssh_instance_windows_server
 }
 
 output "pgo_dbadmin_access_key" {

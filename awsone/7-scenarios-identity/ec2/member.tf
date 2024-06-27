@@ -2,14 +2,15 @@
 # Create EC2 Instance
 # #############################################################################
 resource "aws_instance" "windows-server-member" {
-  count                  = var.windows_domain_member_count
+  count = var.windows_domain_member_count
+
   ami                    = data.aws_ami.windows-server.id
   instance_type          = var.windows_instance_type
   subnet_id              = var.public_subnets[0]
   vpc_security_group_ids = [var.public_security_group_id]
   source_dest_check      = false
   key_name               = var.key_name
-  user_data              = local.userdata_windows
+  user_data              = local.userdata_windows[count.index]
 
   # root disk
   root_block_device {
@@ -20,7 +21,9 @@ resource "aws_instance" "windows-server-member" {
   }
 
   tags = {
-    Name        = "${var.environment}-windows-server-member"
-    Environment = var.environment
+    Name          = "${var.environment}-windows-server-member-${count.index}"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "scenarios-identity"
   }
 }

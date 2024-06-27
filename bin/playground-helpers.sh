@@ -397,6 +397,10 @@ function get_config() {
     environment_name="$(yq '.services.environment_name' $ONEPATH/config.yaml)"
     [[ "${environment_name}" = "null" || "${environment_name}" = "" ]] && environment_name="pgo"
 
+    # Initialize Terraform Configurations
+    pgo_initialize="$(yq '.services.initialize' $ONEPATH/config.yaml)"
+    [[ "${pgo_initialize}" = "null" || "${pgo_initialize}" = "" ]] && pgo_initialize=true
+
     # Playground One
     pgo_access_ip="$(yq '.services.playground-one.access-ip' $ONEPATH/config.yaml)"
     pgo_px="$(yq '.services.playground-one.px' $ONEPATH/config.yaml)"

@@ -18,7 +18,9 @@ resource "aws_instance" "windows-server-dc" {
   }
 
   tags = {
-    Name        = "${var.environment}-windows-server-dc"
-    Environment = var.environment
+    Name          = "${var.environment}-pgo-dc"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "nw"
   }
 }

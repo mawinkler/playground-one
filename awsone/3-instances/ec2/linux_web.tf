@@ -1,28 +1,29 @@
 # #############################################################################
-# Linux Instance (ASRM Scenario)
-#   MYSQL
+# Linux Instance
+#   Nginx
+#   Wordpress
 #   Vision One Server & Workload Protection
 #   Atomic Launcher
 # #############################################################################
-resource "aws_instance" "db1" {
+resource "aws_instance" "linux-web" {
 
   count = var.create_linux ? 1 : 0
 
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t3.medium"
   subnet_id              = var.public_subnets[0]
-  vpc_security_group_ids = [var.public_security_group_inet_id]
-  iam_instance_profile   = var.ec2_profile_db
+  vpc_security_group_ids = [var.public_security_group_id]
+  iam_instance_profile   = var.ec2_profile
   key_name               = var.key_name
 
   tags = {
-    Name          = "${var.environment}-db1"
+    Name          = "${var.environment}-linux-web"
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "ec2"
   }
 
-  user_data = local.userdata_linux
+  user_data = local.userdata_linux_web
 
   connection {
     user        = var.linux_username
@@ -30,18 +31,31 @@ resource "aws_instance" "db1" {
     private_key = file("${var.private_key_path}")
   }
 
-  # mysql installation
+  # nginx installation
   provisioner "file" {
-    source      = "../1-scripts/mysql.sh"
-    destination = "/tmp/mysql.sh"
+    source      = "../1-scripts/nginx.sh"
+    destination = "/tmp/nginx.sh"
   }
 
   provisioner "remote-exec" {
     inline = [
-      "chmod +x /tmp/mysql.sh",
-      "sudo /tmp/mysql.sh"
+      "chmod +x /tmp/nginx.sh",
+      "sudo /tmp/nginx.sh"
     ]
   }
+
+  # # wordpress installation
+  # provisioner "file" {
+  #     source      = "../1-scripts/wordpress.sh"
+  #     destination = "/tmp/wordpress.sh"
+  # }
+
+  # provisioner "remote-exec" {
+  #     inline = [
+  #         "chmod +x /tmp/wordpress.sh",
+  #         "sudo /tmp/wordpress.sh"
+  #     ]
+  # }
 
   # v1 basecamp installation
   provisioner "remote-exec" {

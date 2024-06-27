@@ -25,3 +25,6 @@ rds_username = "db1"
 
 # Create Attack Path
 create_attackpath = ${vision_one_asrm_create_attackpath}
+
+# AWS PGO Active Directory
+active_directory = ${active_directory}
