@@ -10,7 +10,11 @@
 Ensure to have an ECS Cluster up and running:
 
 ```sh
-pgo --apply ecs
+# EC2
+pgo --apply ecs-ec2
+
+# Fargate
+pgo --apply ecs-fg
 ```
 
 Ensure to have Runtime Security enabled on the Vision One Console for this cluster.
