@@ -8,7 +8,9 @@
             - Run file scan via SDK
 - Know your Vision One region.
 
-> ***Note:*** This scenario uses Playground Ones own S3 Bucket Scanner which is ***not*** the official solution component of Vision One. It uses the File Security Python SDK within a Lambda Function. Scan results will show up on the Vision One console.
+!!! warning "PGO S3 Scanning"
+
+    This scenario uses Playground Ones own S3 Bucket Scanner which is ***not*** the official solution component of Vision One. It uses the File Security Python SDK within a Lambda Function. Scan results will show up on the Vision One console.
 
 ## Limitations
 
