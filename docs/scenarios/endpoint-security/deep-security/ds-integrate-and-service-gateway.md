@@ -49,6 +49,7 @@ The Service Gateway gets a dedicated AWS Security Group assigned which allows SS
 
 - Deep Security is securing (simulated) on-premise instances.
 - Since you want to move to the Vision One platform you start with integrating Deep Security with the platform.
+- You want to get the benefits of XDR for your environment.
 - You want to utilize the Service Gateway for Smart Protection Network and Active Update functionalities.
 
 ## Integration Workflow
@@ -243,6 +244,6 @@ PS C:\Users\admin> <PASTE>
 
 ## Result and Benefits
 
-You now have control of the (simulated) on-premise environment via Vision One.
+You now have integrated your on-prem Deep Security instance to Vision One and enabled the XDR functionality. Your Deep Security is additionally integrated with the Service Gateway to streamline the network communication.
 
 🎉 Success 🎉
