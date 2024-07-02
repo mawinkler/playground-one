@@ -24,3 +24,6 @@ rds_username = "dsm"
 
 # Use PX License Server
 px = ${px}
+
+# Vision One Security Gateway
+service_gateway = ${service_gateway}

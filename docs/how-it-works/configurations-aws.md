@@ -79,11 +79,13 @@ Currently, the following deployments are defined:
 
 *Depends on `awsone/4-cluster-eks-ec2`*
 
+*Documentation [Link](../scenarios/cloud-security/container-security/eks/escape.md)*
+
 Currently, the following (vulnerable) deployments are defined:
 
-- WebApp System-Monitor (see [Escape to the Host System](../scenarios/eks/escape.md))
-- WebApp Health-Check (see [ContainerD Abuse](../scenarios/eks/dind-exploitation.md))
-- WebApp Hunger-Check (see [Hunger Check](../scenarios/eks/hunger-check.md))
+- WebApp System-Monitor
+- WebApp Health-Check
+- WebApp Hunger-Check
 - Java-Goof
 - Nginx
 
@@ -119,6 +121,8 @@ Currently, the following deployments are defined:
 
 *Depends on `awsone/4-cluster-eks-fargate`*
 
+*Documentation [Link](../scenarios/cloud-security/container-security/eks/escape.md)*
+
 Currently, the following (vulnerable) deployments are defined:
 
 - Java-Goof
@@ -138,6 +142,16 @@ Here we're building an ECS cluster using EC2 instances. Key features:
 - ALB Load Balancer
 - Automatic deployment of a vulnerable service (Java-Goof)
 
+### Scenarios
+
+*Depends on `awsone/4-cluster-ecs-ec2`*
+
+*Documentation [Link](../scenarios/cloud-security/container-security/ecs/apache-struts-rce.md)*
+
+Currently, the following (vulnerable) deployments are defined:
+
+- Java-Goof
+
 ## ECS Fargate Cluster
 
 *Configuration located in `awsone/5-cluster-ecs-fargate`*
@@ -150,11 +164,33 @@ Here we're building an ECS cluster using Fargate profile. Key features:
 - ALB Load Balancer
 - Automatic deployment of a vulnerable service (Java-Goof)
 
+You need to activate Container Security by running the supplied script `ecsfg-add-v1cs <CLUSTER NAME>` after enabling it within the Vision One console.
+
+### Scenarios
+
+*Depends on `awsone/4-cluster-ecs-fargate`*
+
+*Documentation [Link](../scenarios/cloud-security/container-security/ecs/apache-struts-rce.md)*
+
+Currently, the following (vulnerable) deployments are defined:
+
+- Java-Goof
+
 ## S3 Bucket Scanner
 
 *Configuration located in `awsone/6-bucket-scanner`*
 
 Simple S3 Bucket scanner using the File Security Python SDK within a Lambda Function. Scan results will show up on the Vision One console.
+
+### Scenarios
+
+*Depends on `awsone/6-bucket-scanner`*
+
+*Documentation [Link](../scenarios/cloud-security/file-security/artifact-scanning/tmfs-s3-bucket-scanning.md)*
+
+Currently, the following (vulnerable) deployments are defined:
+
+- Java-Goof
 
 ## Deep Security
 
@@ -165,6 +201,16 @@ This configuration is to simulate an on-premise Deep Security environment meant 
 The workload configuration creates a demo configuration for Deep Security and two custom policies. Two linux and one windows instances are created and activated with Deep Security. Some minutes after instance creation the activated computers will run a recommendation scan.
 
 Check the Scenarios section to see available integration and migration scenarios.
+
+### Scenarios
+
+*Depends on `awsone/9-deep-security` and `awsone/9-deep-security-workload`*
+
+*Documentation [Link](../scenarios/endpoint-security/deep-security/ds-integrate.md)*
+
+Currently, the following (vulnerable) deployments are defined:
+
+- Java-Goof
 
 ## Instance Types in Use as of 06/20/24
 

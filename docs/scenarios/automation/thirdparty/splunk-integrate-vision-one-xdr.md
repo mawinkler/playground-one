@@ -43,7 +43,7 @@ Next, go back to your Splunk and the XDR App we just installed. In the apps menu
 
 ![alt text](images/splunk-app-v1xdr-07.png "Integration")
 
-As URL type `https://api.xdr.trendmicro.com` for an US instance of Vision One. Adapt the URL if your instance is located in another region (see [FAQ](../../faq.md#know-how-to-check-the-region-and-data-center-location-details-in-trend-vision-one)).
+As URL type `https://api.xdr.trendmicro.com` for an US instance of Vision One. Adapt the URL if your instance is located in another region (see [FAQ](../../../faq.md#know-how-to-check-the-region-and-data-center-location-details-in-trend-vision-one)).
 
 As the `Authentication token` paste the API Key generated in Vision One beforehand.
 

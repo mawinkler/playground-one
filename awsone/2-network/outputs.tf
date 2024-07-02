@@ -116,10 +116,6 @@ output "ad_admin_password" {
 }
 
 # Service Gateway
-# output "public_instance_id_sg_va" {
-#   value = var.service_gateway ? module.sg[0].public_instance_id_sg_va : null
-# }
-
 output "sg_va_ip" {
   value = var.service_gateway ? module.sg[0].public_instance_ip_sg_va : null
 }

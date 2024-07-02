@@ -37,7 +37,7 @@ Install the integration by clicking on the blue button `[Add Trend Micro Vision 
 
 Go through the settings and set URL und API Token. Leave everything to the defaults.
 
-As URL type `https://api.xdr.trendmicro.com` for an US instance of Vision One. Adapt the URL if your instance is located in another region (see [FAQ](../../faq.md#know-how-to-check-the-region-and-data-center-location-details-in-trend-vision-one)).
+As URL type `https://api.xdr.trendmicro.com` for an US instance of Vision One. Adapt the URL if your instance is located in another region (see [FAQ](../../../faq.md#know-how-to-check-the-region-and-data-center-location-details-in-trend-vision-one)).
 
 ![alt text](images/elastic-app-v1xdr-05.png "Integration")
 

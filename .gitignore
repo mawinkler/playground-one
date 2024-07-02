@@ -111,3 +111,4 @@ cspm/infra/vpc/vpc.tf
 .pgo.scenarios-identity.lock
 .pgo.ecs-ec2.lock
 .pgo.ecs-fg.lock
+.pgo.dsw.lock

@@ -93,8 +93,6 @@ ssh -i ${ONEPATH}/${key_name}.pem admin@${public_ip}
 
 ![alt text](images/v1-aws-sgm-12.png "Vision One")
 
-*TODO: Screenshot needs update*
-
 ```sh
 enable
 

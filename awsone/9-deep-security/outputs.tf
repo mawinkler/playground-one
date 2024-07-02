@@ -109,3 +109,13 @@ output "dsm_url" {
 output "ds_apikey" {
   value = module.dsm.ds_apikey
 }
+
+# Service Gateway
+output "sg_va_ip" {
+  value = var.service_gateway ? module.sg[0].public_instance_ip_sg_va : null
+}
+
+output "sg_va_ssh" {
+  description = "Command to ssh to instance sg_va"
+  value       = var.service_gateway ? module.sg[0].ssh_instance_sg_va : null
+}

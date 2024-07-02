@@ -470,6 +470,7 @@ function init() {
       deep_security_username=${deep_security_username} \
       deep_security_password=${deep_security_password} \
       px=${pgo_px} \
+      service_gateway=${pgo_service_gateway} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-9-deep-security.tfvars >${configs[dsm]}/terraform.tfvars
 

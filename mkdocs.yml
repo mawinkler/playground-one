@@ -27,57 +27,58 @@ nav:
       - Virtual Instance Potential Attack Path: scenarios/asrm/virtual-machine-attack-path.md
       - IAM User Potential Attack Path: scenarios/asrm/iam-user-attack-path.md
       - Posture Management:
-        - Terraform IaC Scanning with a GitHub Action: scenarios/cspm/template-scanning-terraform-github-action.md
-        - CloudFormation IaC Scanning with a GitHub Action: scenarios/cspm/template-scanning-cfn-github-action.md
-        - Exception Handling with Pipline Scanning: scenarios/cspm/template-scanning-exception-handling.md
+        - Terraform IaC Scanning with a GitHub Action: scenarios/asrm/pm/template-scanning-terraform-github-action.md
+        - CloudFormation IaC Scanning with a GitHub Action: scenarios/asrm/pm/template-scanning-cfn-github-action.md
+        - Exception Handling with Pipline Scanning: scenarios/asrm/pm/template-scanning-exception-handling.md
     - XDR Threat Investigation:
       - Automated Observed Attack Techniques Generation: scenarios/xdr/oat-generation.md
       - Automated Workbench Generation: scenarios/xdr/workbench-generation.md
     - Workflow and Automation:
       - Third-Party Integration:
-        - Setup Splunk: scenarios/bigdata/splunk-setup.md
-        - Integrate Splunk with Vision One XDR: scenarios/bigdata/splunk-integrate-vision-one-xdr.md
-        - Integrate V1CS Customer Runtime Security Rules with Splunk: scenarios/bigdata/splunk-integrate-vision-one-custom-rules.md
-        - Setup Elastic Stack: scenarios/bigdata/elastic-stack.md
-        - Integrate Elastic Stack with Vision One: scenarios/bigdata/elastic-stack-vision-one.md
+        - Setup Splunk: scenarios/automation/thirdparty/splunk-setup.md
+        - Integrate Splunk with Vision One XDR: scenarios/automation/thirdparty/splunk-integrate-vision-one-xdr.md
+        - Integrate V1CS Customer Runtime Security Rules with Splunk: scenarios/automation/thirdparty/splunk-integrate-vision-one-custom-rules.md
+        - Setup Elastic Stack: scenarios/automation/thirdparty/elastic-stack.md
+        - Integrate Elastic Stack with Vision One: scenarios/automation/thirdparty/elastic-stack-vision-one.md
       - Service Gateway:
-        - Deploy Service Gateway on AWS Manually: scenarios/vision-one/v1-aws-service-gateway-manually.md
-        - Deploy Service Gateway on AWS Automatically: scenarios/vision-one/v1-aws-service-gateway-automatically.md
-        - Integrate an Active Directory via Service Gateway on AWS: scenarios/vision-one/v1-integrate-active-directory.md
+        - Deploy Service Gateway on AWS Manually: scenarios/automation/service-gateway/v1-aws-service-gateway-manually.md
+        - Deploy Service Gateway on AWS Automatically: scenarios/automation/service-gateway/v1-aws-service-gateway-automatically.md
+        - Integrate an Active Directory via Service Gateway on AWS: scenarios/automation/service-gateway/v1-integrate-active-directory.md
     - Cloud Security:
       - Container Security:
         - EKS:
-          - Escape to Host System: scenarios/eks/escape.md
-          - ContainerD Abuse: scenarios/eks/dind-exploitation.md
-          - Hunger Check: scenarios/eks/hunger-check.md
-          - Runtime Vulnerability Scan: scenarios/eks/runtime-vulnerability-ec2.md
-          - Runtime Vulnerability Scan on Fargate: scenarios/eks/runtime-vulnerability-fargate.md
-          - Integrate V1CS Customer Runtime Security Rules with Splunk: scenarios/bigdata/splunk-integrate-vision-one-custom-rules.md
+          - Escape to Host System: scenarios/cloud-security/container-security/eks/escape.md
+          - ContainerD Abuse: scenarios/cloud-security/container-security/eks/dind-exploitation.md
+          - Hunger Check: scenarios/cloud-security/container-security/eks/hunger-check.md
+          - Runtime Vulnerability Scan: scenarios/cloud-security/container-security/eks/runtime-vulnerability-ec2.md
+          - Runtime Vulnerability Scan on Fargate: scenarios/cloud-security/container-security/eks/runtime-vulnerability-fargate.md
+          - Integrate V1CS Customer Runtime Security Rules with Splunk: scenarios/automation/thirdparty/splunk-integrate-vision-one-custom-rules.md
         - ECS:
-          - Apache Struts Multipart Encoding Command Injection (Runtime Security): scenarios/ecs/apache-struts-rce.md
-          - Runtime Vulnerability Scan: scenarios/ecs/runtime-vulnerability.md
+          - Apache Struts Multipart Encoding Command Injection (Runtime Security): scenarios/cloud-security/container-security/ecs/apache-struts-rce.md
+          - Runtime Vulnerability Scan: scenarios/cloud-security/container-security/ecs/runtime-vulnerability.md
         # - XDR4C:
         #   - Tomcat Remote Code Execution (XDR for Containers): scenarios/xdr4c/ecs-tomcat-rce.md
         #   - JNDI Injection in HTTP Request (XDR for Containers): scenarios/xdr4c/ecs-log4j.md
         #   - Apache Struts Multipart Encoding Command Injection (XDR for Containers): scenarios/xdr4c/ecs-struts.md
         #   - Apache Struts Multipart Encoding Command Injection: scenarios/xdr4c/eks-struts.md
         - Artifact Scanning:
-          - Scan Containers for Vulnerabilities and Malware: scenarios/as/tmas-artifact-scanning.md
-          - Scan Containers with a GitHub Action: scenarios/as/tmas-github-action.md
+          - Scan Containers for Vulnerabilities and Malware: scenarios/cloud-security/container-security/artifact-scanning/tmas-artifact-scanning.md
+          - Scan Containers with a GitHub Action: scenarios/cloud-security/container-security/artifact-scanning/tmas-github-action.md
       - File Security:
         - Artifact Scanning:
-          - Scan Files and Directories for Malware: scenarios/as/tmfs-artifact-scanning.md
-          - Scan S3 Buckets for Malware: scenarios/as/tmfs-s3-bucket-scanning.md
+          - Scan Files and Directories for Malware: scenarios/cloud-security/file-security/artifact-scanning//tmfs-artifact-scanning.md
+          - Scan S3 Buckets for Malware: scenarios/cloud-security/file-security/artifact-scanning/tmfs-s3-bucket-scanning.md
     # - Privileged Shell: scenarios/container-security-eks-privileged-shell.md
     # - Server & Workload Protection:
     #   - Malware Upload: scenarios/server-workload-ecs-ec2-malware-upload.md
     - Endpoint Security:
       - Deep Security:
-        - Integrate Deep Security with Vision One: scenarios/ds/ds-integrate.md
-        - Migrate Deep Security to Vision One: scenarios/ds/ds-migrate.md
+        - Integrate Deep Security with Vision One: scenarios/endpoint-security/deep-security/ds-integrate.md
+        - Integrate Deep Security with Vision One and Service Gateway: scenarios/endpoint-security/deep-security/ds-integrate-and-service-gateway.md
+        - Migrate Deep Security to Vision One: scenarios/endpoint-security/deep-security/ds-migrate.md
       - Workload Security:
-        - Integrate Workload Security with Vision One: scenarios/ds/ws-integrate.md
-        # - Migrate Workload Security to Vision One: scenarios/ds/ws-migrate.md
+        - Integrate Workload Security with Vision One: scenarios/endpoint-security/workload-security/ws-integrate.md
+        # - Migrate Workload Security to Vision One: scenarios/endpoint-security/workload-security/ws-migrate.md
   - FAQ: faq.md
   - Bloopers: bloopers.md
 theme:

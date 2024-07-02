@@ -13,7 +13,7 @@ resource "aws_instance" "sg_va" {
     Name          = "${var.environment}-sg-va"
     Environment   = "${var.environment}"
     Product       = "playground-one"
-    Configuration = "nw"
+    Configuration = "dsm"
   }
 
   user_data = local.userdata_sg_va

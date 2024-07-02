@@ -69,8 +69,6 @@ ssh -i /home/markus/projects/opensource/playground/playground-one/pgo-key-pair-o
 
 ![alt text](images/v1-aws-sgm-12.png "Vision One")
 
-*TODO: Screenshot needs update*
-
 ```sh
 enable
 

@@ -78,3 +78,21 @@ module "s3" {
   source      = "./s3"
   environment = var.environment
 }
+
+module "sg" {
+  count = var.service_gateway ? 1 : 0
+
+  source = "./sg"
+
+  access_ip                = var.access_ip
+  environment              = var.environment
+  vpc_id                   = module.vpc.vpc_id
+  public_security_group_id = module.ec2.public_security_group_id
+  public_subnets           = module.vpc.public_subnets.*
+  public_subnets_cidr      = module.vpc.public_subnet_cidr_blocks
+  private_subnets_cidr     = module.vpc.private_subnet_cidr_blocks
+  key_name                 = module.ec2.key_name
+  public_key               = module.ec2.public_key
+  private_key_path         = module.ec2.private_key_path
+  instance_type            = "c5.2xlarge"
+}
