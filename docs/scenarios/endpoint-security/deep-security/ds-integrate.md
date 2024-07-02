@@ -127,6 +127,10 @@ Install the latest PowerShell for new features and improvements! https://aka.ms/
 PS C:\Users\admin> <PASTE>
 ```
 
+When, as the final step, you head back to `Vision One -> Endpoint Security -> Endpoint Inventory` you will see the Deep security instance integrated with Vision One and the available computers.
+
+![alt text](images/ds-integrate-17.png  "Vision One")
+
 ## Result and Benefits
 
 You now have integrated your on-prem Deep Security instance to Vision One and enabled the XDR functionality.
