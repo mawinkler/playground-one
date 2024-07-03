@@ -5,7 +5,7 @@
 - Playground One Deep Security
 - Playground One Deep Security Workload
 
-The Playground One can provide a simulates on-premise Deep Security deployment. For simulation purposes it creates a dedicated VPC with the most commonly used architecture, private and public subnets accross two availability zones. 
+The Playground One can provide a simulated on-premise Deep Security deployment. For simulation purposes it creates a dedicated VPC with the most commonly used architecture, private and public subnets accross two availability zones. 
 
 Deep Security itself is located within the private subnet and uses a RDS Postgres as the database. The Deep Security Workload configuration creates two linux and one windows server with a deployed and activated Deep Security Agent. Some essential configurations in Deep Security are executed via REST. These are (amongst others):
 
@@ -22,9 +22,8 @@ pgo --apply dsw
 
 ## Current Situation
 
-- Deep Security is securing (simulated) on-premise instances.
-- Since you want to move to the Vision One platform you start with integrating Deep Security with the platform.
-- You want to get the benefits of XDR for your environment.
+- Deep Security secures instances in an on-premise environment simulated for this scenario, to which you want to add the XDR capabilities provided by Vision One.
+- You start by integrating Deep Security into the platform.
 
 ## Integration Workflow
 
@@ -63,10 +62,10 @@ pgo --apply dsw
 
 ## Install Basecamp Agent on Instances
 
-First, lets get the ssh commands to access our servers by running
+First, lets get the `ssh` commands to access our servers by running
 
 ```sh
-pgo -o dsw
+pgo --output dsw
 ```
 
 ```sh
@@ -81,7 +80,7 @@ ssh_instance_windows1 = "ssh -i /home/markus/projects/opensource/playground/play
 ...
 ```
 
-To connect to a linux instance via the provided ssh command copy and paste the commnd in your shell
+To connect to a linux instance via the provided `ssh` command copy and paste the commnd in your shell
 
 ```sh
 ssh -i /home/markus/projects/opensource/playground/playground-one/pgo-id-dsm-key-pair.pem -o StrictHostKeyChecking=no ec2-user@3.79.102.108
@@ -110,8 +109,6 @@ Last login: Tue Jul  2 12:57:12 2024 from p57aa067b.dip0.t-ipconnect.de
 [root@ip-10-0-4-236 ec2-user]# <PASTE>
 ```
 
-and paste the generated deployment script for Linux
-
 Similar for Windows. Connect to the instance and paste the windows deployment script to the console.  Ignore the error at the top. The agent will install just fine.
 
 ```sh
@@ -127,7 +124,7 @@ Install the latest PowerShell for new features and improvements! https://aka.ms/
 PS C:\Users\admin> <PASTE>
 ```
 
-When, as the final step, you head back to `Vision One -> Endpoint Security -> Endpoint Inventory` you will see the Deep security instance integrated with Vision One and the available computers.
+When, as the final step, you head back to `Vision One -> Endpoint Security -> Endpoint Inventory` you will see the Deep Security instance integrated with Vision One and the available computers.
 
 ![alt text](images/ds-integrate-17.png  "Vision One")
 

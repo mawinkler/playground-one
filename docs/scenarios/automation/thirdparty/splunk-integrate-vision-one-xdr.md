@@ -1,7 +1,5 @@
 # Integrate Splunk with Vision One XDR
 
-***DRAFT***
-
 ## Prerequisites
 
 - Docker Engine with Compose enabled

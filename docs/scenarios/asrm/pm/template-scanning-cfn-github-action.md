@@ -1,7 +1,5 @@
 # Scenario: CloudFormation IaC Scanning as GitHub Action
 
-***DRAFT***
-
 !!! danger "Warning!"
 
     This scenario does use Cloud One Conformity!

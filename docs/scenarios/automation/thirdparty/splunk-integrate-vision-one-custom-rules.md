@@ -1,7 +1,5 @@
 # Integrate V1CS Customer Runtime Security Rules with Splunk
 
-***DRAFT***
-
 !!! warning "Challenge ahead!"
 
     This scenario is a bit challenging, but you should be able to get through it easily.

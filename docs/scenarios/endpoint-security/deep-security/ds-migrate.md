@@ -21,7 +21,7 @@
 - Playground One Deep Security
 - Playground One Deep Security Workload
 
-The Playground One can provide a simulates on-premise Deep Security deployment. For simulation purposes it creates a dedicated VPC with the most commonly used architecture, private and public subnets accross two availability zones. 
+The Playground One can provide a simulated on-premise Deep Security deployment. For simulation purposes it creates a dedicated VPC with the most commonly used architecture, private and public subnets accross two availability zones. 
 
 Deep Security itself is located within the private subnet and uses a RDS Postgres as the database. The Deep Security Workload configuration creates two linux and one windows server with a deployed and activated Deep Security Agent. Some essential configurations in Deep Security are executed via REST. These are (amongst others):
 
@@ -43,7 +43,7 @@ pgo --apply dsw
 
 ## Migration Workflow
 
-Vision One
+**Vision One**
 
 1. Log in to Trend Vision One, and go to `Endpoint Security Operations --> Server & Workload Protection`. Choose an existing target instance of Server & Workload Protection.
 2. Navigate to `Administration > User Management > API keys`.
@@ -51,7 +51,7 @@ Vision One
 
 ![alt text](images/ds-migrate-00.png "API Key")
 
-Deep Security
+**Deep Security**
 
 1. Go to DSM and use the feature Migrate to Workload Security. `Support --> Migrate to Workload Security`.
 2. When using this feature, it will need the API key and region. Specify them based on the result of the previous steps.
@@ -74,7 +74,7 @@ Turns to
 
 If the migration is successful, the DSM UI’s status will show “Migrated” or “Move Complete”. 
 
-Vision One
+**Vision One**
 
 In Trend Vision One Server & Workload Protection, you will also see the new migrated objects appear.
 
@@ -126,6 +126,7 @@ Final result:
 ## Result and Benefits
 
 - Workload detection and protection techniques including IDS/IPS, antimalware, firewall, application control, integrity monitoring, log inspection & web reputation.
+- If combined with the Endpoint Sensor benefit from Vision Ones XDR capabilities. 
 - Continuous updates to services, updated by Trend Micro – leading to better security outcomes.
 - Compliance certifications for PCI-DSS, ISO 27001, ISO 27014, ISO 27017, SOC.
 - Managed compute, storage and network infrastructure – eliminates operational overhead of managing a solution.

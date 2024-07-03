@@ -1,7 +1,5 @@
 # Scenario: Deploy Vision One Service Gateway on AWS Manually
 
-***DRAFT***
-
 ## Prerequisites
 
 - Playground One Network
@@ -16,7 +14,7 @@ In Vision One head over to `Workflow and Automation -> Service Gateway Managemen
 
 ![alt text](images/v1-aws-sgm-01.png "Vision One")
 
-You don't need to download the virtual appliance since we're going to use a AWS Marketplace AMI. Simply copy the Registration Token shown in the bottom right and save it to a secure place.
+In this scenario, you do not need to download the virtual appliance as we will be using an AWS Marketplace AMI. Simply copy the registration token shown at the bottom right and save it in a safe place.
 
 ![alt text](images/v1-aws-sgm-02.png "Vision One")
 

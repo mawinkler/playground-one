@@ -1,7 +1,5 @@
 # Get Splunk Up and Running Locally
 
-***DRAFT***
-
 ## Prerequisites
 
 - Docker Engine with Compose enabled

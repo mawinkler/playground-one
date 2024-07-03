@@ -1,10 +1,8 @@
 # Scenario: Integrate an Active Directory with Vision One via Service Gateway on AWS
 
-***DRAFT***
-
 ## Prerequisites
 
-- Playground One Network with PGO Active Directory and/or Managed Active Directory enabled
+- Playground One Network with PGO Active Directory (recommended) and/or Managed Active Directory enabled
 
 Verify, that you have `AWS AD - create PGO Active Directory` and/or `AWS MAD - create Managed Active Directory` enabled in your configuration.
 

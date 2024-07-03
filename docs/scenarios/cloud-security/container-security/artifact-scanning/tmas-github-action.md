@@ -1,7 +1,5 @@
 # Scenario: Container Image Vulnerability and Malware Scanning as GitHub Action
 
-***DRAFT***
-
 ## Prerequisites
 
 - Vision One Container Security Artifact Scanner API-Key with the following permissions:

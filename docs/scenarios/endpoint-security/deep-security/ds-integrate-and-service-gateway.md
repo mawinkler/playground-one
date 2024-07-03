@@ -6,7 +6,7 @@
 - Playground One Deep Security Workload
 - Activated Marketplace AMI for Trend Service Gateway BYOL
 
-The Playground One can provide a simulates on-premise Deep Security deployment. For simulation purposes it creates a dedicated VPC with the most commonly used architecture, private and public subnets accross two availability zones. 
+The Playground One can provide a simulated on-premise Deep Security deployment. For simulation purposes it creates a dedicated VPC with the most commonly used architecture, private and public subnets accross two availability zones. 
 
 Deep Security itself is located within the private subnet and uses a RDS Postgres as the database. The Deep Security Workload configuration creates two linux and one windows server with a deployed and activated Deep Security Agent. Some essential configurations in Deep Security are executed via REST. These are (amongst others):
 
@@ -47,10 +47,8 @@ The Service Gateway gets a dedicated AWS Security Group assigned which allows SS
 
 ## Current Situation
 
-- Deep Security is securing (simulated) on-premise instances.
-- Since you want to move to the Vision One platform you start with integrating Deep Security with the platform.
-- You want to get the benefits of XDR for your environment.
-- You want to utilize the Service Gateway for Smart Protection Network and Active Update functionalities.
+- Deep Security secures instances in an on-premise environment simulated for this scenario, to which you want to add the XDR capabilities provided by Vision One.
+- You start by integrating Deep Security into the platform and connect it to a service gateway for Smart Protection Network and Active Update capabilities.
 
 ## Integration Workflow
 
@@ -97,7 +95,7 @@ In Vision One head over to `Workflow and Automation -> Service Gateway Managemen
 
 ![alt text](images/ds-integrate-03.png "Vision One")
 
-You don't need to download the virtual appliance since we're going to use a AWS Marketplace AMI. Simply copy the Registration Token shown in the bottom right and save it to a secure place.
+In a real environment, you would now download the virtual machine and deploy it to the virtualization infrastructure. In this scenario, you do not need to download the virtual appliance as we will be using an AWS Marketplace AMI. Simply copy the registration token shown at the bottom right and save it in a safe place.
 
 ![alt text](images/ds-integrate-04.png "Vision One")
 
@@ -136,13 +134,13 @@ It can take some time for the Service Gateway to show up in the console.
 
 Click on your newly created Service Gateway and press the button `[Manage Services]`.
 
-Download the Smart Protection Services and ActiveUpdate Service by pressing the blue circular buttons. Wait until download has finished.
+Download the *Smart Protection Services* and *ActiveUpdate Service* by pressing the blue circular buttons. Wait until download has finished.
 
 ![alt text](images/ds-integrate-08.png "Vision One")
 
 ![alt text](images/ds-integrate-06.png "Vision One")
 
-Back to the services click on the gear in the line of ActiveUpdate Service. Configure an Update Source by pressing `[+ Add]`.
+Back to the services click on the gear in the line of *ActiveUpdate Service*. Configure an Update Source by pressing `[+ Add]`.
 
 As the URL use `https://ipv6-iaus.trendmicro.com/iau_server.dll` and `Deep Security` as the Description.
 
@@ -152,11 +150,11 @@ Then, using the newly configured Update source to generate the ActiveUpdate URL 
 
 Press `[Save]`.
 
-Now choose the Smart Protection Services gear.
+Now choose the *Smart Protection Services* gear.
 
 ![alt text](images/ds-integrate-07.png "Vision One")
 
-The examples show the URLs for File and Web Reputation Services which we're now going to configure in Deep Security.
+The examples show the URLs for *File* and *Web Reputation Services* which we're now going to configure in Deep Security.
 
 ### Configure Deep Security
 
@@ -178,10 +176,10 @@ Analogous for `Web Reputation`.
 
 ## Install Basecamp Agent on Instances
 
-First, lets get the ssh commands to access our servers by running
+First, lets get the `ssh` commands to access our servers by running
 
 ```sh
-pgo -o dsw
+pgo --output dsw
 ```
 
 ```sh
@@ -196,7 +194,7 @@ ssh_instance_windows1 = "ssh -i /home/markus/projects/opensource/playground/play
 ...
 ```
 
-To connect to a linux instance via the provided ssh command copy and paste the commnd in your shell
+To connect to a linux instance via the provided `ssh` command copy and paste the commnd in your shell
 
 ```sh
 ssh -i /home/markus/projects/opensource/playground/playground-one/pgo-id-dsm-key-pair.pem -o StrictHostKeyChecking=no ec2-user@3.79.102.108
@@ -225,8 +223,6 @@ Last login: Tue Jul  2 12:57:12 2024 from p57aa067b.dip0.t-ipconnect.de
 [root@ip-10-0-4-236 ec2-user]# <PASTE>
 ```
 
-and paste the generated deployment script for Linux
-
 Similar for Windows. Connect to the instance and paste the windows deployment script to the console.  Ignore the error at the top. The agent will install just fine.
 
 ```sh
@@ -242,7 +238,7 @@ Install the latest PowerShell for new features and improvements! https://aka.ms/
 PS C:\Users\admin> <PASTE>
 ```
 
-When, as the final step, you head back to `Vision One -> Endpoint Security -> Endpoint Inventory` you will see the Deep security instance integrated with Vision One and the available computers.
+When, as the final step, you head back to `Vision One -> Endpoint Security -> Endpoint Inventory` you will see the Deep Security instance integrated with Vision One and the available computers.
 
 ![alt text](images/ds-integrate-17.png  "Vision One")
 
