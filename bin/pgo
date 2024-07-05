@@ -780,9 +780,9 @@ function destroy() {
         tf eks-ec2-deployments destroy
 
         if checklock scenarios-ec2 ; then
-          knsrm-finalizer attackers
-          knsrm-finalizer goat
-          knsrm-finalizer victims
+          k8s-ns-finalizer attackers
+          k8s-ns-finalizer goat
+          k8s-ns-finalizer victims
         fi
 
         tf scenarios-ec2 destroy
@@ -814,9 +814,9 @@ function destroy() {
         tf eks-fg-deployments destroy
 
         if checklock scenarios-fg ; then
-          knsrm-finalizer attackers
-          knsrm-finalizer goat
-          knsrm-finalizer victims
+          k8s-ns-finalizer attackers
+          k8s-ns-finalizer goat
+          k8s-ns-finalizer victims
         fi
         
         tf scenarios-fg destroy
@@ -1009,7 +1009,7 @@ function destroy() {
         fi
 
         if checklock scenarios-kind ; then
-          knsrm-finalizer attackers
+          k8s-ns-finalizer attackers
         fi
 
         tf scenarios-kind destroy

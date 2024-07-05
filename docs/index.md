@@ -122,20 +122,28 @@ Kind Kubernetes   | In progress | Only native  |
 
 Besides the obvious cli tools like `kubectl`, etc. the Playground offers you additional commands shown in the table below (and more):
 
-Command | Function
-------- | --------
-pgo | The command line interface for Playground One.
-dsm | Start or stop a deployed Deep Security.
-tmcli-update | Update TMAS and TMFS to the latest version.
-stern | Tail logs from multiple pods simultaneously.
-syft | See [github.com/anchore/syft](https://github.com/anchore/syft).
-grype | See [github.com/anchore/grype](https://github.com/anchore/grype).
-k9s | See [k9scli.io](https://k9scli.io/).
-kubie | See [github.com/sbstp/kubie](https://github.com/sbstp/kubie?tab=readme-ov-file#usage).
-list_images_ns | Lists and counts all unique images by namespace.
-knsrm-finalizer | Removes finalizer from namespace. Helpful when a namespace cannot be destroyed.
-collect_logs | Collects logs and configuration of Container Security. Usage: `RELEASE=container-security collect_logs`.
-pgoc | Starts, stops or updates the Playground One Container.
+Area | Command | Function
+---- | ------- | --------
+PGO  | pgo | The command line interface for Playground One.
+PGO  | pgoc | Starts, stops or updates the Playground One Container.
+PGO  | dsm | Start or stop a deployed Deep Security.
+Kubernetes  | kubie | See [github.com/sbstp/kubie](https://github.com/sbstp/kubie?tab=readme-ov-file#usage).
+Kubernetes  | stern | Tail logs from multiple pods simultaneously.
+Kubernetes  | k9s | See [k9scli.io](https://k9scli.io/).
+Kubernetes  | k8s-ns-finalizer | Removes finalizer from namespace. Helpful when a namespace cannot be destroyed.
+Kubernetes  | k8s-list-images | Lists and counts all unique images by namespace currently in use.
+Vision One | tmcli-update | Update TMAS and TMFS to the latest version.
+Vision One | ecsfg-add-v1cs | Patches ECS Fargate Task to activate Container Security.
+Vision One | collect-logs | Collects logs and configuration of Container Security. Usage: `RELEASE=container-security collect-logs`.
+AWS  | aws-cleanup-policies | Removes unattached policies of your PGO environment.
+Vulnerabilities | syft | See [github.com/anchore/syft](https://github.com/anchore/syft).
+Vulnerabilities | grype | See [github.com/anchore/grype](https://github.com/anchore/grype).
+
+
+
+
+
+
 
 ## Change Log
 

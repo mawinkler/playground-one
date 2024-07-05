@@ -70,7 +70,7 @@ To delete a namespace, Kubernetes must first delete all the resources in the nam
 Scripted:
 
 ```sh
-knsrm-finalizer <NAMESPACE>
+k8s-ns-finalizer <NAMESPACE>
 ```
 
 Manual:

@@ -8,7 +8,7 @@
 function helpcmd {
   printf '%s\n' "Removes unattached policies of your PGO environment"
   printf '%s\n' ""
-  printf '%s\n' "Usage: aws_cleanup_policies [run]"
+  printf '%s\n' "Usage: aws-cleanup-policies [run]"
   printf '%s\n' ""
   printf '%s\n' "Without the argument 'run' the script is in dryrun mode"
   printf '%s\n' ""
