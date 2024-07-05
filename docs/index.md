@@ -139,12 +139,6 @@ AWS  | aws-cleanup-policies | Removes unattached policies of your PGO environmen
 Vulnerabilities | syft | See [github.com/anchore/syft](https://github.com/anchore/syft).
 Vulnerabilities | grype | See [github.com/anchore/grype](https://github.com/anchore/grype).
 
-
-
-
-
-
-
 ## Change Log
 
 ***0.4.0***

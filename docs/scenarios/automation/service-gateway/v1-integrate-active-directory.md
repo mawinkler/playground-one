@@ -57,7 +57,7 @@ Lastly, in the Connection Settings choose the following parameters:
 - Server address: One of the private IPs out of `ad_dc_pip`
 - Encryption: `SSL`
 - Port: `636`
-- Base Distinguished Name: `Specific`, value: `DC=<your environment name>, DS=local`
+- Base Distinguished Name: `Specific`, value: `DC=<your environment name>, DC=local`
 - Permission scope: `Read & write`
 - User Name: `Administrator@<your environment name>.local`
 - Password: `ad_admin_password`
@@ -67,6 +67,8 @@ Example with environment name `pgo-id`:
 ![alt text](images/v1-aws-sgm-17.png "Vision One")
 
 This should connect the Active Directory to Vision One via the Service Gateway.
+
+### Install Security Event Forwarding
 
 Using the PGO Active Directory allows you to utilize the Security Event Forwarding. For this functionality you need to download the current installation package on the Domain Controller and walk through the installation procedure.
 

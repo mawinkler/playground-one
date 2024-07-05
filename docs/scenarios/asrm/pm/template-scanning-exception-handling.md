@@ -67,7 +67,7 @@ There are two variants implemented which differ in their approach to identity AW
 - `scanner_c1_name.py`: Simply uses name tags on the resources.
 - `scanner_c1_uuid.py`: Automatically creates an unique `uuid`-tag for the resources which need to be assigned manually to the resource before deployment to be compliant.
 
-The scripts assume, that all exeption are granted and expire after seven days.
+The scripts are located in the `cspm`-directory and assume, that all exeption are granted and expire after seven days.
 
 ### Prepare
 
