@@ -213,3 +213,9 @@ pgo --apply eks-ec2
 ```
 
 This should complete the cluster creation within seconds then.
+
+Autoscaler Logs:
+
+```sh
+kubectl logs -f -n kube-system -l app=cluster-autoscaler
+```

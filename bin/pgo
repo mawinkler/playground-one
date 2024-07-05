@@ -1551,8 +1551,6 @@ function helpcmd() {
 
 #######################################
 # Main:
-# Manages a AWS based V1 & C1
-# demo environment
 #######################################
 [ -z "$1" ] && helpcmd
 

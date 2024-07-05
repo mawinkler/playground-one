@@ -8,4 +8,4 @@ Splunk’s software can be used to examine, monitor, and search for machine-gene
 
 Link: <https://www.splunk.com/>
 
-Vision One has the capability to integrate with Splunk in various ways. Some of these are covered in [Scenarios](../scenarios/bigdata/).
+Vision One has the capability to integrate with Splunk in various ways. Some of these are covered in [Scenarios](../scenarios/automation/thirdparty/splunk-setup.md).

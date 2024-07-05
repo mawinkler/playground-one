@@ -1,0 +1,44 @@
+#!/bin/bash
+
+[ -f $ONEPATH/banner.txt ] && cat $ONEPATH/banner.txt
+
+# Source helpers
+. $ONEPATH/bin/playground-helpers.sh
+
+function helpcmd {
+  printf '%s\n' "Removes unattached policies of your PGO environment"
+  printf '%s\n' ""
+  printf '%s\n' "Usage: aws_cleanup_policies [run]"
+  printf '%s\n' ""
+  printf '%s\n' "Without the argument 'run' the script is in dryrun mode"
+  printf '%s\n' ""
+}
+
+[ -z "$1" ] && helpcmd
+
+if [ -f ${ONEPATH}/config.yaml ]; then
+  get_config
+fi
+
+prefix_list="${environment_name}"  # AmazonEKS AWSLambda AWSLoadBalancer"
+
+[ "$1" = "run" ] && dryrun=false || dryrun=true
+
+for prefix in ${prefix_list}; do
+  # unattached=$(aws iam list-policies --query 'Policies[?starts_with(PolicyName,`'${prefix}'`) && !starts_with(Arn,`arn:aws:iam::aws:`)]' \
+  #   | jq -r '.[] | select(.AttachmentCount == 0) | .Arn')
+  unattached=$(aws iam list-policies --no-paginate --query 'Policies[?starts_with(PolicyName,`'${prefix}'`) && starts_with(Arn,`arn:aws:iam::'${aws_account_id}':`)]' \
+    | jq -r '.[] | select(.AttachmentCount == 0) | .Arn')
+
+  if [ "${dryrun}" == "true" ]; then
+    for policy in ${unattached[@]}; do
+      printf '%s\n' "Would delete unattached customer policy ${policy} with prefix ${prefix}"
+    done
+  fi
+  if [ "${dryrun}" == "false" ]; then
+    for policy in ${unattached[@]}; do
+      printf '%s\n' "Deleting unattached customer policy ${policy} with prefix ${prefix}"
+      aws iam delete-policy --policy-arn ${policy}
+    done
+  fi
+done

@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# Region in which Vision One serves your organisation
+# For us-east-1 leave it as "", EU would be ".eu"
+region=""
+
+# Vision One API Key
+api_key=${V1_KEY}
+api_base_url="https://api${region}.xdr.trendmicro.com"
+
+# contents=$(cat ${file_path} | jq '.' -MRs)
+# payload='{
+#            "type": "terraform-template",
+#            "content": '${contents}'
+#          }'
+# printf '%s' ${payload} > data.txt
+
+# Query Unique ImageOccurences
+unique_imageoccurences=$(curl -s -X GET \
+     -H "Authorization: Bearer ${api_key}" \
+     -H "Content-Type: application/json" \
+     ${api_base_url}/v3.0/containerSecurity/kubernetesImageOccurrences \
+     | jq  -r '.items[] | .imageId' | uniq | wc -l)
+
+curl -s -X GET \
+     -H "Authorization: Bearer ${api_key}" \
+     -H "Content-Type: application/json" \
+     ${api_base_url}/v3.0/containerSecurity/kubernetesImageOccurrences \
+     | jq  -r '.items[] | .imageId' | uniq | sort
+
+printf '%s\n' "Unique ImageOccurences: ${unique_imageoccurences}"
+     # | jq '.items[] | { namespace: .namespace, image: .imageId }'
+     #--data-binary "@data.txt" > result.json
+
+unique_images_with_vulnerabilities=$(curl -s -X GET \
+     -H "Authorization: Bearer ${api_key}" \
+     -H "Content-Type: application/json" \
+     ${api_base_url}/v3.0/containerSecurity/kubernetesImages \
+     | jq  -r '.items[] | .id' | uniq | wc -l)
+
+curl -s -X GET \
+     -H "Authorization: Bearer ${api_key}" \
+     -H "Content-Type: application/json" \
+     ${api_base_url}/v3.0/containerSecurity/kubernetesImages \
+     | jq  -r '.items[] | .id' | uniq | sort
+
+printf '%s\n' "Unique Images with Vulnerabilities: ${unique_images_with_vulnerabilities}"

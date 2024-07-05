@@ -140,6 +140,17 @@ helm get values --namespace trendmicro-system container-security | helm upgrade 
     https://github.com/trendmicro/cloudone-container-security-helm/archive/master.tar.gz
 ```
 
+## Inspect the Kubernetes Manifest of Container Security
+
+If you want to inspect the full kubernetes manifest of Container Security deployed on your environment run:
+
+```sh
+helm get values --namespace trendmicro-system container-security | helm template container-security \
+  --namespace trendmicro-system \
+  --values - \
+  https://github.com/trendmicro/cloudone-container-security-helm/archive/master.tar.gz > manifest.yaml
+```
+
 ## AWS EC2 Instance Connect does not work from the AWS EC2 Console
 
 EC2 Instance Connect uses specific IP address ranges for browser-based SSH connections to your instance (when users use the Amazon EC2 console to connect to an instance). These IP address ranges are documented [here](https://ip-ranges.amazonaws.com/ip-ranges.json).
