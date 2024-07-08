@@ -48,15 +48,15 @@ resource "aws_instance" "windows-server" {
   # }
 
   # Download packages from S3
-  # provisioner "remote-exec" {
-  #   inline = [
-  #     "PowerShell -Command Read-S3Object -BucketName ${var.s3_bucket} -KeyPrefix download -Folder Downloads"
-  #   ]
-  # }
+  provisioner "remote-exec" {
+    inline = [
+      "PowerShell -Command Read-S3Object -BucketName ${var.s3_bucket} -KeyPrefix download -Folder Downloads"
+    ]
+  }
 
-  # provisioner "remote-exec" {
-  #   inline = [
-  #     "powershell.exe -ExecutionPolicy Unrestricted -File Downloads/TMServerAgent_Windows_deploy.ps1"
-  #   ]
-  # }
+  provisioner "remote-exec" {
+    inline = [
+      "powershell.exe -ExecutionPolicy Unrestricted -File Downloads/TMServerAgent_Windows_deploy.ps1"
+    ]
+  }
 }

@@ -263,12 +263,14 @@ function Join-AD {
 # Create local admin user
 Create-LocalAdmin 
 
-$hostname = hostname
-if ("$hostname" -ne "${windows_hostname}") {
-   Write-Log -message "Changing Hostname" -level "INFO"
-   Rename-Computer -NewName ${windows_hostname} -Force -Restart
-} else {
-   Write-Log -message "Hostname: $hostname" -level "INFO"
+if ("${windows_ad_domain_name}" -ne "") {
+    $hostname = hostname
+    if ("$hostname" -ne "${windows_hostname}") {
+    Write-Log -message "Changing Hostname to ${windows_hostname}" -level "INFO"
+    Rename-Computer -NewName ${windows_hostname} -Force -Restart
+    } else {
+    Write-Log -message "Hostname: $hostname" -level "INFO"
+    }
 }
 
 # Configure WinRM service
@@ -294,7 +296,9 @@ Configure-OpenSSHService
 Configure-AWS-Tools
 
 # Join AD
-Join-AD
+if ("${windows_ad_domain_name}" -ne "") {
+    Join-AD
+}
 
 Stop-Transcript
 </powershell>
