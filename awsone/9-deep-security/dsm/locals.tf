@@ -47,15 +47,15 @@ locals {
     curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/20.0/Manager-Linux-20.0.926.x64.sh -o /home/ec2-user/dsm_install.sh
 
     agents='
-      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2-20.0.1-9400.aarch64.zip
-      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2-20.0.1-9400.x86_64.zip
-      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2023-20.0.1-9400.aarch64.zip
-      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2023-20.0.1-9400.x86_64.zip
-      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_20.04-20.0.1-9400.aarch64.zip
-      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_20.04-20.0.1-9400.x86_64.zip
-      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_22.04-20.0.1-9400.aarch64.zip
-      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_22.04-20.0.1-9400.x86_64.zip
-      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Windows-20.0.1-9400.x86_64.zip
+      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2-20.0.1-12510.aarch64.zip
+      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2-20.0.1-12510.x86_64.zip
+      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2023-20.0.1-12510.aarch64.zip
+      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2023-20.0.1-12510.x86_64.zip
+      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_20.04-20.0.1-12510.aarch64.zip
+      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_20.04-20.0.1-12510.x86_64.zip
+      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_22.04-20.0.1-12510.aarch64.zip
+      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_22.04-20.0.1-12510.x86_64.zip
+      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Windows-20.0.1-12510.x86_64.zip
     '
 
     for agent in $agents; do
