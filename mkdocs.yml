@@ -44,6 +44,17 @@ nav:
         - Deploy Service Gateway on AWS Manually: scenarios/automation/service-gateway/v1-aws-service-gateway-manually.md
         - Deploy Service Gateway on AWS Automatically: scenarios/automation/service-gateway/v1-aws-service-gateway-automatically.md
         - Integrate an Active Directory via Service Gateway on AWS: scenarios/automation/service-gateway/v1-integrate-active-directory.md
+    - Identity Security:
+      - Identity Posture:
+        - Populate the Active Directory: scenarios/identity-security/identity-posture/populate-ad.md
+    - Endpoint Security:
+      - Deep Security:
+        - Integrate Deep Security with Vision One: scenarios/endpoint-security/deep-security/ds-integrate.md
+        - Integrate Deep Security with Vision One and Service Gateway: scenarios/endpoint-security/deep-security/ds-integrate-and-service-gateway.md
+        - Migrate Deep Security to Vision One: scenarios/endpoint-security/deep-security/ds-migrate.md
+      - Workload Security:
+        - Integrate Workload Security with Vision One: scenarios/endpoint-security/workload-security/ws-integrate.md
+        # - Migrate Workload Security to Vision One: scenarios/endpoint-security/workload-security/ws-migrate.md
     - Cloud Security:
       - Container Security:
         - EKS:
@@ -71,14 +82,6 @@ nav:
     # - Privileged Shell: scenarios/container-security-eks-privileged-shell.md
     # - Server & Workload Protection:
     #   - Malware Upload: scenarios/server-workload-ecs-ec2-malware-upload.md
-    - Endpoint Security:
-      - Deep Security:
-        - Integrate Deep Security with Vision One: scenarios/endpoint-security/deep-security/ds-integrate.md
-        - Integrate Deep Security with Vision One and Service Gateway: scenarios/endpoint-security/deep-security/ds-integrate-and-service-gateway.md
-        - Migrate Deep Security to Vision One: scenarios/endpoint-security/deep-security/ds-migrate.md
-      - Workload Security:
-        - Integrate Workload Security with Vision One: scenarios/endpoint-security/workload-security/ws-integrate.md
-        # - Migrate Workload Security to Vision One: scenarios/endpoint-security/workload-security/ws-migrate.md
   - FAQ: faq.md
   - Bloopers: bloopers.md
 theme:

@@ -386,11 +386,21 @@ function get_config() {
     # AWS
     aws_account_id="$(yq '.services.aws.account-id' $ONEPATH/config.yaml)"
     aws_region="$(yq '.services.aws.region' $ONEPATH/config.yaml)"
+    aws_pgo_user_enabled="$(yq '.services.aws.pgo_user_enabled' $ONEPATH/config.yaml)"
+    aws_pgo_user_access_key="$(yq '.services.aws.pgo_user_access_key' $ONEPATH/config.yaml)"
+    aws_pgo_user_secret_key="$(yq '.services.aws.pgo_user_secret_key' $ONEPATH/config.yaml)"
     [[ "${aws_region}" = "null" || "${aws_region}" = "" ]] && aws_region="eu-central-1"
+    # AWS Experimental
+    [[ "${aws_pgo_user_enabled}" = "null" || "${aws_pgo_user_enabled}" = "" ]] && aws_pgo_user_enabled=false
+    [[ "${aws_pgo_user_access_key}" = "null" || "${aws_pgo_user_access_key}" = "" || "${aws_pgo_user_enabled}" = "false" ]] && aws_pgo_user_access_key=""
+    [[ "${aws_pgo_user_secret_key}" = "null" || "${aws_pgo_user_secret_key}" = "" || "${aws_pgo_user_enabled}" = "false" ]] && aws_pgo_user_secret_key=""
+    # /AWS Experimental
 
     # Azure
+    azure_enabled="$(yq '.services.azure.enabled' $ONEPATH/config.yaml)"
     azure_subscription_id="$(yq '.services.azure.subscription-id' $ONEPATH/config.yaml)"
     azure_region="$(yq '.services.azure.region' $ONEPATH/config.yaml)"
+    [[ "${azure_enabled}" = "null" || "${azure_enabled}" = "" ]] && azure_enabled=false
     [[ "${azure_region}" = "null" || "${azure_region}" = "" ]] && azure_region="westeurope"
 
     # Environment Name

@@ -264,6 +264,8 @@ function init() {
       # fi
       # xdr_for_containers=${xdr_for_containers} \
       aws_region=${aws_region} \
+      aws_pgo_user_access_key=${aws_pgo_user_access_key} \
+      aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip} \
       vision_one_asrm_create_attackpath=${vision_one_asrm_create_attackpath} \
@@ -278,6 +280,8 @@ function init() {
     ec2|instances|all)
       printf '%s\n' "Create terraform.tfvars for instances"
       aws_region=${aws_region} \
+      aws_pgo_user_access_key=${aws_pgo_user_access_key} \
+      aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
       pgo_access_ip=${pgo_access_ip} \
       environment_name=${environment_name} \
       pgo_ec2_create_linux=${pgo_ec2_create_linux} \
@@ -293,6 +297,8 @@ function init() {
     eks|eks-ec2|all)
       printf '%s\n' "Create terraform.tfvars for cluster-eks-ec2"
       aws_region=${aws_region} \
+      aws_pgo_user_access_key=${aws_pgo_user_access_key} \
+      aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip} \
       pgo_eks_create_ec2=${pgo_eks_create_ec2} \
@@ -320,6 +326,8 @@ function init() {
     eks-fg|all)
       printf '%s\n' "Create terraform.tfvars for cluster-eks-fargate"
       aws_region=${aws_region} \
+      aws_pgo_user_access_key=${aws_pgo_user_access_key} \
+      aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip} \
       pgo_eks_create_ec2=${pgo_eks_create_ec2} \
@@ -374,6 +382,8 @@ function init() {
     ecs-ec2|all)
       printf '%s\n' "Create terraform.tfvars for cluster-ecs-ec2"
       aws_region=${aws_region} \
+      aws_pgo_user_access_key=${aws_pgo_user_access_key} \
+      aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip} \
       ONEPATH=${ONEPATH} \
@@ -384,6 +394,8 @@ function init() {
     ecs-fg|all)
       printf '%s\n' "Create terraform.tfvars for cluster-ecs-fg"
       aws_region=${aws_region} \
+      aws_pgo_user_access_key=${aws_pgo_user_access_key} \
+      aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip} \
       ONEPATH=${ONEPATH} \
@@ -394,6 +406,8 @@ function init() {
     s3scanner|all)
       printf '%s\n' "Create terraform.tfvars for s3scanner"
       aws_region=${aws_region} \
+      aws_pgo_user_access_key=${aws_pgo_user_access_key} \
+      aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
       environment_name=${environment_name} \
       vision_one_api_key=${vision_one_api_key} \
       vision_one_region=${vision_one_region} \
@@ -405,6 +419,8 @@ function init() {
     scenarios|scenarios-ec2|all)
       printf '%s\n' "Create terraform.tfvars for scenarios-ec2 deployments"
       aws_region=${aws_region} \
+      aws_pgo_user_access_key=${aws_pgo_user_access_key} \
+      aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
       ONEPATH=${ONEPATH} \
@@ -415,6 +431,8 @@ function init() {
     scenarios-fg|all)
       printf '%s\n' "Create terraform.tfvars for scenarios-fg deployments"
       aws_region=${aws_region} \
+      aws_pgo_user_access_key=${aws_pgo_user_access_key} \
+      aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
       ONEPATH=${ONEPATH} \
@@ -425,6 +443,8 @@ function init() {
     scenarios-cspm|all)
       printf '%s\n' "Create terraform.tfvars for scenarios-cspm deployments"
       aws_region=${aws_region} \
+      aws_pgo_user_access_key=${aws_pgo_user_access_key} \
+      aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
       environment_name=${environment_name} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-7-scenarios-cspm.tfvars >${configs[scenarios-cspm]}/terraform.tfvars
@@ -434,6 +454,8 @@ function init() {
     scenarios-identity|all)
       printf '%s\n' "Create terraform.tfvars for scenarios-identity deployments"
       aws_region=${aws_region} \
+      aws_pgo_user_access_key=${aws_pgo_user_access_key} \
+      aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
       environment_name=${environment_name} \
       active_directory=${pgo_active_directory} \
       ONEPATH=${ONEPATH} \
@@ -454,6 +476,8 @@ function init() {
     goat|all)
       printf '%s\n' "Create terraform.tfvars for goat deployments"
       aws_region=${aws_region} \
+      aws_pgo_user_access_key=${aws_pgo_user_access_key} \
+      aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
       ONEPATH=${ONEPATH} \
@@ -464,6 +488,8 @@ function init() {
     dsm|deepsecurity|all)
       printf '%s\n' "Create terraform.tfvars for deep security"
       aws_region=${aws_region} \
+      aws_pgo_user_access_key=${aws_pgo_user_access_key} \
+      aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip} \
       deep_security_license=${deep_security_license} \
@@ -479,6 +505,8 @@ function init() {
     dsw|all)
       printf '%s\n' "Create terraform.tfvars for deep security workload"
       aws_region=${aws_region} \
+      aws_pgo_user_access_key=${aws_pgo_user_access_key} \
+      aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip} \
       deep_security_license=${deep_security_license} \

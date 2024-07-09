@@ -1,23 +1,26 @@
 # #############################################################################
 # Providers
 # #############################################################################
-provider "aws" {
-  region = var.aws_region
-  access_key = var.aws_access_key
-  secret_key = var.aws_secret_key
+provider "azurerm" {
+  features {}
 }
 
 terraform {
-  required_version = ">= 1.6"
+  required_version = ">=0.12"
 
   required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.55.0"
+    azapi = {
+      source  = "azure/azapi"
+      version = "~>1.5"
+    }
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~>2.0"
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.6.2"
+      version = "~>3.0"
     }
   }
 }
+

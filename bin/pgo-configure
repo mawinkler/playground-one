@@ -44,38 +44,102 @@ function update_aws_config() {
     echo "Error: Invalid ${key_desc} input."
     exit 0
   fi
+
+
+
+  ##
+  ## PGO AWS User
+  ##
+  key_desc="AWS Use PGO User (EXPERIMENTAL)?"
+  read -p "${key_desc} [${aws_pgo_user_enabled}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    aws_pgo_user_enabled=${TEMP}
+  fi
+  if [[ "${aws_pgo_user_enabled}" =~ ^true|false$ ]]; then
+    target_val=${aws_pgo_user_enabled} \
+      yq -i '.services.aws.pgo_user_enabled = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  if ${aws_pgo_user_enabled} ; then
+    aws_pgo_user_access_key="$(yq '.services.aws.pgo_user_access_key' $ONEPATH/config.yaml)"
+    aws_pgo_user_secret_key="$(yq '.services.aws.pgo_user_secret_key' $ONEPATH/config.yaml)"
+
+    key_desc="AWS PGO User Access Key"
+    read -p "${key_desc} [${aws_pgo_user_access_key}]: " TEMP
+    if [[ ! -z "${TEMP}" ]]; then
+      aws_pgo_user_access_key=${TEMP}
+    fi
+    if [[ "${aws_pgo_user_access_key}" =~ ^[0-9A-Z]+$ ]]; then
+      target_val=${aws_pgo_user_access_key} \
+        yq -i '.services.aws.pgo_user_access_key = env(target_val)' ${ONEPATH}/config.yaml
+    else
+      echo "Error: Invalid ${key_desc} input."
+      exit 0
+    fi
+
+    key_desc="AWS PGO User Secret Key"
+    read -p "${key_desc} [${aws_pgo_user_secret_key:0:10}...]: " TEMP
+    if [[ ! -z "${TEMP}" ]]; then
+      aws_pgo_user_secret_key=${TEMP}
+    fi
+    if [[ "${aws_pgo_user_secret_key}" =~ ^[0-9a-zA-Z\/]+$ ]]; then
+      target_val=${aws_pgo_user_secret_key} \
+        yq -i '.services.aws.pgo_user_secret_key = env(target_val)' ${ONEPATH}/config.yaml
+    else
+      echo "Error: Invalid ${key_desc} input."
+      exit 0
+    fi
+  fi
 }
 
 function update_azure_config() {
   printf '\n%s\n' "Please set/update your Azure configuration"
 
   ##
-  ## AWS
+  ## Azure
   ##
-  key_desc="Azure Subscription ID"
-  read -p "${key_desc} [${azure_subscription_id}]: " TEMP
+  key_desc="Enable Azure?"
+  read -p "${key_desc} [${azure_enabled}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
-    azure_subscription_id=${TEMP}
+    azure_enabled=${TEMP}
   fi
-  if [[ "${azure_subscription_id}" =~ ^[0-9a-z\-]+$ ]]; then
-    target_val=${azure_subscription_id} \
-      yq -i '.services.azure.subscription-id = env(target_val)' ${ONEPATH}/config.yaml
+  if [[ "${azure_enabled}" =~ ^true|false$ ]]; then
+    target_val=${azure_enabled} \
+      yq -i '.services.azure.enabled = env(target_val)' ${ONEPATH}/config.yaml
   else
     echo "Error: Invalid ${key_desc} input."
     exit 0
   fi
 
-  key_desc="Azure Region Name"
-  read -p "${key_desc} [${azure_region}]: " TEMP
-  if [[ ! -z "${TEMP}" ]]; then
-    azure_region=${TEMP}
-  fi
-  if [[ "${azure_region}" =~ ^[0-9a-z\-]+$ ]]; then
-    target_val=${azure_region} \
-      yq -i '.services.azure.region = env(target_val)' ${ONEPATH}/config.yaml
-  else
-    echo "Error: Invalid ${key_desc} input."
-    exit 0
+  if ${azure_enabled} ; then
+    key_desc="Azure Subscription ID"
+    read -p "${key_desc} [${azure_subscription_id:0:10}...]: " TEMP
+    if [[ ! -z "${TEMP}" ]]; then
+      azure_subscription_id=${TEMP}
+    fi
+    if [[ "${azure_subscription_id}" =~ ^[0-9a-z\-]+$ ]]; then
+      target_val=${azure_subscription_id} \
+        yq -i '.services.azure.subscription-id = env(target_val)' ${ONEPATH}/config.yaml
+    else
+      echo "Error: Invalid ${key_desc} input."
+      exit 0
+    fi
+
+    key_desc="Azure Region Name"
+    read -p "${key_desc} [${azure_region}]: " TEMP
+    if [[ ! -z "${TEMP}" ]]; then
+      azure_region=${TEMP}
+    fi
+    if [[ "${azure_region}" =~ ^[0-9a-z\-]+$ ]]; then
+      target_val=${azure_region} \
+        yq -i '.services.azure.region = env(target_val)' ${ONEPATH}/config.yaml
+    else
+      echo "Error: Invalid ${key_desc} input."
+      exit 0
+    fi
   fi
 }
 
@@ -163,7 +227,7 @@ function update_pgo_config() {
   ##
   ## Booleans
   ##
-  key_desc="Running in Product Experience"
+  key_desc="Running in Product Experience?"
   read -p "${key_desc} [${pgo_px}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     pgo_px=${TEMP}
@@ -176,7 +240,7 @@ function update_pgo_config() {
     exit 0
   fi
 
-  key_desc="AWS AD - create PGO Active Directory"
+  key_desc="AWS AD - create PGO Active Directory?"
   read -p "${key_desc} [${pgo_active_directory}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     pgo_active_directory=${TEMP}
@@ -189,7 +253,7 @@ function update_pgo_config() {
     exit 0
   fi
 
-  key_desc="AWS MAD - create Managed Active Directory"
+  key_desc="AWS MAD - create Managed Active Directory?"
   read -p "${key_desc} [${pgo_managed_active_directory}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     pgo_managed_active_directory=${TEMP}
@@ -202,7 +266,7 @@ function update_pgo_config() {
     exit 0
   fi
 
-  key_desc="AWS SG - create Service Gateway"
+  key_desc="AWS SG - create Service Gateway?"
   read -p "${key_desc} [${pgo_service_gateway}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     pgo_service_gateway=${TEMP}
@@ -215,7 +279,7 @@ function update_pgo_config() {
     exit 0
   fi
 
-  key_desc="AWS EC2 - create Linux EC2"
+  key_desc="AWS EC2 - create Linux EC2?"
   read -p "${key_desc} [${pgo_ec2_create_linux}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     pgo_ec2_create_linux=${TEMP}
@@ -228,7 +292,7 @@ function update_pgo_config() {
     exit 0
   fi
 
-  key_desc="AWS EC2 - create Windows EC2"
+  key_desc="AWS EC2 - create Windows EC2?"
   read -p "${key_desc} [${pgo_ec2_create_windows}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     pgo_ec2_create_windows=${TEMP}
@@ -241,7 +305,7 @@ function update_pgo_config() {
     exit 0
   fi
 
-  key_desc="AWS RDS - create RDS Database"
+  key_desc="AWS RDS - create RDS Database?"
   read -p "${key_desc} [${pgo_ec2_create_database}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     pgo_ec2_create_database=${TEMP}
@@ -254,44 +318,20 @@ function update_pgo_config() {
     exit 0
   fi
 
-  key_desc="Azure VM - create Linux EC2"
-  read -p "${key_desc} [${pgo_azvm_create_linux}]: " TEMP
-  if [[ ! -z "${TEMP}" ]]; then
-    pgo_azvm_create_linux=${TEMP}
+  if ${azure_enabled} ; then
+    key_desc="Azure VM - create Linux EC2?"
+    read -p "${key_desc} [${pgo_azvm_create_linux}]: " TEMP
+    if [[ ! -z "${TEMP}" ]]; then
+      pgo_azvm_create_linux=${TEMP}
+    fi
+    if [[ "${pgo_azvm_create_linux}" =~ ^true|false$ ]]; then
+      target_val=${pgo_azvm_create_linux} \
+        yq -i '.services.playground-one.azvm.create-linux = env(target_val)' ${ONEPATH}/config.yaml
+    else
+      echo "Error: Invalid ${key_desc} input."
+      exit 0
+    fi
   fi
-  if [[ "${pgo_azvm_create_linux}" =~ ^true|false$ ]]; then
-    target_val=${pgo_azvm_create_linux} \
-      yq -i '.services.playground-one.azvm.create-linux = env(target_val)' ${ONEPATH}/config.yaml
-  else
-    echo "Error: Invalid ${key_desc} input."
-    exit 0
-  fi
-
-  # key_desc="EKS - utilize EC2 nodes"
-  # read -p "${key_desc} [${pgo_eks_create_ec2}]: " TEMP
-  # if [[ ! -z "${TEMP}" ]]; then
-  #   pgo_eks_create_ec2=${TEMP}
-  # fi
-  # if [[ "${pgo_eks_create_ec2}" =~ ^true|false$ ]]; then
-  #   target_val=${pgo_eks_create_ec2} \
-  #     yq -i '.services.playground-one.eks.create-ec2 = env(target_val)' ${ONEPATH}/config.yaml
-  # else
-  #   echo "Error: Invalid ${key_desc} input."
-  #   exit 0
-  # fi
-
-  # key_desc="EKS - utilize Fargate nodes"
-  # read -p "${key_desc} [${pgo_eks_create_fargate}]: " TEMP
-  # if [[ ! -z "${TEMP}" ]]; then
-  #   pgo_eks_create_fargate=${TEMP}
-  # fi
-  # if [[ "${pgo_eks_create_fargate}" =~ ^true|false$ ]]; then
-  #   target_val=${pgo_eks_create_fargate} \
-  #     yq -i '.services.playground-one.eks.create-fargate = env(target_val)' ${ONEPATH}/config.yaml
-  # else
-  #   echo "Error: Invalid ${key_desc} input."
-  #   exit 0
-  # fi
 }
 
 function update_vision_one_config() {
@@ -329,7 +369,7 @@ function update_vision_one_config() {
   ##
   ## Vision One Attack Surface Risk Management
   ##
-  key_desc="Vision One ASRM - create Potential Attack Path(s)"
+  key_desc="Vision One ASRM - create Potential Attack Path(s)?"
   read -p "${key_desc} [${vision_one_asrm_create_attackpath}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     vision_one_asrm_create_attackpath=${TEMP}
@@ -345,7 +385,7 @@ function update_vision_one_config() {
   ##
   ## Vision One Container Security
   ##
-  key_desc="Vision One Container Security"
+  key_desc="Enable Vision One Container Security?"
   read -p "${key_desc} [${vision_one_cs_enabled}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     vision_one_cs_enabled=${TEMP}
@@ -371,22 +411,6 @@ function update_vision_one_config() {
       echo "Error: Invalid ${key_desc} input."
       exit 0
     fi
-
-    # ##
-    # ## Vision One
-    # ##
-    # key_desc="Vision One Region Name"
-    # read -p "${key_desc} [${vision_one_region}]: " TEMP
-    # if [[ ! -z "${TEMP}" ]]; then
-    #   vision_one_region=${TEMP}
-    # fi
-    # if [[ "${vision_one_region}" =~ ^[0-9a-z\-]+$ ]]; then
-    #   target_val=${vision_one_region} \
-    #     yq -i '.services.vision-one.region = env(target_val)' ${ONEPATH}/config.yaml
-    # else
-    #   echo "Error: Invalid ${key_desc} input."
-    #   exit 0
-    # fi
   else
     printf '%s\n' "Skipping Vision One Container Security configuration"
   fi
@@ -398,7 +422,7 @@ function update_deep_security_config() {
   ##
   ## Deep Security
   ##
-  key_desc="Deep Security"
+  key_desc="Enable Deep Security?"
   read -p "${key_desc} [${deep_security_enabled}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     deep_security_enabled=${TEMP}
@@ -413,7 +437,7 @@ function update_deep_security_config() {
 
   if ${deep_security_enabled} ; then
     key_desc="Deep Security License"
-    read -p "${key_desc} [${deep_security_license}]: " TEMP
+    read -p "${key_desc} [${deep_security_license:0:10}...]: " TEMP
     if [[ ! -z "${TEMP}" ]]; then
       deep_security_license=${TEMP}
     fi
@@ -520,7 +544,7 @@ function update_integrations_config() {
   ##
   ## Calico
   ##
-  key_desc="Calico"
+  key_desc="Deploy Calico?"
   read -p "${key_desc} [${integrations_calico_enabled}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     integrations_calico_enabled=${TEMP}
@@ -536,7 +560,7 @@ function update_integrations_config() {
   ##
   ## Prometheus & Grafana
   ##
-  key_desc="Prometheus & Grafana"
+  key_desc="Deploy Prometheus & Grafana?"
   read -p "${key_desc} [${integrations_prometheus_enabled}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     integrations_prometheus_enabled=${TEMP}
@@ -569,7 +593,7 @@ function update_integrations_config() {
   ##
   ## Trivy
   ##
-  key_desc="Trivy"
+  key_desc="Deploy Trivy?"
   read -p "${key_desc} [${integrations_trivy_enabled}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     integrations_trivy_enabled=${TEMP}
@@ -585,7 +609,7 @@ function update_integrations_config() {
   ##
   ## MetalLB
   ##
-  key_desc="MetalLB"
+  key_desc="Deploy MetalLB?"
   read -p "${key_desc} [${integrations_metallb_enabled}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     integrations_metallb_enabled=${TEMP}
