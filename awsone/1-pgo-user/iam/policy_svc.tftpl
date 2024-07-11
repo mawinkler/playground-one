@@ -1,0 +1,224 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "cloudwatch:DescribeAlarms",
+        "cloudwatch:PutMetricAlarm"
+      ],
+      "Resource": "arn:aws:cloudwatch:${Region}:${Account}:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ecs:DeleteCapacityProvider",
+        "ecs:DescribeCapacityProviders"
+      ],
+      "Resource": "arn:aws:ecs:${Region}:${Account}:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ecs:CreateCluster",
+        "ecs:DeleteCluster",
+        "ecs:DescribeClusters",
+        "ecs:PutClusterCapacityProviders"
+      ],
+      "Resource": "arn:aws:ecs:${Region}:${Account}:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ecs:CreateService",
+        "ecs:DeleteService",
+        "ecs:DescribeServices",
+        "ecs:UpdateService"
+      ],
+      "Resource": "arn:aws:ecs:${Region}:${Account}:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "eks:AssociateAccessPolicy",
+        "eks:DeleteAccessEntry",
+        "eks:DescribeAccessEntry",
+        "eks:DisassociateAccessPolicy",
+        "eks:ListAssociatedAccessPolicies"
+      ],
+      "Resource": "arn:aws:eks:${Region}:${Account}:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "eks:DeleteAddon",
+        "eks:DescribeAddon"
+      ],
+      "Resource": "arn:aws:eks:${Region}:${Account}:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "eks:CreateAccessEntry",
+        "eks:CreateAddon",
+        "eks:CreateFargateProfile",
+        "eks:CreateNodegroup",
+        "eks:DeleteCluster",
+        "eks:DescribeCluster"
+      ],
+      "Resource": "arn:aws:eks:${Region}:${Account}:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "eks:DeleteFargateProfile",
+        "eks:DescribeFargateProfile"
+      ],
+      "Resource": "arn:aws:eks:${Region}:${Account}:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "eks:DeleteNodegroup",
+        "eks:DescribeNodegroup"
+      ],
+      "Resource": "arn:aws:eks:${Region}:${Account}:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "kms:CreateGrant",
+        "kms:CreateKey",
+        "kms:Decrypt",
+        "kms:DescribeKey",
+        "kms:GenerateDataKey",
+        "kms:TagResource"
+      ],
+      "Resource": "arn:aws:kms:${Region}:${Account}:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "lambda:AddPermission",
+        "lambda:CreateFunction",
+        "lambda:DeleteFunction",
+        "lambda:GetFunction",
+        "lambda:GetFunctionCodeSigningConfig",
+        "lambda:GetPolicy",
+        "lambda:ListVersionsByFunction",
+        "lambda:RemovePermission",
+        "lambda:TagResource"
+      ],
+      "Resource": "arn:aws:lambda:${Region}:${Account}:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:DeleteLogGroup",
+        "logs:PutRetentionPolicy"
+      ],
+      "Resource": "arn:aws:logs:${Region}:${Account}:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "rds:CreateDBInstance",
+        "rds:CreateTenantDatabase",
+        "rds:DeleteDBInstance",
+        "rds:DeleteTenantDatabase",
+        "rds:DescribeDBInstances"
+      ],
+      "Resource": "arn:aws:rds:${Region}:${Account}:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "rds:CreateDBParameterGroup",
+        "rds:DeleteDBParameterGroup",
+        "rds:DescribeDBParameterGroups",
+        "rds:DescribeDBParameters"
+      ],
+      "Resource": "arn:aws:rds:${Region}:${Account}:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "rds:CreateDBSubnetGroup",
+      "Resource": "arn:aws:rds:${Region}:${Account}:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "rds:DeleteDBSubnetGroup",
+        "rds:DescribeDBSubnetGroups"
+      ],
+      "Resource": "arn:aws:rds:${Region}:${Account}:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "rds:CreateTenantDatabase",
+        "rds:DeleteTenantDatabase"
+      ],
+      "Resource": "arn:aws:rds:${Region}:${Account}:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:CreateBucket",
+        "s3:DeleteBucket",
+		"s3:DeleteObject",
+        "s3:GetAccelerateConfiguration",
+        "s3:GetBucketAcl",
+        "s3:GetBucketCORS",
+        "s3:GetBucketLogging",
+        "s3:GetBucketNotification",
+        "s3:GetBucketObjectLockConfiguration",
+        "s3:GetBucketOwnershipControls",
+        "s3:GetBucketPolicy",
+        "s3:GetBucketRequestPayment",
+        "s3:GetBucketTagging",
+        "s3:GetBucketVersioning",
+        "s3:GetBucketWebsite",
+        "s3:GetEncryptionConfiguration",
+        "s3:GetLifecycleConfiguration",
+		"s3:GetObject",
+		"s3:GetObjectAcl",
+		"s3:GetObjectTagging",
+        "s3:GetReplicationConfiguration",
+        "s3:ListBucket",
+		"s3:PutBucketAcl",
+        "s3:PutBucketNotification",
+        "s3:PutBucketOwnershipControls",
+        "s3:PutBucketTagging",
+        "s3:PutBucketPolicy",
+        "s3:PutObject",
+        "s3:PutObjectAcl",
+		"s3:PutObjectTagging",
+		"s3:CreateMultipartUpload"
+      ],
+      "Resource": "arn:aws:s3:::*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "secretsmanager:CreateSecret",
+        "secretsmanager:TagResource"
+      ],
+      "Resource": "arn:aws:secretsmanager:${Region}:${Account}:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "servicediscovery:DeleteNamespace",
+        "servicediscovery:GetNamespace"
+      ],
+      "Resource": "arn:aws:servicediscovery:${Region}:${Account}:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "ssm:GetParameters",
+      "Resource": "arn:aws:ssm:${Region}:${Account}:*"
+    }
+  ]
+}

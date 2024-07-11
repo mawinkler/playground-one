@@ -43,6 +43,7 @@ fi
 #######################################
 declare -A configs
 configs=(
+  ["user"]=${ONEPATH}/awsone/1-pgo-user
   ["network"]=${ONEPATH}/awsone/2-network
   ["instances"]=${ONEPATH}/awsone/3-instances
   ["eks-ec2"]=${ONEPATH}/awsone/4-cluster-eks-ec2
@@ -101,18 +102,26 @@ function tf() {
       ;;
     apply)
       if [ "${dryrun}" == "True" ] ; then
-        terraform -chdir=${configs[$config]} plan -out=${ONEPATH}/${config}.out
+        # AWS_ACCESS_KEY_ID=${aws_pgo_user_access_key} \
+        #   AWS_SECRET_ACCESS_KEY=${aws_pgo_user_secret_key} \
+          terraform -chdir=${configs[$config]} plan -out=${ONEPATH}/${config}.out
       else
         lock $config
-        terraform -chdir=${configs[$config]} apply -auto-approve
+        # AWS_ACCESS_KEY_ID=${aws_pgo_user_access_key} \
+        #   AWS_SECRET_ACCESS_KEY=${aws_pgo_user_secret_key} \
+          terraform -chdir=${configs[$config]} apply -auto-approve
       fi
       ;;
     destroy)
       if checklock $config ; then
       if [ "${dryrun}" == "True" ] ; then
-        terraform -chdir=${configs[$config]} plan -out=${ONEPATH}/${config}.out
+        # AWS_ACCESS_KEY_ID=${aws_pgo_user_access_key} \
+        #   AWS_SECRET_ACCESS_KEY=${aws_pgo_user_secret_key} \
+          terraform -chdir=${configs[$config]} plan -out=${ONEPATH}/${config}.out
       else
-        terraform -chdir=${configs[$config]} destroy -auto-approve
+        # AWS_ACCESS_KEY_ID=${aws_pgo_user_access_key} \
+        #   AWS_SECRET_ACCESS_KEY=${aws_pgo_user_secret_key} \
+          terraform -chdir=${configs[$config]} destroy -auto-approve
         unlock $config
       fi
       else
@@ -255,6 +264,15 @@ function init() {
   telemetry "init" $1
 
   case $1 in
+    user|all)
+      printf '%s\n' "Create terraform.tfvars for PGO user"
+      aws_region=${aws_region} \
+      aws_account_id=${aws_account_id} \
+      environment_name=${environment_name} \
+        envsubst <$ONEPATH/templates/terraform-1-pgo-user.tfvars >${configs[user]}/terraform.tfvars
+      
+      [ "$2" = "" ] && tf user init
+      ;;&
     nw|network|all)
       printf '%s\n' "Create terraform.tfvars for network"
       # if check_xdr_for_containers ; then
@@ -567,6 +585,11 @@ function apply() {
   telemetry "apply" $1
 
   case $1 in
+    user)
+      AWS_ACCESS_KEY_ID="" \
+        AWS_SECRET_ACCESS_KEY="" \
+        tf user apply
+      ;;
     nw|network|all)
       # check_network
       tf network apply
@@ -781,6 +804,19 @@ function destroy() {
   telemetry "destroy" $1
 
   case $1 in
+    user)
+      if checklock user ; then
+        if checklock network ; then
+          printf 'Destroy network configuration first\n'
+        else
+          AWS_ACCESS_KEY_ID="" \
+            AWS_SECRET_ACCESS_KEY="" \
+            tf user destroy
+        fi
+      else
+        printf '%s\n' "Configuration user is not applied"
+      fi
+      ;;
     ec2|instances|all)
       if checklock instances ; then
         tf instances destroy
@@ -792,7 +828,7 @@ function destroy() {
       if checklock eks-ec2 ; then
         cluster_name=$(terraform -chdir=${configs[eks-ec2]} output -json cluster_name 2>/dev/null | jq -r .)
         if [ -n "${cluster_name}" ]; then
-          kubectl config use-context ${cluster_name}
+          kubectl config use-context ${cluster_name} || true  # true if cluster is somehow broken
         fi
 
         cluster_id=$(terraform -chdir=${configs[eks-ec2-deployments]} output -json cluster_id 2>/dev/null | jq -r .)
@@ -826,7 +862,7 @@ function destroy() {
       if checklock eks-fg ; then
         cluster_name=$(terraform -chdir=${configs[eks-fg]} output -json cluster_name 2>/dev/null | jq -r .)
         if [ -n "${cluster_name}" ]; then
-          kubectl config use-context ${cluster_name}
+          kubectl config use-context ${cluster_name} || true  # true if cluster is somehow broken
         fi
 
         cluster_id=$(terraform -chdir=${configs[eks-fg-deployments]} output -json cluster_id 2>/dev/null | jq -r .)
@@ -843,8 +879,6 @@ function destroy() {
 
         if checklock scenarios-fg ; then
           k8s-ns-finalizer attackers
-          k8s-ns-finalizer goat
-          k8s-ns-finalizer victims
         fi
         
         tf scenarios-fg destroy
@@ -1073,6 +1107,12 @@ function output() {
   telemetry "output" $1
 
   case $1 in
+    user|all)
+      tf user output
+      if checklock user ; then
+        printf '%s\n' "secret_key = $(terraform -chdir=${configs[user]} output -raw secret_key)"
+      fi
+      ;;&
     nw|network|all)
       tf network output
       if [ "${pgo_managed_active_directory}" == 'true' ]; then
@@ -1181,6 +1221,9 @@ function state() {
   telemetry "state" $1
 
   case $1 in
+    user|all)
+      tf user state
+      ;;&
     nw|network|all)
       tf network state
       ;;&
@@ -1257,6 +1300,9 @@ function show() {
   telemetry "show" $1
 
   case $1 in
+    user|all)
+      tf user state
+      ;;&
     nw|network|all)
       tf network show
       ;;&
@@ -1332,6 +1378,9 @@ function validate() {
   telemetry "validate" $1
 
   case $1 in
+    user|all)
+      tf user validate
+      ;;&
     nw|network|all)
       tf network validate
       ;;&
@@ -1432,6 +1481,9 @@ function erase() {
   telemetry "cleanup" $1
 
   case $1 in
+    user|all)
+      tf user erase
+      ;;&
     nw|network|all)
       tf network erase
       ;;&
@@ -1553,6 +1605,7 @@ function helpcmd() {
   printf '%s\n' "  -p --plan      Plan apply and destroy"
   printf '%s\n' ""
   printf '%s\n' "Available configurations:"
+  printf '%s\n' "  user                PGO User configuration"
   printf '%s\n' "  nw                  Network configuration"
   printf '%s\n' "  ec2                 EC2 configuration"
   printf '%s\n' "  eks-ec2             EKS configuration"
@@ -1586,6 +1639,15 @@ if [ -f ${ONEPATH}/config.yaml ]; then
   get_config
 fi
 
+# Check if we're using a PGO user
+export AWS_ACCESS_KEY_ID=${aws_pgo_user_access_key}
+export AWS_SECRET_ACCESS_KEY=${aws_pgo_user_secret_key}
+if ${aws_pgo_user_enabled} ; then
+  printf '%s\n' "Using PDO User Access Key ID: ...${aws_pgo_user_access_key:(-4)}"
+else
+  printf '%s\n' "Using System Access Key or Instance Role"
+fi
+
 if is_darwin; then
   TEMP=$(/opt/homebrew/opt/gnu-getopt/bin/getopt -o pci:t:a:ld:o:s:S:v:uhE:C:U --long plan,config,init:,tfvars:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help,erase:,colima:,update -- "$@")
 
@@ -1598,14 +1660,15 @@ else
 
   eval set -- "$TEMP"
 fi
-# # Check if IP address changed
-# configured_cidr=${pgo_access_ip//[\[\]\"]/}
-# current_cidr=$(curl -s ifconfig.me && echo)'/32'
-# if [[ ${configured_cidr} != *"$current_cidr"* ]] ; then
-#   printf '%s\n' "!!! Access IP mismatch !!!"
-#   sleep 3
-#   exit 0
-# fi
+
+# Check if IP address changed
+configured_cidr=${pgo_access_ip//[\[\]\"]/}
+current_cidr=$(curl -s ifconfig.me && echo)'/32'
+if [[ ${configured_cidr} != *"$current_cidr"* ]] ; then
+  printf '%s\n' "!!! Access IP mismatch !!!"
+  sleep 3
+  exit 0
+fi
 
 while true; do
   case "$1" in

@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+set -e
+
+export DEBIAN_FRONTEND=noninteractive
+
+[ -f $ONEPATH/banner.txt ] && cat $ONEPATH/banner.txt
+
+# Source helpers
+if [ -f $ONEPATH/bin/playground-helpers.sh ]; then
+  .  $ONEPATH/bin/playground-helpers.sh
+else
+  curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/playground-helpers.sh -o /tmp/playground-helpers.sh
+  . /tmp/playground-helpers.sh
+fi
+
+#######################################
+# Main:
+#######################################
+if [ -f ${ONEPATH}/config.yaml ]; then
+  get_config
+fi
+
+# Check if we're using a PGO user
+export AWS_ACCESS_KEY_ID=${aws_pgo_user_access_key}
+export AWS_SECRET_ACCESS_KEY=${aws_pgo_user_secret_key}
+if ${aws_pgo_user_enabled} ; then
+  printf '%s\n' "Using PDO User Access Key ID: ...${aws_pgo_user_access_key:(-4)}"
+else
+  printf '%s\n' "Using System Access Key or Instance Role"
+fi
+
+bash --rcfile <(cat ~/.bashrc; echo 'PS1="\e[0;32m(pgo)\e[0m ${PS1}"')

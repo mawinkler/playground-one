@@ -112,3 +112,4 @@ cspm/infra/vpc/vpc.tf
 .pgo.ecs-ec2.lock
 .pgo.ecs-fg.lock
 .pgo.dsw.lock
+.pgo.user.lock
