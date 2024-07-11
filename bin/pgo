@@ -589,6 +589,18 @@ function apply() {
       AWS_ACCESS_KEY_ID="" \
         AWS_SECRET_ACCESS_KEY="" \
         tf user apply
+      printf '%s\n' "Saving Access Key to configuration..."
+      aws_pgo_user_access_key=$(terraform -chdir=${configs[user]} output -raw access_key)
+      aws_pgo_user_secret_key=$(terraform -chdir=${configs[user]} output -raw secret_key)
+      target_val=${aws_pgo_user_access_key} \
+        yq -i '.services.aws.pgo_user_access_key = env(target_val)' ${ONEPATH}/config.yaml
+      target_val=${aws_pgo_user_secret_key} \
+        yq -i '.services.aws.pgo_user_secret_key = env(target_val)' ${ONEPATH}/config.yaml
+      if [ "${aws_pgo_user_enabled}" = "false" ]; then
+        aws_pgo_user_access_key=""
+        aws_pgo_user_secret_key=""
+      fi
+      init all tfvars
       ;;
     nw|network|all)
       # check_network

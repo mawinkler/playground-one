@@ -14,7 +14,7 @@ resource "aws_instance" "windows-server" {
   count = var.create_windows ? 1 : 0
 
   ami                    = data.aws_ami.windows.id
-  instance_type          = "t3.medium"
+  instance_type          = var.windows_instance_type
   subnet_id              = var.public_subnets[1]
   vpc_security_group_ids = [var.public_security_group_id]
   iam_instance_profile   = var.ec2_profile

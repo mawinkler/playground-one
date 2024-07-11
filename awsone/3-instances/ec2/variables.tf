@@ -27,6 +27,18 @@ variable "linux_db_hostname" {}
 
 variable "linux_web_hostname" {}
 
+variable "windows_instance_type" {
+  type        = string
+  description = "EC2 instance type for Windows Server"
+  default     = "t3.medium"
+}
+
+variable "linux_instance_type" {
+  type        = string
+  description = "EC2 instance type for Linux Server"
+  default     = "t3.medium"
+}
+
 variable "windows_username" {}
 
 variable "windows_hostname" {}

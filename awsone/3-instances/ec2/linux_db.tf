@@ -9,7 +9,7 @@ resource "aws_instance" "linux-db" {
   count = var.create_linux ? 1 : 0
 
   ami                    = data.aws_ami.ubuntu.id
-  instance_type          = "t3.medium"
+  instance_type          = var.linux_instance_type
   subnet_id              = var.public_subnets[0]
   vpc_security_group_ids = [var.public_security_group_inet_id]
   iam_instance_profile   = var.ec2_profile_db

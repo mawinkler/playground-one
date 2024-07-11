@@ -85,7 +85,7 @@ function update_aws_config() {
     if [[ ! -z "${TEMP}" ]]; then
       aws_pgo_user_secret_key=${TEMP}
     fi
-    if [[ "${aws_pgo_user_secret_key}" =~ ^[0-9a-zA-Z\/]+$ ]]; then
+    if [[ "${aws_pgo_user_secret_key}" =~ ^[0-9a-zA-Z\/+]+$ ]]; then
       target_val=${aws_pgo_user_secret_key} \
         yq -i '.services.aws.pgo_user_secret_key = env(target_val)' ${ONEPATH}/config.yaml
     else
