@@ -21,6 +21,7 @@ module "eks" {
   # cluster_endpoint_public_access_cidrs = var.access_ip
 
   enable_cluster_creator_admin_permissions = true
+  authentication_mode                      = "API_AND_CONFIG_MAP"
 
   # Enable EFA support by adding necessary security group rules
   # to the shared node security group
@@ -135,6 +136,18 @@ module "eks" {
     Configuration = "eks-ec2"
   }
 }
+
+# module "eks_aws-auth" {
+#   source  = "terraform-aws-modules/eks/aws//modules/aws-auth"
+#   version = "~> 20.17.2"
+
+#   manage_aws_auth_configmap = true
+
+#   aws_auth_accounts = [
+#     "634503960501",
+#   ]
+# }
+
 
 # https://github.com/terraform-aws-modules/terraform-aws-eks/issues/2009
 data "aws_eks_cluster" "eks" {

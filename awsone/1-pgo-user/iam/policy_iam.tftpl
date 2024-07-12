@@ -11,6 +11,14 @@
 		{
 			"Effect": "Allow",
 			"Action": [
+				"application-autoscaling:DeleteScalingPolicy",
+				"application-autoscaling:DeregisterScalableTarget",
+				"application-autoscaling:DescribeScalableTargets",
+				"application-autoscaling:DescribeScalingPolicies",
+				"application-autoscaling:ListTagsForResource",
+				"application-autoscaling:PutScalingPolicy",
+				"application-autoscaling:RegisterScalableTarget",
+				"application-autoscaling:TagResource",
 				"autoscaling:DescribeAutoScalingGroups",
 				"autoscaling:DescribeScalingActivities",
 				"ec2:CreateTags",
@@ -22,12 +30,12 @@
 				"ec2:DescribeDhcpOptions",
 				"ec2:DescribeImages",
 				"ec2:DescribeInstanceCreditSpecifications",
-				"ec2:DescribeInstanceTypes",
 				"ec2:DescribeInstances",
+				"ec2:DescribeInstanceTypes",
 				"ec2:DescribeInternetGateways",
 				"ec2:DescribeKeyPairs",
-				"ec2:DescribeLaunchTemplateVersions",
 				"ec2:DescribeLaunchTemplates",
+				"ec2:DescribeLaunchTemplateVersions",
 				"ec2:DescribeNatGateways",
 				"ec2:DescribeNetworkAcls",
 				"ec2:DescribeNetworkInterfaces",
@@ -47,6 +55,7 @@
 				"ecs:RegisterTaskDefinition",
 				"eks:CreateCluster",
 				"eks:DescribeAddonVersions",
+				"eks:TagResource",
 				"elasticloadbalancing:CreateListener",
 				"elasticloadbalancing:CreateLoadBalancer",
 				"elasticloadbalancing:DescribeListeners",
@@ -55,6 +64,9 @@
 				"elasticloadbalancing:DescribeTags",
 				"elasticloadbalancing:DescribeTargetGroupAttributes",
 				"elasticloadbalancing:DescribeTargetGroups",
+				"kms:CreateKey",
+				"kms:ListAliases",
+				"kms:DeleteAlias",
 				"logs:DescribeLogGroups",
 				"logs:ListTagsForResource",
 				"rds:AddTagsToResource",
@@ -62,6 +74,7 @@
 				"servicediscovery:CreateHttpNamespace",
 				"servicediscovery:GetOperation",
 				"servicediscovery:ListTagsForResource",
+				"servicediscovery:TagResource",
 				"sts:GetCallerIdentity"
 			],
 			"Resource": "*"
@@ -69,102 +82,57 @@
 		{
 			"Effect": "Allow",
 			"Action": [
+				"iam:AddRoleToInstanceProfile",
 				"iam:AddUserToGroup",
 				"iam:AttachGroupPolicy",
-				"iam:CreateGroup",
-				"iam:DeleteGroup",
-				"iam:DetachGroupPolicy",
-				"iam:GetGroup",
-				"iam:ListAttachedGroupPolicies",
-				"iam:RemoveUserFromGroup"
-			],
-			"Resource": "arn:aws:iam::${Account}:*"
-		},
-		{
-			"Effect": "Allow",
-			"Action": [
-				"iam:AddRoleToInstanceProfile",
-				"iam:CreateInstanceProfile",
-				"iam:DeleteInstanceProfile",
-				"iam:GetInstanceProfile",
-				"iam:RemoveRoleFromInstanceProfile"
-			],
-			"Resource": "arn:aws:iam::${Account}:*"
-		},
-		{
-			"Effect": "Allow",
-			"Action": [
-				"iam:CreateOpenIDConnectProvider",
-				"iam:DeleteOpenIDConnectProvider",
-				"iam:GetOpenIDConnectProvider"
-			],
-			"Resource": "arn:aws:iam::${Account}:*"
-		},
-		{
-			"Effect": "Allow",
-			"Action": [
-				"iam:CreatePolicy",
-				"iam:DeletePolicy",
-				"iam:GetPolicy",
-				"iam:GetPolicyVersion",
-				"iam:ListEntitiesForPolicy",
-				"iam:ListPolicyVersions",
-				"iam:TagInstanceProfile",
-				"iam:TagPolicy"
-			],
-			"Resource": "arn:aws:iam::${Account}:*"
-		},
-		{
-			"Effect": "Allow",
-			"Action": [
-				"iam:GetPolicy",
-				"iam:GetPolicyVersion",
-				"iam:ListEntitiesForPolicy",
-				"iam:ListPolicyVersions"
-			],
-			"Resource": "arn:aws:iam::aws:*"
-		},
-		{
-			"Effect": "Allow",
-			"Action": [
 				"iam:AttachRolePolicy",
+				"iam:CreateAccessKey",
+				"iam:CreateGroup",
+				"iam:CreateInstanceProfile",
+				"iam:CreateOpenIDConnectProvider",
+				"iam:CreatePolicy",
 				"iam:CreateRole",
 				"iam:CreateServiceLinkedRole",
+				"iam:CreateUser",
+				"iam:DeleteAccessKey",
+				"iam:DeleteGroup",
+				"iam:DeleteInstanceProfile",
+				"iam:DeleteOpenIDConnectProvider",
+				"iam:DeletePolicy",
 				"iam:DeleteRole",
 				"iam:DeleteRolePolicy",
+				"iam:DeleteUser",
+				"iam:DetachGroupPolicy",
 				"iam:DetachRolePolicy",
+				"iam:GetGroup",
+				"iam:GetInstanceProfile",
+				"iam:GetOpenIDConnectProvider",
+				"iam:GetPolicy",
+				"iam:GetPolicy",
+				"iam:GetPolicyVersion",
+				"iam:GetPolicyVersion",
 				"iam:GetRole",
 				"iam:GetRolePolicy",
+				"iam:GetUser",
+				"iam:ListAccessKeys",
+				"iam:ListAttachedGroupPolicies",
 				"iam:ListAttachedRolePolicies",
+				"iam:ListEntitiesForPolicy",
+				"iam:ListEntitiesForPolicy",
+				"iam:ListGroupsForUser",
 				"iam:ListInstanceProfilesForRole",
+				"iam:ListPolicyVersions",
+				"iam:ListPolicyVersions",
 				"iam:ListRolePolicies",
 				"iam:PutRolePolicy",
+				"iam:RemoveRoleFromInstanceProfile",
+				"iam:RemoveUserFromGroup",
+				"iam:TagInstanceProfile",
+				"iam:TagOpenIDConnectProvider",
+				"iam:TagPolicy",
 				"iam:TagRole"
 			],
 			"Resource": "arn:aws:iam::${Account}:*"
-		},
-		{
-			"Effect": "Allow",
-			"Action": [
-				"iam:CreateAccessKey",
-				"iam:CreateUser",
-				"iam:DeleteAccessKey",
-				"iam:DeleteUser",
-				"iam:GetUser",
-				"iam:ListAccessKeys",
-				"iam:ListGroupsForUser"
-			],
-			"Resource": "arn:aws:iam::${Account}:*"
-		},
-		{
-			"Effect": "Allow",
-			"Action": [
-				"kms:CreateGrant",
-				"kms:Decrypt",
-				"kms:DescribeKey",
-				"kms:GenerateDataKey"
-			],
-			"Resource": "arn:aws:kms:${Region}:${Account}:*"
 		}
 	]
 }
