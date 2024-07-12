@@ -126,6 +126,7 @@ Area | Command | Function
 ---- | ------- | --------
 PGO  | pgo | The command line interface for Playground One.
 PGO  | pgoc | Starts, stops or updates the Playground One Container.
+PGO  | pgos | Starts a new bash with AWS credentials of PGO User.
 PGO  | dsm | Start or stop a deployed Deep Security.
 Kubernetes  | kubie | See [github.com/sbstp/kubie](https://github.com/sbstp/kubie?tab=readme-ov-file#usage).
 Kubernetes  | stern | Tail logs from multiple pods simultaneously.
@@ -149,6 +150,7 @@ Vulnerabilities | grype | See [github.com/anchore/grype](https://github.com/anch
 - All Terraform Modules and Providers are now version fixed.
 - Improved Naming of instances in regards to the PGO Active Directory
 - `pgo --config` does now allow to disable initialization of Terraform after a first run. This speeds up configuration changes dramatically.
+- Playground One can optionally use its own AWS user with limited privileges. The user can be created by running `pgo --apply user`, which of course requires administrative privileges with your own AWS user. You have to enable the PGO user in the configuration, but you can disable it at any time.
 
 ***0.3.3***
 

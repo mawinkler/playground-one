@@ -1,35 +1,22 @@
-# EC2 Policy
-resource "aws_iam_group" "pgo_group_ec2" {
-    name = "${var.environment}-ec2-${random_string.suffix.result}"
-    path = "/users/"
+# #############################################################################
+# PGO User Group
+# #############################################################################
+resource "aws_iam_group" "pgo_group" {
+  name = "${var.environment}-pgo-${random_string.suffix.result}"
+  path = "/users/"
 }
 
-resource "aws_iam_group_policy" "pgo_group_ec2_policy" {
-    name = "${var.environment}-ec2-${random_string.suffix.result}"
-    group = aws_iam_group.pgo_group_ec2.id
-    policy = local.policy_ec2
+resource "aws_iam_group_policy_attachment" "pgo_group_ec2_policy" {
+  group      = aws_iam_group.pgo_group.id
+  policy_arn = aws_iam_policy.pgo_policy_ec2.arn
 }
 
-# IAM Policy
-resource "aws_iam_group" "pgo_group_iam" {
-    name = "${var.environment}-iam-${random_string.suffix.result}"
-    path = "/users/"
+resource "aws_iam_group_policy_attachment" "pgo_group_iam_policy" {
+  group      = aws_iam_group.pgo_group.id
+  policy_arn = aws_iam_policy.pgo_policy_iam.arn
 }
 
-resource "aws_iam_group_policy" "pgo_group_iam_policy" {
-    name = "${var.environment}-iam-${random_string.suffix.result}"
-    group = aws_iam_group.pgo_group_iam.id
-    policy = local.policy_iam
-}
-
-# Other Services Policy
-resource "aws_iam_group" "pgo_group_svc" {
-    name = "${var.environment}-svc-${random_string.suffix.result}"
-    path = "/users/"
-}
-
-resource "aws_iam_group_policy" "pgo_group_svc_policy" {
-    name = "${var.environment}-svc-${random_string.suffix.result}"
-    group = aws_iam_group.pgo_group_svc.id
-    policy = local.policy_svc
+resource "aws_iam_group_policy_attachment" "pgo_group_svc_policy" {
+  group      = aws_iam_group.pgo_group.id
+  policy_arn = aws_iam_policy.pgo_policy_svc.arn
 }
