@@ -1,0 +1,33 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+		{
+			"Effect": "Allow",
+			"Action": [
+				"rds:AddTagsToResource",
+				"rds:ListTagsForResource"
+			],
+			"Resource": "*"
+		},
+    {
+      "Effect": "Allow",
+      "Action": [
+        "rds:CreateDBInstance",
+        "rds:CreateDBParameterGroup",
+        "rds:CreateDBSubnetGroup",
+        "rds:CreateTenantDatabase",
+        "rds:CreateTenantDatabase",
+        "rds:DeleteDBInstance",
+        "rds:DeleteDBParameterGroup",
+        "rds:DeleteDBSubnetGroup",
+        "rds:DeleteTenantDatabase",
+        "rds:DeleteTenantDatabase",
+        "rds:DescribeDBInstances",
+        "rds:DescribeDBParameterGroups",
+        "rds:DescribeDBParameters",
+        "rds:DescribeDBSubnetGroups"
+      ],
+      "Resource": "arn:aws:rds:${Region}:${Account}:*"
+    }
+  ]
+}

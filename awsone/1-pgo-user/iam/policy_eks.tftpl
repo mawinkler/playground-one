@@ -1,0 +1,37 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "eks:CreateCluster",
+        "eks:DescribeAddonVersions",
+        "eks:TagResource"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "eks:AssociateAccessPolicy",
+        "eks:DeleteAccessEntry",
+        "eks:DescribeAccessEntry",
+        "eks:DisassociateAccessPolicy",
+        "eks:ListAssociatedAccessPolicies",
+        "eks:DeleteAddon",
+        "eks:DescribeAddon",
+        "eks:CreateAccessEntry",
+        "eks:CreateAddon",
+        "eks:CreateFargateProfile",
+        "eks:CreateNodegroup",
+        "eks:DeleteCluster",
+        "eks:DescribeCluster",
+        "eks:DeleteFargateProfile",
+        "eks:DescribeFargateProfile",
+        "eks:DeleteNodegroup",
+        "eks:DescribeNodegroup"
+      ],
+      "Resource": "arn:aws:eks:${Region}:${Account}:*"
+    }
+  ]
+}

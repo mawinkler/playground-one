@@ -1,6 +1,18 @@
 {
   "Version": "2012-10-17",
   "Statement": [
+		{
+			"Effect": "Allow",
+			"Action": [
+				"logs:DescribeLogGroups",
+				"logs:ListTagsForResource",
+				"servicediscovery:CreateHttpNamespace",
+				"servicediscovery:GetOperation",
+				"servicediscovery:ListTagsForResource",
+				"servicediscovery:TagResource"
+			],
+			"Resource": "*"
+		},
     {
       "Effect": "Allow",
       "Action": [
@@ -12,150 +24,11 @@
     {
       "Effect": "Allow",
       "Action": [
-        "ecs:DeleteCapacityProvider",
-        "ecs:DescribeCapacityProviders",
-        "ecs:CreateCluster",
-        "ecs:DeleteCluster",
-        "ecs:DescribeClusters",
-        "ecs:PutClusterCapacityProviders",
-        "ecs:CreateService",
-        "ecs:DeleteService",
-        "ecs:DescribeServices",
-        "ecs:UpdateService",
-        "ecs:TagResource"
-      ],
-      "Resource": "arn:aws:ecs:${Region}:${Account}:*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "eks:AssociateAccessPolicy",
-        "eks:DeleteAccessEntry",
-        "eks:DescribeAccessEntry",
-        "eks:DisassociateAccessPolicy",
-        "eks:ListAssociatedAccessPolicies",
-        "eks:DeleteAddon",
-        "eks:DescribeAddon",
-        "eks:CreateAccessEntry",
-        "eks:CreateAddon",
-        "eks:CreateFargateProfile",
-        "eks:CreateNodegroup",
-        "eks:DeleteCluster",
-        "eks:DescribeCluster",
-        "eks:DeleteFargateProfile",
-        "eks:DescribeFargateProfile",
-        "eks:DeleteNodegroup",
-        "eks:DescribeNodegroup"
-      ],
-      "Resource": "arn:aws:eks:${Region}:${Account}:*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "kms:CreateGrant",
-        "kms:CreateKey",
-        "kms:Decrypt",
-        "kms:DescribeKey",
-        "kms:GenerateDataKey",
-
-        "kms:PutKeyPolicy",
-        "kms:CreateAlias",
-
-        "kms:ReEncrypt*",
-        "kms:GenerateDataKey*",
-        "kms:Encrypt",
-        "kms:DescribeKey",
-        "kms:Decrypt",
-
-				"kms:CreateGrant",
-				"kms:Decrypt",
-				"kms:DescribeKey",
-				"kms:GenerateDataKey",
-        
-        "kms:TagResource"
-      ],
-      "Resource": "arn:aws:kms:${Region}:${Account}:*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "lambda:AddPermission",
-        "lambda:CreateFunction",
-        "lambda:DeleteFunction",
-        "lambda:GetFunction",
-        "lambda:GetFunctionCodeSigningConfig",
-        "lambda:GetPolicy",
-        "lambda:ListVersionsByFunction",
-        "lambda:RemovePermission",
-        "lambda:TagResource"
-      ],
-      "Resource": "arn:aws:lambda:${Region}:${Account}:*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
         "logs:CreateLogGroup",
         "logs:DeleteLogGroup",
         "logs:PutRetentionPolicy"
       ],
       "Resource": "arn:aws:logs:${Region}:${Account}:*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "rds:CreateDBInstance",
-        "rds:CreateDBParameterGroup",
-        "rds:CreateDBSubnetGroup",
-        "rds:CreateTenantDatabase",
-        "rds:CreateTenantDatabase",
-        "rds:DeleteDBInstance",
-        "rds:DeleteDBParameterGroup",
-        "rds:DeleteDBSubnetGroup",
-        "rds:DeleteTenantDatabase",
-        "rds:DeleteTenantDatabase",
-        "rds:DescribeDBInstances",
-        "rds:DescribeDBParameterGroups",
-        "rds:DescribeDBParameters",
-        "rds:DescribeDBSubnetGroups"
-      ],
-      "Resource": "arn:aws:rds:${Region}:${Account}:*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-		    "s3:PutBucketAcl",
-    		"s3:DeleteObject",
-        "s3:CreateBucket",
-        "s3:CreateMultipartUpload",
-        "s3:DeleteBucket",
-        "s3:GetAccelerateConfiguration",
-        "s3:GetBucketAcl",
-        "s3:GetBucketCORS",
-        "s3:GetBucketLogging",
-        "s3:GetBucketNotification",
-        "s3:GetBucketObjectLockConfiguration",
-        "s3:GetBucketOwnershipControls",
-        "s3:GetBucketPolicy",
-        "s3:GetBucketRequestPayment",
-        "s3:GetBucketTagging",
-        "s3:GetBucketVersioning",
-        "s3:GetBucketWebsite",
-        "s3:GetEncryptionConfiguration",
-        "s3:GetLifecycleConfiguration",
-        "s3:GetObject",
-        "s3:GetObjectAcl",
-        "s3:GetObjectTagging",
-        "s3:GetReplicationConfiguration",
-        "s3:ListBucket",
-        "s3:PutBucketNotification",
-        "s3:PutBucketOwnershipControls",
-        "s3:PutBucketPolicy",
-        "s3:PutBucketTagging",
-        "s3:PutObject",
-        "s3:PutObjectAcl",
-        "s3:PutObjectTagging"
-      ],
-      "Resource": "arn:aws:s3:::*"
     },
     {
       "Effect": "Allow",
