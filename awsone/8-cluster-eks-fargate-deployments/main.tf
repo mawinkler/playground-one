@@ -6,24 +6,39 @@ data "terraform_remote_state" "eks" {
   }
 }
 
-module "container_security" {
+# module "container_security" {
+#   count = var.container_security ? 1 : 0
+
+#   source           = "./container_security"
+#   environment      = var.environment
+#   cluster_arn      = data.terraform_remote_state.eks.outputs.cluster_arn
+#   cluster_name     = data.terraform_remote_state.eks.outputs.cluster_name
+#   cluster_policy   = var.cluster_policy
+#   api_key          = var.api_key
+
+#   providers = {
+#     restapi.container_security = restapi.container_security
+#   }
+# }
+
+module "vision_one" {
   count = var.container_security ? 1 : 0
 
-  source           = "./container_security"
-  environment      = var.environment
-  cluster_arn      = data.terraform_remote_state.eks.outputs.cluster_arn
-  cluster_name     = data.terraform_remote_state.eks.outputs.cluster_name
-  cluster_policy   = var.cluster_policy
-  api_key          = var.api_key
+  source         = "./vision_one"
+  environment    = var.environment
+  cluster_arn    = data.terraform_remote_state.eks.outputs.cluster_arn
+  cluster_name   = data.terraform_remote_state.eks.outputs.cluster_name
+  cluster_policy = var.cluster_policy
 
   providers = {
-    restapi.container_security = restapi.container_security
+    restapi.container_security   = restapi.container_security
+    visionone.container_security = visionone.container_security
   }
 }
 
 module "calico" {
   count = var.calico ? 1 : 0
 
-  source      = "./calico"
-  namespace   = "tigera-operator"
+  source    = "./calico"
+  namespace = "tigera-operator"
 }

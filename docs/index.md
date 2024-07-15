@@ -151,6 +151,7 @@ Vulnerabilities | grype | See [github.com/anchore/grype](https://github.com/anch
 - Improved Naming of instances in regards to the PGO Active Directory
 - `pgo --config` does now allow to disable initialization of Terraform after a first run. This speeds up configuration changes dramatically.
 - Playground One can optionally use its own AWS user with limited privileges. The user can be created by running `pgo --apply user`, which of course requires administrative privileges with your own AWS user. You have to enable the PGO user in the configuration, but you can disable it at any time.
+- Migrated EKS cluster deployments to use the [Vision One Terraform Provider](https://github.com/trendmicro/terraform-provider-vision-one/tree/main). 
 
 ***0.3.3***
 

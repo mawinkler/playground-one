@@ -2,7 +2,7 @@
 # Kubernetes Configuration
 # ####################################
 provider "aws" {
-  region = var.aws_region
+  region     = var.aws_region
   access_key = var.aws_access_key
   secret_key = var.aws_secret_key
 }
@@ -55,6 +55,12 @@ provider "restapi" {
   }
 }
 
+provider "visionone" {
+  alias         = "container_security"
+  api_key       = var.api_key
+  regional_fqdn = var.api_url
+}
+
 # ####################################
 # Container Security API Configuration
 # ####################################
@@ -81,6 +87,10 @@ terraform {
     restapi = {
       source  = "Mastercard/restapi"
       version = "1.19.1"
+    }
+    visionone = {
+      source  = "trendmicro/vision-one"
+      version = "~> 1.0.1"
     }
   }
 }
