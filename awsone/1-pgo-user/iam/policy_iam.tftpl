@@ -4,7 +4,9 @@
     {
       "Effect": "Allow",
       "Action": [
-		"iam:PassRole",
+        "iam:GetPolicy",
+        "iam:GetPolicyVersion",
+		    "iam:PassRole",
       	"sts:GetCallerIdentity"
 	  ],
       "Resource": "*"
@@ -37,10 +39,6 @@
         "iam:GetGroup",
         "iam:GetInstanceProfile",
         "iam:GetOpenIDConnectProvider",
-        "iam:GetPolicy",
-        "iam:GetPolicy",
-        "iam:GetPolicyVersion",
-        "iam:GetPolicyVersion",
         "iam:GetRole",
         "iam:GetRolePolicy",
         "iam:GetUser",
