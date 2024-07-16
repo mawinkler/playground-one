@@ -17,6 +17,14 @@ output "instance_ip_linux_db" {
   value = length(aws_instance.linux-db) > 0 ? aws_instance.linux-db[0].public_ip : null
 }
 
+output "instance_id_linux_pap" {
+  value = length(aws_instance.linux-pap) > 0 ? aws_instance.linux-pap[0].id : null
+}
+
+output "instance_ip_linux_pap" {
+  value = length(aws_instance.linux-pap) > 0 ? aws_instance.linux-pap[0].public_ip : null
+}
+
 output "instance_username_linux_server" {
   value = length(aws_instance.linux-web) > 0 ? var.linux_username : null
 }
@@ -44,6 +52,11 @@ output "instance_password_windows_server_local" {
 output "ssh_instance_linux_db" {
   description = "Command to ssh to instance linux-db"
   value       = length(aws_instance.linux-db) > 0 ? "ssh -i ${var.private_key_path} -o StrictHostKeyChecking=no ubuntu@${aws_instance.linux-db[0].public_ip}" : null
+}
+
+output "ssh_instance_linux_pap" {
+  description = "Command to ssh to instance linux-pap"
+  value       = length(aws_instance.linux-pap) > 0 ? "ssh -i ${var.private_key_path} -o StrictHostKeyChecking=no ubuntu@${aws_instance.linux-pap[0].public_ip}" : null
 }
 
 output "ssh_instance_linux_web" {

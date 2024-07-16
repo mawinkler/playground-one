@@ -12,6 +12,11 @@ locals {
     linux_hostname = var.linux_web_hostname
   })
 
+  userdata_linux_pap = templatefile("${path.module}/userdata_linux.tftpl", {
+    s3_bucket      = var.s3_bucket
+    linux_hostname = var.linux_pap_hostname
+  })
+
   userdata_windows = templatefile("${path.module}/userdata_windows.tftpl", {
     windows_username = var.windows_username
     windows_hostname = var.windows_hostname

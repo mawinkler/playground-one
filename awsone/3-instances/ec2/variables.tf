@@ -27,6 +27,8 @@ variable "linux_db_hostname" {}
 
 variable "linux_web_hostname" {}
 
+variable "linux_pap_hostname" {}
+
 variable "windows_instance_type" {
   type        = string
   description = "EC2 instance type for Windows Server"
@@ -39,6 +41,12 @@ variable "linux_instance_type" {
   default     = "t3.medium"
 }
 
+variable "linux_instance_type_pap" {
+  type        = string
+  description = "EC2 PAP instance type for Linux Server"
+  default     = "t2.micro"
+}
+
 variable "windows_username" {}
 
 variable "windows_hostname" {}
@@ -46,6 +54,8 @@ variable "windows_hostname" {}
 variable "create_linux" {}
 
 variable "create_windows" {}
+
+variable "create_attackpath" {}
 
 variable "active_directory" {}
 

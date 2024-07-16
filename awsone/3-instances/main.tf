@@ -25,7 +25,9 @@ module "ec2" {
   create_linux                  = var.create_linux
   linux_db_hostname             = "linuxdb"
   linux_web_hostname            = "linuxweb"
+  linux_pap_hostname            = "linuxpap"
   create_windows                = var.create_windows
+  create_attackpath             = var.create_attackpath
 
   # PGO Active Directory
   active_directory         = var.active_directory

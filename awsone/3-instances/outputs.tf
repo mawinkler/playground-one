@@ -6,6 +6,10 @@ output "instance_ip_linux_db" {
   value = module.ec2.instance_ip_linux_db
 }
 
+output "instance_ip_linux_pap" {
+  value = module.ec2.instance_ip_linux_pap
+}
+
 output "instance_username_linux_server" {
   value = module.ec2.instance_username_linux_server
 }
@@ -34,6 +38,10 @@ output "s3_bucket" {
 
 output "ssh_instance_linux_db" {
   value = module.ec2.ssh_instance_linux_db
+}
+
+output "ssh_instance_linux_pap" {
+  value = module.ec2.ssh_instance_linux_pap
 }
 
 output "ssh_instance_linux_web" {
