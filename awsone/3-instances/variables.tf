@@ -7,7 +7,7 @@ variable "aws_access_key" {
 }
 
 variable "aws_secret_key" {
-  type = string
+  type      = string
   sensitive = true
 }
 
@@ -29,10 +29,6 @@ variable "create_linux" {
 }
 
 variable "create_windows" {
-  type = bool
-}
-
-variable "create_database" {
   type = bool
 }
 

@@ -1,4 +1,4 @@
-# Scenario: ASRM to detect Potential Attack Path to RDS via EC2
+# Scenario: ASRM to detect Predictive Attack Path to RDS via EC2
 
 ## Prerequisites
 

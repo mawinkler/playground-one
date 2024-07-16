@@ -20,11 +20,3 @@ output "public_security_group_id" {
 output "private_security_group_id" {
   value = aws_security_group.sg["private"].id
 }
-
-output "public_security_group_inet_id" {
-  value = aws_security_group.sg_inet["public"].id
-}
-
-output "private_security_group_inet_id" {
-  value = aws_security_group.sg_inet["private"].id
-}

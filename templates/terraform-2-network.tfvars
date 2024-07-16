@@ -17,9 +17,6 @@ one_path = "${ONEPATH}"
 # XDR for Containers deployed
 # xdr_for_containers = ${xdr_for_containers}
 
-# Create Attack Path
-create_attackpath = ${vision_one_asrm_create_attackpath}
-
 # AWS Managed Active Directory
 managed_active_directory = ${managed_active_directory}
 

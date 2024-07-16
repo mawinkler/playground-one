@@ -5,14 +5,11 @@
 #   Atomic Launcher
 # #############################################################################
 resource "aws_instance" "linux-pap" {
-
-  count = var.create_attackpath ? 1 : 0
-
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.linux_instance_type_pap
   subnet_id              = var.public_subnets[0]
-  vpc_security_group_ids = [var.public_security_group_inet_id]
-  iam_instance_profile   = var.ec2_profile_db
+  vpc_security_group_ids = [aws_security_group.public_security_group_ec2.id]
+  iam_instance_profile   = aws_iam_instance_profile.ec2_profile_db.name
   key_name               = var.key_name
 
   tags = {

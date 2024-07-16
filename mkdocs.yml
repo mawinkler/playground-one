@@ -24,8 +24,8 @@ nav:
     - Elastic Stack: integrations/elastic-stack.md
   - Scenarios:
     - Attack Surface Risk Management:
-      - Virtual Instance Potential Attack Path: scenarios/asrm/virtual-machine-attack-path.md
-      - IAM User Potential Attack Path: scenarios/asrm/iam-user-attack-path.md
+      - Virtual Instance Predictive Attack Path: scenarios/asrm/virtual-machine-attack-path.md
+      - IAM User Predictive Attack Path: scenarios/asrm/iam-user-attack-path.md
       - Posture Management:
         - Terraform IaC Scanning with a GitHub Action: scenarios/asrm/pm/template-scanning-terraform-github-action.md
         - CloudFormation IaC Scanning with a GitHub Action: scenarios/asrm/pm/template-scanning-cfn-github-action.md

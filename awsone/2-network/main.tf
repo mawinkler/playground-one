@@ -15,7 +15,6 @@ module "ec2" {
   vpc_id               = module.vpc.vpc_id
   public_subnets_cidr  = module.vpc.public_subnet_cidr_blocks
   private_subnets_cidr = module.vpc.private_subnet_cidr_blocks
-  create_attackpath    = var.create_attackpath
 }
 
 module "mad" {

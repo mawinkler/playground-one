@@ -1,4 +1,4 @@
-# Scenario: ASRM to detect Potential Attack Path to RDS via IAM User
+# Scenario: ASRM to detect Predictive Attack Path to RDS via IAM User
 
 ***DRAFT***
 

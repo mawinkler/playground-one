@@ -1,8 +1,7 @@
 # #############################################################################
 # EC2 Instance Role
 # #############################################################################
-# Create a policy with RDS Read access
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy
+# Create a policy for RDS
 resource "aws_iam_policy" "ec2_policy_db" {
   name        = "${var.environment}-ec2-policy-db-${random_string.suffix.result}"
   path        = "/"
@@ -26,49 +25,54 @@ resource "aws_iam_policy" "ec2_policy_db" {
       },
       {
         "Effect" : "Allow",
-        "Action" : [
-          "rds:Describe*",
-          "rds:ListTagsForResource",
-          "ec2:DescribeAccountAttributes",
-          "ec2:DescribeAvailabilityZones",
-          "ec2:DescribeInternetGateways",
-          "ec2:DescribeSecurityGroups",
-          "ec2:DescribeSubnets",
-          "ec2:DescribeVpcAttribute",
-          "ec2:DescribeVpcs"
-        ],
-        "Resource" : "*"
-      },
-      {
-        "Effect" : "Allow",
-        "Action" : [
-          "cloudwatch:GetMetricStatistics",
-          "cloudwatch:ListMetrics",
-          "cloudwatch:GetMetricData",
-          "logs:DescribeLogStreams",
-          "logs:GetLogEvents",
-          "devops-guru:GetResourceCollection"
-        ],
-        "Resource" : "*"
-      },
-      {
-        "Action" : [
-          "devops-guru:SearchInsights",
-          "devops-guru:ListAnomaliesForInsight"
-        ],
-        "Effect" : "Allow",
-        "Resource" : "*",
-        "Condition" : {
-          "ForAllValues:StringEquals" : {
-            "devops-guru:ServiceNames" : [
-              "RDS"
-            ]
-          },
-          "Null" : {
-            "devops-guru:ServiceNames" : "false"
-          }
-        }
+        "Action" : "rds-db:connect",
+        "Resource" : module.db.db_instance_arn
       }
+      # {
+      #   "Effect" : "Allow",
+      #   "Action" : [
+      #     "rds:Describe*",
+      #     "rds:ListTagsForResource",
+      #     "ec2:DescribeAccountAttributes",
+      #     "ec2:DescribeAvailabilityZones",
+      #     "ec2:DescribeInternetGateways",
+      #     "ec2:DescribeSecurityGroups",
+      #     "ec2:DescribeSubnets",
+      #     "ec2:DescribeVpcAttribute",
+      #     "ec2:DescribeVpcs"
+      #   ],
+      #   "Resource" : "*"
+      # },
+      # {
+      #   "Effect" : "Allow",
+      #   "Action" : [
+      #     "cloudwatch:GetMetricStatistics",
+      #     "cloudwatch:ListMetrics",
+      #     "cloudwatch:GetMetricData",
+      #     "logs:DescribeLogStreams",
+      #     "logs:GetLogEvents",
+      #     "devops-guru:GetResourceCollection"
+      #   ],
+      #   "Resource" : "*"
+      # },
+      # {
+      #   "Action" : [
+      #     "devops-guru:SearchInsights",
+      #     "devops-guru:ListAnomaliesForInsight"
+      #   ],
+      #   "Effect" : "Allow",
+      #   "Resource" : "*",
+      #   "Condition" : {
+      #     "ForAllValues:StringEquals" : {
+      #       "devops-guru:ServiceNames" : [
+      #         "RDS"
+      #       ]
+      #     },
+      #     "Null" : {
+      #       "devops-guru:ServiceNames" : "false"
+      #     }
+      #   }
+      # }
     ]
   })
 
@@ -81,7 +85,6 @@ resource "aws_iam_policy" "ec2_policy_db" {
 }
 
 # Create a role
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role
 resource "aws_iam_role" "ec2_role_db" {
   name = "${var.environment}-ec2-role-db-${random_string.suffix.result}"
   # Terraform's "jsonencode" function converts a
@@ -109,7 +112,6 @@ resource "aws_iam_role" "ec2_role_db" {
 }
 
 # Attach role to policy
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy_attachment
 resource "aws_iam_policy_attachment" "ec2_policy_role_db" {
   name       = "${var.environment}-ec2-attachment-db-${random_string.suffix.result}"
   roles      = [aws_iam_role.ec2_role_db.name]
@@ -117,7 +119,6 @@ resource "aws_iam_policy_attachment" "ec2_policy_role_db" {
 }
 
 # Attach role to an instance profile
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_instance_profile
 resource "aws_iam_instance_profile" "ec2_profile_db" {
   name = "${var.environment}-ec2-profile-db-${random_string.suffix.result}"
   role = aws_iam_role.ec2_role_db.name

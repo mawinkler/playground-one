@@ -16,14 +16,6 @@ output "private_security_group_id" {
   value = module.ec2.private_security_group_id
 }
 
-output "public_security_group_inet_id" {
-  value = module.ec2.public_security_group_inet_id
-}
-
-output "private_security_group_inet_id" {
-  value = module.ec2.private_security_group_inet_id
-}
-
 # Subnets
 output "public_subnets" {
   value = module.vpc.public_subnets

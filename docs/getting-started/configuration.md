@@ -132,7 +132,6 @@ Set/update:
 - `SG - create Service Gateway`: Enable/disable deployment of the Trend Micro Service Gateway.
 - `EC2 - create Linux EC2`: Enable/disable Linux instances in the `ec2` configuration.
 - `EC2 - create Windows EC2`: Enable/disable Windows instances in the `ec2` configuration.
-- `RDS - create RDS Database`: Enable/disable creation of a RDS database
 
 ### Section: Azure
 
