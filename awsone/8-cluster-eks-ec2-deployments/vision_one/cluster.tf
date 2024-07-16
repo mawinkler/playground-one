@@ -10,7 +10,7 @@ resource "visionone_container_cluster" "terraform_cluster" {
 }
 
 resource "helm_release" "trendmicro" {
-  name             = "trendmicro"
+  name             = "trendmicro-system"
   chart            = "https://github.com/trendmicro/cloudone-container-security-helm/archive/master.tar.gz"
   namespace        = var.namespace
   create_namespace = true
