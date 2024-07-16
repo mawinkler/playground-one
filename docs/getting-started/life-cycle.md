@@ -17,7 +17,7 @@ If you have changed Playground Ones main configuration using `pgo --config` or u
 1. To create the VPC and Network run
 
     ```sh
-    pgo --apply nw
+    pgo --apply network
     ```
 
     This will create your VPC and network in the configured region (see `config.yaml`)
@@ -29,7 +29,7 @@ If you have changed Playground Ones main configuration using `pgo --config` or u
     EC2 instances:
 
     ```sh
-    pgo --apply ec2
+    pgo --apply instances
     ```
 
     EKS EC2 cluster:
@@ -38,16 +38,32 @@ If you have changed Playground Ones main configuration using `pgo --config` or u
     pgo --apply eks-ec2
     ```
 
+    > ***Note:*** If you're using the PGO user, you'll need to run `pgos` after building the cluster to get access to it for using `kubectl' commands. This will create a new shell with that user's credentials.
+
     EKS Fargate cluster:
 
     ```sh
     pgo --apply eks-fg
     ```
 
-    ECS cluster(s):
+    > ***Note:*** If you're using the PGO user, you'll need to run `pgos` after building the cluster to get access to it for using `kubectl' commands. This will create a new shell with that user's credentials.
+
+    ECS EC2 cluster:
 
     ```sh
-    pgo --apply ecs
+    pgo --apply ecs-ec2
+    ```
+
+    ECS Fargate cluster:
+
+    ```sh
+    pgo --apply ecs-fg
+    ```
+
+    S3 Bucket Scanner using File Security SDK:
+
+    ```sh
+    pgo --apply s3scanner
     ```
 
 4. Create a dedicated (on-prem like) Deep Security environment with activated Computers.
@@ -82,7 +98,7 @@ The most relevant information on your configuration can be queried by running
 pgo --output <configuration>
 ```
 
-Example: `pgo --output ec2`:
+Example: `pgo --output instances`:
 
 ```sh
 public_instance_id_db1 = "i-072abd953dedaae5d"

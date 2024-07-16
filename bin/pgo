@@ -32,6 +32,13 @@ if [ ! -f "$ONEPATH/.pghome" ]; then
   # exit 0
 fi
 
+bold=$(tput bold)
+normal=$(tput sgr0)
+yellow=$(tput setaf 3)
+blue=$(tput setaf 4)
+red=$(tput setaf 1)
+green=$(tput setaf 2)
+
 #######################################
 # Configuration Map
 # Globals:
@@ -1677,9 +1684,8 @@ fi
 configured_cidr=${pgo_access_ip//[\[\]\"]/}
 current_cidr=$(curl -s ifconfig.me && echo)'/32'
 if [[ ${configured_cidr} != *"$current_cidr"* ]] ; then
-  printf '%s\n' "!!! Access IP mismatch !!!"
+  printf '%s\n' "${bold}${red}!!! Access IP mismatch !!!${normal}"
   sleep 3
-  exit 0
 fi
 
 while true; do

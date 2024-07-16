@@ -50,6 +50,7 @@ Other commands:
   -p --plan      Plan apply and destroy
 
 Available configurations:
+  user                PGO User configuration
   nw                  Network configuration
   ec2                 EC2 configuration
   eks-ec2             EKS configuration
@@ -92,22 +93,6 @@ This process will create or update your personal `config.yaml`. Eventually exist
 
 The configuration tool is devided into sections. The following chapters walk you through the process.
 
-### Section: AWS
-
-> ***Note:*** This section is skipped when you have any configuration applied.
-
-Set/update:
-
-- `AWS Account ID`: The ID of your AWS subscription (just numbers no `-`). This is mandatory.
-- `AWS Region Name`: If you want to use another region as `eu-central-1`.
-
-### Section: Azure
-
-Set/update:
-
-- `Azure Subscription ID`: The ID of your Azure subscription. This is mandatory.
-- `Azure Region Name`: If you want to use another region as `westeurope`.
-
 ### Section: Playground One
 
 You don't necessarily need to change anything here if you're satisfied with the defaults, but
@@ -116,6 +101,7 @@ You don't necessarily need to change anything here if you're satisfied with the 
 
 Set/update:
 
+- `Initialize Terraform Configurations`: Set this to `true` if you want to download the required Terraform providers. You need to do this on a new installation of Playground One at least once. If you want to reconfigure Playground One later on you can set it to false, which will speed up the reconfiguration process. 
 - `PGO Environment Name`: Your to be built environment name. It MUST NOT be longer than 12 characters.
 - `Access IPs/CIDRs`:
   - If you're running on a local Ubuntu server or are using Playground One Container locally (not on Cloud9), get your public IP and set the value to `<YOUR IP>/32` or type `pub` and let the config tool detect your public IP.
@@ -128,13 +114,32 @@ Set/update:
     - `pub, 86.120.222.205`
     - `3.121.226.247/32, 86.120.222.20/32`
     - `0.0.0.0/0` *Dangerous!*
+- `Running in Product Experience`: Leave this to false unless you're running Playground One inside the Product Experience Platform.
+
+> If your IP address has changed see [FAQ](../faq.md#my-ip-address-has-changed-and-i-cannot-access-my-environment-anymore).
+
+### Section: AWS
+
+> ***Note:*** This section is skipped when you have any configuration applied.
+
+Set/update:
+
+- `Account ID`: The ID of your AWS subscription (just numbers no `-`). This is mandatory.
+- `Region Name`: If you want to use another region as `eu-central-1`.
+- `Use PGO User`: The Playground One has the ability to create and use a dedicated AWS user with limited privileges. If you want to use this feature you need to run `pgo --apply user` after you have finished the configuration of the Playground One. This will then create a User within a Group with several IAM policies attached.
+- `AD - create PGO Active Directory`: Enable/disable deployment of an Active Directory. This AD is more flexible compared to the AWS Managed Active Directory below.
+- `AD - create Managed Active Directory`: Enable/disable deployment of an AWS Managed Active Directory.
+- `SG - create Service Gateway`: Enable/disable deployment of the Trend Micro Service Gateway.
 - `EC2 - create Linux EC2`: Enable/disable Linux instances in the `ec2` configuration.
 - `EC2 - create Windows EC2`: Enable/disable Windows instances in the `ec2` configuration.
 - `RDS - create RDS Database`: Enable/disable creation of a RDS database
-- `ECS - utilize EC2 Nodes`: Enable/disable ECS cluster with EC2 nodes.
-- `ECS - utilize Fargate Nodes`: Enable/disable ECS cluster with Fargate nodes.
 
-> If your IP address has changed see [FAQ](../faq.md#my-ip-address-has-changed-and-i-cannot-access-my-environment-anymore).
+### Section: Azure
+
+Set/update:
+
+- `Azure Subscription ID`: The ID of your Azure subscription. This is mandatory.
+- `Azure Region Name`: If you want to use another region as `westeurope`.
 
 ### Section: Vision One Configuration
 
@@ -146,7 +151,7 @@ Set/update:
 - `Vision One Container Security`: Enable or disable the Container Security deployment. If set to `false` Cloud One configuration will be skipped.
 - `Container Security Policy Name`: The name of the Policy to assign.
 
-### Section: Integrations Configuration
+### Section: Kubernetes Deployments
 
 Set/update:
 
@@ -155,7 +160,7 @@ Set/update:
 - `Trivy`: Enable/disable Trivy vulnerability scanning for comparison.
 - `MetalLB`: Enable/disable MetalLB for Kind cluster.
 
-### Section: Deep Security
+### Section: Deep Security (on-prem)
 
 Set/update:
 

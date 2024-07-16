@@ -13,13 +13,21 @@ else
   cp ${ONEPATH}/templates/config.yaml.template ${ONEPATH}/config.yaml
 fi
 
+bold=$(tput bold)
+normal=$(tput sgr0)
+yellow=$(tput setaf 3)
+blue=$(tput setaf 4)
+red=$(tput setaf 1)
+green=$(tput setaf 2)
+
 function update_aws_config() {
+  printf '\n%s\n' "${bold}${blue}Section: AWS${normal}"
   printf '%s\n' "Please set/update your AWS configuration"
 
   ##
   ## AWS
   ##
-  key_desc="AWS Account ID"
+  key_desc="Account ID"
   read -p "${key_desc} [${aws_account_id}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     aws_account_id=${TEMP}
@@ -32,7 +40,7 @@ function update_aws_config() {
     exit 0
   fi
 
-  key_desc="AWS Region Name"
+  key_desc="Region Name"
   read -p "${key_desc} [${aws_region}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     aws_region=${TEMP}
@@ -45,12 +53,10 @@ function update_aws_config() {
     exit 0
   fi
 
-
-
   ##
-  ## PGO AWS User
+  ## PGO User
   ##
-  key_desc="AWS Use PGO User (EXPERIMENTAL)?"
+  key_desc="Use PGO User (EXPERIMENTAL)?"
   read -p "${key_desc} [${aws_pgo_user_enabled}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then
     aws_pgo_user_enabled=${TEMP}
@@ -67,12 +73,12 @@ function update_aws_config() {
     aws_pgo_user_access_key="$(yq '.services.aws.pgo_user_access_key' $ONEPATH/config.yaml)"
     aws_pgo_user_secret_key="$(yq '.services.aws.pgo_user_secret_key' $ONEPATH/config.yaml)"
 
-    key_desc="AWS PGO User Access Key"
+    key_desc="PGO User Access Key"
     read -p "${key_desc} [${aws_pgo_user_access_key}]: " TEMP
     if [[ ! -z "${TEMP}" ]]; then
       aws_pgo_user_access_key=${TEMP}
     fi
-    if [[ "${aws_pgo_user_access_key}" =~ ^[0-9A-Z]+$ ]]; then
+    if [[ "${aws_pgo_user_access_key}" =~ ^[0-9A-Z]+$ || "${aws_pgo_user_access_key}" == "null" ]]; then
       target_val=${aws_pgo_user_access_key} \
         yq -i '.services.aws.pgo_user_access_key = env(target_val)' ${ONEPATH}/config.yaml
     else
@@ -80,12 +86,12 @@ function update_aws_config() {
       exit 0
     fi
 
-    key_desc="AWS PGO User Secret Key"
+    key_desc="PGO User Secret Key"
     read -p "${key_desc} [${aws_pgo_user_secret_key:0:10}...]: " TEMP
     if [[ ! -z "${TEMP}" ]]; then
       aws_pgo_user_secret_key=${TEMP}
     fi
-    if [[ "${aws_pgo_user_secret_key}" =~ ^[0-9a-zA-Z\/+]+$ ]]; then
+    if [[ "${aws_pgo_user_secret_key}" =~ ^[0-9a-zA-Z\/+]+$ || "${aws_pgo_user_secret_key}" == "null" ]]; then
       target_val=${aws_pgo_user_secret_key} \
         yq -i '.services.aws.pgo_user_secret_key = env(target_val)' ${ONEPATH}/config.yaml
     else
@@ -93,10 +99,89 @@ function update_aws_config() {
       exit 0
     fi
   fi
+
+  key_desc="AD - create PGO Active Directory?"
+  read -p "${key_desc} [${pgo_active_directory}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    pgo_active_directory=${TEMP}
+  fi
+  if [[ "${pgo_active_directory}" =~ ^true|false$ ]]; then
+    target_val=${pgo_active_directory} \
+      yq -i '.services.aws.active-directory = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  key_desc="MAD - create Managed Active Directory?"
+  read -p "${key_desc} [${pgo_managed_active_directory}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    pgo_managed_active_directory=${TEMP}
+  fi
+  if [[ "${pgo_managed_active_directory}" =~ ^true|false$ ]]; then
+    target_val=${pgo_managed_active_directory} \
+      yq -i '.services.aws.managed-active-directory = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  key_desc="SG - create Service Gateway?"
+  read -p "${key_desc} [${pgo_service_gateway}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    pgo_service_gateway=${TEMP}
+  fi
+  if [[ "${pgo_service_gateway}" =~ ^true|false$ ]]; then
+    target_val=${pgo_service_gateway} \
+      yq -i '.services.aws.service-gateway = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  key_desc="EC2 - create Linux EC2?"
+  read -p "${key_desc} [${pgo_ec2_create_linux}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    pgo_ec2_create_linux=${TEMP}
+  fi
+  if [[ "${pgo_ec2_create_linux}" =~ ^true|false$ ]]; then
+    target_val=${pgo_ec2_create_linux} \
+      yq -i '.services.playground-one.ec2.create-linux = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  key_desc="EC2 - create Windows EC2?"
+  read -p "${key_desc} [${pgo_ec2_create_windows}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    pgo_ec2_create_windows=${TEMP}
+  fi
+  if [[ "${pgo_ec2_create_windows}" =~ ^true|false$ ]]; then
+    target_val=${pgo_ec2_create_windows} \
+      yq -i '.services.playground-one.ec2.create-windows = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  key_desc="RDS - create RDS Database?"
+  read -p "${key_desc} [${pgo_ec2_create_database}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    pgo_ec2_create_database=${TEMP}
+  fi
+  if [[ "${pgo_ec2_create_database}" =~ ^true|false$ ]]; then
+    target_val=${pgo_ec2_create_database} \
+      yq -i '.services.playground-one.ec2.create-database = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
 }
 
 function update_azure_config() {
-  printf '\n%s\n' "Please set/update your Azure configuration"
+  printf '\n%s\n' "${bold}${blue}Section: Azure${normal}"
+  printf '%s\n' "Please set/update your Azure configuration"
 
   ##
   ## Azure
@@ -140,11 +225,25 @@ function update_azure_config() {
       echo "Error: Invalid ${key_desc} input."
       exit 0
     fi
+
+    key_desc="Azure VM - create Linux EC2?"
+    read -p "${key_desc} [${pgo_azvm_create_linux}]: " TEMP
+    if [[ ! -z "${TEMP}" ]]; then
+      pgo_azvm_create_linux=${TEMP}
+    fi
+    if [[ "${pgo_azvm_create_linux}" =~ ^true|false$ ]]; then
+      target_val=${pgo_azvm_create_linux} \
+        yq -i '.services.playground-one.azvm.create-linux = env(target_val)' ${ONEPATH}/config.yaml
+    else
+      echo "Error: Invalid ${key_desc} input."
+      exit 0
+    fi
   fi
 }
 
 function update_pgo_config() {
-  printf '\n%s\n' "Please set/update your Playground One configuration"
+  printf '\n%s\n' "${bold}${blue}Section: Playground One${normal}"
+  printf '%s\n' "Please set/update your Playground One configuration"
 
   # key_desc="Access IPs/CIDRs"
   # read -p "${key_desc} [${pgo_access_ip}]: " TEMP
@@ -158,6 +257,19 @@ function update_pgo_config() {
   #   echo "Error: Invalid ${key_desc} input."
   #   exit 0
   # fi
+
+  key_desc="Initialize Terraform Configurations?"
+  read -p "${key_desc} [${pgo_initialize}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    pgo_initialize=${TEMP}
+  fi
+  if [[ "${pgo_initialize}" =~ ^true|false$ ]]; then
+    target_val=${pgo_initialize} \
+      yq -i '.services.initialize = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
 
   key_desc="PGO Environment Name"
   read -p "${key_desc} [${environment_name}]: " TEMP
@@ -239,103 +351,11 @@ function update_pgo_config() {
     echo "Error: Invalid ${key_desc} input."
     exit 0
   fi
-
-  key_desc="AWS AD - create PGO Active Directory?"
-  read -p "${key_desc} [${pgo_active_directory}]: " TEMP
-  if [[ ! -z "${TEMP}" ]]; then
-    pgo_active_directory=${TEMP}
-  fi
-  if [[ "${pgo_active_directory}" =~ ^true|false$ ]]; then
-    target_val=${pgo_active_directory} \
-      yq -i '.services.aws.active-directory = env(target_val)' ${ONEPATH}/config.yaml
-  else
-    echo "Error: Invalid ${key_desc} input."
-    exit 0
-  fi
-
-  key_desc="AWS MAD - create Managed Active Directory?"
-  read -p "${key_desc} [${pgo_managed_active_directory}]: " TEMP
-  if [[ ! -z "${TEMP}" ]]; then
-    pgo_managed_active_directory=${TEMP}
-  fi
-  if [[ "${pgo_managed_active_directory}" =~ ^true|false$ ]]; then
-    target_val=${pgo_managed_active_directory} \
-      yq -i '.services.aws.managed-active-directory = env(target_val)' ${ONEPATH}/config.yaml
-  else
-    echo "Error: Invalid ${key_desc} input."
-    exit 0
-  fi
-
-  key_desc="AWS SG - create Service Gateway?"
-  read -p "${key_desc} [${pgo_service_gateway}]: " TEMP
-  if [[ ! -z "${TEMP}" ]]; then
-    pgo_service_gateway=${TEMP}
-  fi
-  if [[ "${pgo_service_gateway}" =~ ^true|false$ ]]; then
-    target_val=${pgo_service_gateway} \
-      yq -i '.services.aws.service-gateway = env(target_val)' ${ONEPATH}/config.yaml
-  else
-    echo "Error: Invalid ${key_desc} input."
-    exit 0
-  fi
-
-  key_desc="AWS EC2 - create Linux EC2?"
-  read -p "${key_desc} [${pgo_ec2_create_linux}]: " TEMP
-  if [[ ! -z "${TEMP}" ]]; then
-    pgo_ec2_create_linux=${TEMP}
-  fi
-  if [[ "${pgo_ec2_create_linux}" =~ ^true|false$ ]]; then
-    target_val=${pgo_ec2_create_linux} \
-      yq -i '.services.playground-one.ec2.create-linux = env(target_val)' ${ONEPATH}/config.yaml
-  else
-    echo "Error: Invalid ${key_desc} input."
-    exit 0
-  fi
-
-  key_desc="AWS EC2 - create Windows EC2?"
-  read -p "${key_desc} [${pgo_ec2_create_windows}]: " TEMP
-  if [[ ! -z "${TEMP}" ]]; then
-    pgo_ec2_create_windows=${TEMP}
-  fi
-  if [[ "${pgo_ec2_create_windows}" =~ ^true|false$ ]]; then
-    target_val=${pgo_ec2_create_windows} \
-      yq -i '.services.playground-one.ec2.create-windows = env(target_val)' ${ONEPATH}/config.yaml
-  else
-    echo "Error: Invalid ${key_desc} input."
-    exit 0
-  fi
-
-  key_desc="AWS RDS - create RDS Database?"
-  read -p "${key_desc} [${pgo_ec2_create_database}]: " TEMP
-  if [[ ! -z "${TEMP}" ]]; then
-    pgo_ec2_create_database=${TEMP}
-  fi
-  if [[ "${pgo_ec2_create_database}" =~ ^true|false$ ]]; then
-    target_val=${pgo_ec2_create_database} \
-      yq -i '.services.playground-one.ec2.create-database = env(target_val)' ${ONEPATH}/config.yaml
-  else
-    echo "Error: Invalid ${key_desc} input."
-    exit 0
-  fi
-
-  if ${azure_enabled} ; then
-    key_desc="Azure VM - create Linux EC2?"
-    read -p "${key_desc} [${pgo_azvm_create_linux}]: " TEMP
-    if [[ ! -z "${TEMP}" ]]; then
-      pgo_azvm_create_linux=${TEMP}
-    fi
-    if [[ "${pgo_azvm_create_linux}" =~ ^true|false$ ]]; then
-      target_val=${pgo_azvm_create_linux} \
-        yq -i '.services.playground-one.azvm.create-linux = env(target_val)' ${ONEPATH}/config.yaml
-    else
-      echo "Error: Invalid ${key_desc} input."
-      exit 0
-    fi
-  fi
 }
 
 function update_vision_one_config() {
-  printf '\n%s\n' "Please set/update your Vision One configuration"
+  printf '\n%s\n' "${bold}${blue}Section: Vision One${normal}"
+  printf '%s\n' "Please set/update your Vision One configuration"
 
   ##
   ## Vision One
@@ -417,7 +437,8 @@ function update_vision_one_config() {
 }
 
 function update_deep_security_config() {
-  printf '\n%s\n' "Please set/update your Deep Security configuration"
+  printf '\n%s\n' "${bold}${blue}Section: Deep Security (on-prem)${normal}"
+  printf '%s\n' "Please set/update your Deep Security configuration"
 
   ##
   ## Deep Security
@@ -538,8 +559,8 @@ function update_deep_security_config() {
 # }
 
 function update_integrations_config() {
-  printf '\n%s\n' "Please set/update your Integrations configuration"
-
+  printf '\n%s\n' "${bold}${blue}Section: Kubernetes Deployments${normal}"
+  printf '%s\n' "Please set/update your Integrations configuration"
 
   ##
   ## Calico
@@ -632,19 +653,7 @@ function stickies() {
 
 get_config
 
-key_desc="Initialize Terraform Configurations?"
-read -p "${key_desc} [${pgo_initialize}]: " TEMP
-if [[ ! -z "${TEMP}" ]]; then
-  pgo_initialize=${TEMP}
-fi
-if [[ "${pgo_initialize}" =~ ^true|false$ ]]; then
-  target_val=${pgo_initialize} \
-    yq -i '.services.initialize = env(target_val)' ${ONEPATH}/config.yaml
-else
-  echo "Error: Invalid ${key_desc} input."
-  exit 0
-fi
-echo
+update_pgo_config
 
 # We dont want to change AWS config while having deployments
 if [[ ! -f ${ONEPATH}/awsone/2-network/.pgo.nw.lock && \
@@ -658,7 +667,6 @@ else
   printf '%s\n' "Skipping AWS configuration."
 fi
 update_azure_config
-update_pgo_config
 update_vision_one_config
 # update_vision_one_config
 update_integrations_config
