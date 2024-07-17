@@ -18,6 +18,7 @@
         "iam:AddUserToGroup",
         "iam:AttachGroupPolicy",
         "iam:AttachRolePolicy",
+        "iam:AttachUserPolicy",
         "iam:CreateAccessKey",
         "iam:CreateGroup",
         "iam:CreateInstanceProfile",
@@ -38,6 +39,7 @@
         "iam:DeleteUser",
         "iam:DetachGroupPolicy",
         "iam:DetachRolePolicy",
+        "iam:DetachUserPolicy",
         "iam:GetGroup",
         "iam:GetInstanceProfile",
         "iam:GetOpenIDConnectProvider",
@@ -47,11 +49,11 @@
         "iam:ListAccessKeys",
         "iam:ListAttachedGroupPolicies",
         "iam:ListAttachedRolePolicies",
+        "iam:ListAttachedUserPolicies",
         "iam:ListEntitiesForPolicy",
         "iam:ListEntitiesForPolicy",
         "iam:ListGroupsForUser",
         "iam:ListInstanceProfilesForRole",
-        "iam:ListPolicyVersions",
         "iam:ListPolicyVersions",
         "iam:ListRolePolicies",
         "iam:PutRolePolicy",
@@ -61,7 +63,8 @@
         "iam:TagOpenIDConnectProvider",
         "iam:TagPolicy",
         "iam:TagRole",
-        "iam:TagUser"
+        "iam:TagUser",
+        "iam:UpdateUser"
       ],
       "Resource": "arn:aws:iam::${Account}:*"
     }

@@ -62,9 +62,11 @@ configs=(
   ["ecs-ec2"]=${ONEPATH}/awsone/5-cluster-ecs-ec2
   ["ecs-fg"]=${ONEPATH}/awsone/5-cluster-ecs-fargate
   ["s3scanner"]=${ONEPATH}/awsone/6-bucket-scanner
+  ["scenarios-cloudtrail"]=${ONEPATH}/awsone/7-scenarios-cloudtrail
+  ["scenarios-cspm"]=${ONEPATH}/awsone/7-scenarios-cspm
+  ["scenarios-data"]=${ONEPATH}/awsone/7-scenarios-data
   ["scenarios-ec2"]=${ONEPATH}/awsone/7-scenarios-ec2
   ["scenarios-fg"]=${ONEPATH}/awsone/7-scenarios-fargate
-  ["scenarios-cspm"]=${ONEPATH}/awsone/7-scenarios-cspm
   ["scenarios-identity"]=${ONEPATH}/awsone/7-scenarios-identity
   ["scenarios-aks"]=${ONEPATH}/azone/7-scenarios-aks
   ["goat"]=${ONEPATH}/awsone/7-goat
@@ -463,6 +465,17 @@ function init() {
 
       [ "$2" = "" ] && tf scenarios-fg init
       ;;&
+    scenarios-cloudtrail|all)
+      printf '%s\n' "Create terraform.tfvars for scenarios-cloudtrail deployments"
+      aws_region=${aws_region} \
+      aws_pgo_user_access_key=${aws_pgo_user_access_key} \
+      aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
+      environment_name=${environment_name} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-7-scenarios-cloudtrail.tfvars >${configs[scenarios-cloudtrail]}/terraform.tfvars
+
+      [ "$2" = "" ] && tf scenarios-cloudtrail init
+      ;;&
     scenarios-cspm|all)
       printf '%s\n' "Create terraform.tfvars for scenarios-cspm deployments"
       aws_region=${aws_region} \
@@ -472,7 +485,7 @@ function init() {
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-7-scenarios-cspm.tfvars >${configs[scenarios-cspm]}/terraform.tfvars
 
-      [ "$2" = "" ] && tf scenarios-identity init
+      [ "$2" = "" ] && tf scenarios-cspm init
       ;;&
     scenarios-identity|all)
       printf '%s\n' "Create terraform.tfvars for scenarios-identity deployments"
@@ -654,6 +667,9 @@ function apply() {
       ;;&
     scenarios-fg|all)
       tf scenarios-fg apply
+      ;;&
+    scenarios-cloudtrail|all)
+      tf scenarios-cloudtrail apply
       ;;&
     scenarios-cspm|all)
       tf scenarios-cspm apply
@@ -1047,6 +1063,13 @@ function destroy() {
         printf '%s\n' "Configuration scenarios-fg is not applied"
       fi
       ;;
+    scenarios-cloudtrail)
+      if checklock scenarios-cloudtrail ; then
+        tf scenarios-cloudtrail destroy
+      else
+        printf '%s\n' "Configuration scenarios-cloudtrail is not applied"
+      fi
+      ;;
     scenarios-cspm)
       if checklock scenarios-cspm ; then
         tf scenarios-cspm destroy
@@ -1172,6 +1195,9 @@ function output() {
     scenarios-fg|all)
       tf scenarios-fg output
       ;;&
+    scenarios-cloudtrail|all)
+      tf scenarios-cloudtrail output
+      ;;&
     scenarios-cspm|all)
       tf scenarios-cspm output
       ;;&
@@ -1274,6 +1300,9 @@ function state() {
     scenarios-fg|all)
       tf scenarios-fg state
       ;;&
+    scenarios-cloudtrail|all)
+      tf scenarios-cloudtrail state
+      ;;&
     scenarios-cspm|all)
       tf scenarios-cspm state
       ;;&
@@ -1353,6 +1382,9 @@ function show() {
     scenarios-fg|all)
       tf scenarios-fg show
       ;;&
+    scenarios-cloudtrail|all)
+      tf scenarios-cloudtrail show
+      ;;&
     scenarios-cspm|all)
       tf scenarios-cspm show
       ;;&
@@ -1430,6 +1462,9 @@ function validate() {
       ;;&
     scenarios-fg|all)
       tf scenarios-fg validate
+      ;;&
+    scenarios-cloudtrail|all)
+      tf scenarios-cloudtrail validate
       ;;&
     scenarios-cspm|all)
       tf scenarios-cspm validate
@@ -1534,6 +1569,9 @@ function erase() {
     scenarios-fg|all)
       tf scenarios-fg erase
       ;;&
+    scenarios-cloudtrail|all)
+      tf scenarios-cloudtrail erase
+      ;;&
     scenarios-cspm|all)
       tf scenarios-cspm erase
       ;;&
@@ -1622,25 +1660,26 @@ function helpcmd() {
   printf '%s\n' "  -p --plan      Plan apply and destroy"
   printf '%s\n' ""
   printf '%s\n' "Available configurations:"
-  printf '%s\n' "  user                PGO User configuration"
-  printf '%s\n' "  nw                  Network configuration"
-  printf '%s\n' "  ec2                 EC2 configuration"
-  printf '%s\n' "  eks-ec2             EKS configuration"
-  printf '%s\n' "  eks-fg              EKS configuration"
-  printf '%s\n' "  ecs-ec2             ECS configuration"
-  printf '%s\n' "  ecs-fg              ECS configuration"
-  printf '%s\n' "  s3scanner           S3 Bucket scanner"
-  printf '%s\n' "  kind                Kind configuration"
-  printf '%s\n' "  scenarios-ec2       Scenario configuration"
-  printf '%s\n' "  scenarios-fg        Scenario configuration"
-  printf '%s\n' "  scenarios-cspm      Scenario configuration"
-  printf '%s\n' "  scenarios-identity  Scenario configuration"
-  printf '%s\n' "  scenarios-kind      Scenario configuration"
-  printf '%s\n' "  scenarios-aks       Scenario configuration"
-  printf '%s\n' "  dsm                 Deep Security configuration"
-  printf '%s\n' "  dsw                 Deep Security Workload configuration"
-  printf '%s\n' "  aks                 AKS configuration"
-  printf '%s\n' "  all                 All configurations"
+  printf '%s\n' "  user                 PGO User configuration"
+  printf '%s\n' "  nw                   Network configuration"
+  printf '%s\n' "  ec2                  EC2 configuration"
+  printf '%s\n' "  eks-ec2              EKS configuration"
+  printf '%s\n' "  eks-fg               EKS configuration"
+  printf '%s\n' "  ecs-ec2              ECS configuration"
+  printf '%s\n' "  ecs-fg               ECS configuration"
+  printf '%s\n' "  s3scanner            S3 Bucket scanner"
+  printf '%s\n' "  kind                 Kind configuration"
+  printf '%s\n' "  scenarios-ec2        Scenario configuration"
+  printf '%s\n' "  scenarios-fg         Scenario configuration"
+  printf '%s\n' "  scenarios-cloudtrail Scenario configuration"
+  printf '%s\n' "  scenarios-cspm       Scenario configuration"
+  printf '%s\n' "  scenarios-identity   Scenario configuration"
+  printf '%s\n' "  scenarios-kind       Scenario configuration"
+  printf '%s\n' "  scenarios-aks        Scenario configuration"
+  printf '%s\n' "  dsm                  Deep Security configuration"
+  printf '%s\n' "  dsw                  Deep Security Workload configuration"
+  printf '%s\n' "  aks                  AKS configuration"
+  printf '%s\n' "  all                  All configurations"
   printf '%s\n' ""
   printf '%s\n' "Examples:"
   printf '%s\n' "  pgo --apply nw"

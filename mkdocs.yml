@@ -31,6 +31,7 @@ nav:
         - CloudFormation IaC Scanning with a GitHub Action: scenarios/asrm/pm/template-scanning-cfn-github-action.md
         - Exception Handling with Pipline Scanning: scenarios/asrm/pm/template-scanning-exception-handling.md
     - XDR Threat Investigation:
+      - CloudTrail: scenarios/xdr/cloudtrail.md
       - Automated Observed Attack Techniques Generation: scenarios/xdr/oat-generation.md
       - Automated Workbench Generation: scenarios/xdr/workbench-generation.md
     - Workflow and Automation:
