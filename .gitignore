@@ -115,3 +115,4 @@ cspm/infra/vpc/vpc.tf
 .pgo.dsw.lock
 .pgo.user.lock
 awsone/7-scenarios-cloudtrail/downloads/passwords.zip
+awsone/7-scenarios-cloudtrail/downloads/server.pem

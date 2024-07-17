@@ -17,3 +17,11 @@ variable "aws_secret_key" {
 variable "environment" {
   type = string
 }
+
+variable "access_ip" {
+  type = list(any)
+}
+
+variable "linux_username" {
+  type = string
+}

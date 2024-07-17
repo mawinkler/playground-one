@@ -23,3 +23,8 @@ output "s3_bucket" {
 output "attack" {
   value = data.external.attack.result
 }
+
+# Instance
+output "instance_ip_linux" {
+  value = module.target.instance_ip_linux
+}

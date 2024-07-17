@@ -471,6 +471,7 @@ function init() {
       aws_pgo_user_access_key=${aws_pgo_user_access_key} \
       aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
       environment_name=${environment_name} \
+      pgo_access_ip=${pgo_access_ip} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-7-scenarios-cloudtrail.tfvars >${configs[scenarios-cloudtrail]}/terraform.tfvars
 
