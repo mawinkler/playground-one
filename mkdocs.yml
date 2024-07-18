@@ -74,7 +74,7 @@ nav:
         #   - Apache Struts Multipart Encoding Command Injection (XDR for Containers): scenarios/xdr4c/ecs-struts.md
         #   - Apache Struts Multipart Encoding Command Injection: scenarios/xdr4c/eks-struts.md
         - Artifact Scanning:
-          - Scan Containers for Vulnerabilities and Malware: scenarios/cloud-security/container-security/artifact-scanning/tmas-artifact-scanning.md
+          - Container Image Scanning for Vulnerabilities, Malware, and Secrets: scenarios/cloud-security/container-security/artifact-scanning/tmas-artifact-scanning.md
           - Scan Containers with a GitHub Action: scenarios/cloud-security/container-security/artifact-scanning/tmas-github-action.md
       - File Security:
         - Artifact Scanning:

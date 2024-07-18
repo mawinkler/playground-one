@@ -2,7 +2,14 @@
 
 ## Prerequisites
 
-- None
+- Playground One Network
+
+Ensure to have the Playground One Network up and running:
+
+```sh
+# Network configuration
+pgo --apply network
+```
 
 ## Overview
 

@@ -152,6 +152,18 @@ Vulnerabilities | grype | See [github.com/anchore/grype](https://github.com/anch
 - `pgo --config` does now allow to disable initialization of Terraform after a first run. This speeds up configuration changes dramatically.
 - Playground One can optionally use its own AWS user with limited privileges. The user can be created by running `pgo --apply user`, which of course requires administrative privileges with your own AWS user. You have to enable the PGO user in the configuration, but you can disable it at any time.
 - Migrated EKS cluster deployments to use the [Vision One Terraform Provider](https://github.com/trendmicro/terraform-provider-vision-one/tree/main). 
+- There are new scenarios available:
+  - [Deploy Service Gateway on AWS manually](https://mawinkler.github.io/playground-one-pages/scenarios/vision-one/v1-aws-service-gateway-manually/)
+  - [Deploy Service Gateway on AWS automatically](https://mawinkler.github.io/playground-one-pages/scenarios/vision-one/v1-aws-service-gateway-automatically/)
+  - [Integrate an Active Directory via Service Gateway on AWS](scenarios/automation/service-gateway/v1-integrate-active-directory.md)
+- New Scenario section: Workflow and Automation - Third-Party Integration:
+  - [Setup Splunk](scenarios/automation/thirdparty/splunk-setup.md)
+  - [Integrate Splunk with Vision One XDR](scenarios/automation/thirdparty/splunk-integrate-vision-one-xdr.md)
+  - [Integrate V1CS Customer Runtime Security Rules with Splunk](scenarios/automation/thirdparty/splunk-integrate-vision-one-custom-rules.md)
+  - [Setup Elastic Stack](scenarios/automation/thirdparty/elastic-stack.md)
+  - [Integrate Elastic Stack with Vision One](scenarios/automation/thirdparty/elastic-stack-vision-one.md)
+- XDR Threat Investigation: [CloudTrail](scenarios/xdr/cloudtrail.md)
+- Identity Posture: [Populate the Active Directory](scenarios/identity-security/identity-posture/populate-ad.md)
 
 ***0.3.3***
 
@@ -165,11 +177,6 @@ Vulnerabilities | grype | See [github.com/anchore/grype](https://github.com/anch
 
 - The network configuration can now optionally create an AWS Managed Active Directory within the VPC. Plan is to support Identity Security scenarios in the future.
 - The same configuration can now optionally deploy a Vision One Service Gateway to the public subnet.
-- There are two new scenarios for the above:
-  - [Deploy Service Gateway on AWS manually](https://mawinkler.github.io/playground-one-pages/scenarios/vision-one/v1-aws-service-gateway-manually/)
-  - [Deploy Service Gateway on AWS automatically](https://mawinkler.github.io/playground-one-pages/scenarios/vision-one/v1-aws-service-gateway-automatically/)
-- New Scenario section: Big Data
-  - [Setup Elastic (ELK Stack)](https://mawinkler.github.io/playground-one-pages/scenarios/bigdata/elastic-stack/)
 
 *Fixes*
 

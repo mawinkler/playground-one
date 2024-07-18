@@ -1,4 +1,4 @@
-# Scenario: Container Image Vulnerability and Malware Scanning
+# Scenario: Container Image Scanning for Vulnerabilities, Malware, and Secrets
 
 ## Prerequisites
 
@@ -25,35 +25,46 @@ export TMAS_API_KEY=<YOUR API-Key>
 > 
 > Valid regions: `[ap-southeast-2 eu-central-1 ap-south-1 ap-northeast-1 ap-southeast-1 us-east-1]`
 
+The `tmas` tools supports three scan variants:
+
+- malware, -M          Perform a malware scan on an image artifact
+- secrets, -S          Perform a secrets scan on an artifact
+- vulnerabilities, -V  Perform a vulnerability scan on an artifact
+
+You can either choose an individual scan type or combine multiple via flags.
+
 To easily scan an image for vulnerabililies run
 
 ```sh
 # Service region us-east-1
-tmas scan docker:nginx:latest
+tmas scan vulnerabilities docker:nginx:latest
+# short
+tmas scan -V docker:nginx:latest
 
 # Service region eu-central-1
-tmas scan docker:nginx:latest --region eu-central-1
+tmas scan vulnerabilities docker:nginx:latest --region eu-central-1
 ```
 
 Scanning an image for vulnerabilities and malware simultaneously is as easy as above
 
 ```sh
-tmas scan docker:mawinkler/evil2:latest --malwareScan
+tmas scan -VM docker:mawinkler/evil2:latest
 ```
 
-At the time of writing, the second scan should find 24 vulnerabilities and one malware:
+At the time of writing, the second scan should find 137 vulnerabilities and one malware:
 
 ```json
 {
-  "vulnerability": {
-    "totalVulnCount": 24,
+  "vulnerabilities": {
+    "totalVulnCount": 137,
     "criticalCount": 0,
-    "highCount": 0,
-    "mediumCount": 6,
-    "lowCount": 15,
-    "negligibleCount": 3,
+    "highCount": 4,
+    "mediumCount": 65,
+    "lowCount": 61,
+    "negligibleCount": 7,
     "unknownCount": 0,
-    "findings": {
+    "overriddenCount": 0,
+    "findings": { 
 ...
   "malware": {
     "scanResult": 1,
@@ -66,16 +77,28 @@ At the time of writing, the second scan should find 24 vulnerabilities and one m
         "fileSHA256": "sha256:e1105070ba828007508566e28a2b8d4c65d192e9eaf3b7868382b7cae747b397",
         "foundMalwares": [
           {
-            "fileName": "eicarcom2.zip",
+            "fileName": "__Zoq9GPNzgoaVyXYSKgniGj__",
             "malwareName": "OSX_EICAR.PFH"
           }
         ]
       }
     ],
-    "scanID": "300d7aed-2f1f-4818-af62-24f9378fe91d",
-    "scannerVersion": "1.0.0-471"
+    "scanID": "53e856d2-6385-46f7-b661-21d01b3604a2",
+    "scannerVersion": "1.0.0-66"
   }
 }
+```
+
+Another malware example might be this:
+
+```sh
+tmas scan malware registry:quay.io/petr_ruzicka/malware-cryptominer-container:2.1.1
+```
+
+Scanning for secrets is very similar:
+
+```sh
+tmas scan secrets registry:trufflesecurity/secrets
 ```
 
 🎉 Success 🎉

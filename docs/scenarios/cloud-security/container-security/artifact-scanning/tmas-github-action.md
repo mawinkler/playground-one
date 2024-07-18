@@ -116,7 +116,7 @@ jobs:
           # Install tmas latest version
           curl -s -L https://gist.github.com/raphabot/abae09b46c29afc7c3b918b7b8ec2a5c/raw/ | bash
 
-          tmas scan "$(if [ "$MALWARE_SCAN" = true ]; then echo "--malwareScan"; fi)" -r "$REGION" docker-archive:/tmp/image.tar "$(if [ "$SBOM" = true ]; then echo "--saveSBOM"; fi)" | tee result.json
+          tmas scan -V "$(if [ "$MALWARE_SCAN" = true ]; then echo "-M"; fi)" -r "$REGION" docker-archive:/tmp/image.tar "$(if [ "$SBOM" = true ]; then echo "--saveSBOM"; fi)" | tee result.json
 
           if [ "$SBOM" = true ]; then mv SBOM_* sbom.json; fi
 
@@ -193,7 +193,7 @@ jobs:
       # Rescan in the registry to support admission control
       - name: Registry Scan
         run: |
-          tmas scan "$(if [ "$MALWARE_SCAN" = true ]; then echo "--malwareScan"; fi)" -r "$REGION" -p linux/amd64 registry:${{ steps.meta.outputs.tags }} || true
+          tmas scan -V "$(if [ "$MALWARE_SCAN" = true ]; then echo "-M"; fi)" -r "$REGION" -p linux/amd64 registry:${{ steps.meta.outputs.tags }} || true
 ```
 
 ### Secrets
