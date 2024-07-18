@@ -142,7 +142,7 @@ Vulnerabilities | grype | See [github.com/anchore/grype](https://github.com/anch
 
 ## Change Log
 
-***0.4.0***
+***0.4.1***
 
 *Changes*
 
