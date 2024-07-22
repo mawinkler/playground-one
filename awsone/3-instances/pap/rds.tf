@@ -42,7 +42,7 @@ module "db" {
 
   multi_az               = false
   db_subnet_group_name   = var.database_subnet_group
-  vpc_security_group_ids = [aws_security_group.public_security_group_rds.id]
+  vpc_security_group_ids = [aws_security_group.sg["public"].id] #[aws_security_group.public_security_group_rds.id]
   deletion_protection    = false
 
   enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]

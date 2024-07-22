@@ -27,13 +27,6 @@ variable "one_path" {
 #   type = bool
 # }
 
-#
-# create attack path
-#
-variable "create_attackpath" {
-  type = bool
-}
-
 # AWS Managed Active Directory
 variable "managed_active_directory" {
   type = bool

@@ -11,21 +11,19 @@ module "ec2" {
 
   environment              = var.environment
   public_security_group_id = data.terraform_remote_state.vpc.outputs.public_security_group_id
-  # public_security_group_inet_id = data.terraform_remote_state.vpc.outputs.public_security_group_inet_id
-  public_subnets   = data.terraform_remote_state.vpc.outputs.public_subnets.*
-  key_name         = data.terraform_remote_state.vpc.outputs.key_name
-  public_key       = data.terraform_remote_state.vpc.outputs.public_key
-  private_key_path = data.terraform_remote_state.vpc.outputs.private_key_path
-  ec2_profile      = module.iam.ec2_profile
-  # ec2_profile_db                = module.iam.ec2_profile_db
-  s3_bucket          = module.s3.s3_bucket
-  linux_username     = var.linux_username
-  windows_username   = var.windows_username
-  windows_hostname   = "Windows-Server"
-  create_linux       = var.create_linux
-  linux_db_hostname  = "linuxdb"
-  linux_web_hostname = "linuxweb"
-  create_windows     = var.create_windows
+  public_subnets           = data.terraform_remote_state.vpc.outputs.public_subnets.*
+  key_name                 = data.terraform_remote_state.vpc.outputs.key_name
+  public_key               = data.terraform_remote_state.vpc.outputs.public_key
+  private_key_path         = data.terraform_remote_state.vpc.outputs.private_key_path
+  ec2_profile              = module.iam.ec2_profile
+  s3_bucket                = module.s3.s3_bucket
+  linux_username           = var.linux_username
+  windows_username         = var.windows_username
+  windows_hostname         = "Windows-Server"
+  create_linux             = var.create_linux
+  linux_db_hostname        = "linuxdb"
+  linux_web_hostname       = "linuxweb"
+  create_windows           = var.create_windows
 
   # PGO Active Directory
   active_directory         = var.active_directory
@@ -40,8 +38,6 @@ module "iam" {
   environment = var.environment
   aws_region  = var.aws_region
   s3_bucket   = module.s3.s3_bucket
-  # create_attackpath = var.create_attackpath
-  # rds_arn           = module.rds[0].rds_arn
 }
 
 module "s3" {
@@ -58,6 +54,7 @@ module "pap" {
 
   environment               = var.environment
   vpc_id                    = data.terraform_remote_state.vpc.outputs.vpc_id
+  access_ip                 = var.access_ip
   key_name                  = data.terraform_remote_state.vpc.outputs.key_name
   private_key_path          = data.terraform_remote_state.vpc.outputs.private_key_path
   public_subnets            = data.terraform_remote_state.vpc.outputs.public_subnets.*

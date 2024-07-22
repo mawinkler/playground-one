@@ -3,6 +3,8 @@
 # #############################################################################
 variable "environment" {}
 
+variable "access_ip" {}
+
 variable "vpc_id" {}
 
 variable "key_name" {}

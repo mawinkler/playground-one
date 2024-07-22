@@ -11,6 +11,10 @@ variable "aws_secret_key" {
   sensitive = true
 }
 
+variable "access_ip" {
+  type = list(any)
+}
+
 variable "s3_bucket" {
   type    = string
   default = "playground-awsone"

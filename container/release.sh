@@ -3,6 +3,17 @@ PGO_VERSION=$(cat .PGO_VERSION)
 
 printf '%s\n' "Building mcs version ${PGO_VERSION}"
 
+# docker buildx create \
+#   --name container \
+#   --driver=docker-container 
+# docker run --privileged multiarch/qemu-user-static:latest --reset -p yes --credential yes
+
+# docker buildx version
+# docker buildx stop
+# docker buildx rm container
+# docker buildx create --name container --use --bootstrap
+# docker buildx version
+
     # --progress=plain \
 docker buildx build \
     -t mawinkler/pgoc:${PGO_VERSION} \

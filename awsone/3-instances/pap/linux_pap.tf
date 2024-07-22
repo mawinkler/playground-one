@@ -8,7 +8,8 @@ resource "aws_instance" "linux-pap" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.linux_instance_type_pap
   subnet_id              = var.public_subnets[0]
-  vpc_security_group_ids = [aws_security_group.public_security_group_ec2.id]
+  # vpc_security_group_ids = [aws_security_group.public_security_group_ec2.id]
+  vpc_security_group_ids = [aws_security_group.sg["public"].id]
   iam_instance_profile   = aws_iam_instance_profile.ec2_profile_db.name
   key_name               = var.key_name
 
