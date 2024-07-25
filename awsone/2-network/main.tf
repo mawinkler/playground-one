@@ -33,16 +33,16 @@ module "ad" {
 
   source = "./ad"
 
-  environment                 = var.environment
-  vpc_id                      = module.vpc.vpc_id
-  private_subnets             = module.vpc.private_subnets
-  public_subnets              = module.vpc.public_subnets
-  public_security_group_id    = module.ec2.public_security_group_id
-  key_name                    = module.ec2.key_name
-  windows_ad_domain_name      = var.ad_domain_name
-  windows_ad_nebios_name      = var.ad_nebios_name
-  windows_ad_user_name        = var.ad_domain_admin
-  windows_ad_safe_password    = var.ad_admin_password
+  environment              = var.environment
+  vpc_id                   = module.vpc.vpc_id
+  private_subnets          = module.vpc.private_subnets
+  public_subnets           = module.vpc.public_subnets
+  public_security_group_id = module.ec2.public_security_group_id
+  key_name                 = module.ec2.key_name
+  windows_ad_domain_name   = var.ad_domain_name
+  windows_ad_nebios_name   = var.ad_nebios_name
+  windows_ad_user_name     = var.ad_domain_admin
+  windows_ad_safe_password = var.ad_admin_password
 }
 
 module "sg" {
@@ -61,4 +61,19 @@ module "sg" {
   public_key               = module.ec2.public_key
   private_key_path         = module.ec2.private_key_path
   instance_type            = "c5.2xlarge"
+}
+
+module "vns" {
+  count = var.virtual_network_sensor ? 1 : 0
+
+  source = "./vns"
+
+  access_ip            = var.access_ip
+  environment          = var.environment
+  vpc_id               = module.vpc.vpc_id
+  public_subnets       = module.vpc.public_subnets.*
+  public_subnets_cidr  = module.vpc.public_subnet_cidr_blocks
+  private_subnets_cidr = module.vpc.private_subnet_cidr_blocks
+  instance_type        = "t3.large"
+  vns_token            = var.vns_token
 }

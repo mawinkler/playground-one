@@ -15,8 +15,8 @@
         "autoscaling:DeleteAutoScalingGroup",
         "autoscaling:DescribeAutoScalingGroups",
         "autoscaling:DescribeScalingActivities",
-        "ec2:CreateTags",
         "ec2:CreateDhcpOptions",
+        "ec2:CreateTags",
         "ec2:DeleteKeyPair",
         "ec2:DeleteTags",
         "ec2:DescribeAddresses",
@@ -39,6 +39,9 @@
         "ec2:DescribeSecurityGroups",
         "ec2:DescribeSubnets",
         "ec2:DescribeTags",
+        "ec2:DescribeTrafficMirrorFilters",
+        "ec2:DescribeTrafficMirrorSessions",
+        "ec2:DescribeTrafficMirrorTargets",
         "ec2:DescribeVolumes",
         "ec2:DescribeVpcs",
         "ec2:DisassociateAddress",
@@ -66,111 +69,69 @@
     },
     {
       "Effect": "Allow",
-      "Action": ["ec2:AssociateDhcpOptions", "ec2:DeleteDhcpOptions"],
-      "Resource": "arn:aws:ec2:${Region}:${Account}:*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": "ec2:AllocateAddress",
-      "Resource": "arn:aws:ec2:${Region}:${Account}:*"
-    },
-    {
-      "Effect": "Allow",
       "Action": [
+        "ec2:AllocateAddress",
+        "ec2:AssociateAddress",
+        "ec2:AssociateDhcpOptions",
+        "ec2:AssociateDhcpOptions",
+        "ec2:AssociateRouteTable",
+        "ec2:AttachInternetGateway",
+        "ec2:AttachInternetGateway",
+        "ec2:AttachNetworkInterface",
+        "ec2:AuthorizeSecurityGroupEgress",
+        "ec2:AuthorizeSecurityGroupIngress",
+        "ec2:CreateInternetGateway",
+        "ec2:CreateLaunchTemplate",
+        "ec2:CreateNatGateway",
+        "ec2:CreateNatGateway",
+        "ec2:CreateNetworkInterface",
+        "ec2:CreateNetworkInterface",
+        "ec2:CreateRoute",
+        "ec2:CreateRouteTable",
+        "ec2:CreateRouteTable",
+        "ec2:CreateSecurityGroup",
+        "ec2:CreateSubnet",
+        "ec2:CreateSubnet",
+        "ec2:CreateTrafficMirrorFilter",
+        "ec2:CreateTrafficMirrorFilterRule",
+        "ec2:CreateTrafficMirrorSession",
+        "ec2:CreateTrafficMirrorTarget",
+        "ec2:CreateVpc",
+        "ec2:DeleteDhcpOptions",
+        "ec2:DeleteInternetGateway",
+        "ec2:DeleteLaunchTemplate",
+        "ec2:DeleteNatGateway",
+        "ec2:DeleteNetworkInterface",
+        "ec2:DeleteRoute",
+        "ec2:DeleteRouteTable",
+        "ec2:DeleteSecurityGroup",
+        "ec2:DeleteSubnet",
+        "ec2:DeleteTrafficMirrorFilter",
+        "ec2:DeleteTrafficMirrorFilterRule",
+        "ec2:DeleteTrafficMirrorSession",
+        "ec2:DeleteTrafficMirrorTarget",
+        "ec2:DeleteVpc",
         "ec2:DescribeInstanceAttribute",
+        "ec2:DescribeVpcAttribute",
+        "ec2:DetachInternetGateway",
+        "ec2:DetachInternetGateway",
+        "ec2:DetachNetworkInterface",
         "ec2:DetachNetworkInterface",
         "ec2:GetPasswordData",
+        "ec2:ImportKeyPair",
         "ec2:ModifyInstanceAttribute",
+        "ec2:ModifySubnetAttribute",
+        "ec2:ModifyTrafficMirrorFilterNetworkServices",
+        "ec2:ModifyVpcAttribute",
+        "ec2:RevokeSecurityGroupEgress",
+        "ec2:RevokeSecurityGroupIngress",
+        "ec2:RunInstances",
+        "ec2:RunInstances",
+        "ec2:RunInstances",
         "ec2:RunInstances",
         "ec2:StartInstances",
         "ec2:StopInstances",
         "ec2:TerminateInstances"
-      ],
-      "Resource": "arn:aws:ec2:${Region}:${Account}:*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ec2:AttachInternetGateway",
-        "ec2:CreateInternetGateway",
-        "ec2:DeleteInternetGateway",
-        "ec2:DetachInternetGateway"
-      ],
-      "Resource": "arn:aws:ec2:${Region}:${Account}:*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": "ec2:ImportKeyPair",
-      "Resource": "arn:aws:ec2:${Region}:${Account}:*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": ["ec2:CreateLaunchTemplate", "ec2:DeleteLaunchTemplate"],
-      "Resource": "arn:aws:ec2:${Region}:${Account}:*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": ["ec2:CreateNatGateway", "ec2:DeleteNatGateway"],
-      "Resource": "arn:aws:ec2:${Region}:${Account}:*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ec2:CreateNetworkInterface",
-        "ec2:DeleteNetworkInterface",
-        "ec2:DetachNetworkInterface",
-        "ec2:RunInstances"
-      ],
-      "Resource": "arn:aws:ec2:${Region}:${Account}:*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ec2:AssociateRouteTable",
-        "ec2:CreateRoute",
-        "ec2:CreateRouteTable",
-        "ec2:DeleteRoute",
-        "ec2:DeleteRouteTable"
-      ],
-      "Resource": "arn:aws:ec2:${Region}:${Account}:*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ec2:AuthorizeSecurityGroupEgress",
-        "ec2:AuthorizeSecurityGroupIngress",
-        "ec2:CreateSecurityGroup",
-        "ec2:DeleteSecurityGroup",
-        "ec2:RevokeSecurityGroupEgress",
-        "ec2:RevokeSecurityGroupIngress",
-        "ec2:RunInstances"
-      ],
-      "Resource": "arn:aws:ec2:${Region}:${Account}:*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ec2:CreateNatGateway",
-        "ec2:CreateNetworkInterface",
-        "ec2:CreateSubnet",
-        "ec2:DeleteSubnet",
-        "ec2:ModifySubnetAttribute",
-        "ec2:RunInstances"
-      ],
-      "Resource": "arn:aws:ec2:${Region}:${Account}:*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ec2:AssociateDhcpOptions",
-        "ec2:AttachInternetGateway",
-        "ec2:CreateRouteTable",
-        "ec2:CreateSubnet",
-        "ec2:CreateVpc",
-        "ec2:DeleteVpc",
-        "ec2:DescribeVpcAttribute",
-        "ec2:DetachInternetGateway",
-        "ec2:ModifyVpcAttribute"
       ],
       "Resource": "arn:aws:ec2:${Region}:${Account}:*"
     },
@@ -181,28 +142,13 @@
     },
     {
       "Effect": "Allow",
-      "Action": "elasticloadbalancing:DeleteListener",
-      "Resource": "arn:aws:elasticloadbalancing:${Region}:${Account}:*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": "elasticloadbalancing:DeleteListener",
-      "Resource": "arn:aws:elasticloadbalancing:${Region}:${Account}:*"
-    },
-    {
-      "Effect": "Allow",
       "Action": [
         "elasticloadbalancing:AddTags",
-        "elasticloadbalancing:DeleteLoadBalancer",
-        "elasticloadbalancing:ModifyLoadBalancerAttributes"
-      ],
-      "Resource": "arn:aws:elasticloadbalancing:${Region}:${Account}:*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
         "elasticloadbalancing:CreateTargetGroup",
+        "elasticloadbalancing:DeleteListener",
+        "elasticloadbalancing:DeleteLoadBalancer",
         "elasticloadbalancing:DeleteTargetGroup",
+        "elasticloadbalancing:ModifyLoadBalancerAttributes",
         "elasticloadbalancing:ModifyTargetGroupAttributes"
       ],
       "Resource": "arn:aws:elasticloadbalancing:${Region}:${Account}:*"

@@ -27,3 +27,8 @@ ad_nebios_name   = "ADFS"
 
 # Vision One Security Gateway
 service_gateway = ${service_gateway}
+
+# Virtual Network Sensor
+virtual_network_sensor = ${pgo_virtual_network_sensor_enabled}
+
+vns_token = "${pgo_virtual_network_sensor_token}"

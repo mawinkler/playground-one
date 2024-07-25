@@ -417,6 +417,8 @@ function get_config() {
     pgo_managed_active_directory="$(yq '.services.aws.managed-active-directory' $ONEPATH/config.yaml)"
     pgo_active_directory="$(yq '.services.aws.active-directory' $ONEPATH/config.yaml)"
     pgo_service_gateway="$(yq '.services.aws.service-gateway' $ONEPATH/config.yaml)"
+    pgo_virtual_network_sensor_enabled="$(yq '.services.aws.virtual-network-sensor.enabled' $ONEPATH/config.yaml)"
+    pgo_virtual_network_sensor_token="$(yq '.services.aws.virtual-network-sensor.token' $ONEPATH/config.yaml)"
     pgo_ec2_create_linux="$(yq '.services.playground-one.ec2.create-linux' $ONEPATH/config.yaml)"
     pgo_ec2_create_windows="$(yq '.services.playground-one.ec2.create-windows' $ONEPATH/config.yaml)"
     pgo_ec2_create_database="$(yq '.services.playground-one.ec2.create-database' $ONEPATH/config.yaml)"
@@ -426,6 +428,8 @@ function get_config() {
     [[ "${pgo_managed_active_directory}" = "null" || "${pgo_managed_active_directory}" = "" ]] && pgo_managed_active_directory=false
     [[ "${pgo_active_directory}" = "null" || "${pgo_active_directory}" = "" ]] && pgo_active_directory=false
     [[ "${pgo_service_gateway}" = "null" || "${pgo_service_gateway}" = "" ]] && pgo_service_gateway=false
+    [[ "${pgo_virtual_network_sensor_enabled}" = "null" || "${pgo_virtual_network_sensor_enabled}" = "" ]] && pgo_virtual_network_sensor_enabled=false
+    [[ "${pgo_virtual_network_sensor_token}" = "null" || "${pgo_virtual_network_sensor_token}" = "" ]] && pgo_virtual_network_sensor_token="token"
     [[ "${pgo_ec2_create_linux}" = "null" || "${pgo_ec2_create_linux}" = "" ]] && pgo_ec2_create_linux=true
     [[ "${pgo_ec2_create_windows}" = "null" || "${pgo_ec2_create_windows}" = "" ]] && pgo_ec2_create_windows=true
     [[ "${pgo_ec2_create_database}" = "null" || "${pgo_ec2_create_database}" = "" ]] && pgo_ec2_create_database=false

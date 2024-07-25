@@ -72,6 +72,8 @@ function update_aws_config() {
   if ${aws_pgo_user_enabled} ; then
     aws_pgo_user_access_key="$(yq '.services.aws.pgo_user_access_key' $ONEPATH/config.yaml)"
     aws_pgo_user_secret_key="$(yq '.services.aws.pgo_user_secret_key' $ONEPATH/config.yaml)"
+    [[ "${aws_pgo_user_access_key}" = "null" || "${aws_pgo_user_access_key}" = "" || "${aws_pgo_user_enabled}" = "false" ]] && aws_pgo_user_access_key=""
+    [[ "${aws_pgo_user_secret_key}" = "null" || "${aws_pgo_user_secret_key}" = "" || "${aws_pgo_user_enabled}" = "false" ]] && aws_pgo_user_secret_key=""
 
     key_desc="PGO User Access Key"
     read -p "${key_desc} [${aws_pgo_user_access_key}]: " TEMP
@@ -137,6 +139,37 @@ function update_aws_config() {
   else
     echo "Error: Invalid ${key_desc} input."
     exit 0
+  fi
+
+  key_desc="VNS - create Virtual Network Sensor?"
+  read -p "${key_desc} [${pgo_virtual_network_sensor_enabled}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    pgo_virtual_network_sensor_enabled=${TEMP}
+  fi
+  if [[ "${pgo_virtual_network_sensor_enabled}" =~ ^true|false$ ]]; then
+    target_val=${pgo_virtual_network_sensor_enabled} \
+      yq -i '.services.aws.virtual-network-sensor.enabled = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  if ${pgo_virtual_network_sensor_enabled} ; then
+    pgo_virtual_network_sensor_token="$(yq '.services.aws.virtual-network-sensor.token' $ONEPATH/config.yaml)"
+    [[ "${pgo_virtual_network_sensor_token}" = "null" || "${pgo_virtual_network_sensor_token}" = "" ]] && pgo_virtual_network_sensor_token="token"
+
+    key_desc="VNS - Virtual Network Sensor Token"
+    read -p "${key_desc} [${pgo_virtual_network_sensor_token:0:10}]: " TEMP
+    if [[ ! -z "${TEMP}" ]]; then
+      pgo_virtual_network_sensor_token=${TEMP}
+    fi
+    if [[ "${pgo_virtual_network_sensor_token}" =~ ^ey[0-9a-zA-Z]+\.ey[0-9a-zA-Z\.\_-]+$ ]]; then
+      target_val=${pgo_virtual_network_sensor_token} \
+        yq -i '.services.aws.virtual-network-sensor.token = env(target_val)' ${ONEPATH}/config.yaml
+    else
+      echo "Error: Invalid ${key_desc} input."
+      exit 0
+    fi
   fi
 
   key_desc="EC2 - create Linux EC2?"

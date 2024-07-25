@@ -116,3 +116,21 @@ output "sg_va_ssh" {
   description = "Command to ssh to instance sg_va"
   value       = var.service_gateway ? module.sg[0].ssh_instance_sg_va : null
 }
+
+output "sg_ami" {
+  value = var.service_gateway ? module.vns[0].sg_ami : null
+}
+
+# Virtual Network Sensor
+output "vns_va_ip" {
+  value = var.virtual_network_sensor ? module.vns[0].public_instance_ip_vns_va : null
+}
+
+output "vns_va_ssh" {
+  description = "Command to ssh to instance vns_va"
+  value       = var.virtual_network_sensor ? module.vns[0].ssh_instance_vns_va : null
+}
+
+output "vns_va_ami" {
+  value = var.virtual_network_sensor ? module.vns[0].vns_va_ami : null
+}

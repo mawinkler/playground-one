@@ -7,7 +7,7 @@ variable "aws_access_key" {
 }
 
 variable "aws_secret_key" {
-  type = string
+  type      = string
   sensitive = true
 }
 
@@ -60,4 +60,14 @@ variable "ad_admin_password" {
 # Service Gateway
 variable "service_gateway" {
   type = bool
+}
+
+# Virtual Network Ssensor
+variable "virtual_network_sensor" {
+  type    = bool
+  default = true
+}
+
+variable "vns_token" {
+  type = string
 }
