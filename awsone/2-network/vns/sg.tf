@@ -27,7 +27,7 @@ resource "aws_security_group" "sg_sg_va" {
   }
 
   tags = {
-    Name          = "${var.environment}-public-sg-sg-va"
+    Name          = "${var.environment}-public-vns-va"
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "nw"

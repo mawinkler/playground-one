@@ -49,3 +49,7 @@ variable "windows_ad_user_name" {
   description = "Username used for the local Administrator"
   default     = "Administrator"
 }
+
+variable "virtual_network_sensor" {}
+variable "vns_va_traffic_mirror_filter_id" {}
+variable "vns_va_traffic_mirror_target_id" {}

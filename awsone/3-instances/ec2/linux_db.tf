@@ -51,3 +51,13 @@ resource "aws_instance" "linux-db" {
     ]
   }
 }
+
+resource "aws_ec2_traffic_mirror_session" "vns_traffic_mirror_session_linux_db" {
+  count = var.virtual_network_sensor && var.create_linux ? 1 : 0
+
+  description              = "VNS Traffic mirror session - Linux DB"
+  session_number           = 1
+  network_interface_id     = aws_instance.linux-db[0].primary_network_interface_id
+  traffic_mirror_filter_id = var.vns_va_traffic_mirror_filter_id
+  traffic_mirror_target_id = var.vns_va_traffic_mirror_target_id
+}

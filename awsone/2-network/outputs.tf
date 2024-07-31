@@ -134,3 +134,11 @@ output "vns_va_ssh" {
 output "vns_va_ami" {
   value = var.virtual_network_sensor ? module.vns[0].vns_va_ami : null
 }
+
+output "vns_va_traffic_mirror_filter_id" {
+  value = var.virtual_network_sensor ? module.vns[0].vns_va_traffic_mirror_filter_id : null
+}
+
+output "vns_va_traffic_mirror_target_id" {
+  value = var.virtual_network_sensor ? module.vns[0].vns_va_traffic_mirror_target_id : null
+}

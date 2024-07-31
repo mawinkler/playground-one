@@ -64,3 +64,9 @@ variable "create_attackpath" {
 variable "active_directory" {
   type = bool
 }
+
+# Virtual Network Ssensor
+variable "virtual_network_sensor" {
+  type    = bool
+  default = true
+}

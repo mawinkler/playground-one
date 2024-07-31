@@ -32,3 +32,6 @@ create_attackpath = ${vision_one_asrm_create_attackpath}
 
 # AWS PGO Active Directory
 active_directory = ${active_directory}
+
+# Virtual Network Sensor
+virtual_network_sensor = ${pgo_virtual_network_sensor_enabled}

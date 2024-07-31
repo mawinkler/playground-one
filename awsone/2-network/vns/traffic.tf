@@ -29,14 +29,9 @@ resource "aws_ec2_traffic_mirror_filter_rule" "vns_traffic_filter_out" {
 }
 
 resource "aws_ec2_traffic_mirror_target" "vns_traffic_filter_target" {
+  depends_on           = [ aws_network_interface.vns_va_ni_data, aws_instance.vns_va ]
+
   description          = "Data Port Target"
   network_interface_id = aws_network_interface.vns_va_ni_data.id
 }
 
-resource "aws_ec2_traffic_mirror_session" "vns_traffic_mirror_session" {
-  description              = "VNS Traffic mirror session - linux_web"
-  session_number           = 1
-  network_interface_id     = "eni-01b3fee96390b91bb" # aws_instance.test.primary_network_interface_id
-  traffic_mirror_filter_id = aws_ec2_traffic_mirror_filter.vns_traffic_filter.id
-  traffic_mirror_target_id = aws_ec2_traffic_mirror_target.vns_traffic_filter_target.id
-}

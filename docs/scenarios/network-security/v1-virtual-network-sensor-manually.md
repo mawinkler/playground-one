@@ -33,70 +33,88 @@ Link: <https://trendmicro.atlassian.net/wiki/spaces/VO/pages/356499659/DDI+v.s.+
 
 ## Security Group
 
-1. On the AWS Management Console, go to the EC2 dashboard.
-2. In the top navigation bar, select the Region where you plan to deploy your instance.
-3. Go to Network & Security → Security Groups.
-4. To create the data port rules, click Create security group.
-5. Configure the Basic details.
-   1. Specify a unique name. Trend Micro recommends using easy to identify rule name such as VirtualNetworkSensor_DataPort
-   3. Type a description of the ruleset.
-   4. Select the VPC to save the security group.
-6. Configure the Inbound rules.
-   1. Click Add rule.
-   2. Configure the new rule.
-      1. Type: Select All traffic.
-      2. Source: Trend Micro recommends setting the source to custom and setting the IP to 0.0.0.0/0 to allow the Virtual Network Sensor to scan all traffic. Allowing all traffic to the data port provides the Virtual Network Sensor with maximum visibility into your security environment.
+### Data Port Security Group
 
-    ![alt text](images/deploy-vns-sg-01.png "SG")
-7. Make sure Outbound rules is set to the default to accept all traffic.
+Head over to `EC2 -> Security Groups -> Create Security Group`
 
-    ![alt text](images/deploy-vns-sg-02.png "SG")
-8. Assign tags to your rule.
-9. Click Create security group. The security group is created and opens the details page for the newly created security group.
-10. Go to Network & Security → Security Groups.
-11. To create the management port rules, click Create security group.
-12. Configure the Basic details.
-    1.  Specify a unique name. Trend Micro recommends using easy to identify rule name such as VirtualNetworkSensor_ManagementPort
-    2.  Type a description of the ruleset.
-    3.  Select the VPC to save the security group.
-13. Configure the Inbound rules.
-    1.  Click Add rule to create a new rule.
-    2.  Configure the following rules.
+Configure the Basic details.
 
-        Type | Protocol | Port Range | Source Type | Source | Purpose
-        ---- | -------- | ---------- | ----------- | ------ | -------
-        SSH | TCP | 22 | Recommended: Custom | Specify an IP address in CIDR notation or select a security group which is allowed to access the Virtual Network Sensor. | For accessing the Virtual Network Sensor CLISH console<br>***Here we're setting our Access IP which we configured in PGO***
-        HTTP | TCP | 80 | Recommended: Custom | Specify an IP address in CIDR notation or select a security group which is allowed to access the Virtual Network Sensor. | Debug log export<br>***Here we're setting our Access IP which we configured in PGO***
-        Custom UDP | UDP | 4789 | Recommended: Custom | Specify the IP address in CIDR notation of your mirror source or NLB. | For VXLAN traffic required by the AWS traffic mirror
-        Custom TCP | TCP | 14789 | Recommended: Custom | Specify the IP address in CIDR notation of your NLB. | For answering NLB health check
+1. `Name`: `VirtualNetworkSensor_DataPort`
+2. Type a description of the ruleset.
+3. Select the Playground One VPC to save the security group.
+
+Configure the Inbound rules.
+
+1. Click Add rule.
+2. Configure the new rule.
+   1. Type: Select All traffic.
+   2. Source: Trend Micro recommends setting the source to custom and setting the IP to 0.0.0.0/0 to allow the Virtual Network Sensor to scan all traffic. Allowing all traffic to the data port provides the Virtual Network Sensor with maximum visibility into your security environment.
+
+![alt text](images/deploy-vns-sg-01.png "SG")
+
+Make sure Outbound rules is set to the default to accept all traffic.
+
+![alt text](images/deploy-vns-sg-02.png "SG")
+
+3. Assign tags to your rule.
+4. Click Create security group.
+
+### Management Port Security Group
+
+Again, click on `Create Security Group`
+
+Configure the Basic details.
+1.  `Name`: `VirtualNetworkSensor_ManagementPort`
+2.  Type a description of the ruleset.
+3.  Select the VPC to save the security group.
+
+Configure the Inbound rules.
+
+1.  Click Add rule to create a new rule.
+2.  Configure the following rules.
+
+    Type | Protocol | Port Range | Source Type | Source | Purpose
+    ---- | -------- | ---------- | ----------- | ------ | -------
+    SSH | TCP | 22 | Recommended: Custom | Specify an IP address in CIDR notation or select a security group which is allowed to access the Virtual Network Sensor. | For accessing the Virtual Network Sensor CLISH console<br>***Here we're setting our Access IP which we configured in PGO***
+    HTTP | TCP | 80 | Recommended: Custom | Specify an IP address in CIDR notation or select a security group which is allowed to access the Virtual Network Sensor. | Debug log export<br>***Here we're setting our Access IP which we configured in PGO***
+    Custom UDP | UDP | 4789 | Recommended: Custom | Specify the IP address in CIDR notation of your mirror source or NLB. | For VXLAN traffic required by the AWS traffic mirror
+    Custom TCP | TCP | 14789 | Recommended: Custom | Specify the IP address in CIDR notation of your NLB. | For answering NLB health check
 
     ![alt text](images/deploy-vns-sg-03.png "SG")
-14. Make sure Outbound rules is set to the default to accept all traffic.
+
+Make sure Outbound rules is set to the default to accept all traffic.
 
     ![alt text](images/deploy-vns-sg-04.png "SG")
-15. Assign tags to your rule.
-16. Click Create security group.
 
-The security group is created and opens the details page for the newly created security group.
+3.  Assign tags to your rule.
+4.  Click Create security group.
+
 Your environment should now be ready to launch the Virtual Network Sensor instance.
 
 ## Launching a Virtual Network Sensor AMI instance
 
-1. On the Trend Vision One console, go to Network Security → Network Inventory → Virtual Network Sensor.
+### Get the Virtual Network Sensor Token File
+
+1. On the Trend Vision One console, go to `Network Security -> Network Inventory -> Virtual Network Sensor`.
 2. Click Deploy Virtual Network Sensor. The Virtual Network Sensor Deployment panel appears.
 
     ![alt text](images/deploy-vns-01.png "VNS")
+
 3. Select Amazon Web Services for the platform.
 4. Set the Admin password and confirm the password.
 
     ![alt text](images/deploy-vns-02.png "VNS")
+
 5. Click Download Token to download the token file.
-6. In a new tab in the same browser session, sign in to the AWS Management Console.
-7. Locate the EC2 service and click the link to access the EC2 dashboard.
-8. In the top navigation bar, select the Region for your instance.
-9.  Click Launch instance, then select Launch instance. The Launch an instance screen appears.
-10. In the Names and tags section, provide a name or add tags to the instance.
-11. In the Application and OS Images (Amazon Machine Image) section, find and select the Virtual Network Sensor AMI.
+
+### Create the Virtual Network Sensor Instance
+
+Head over to `EC2 -> Instances`
+
+Click Launch instance, then select Launch instance. The Launch an instance screen appears.
+
+1.  In the Names and tags section, provide a name or add tags to the instance.
+2.  In the Application and OS Images (Amazon Machine Image) section, find and select the Virtual Network Sensor AMI.
     1.  In the Application and OS Images (Amazon Machine Image) section, click Browse more AMIs.
     2.  In the Choose an Amazon Machine Image (AMI) screen, select AWS Marketplace AMIs under the search bar.
     3.  Search for Trend Vision One.
@@ -106,13 +124,13 @@ Your environment should now be ready to launch the Virtual Network Sensor instan
     5.  Review the details and click Continue.
 
         ![alt text](images/deploy-vns-03.png "VNS")
-12. In the Instance Type section, select an instance that meets the specifications for your deployment. Here we use the smallest variant `t3.large`.
+3.  In the Instance Type section, select an instance that meets the specifications for your deployment. Here we use the smallest variant `t3.large`.
 
     ![alt text](images/deploy-vns-05.png "VNS")
-13. In the Key pair (login) section, select Proceed without a key pair.
+4.  In the Key pair (login) section, select Proceed without a key pair.
 
     ![alt text](images/deploy-vns-06.png "VNS")
-14. In the Network settings section, click Edit and configure the settings.
+5.  In the Network settings section, click Edit and configure the settings.
     1.  Configure the network deployment settings.
         1.  Select the VPC to use for the instance.
         2.  Select a Subnet to use for the Virtual Network Sensor data port.
@@ -137,15 +155,15 @@ Your environment should now be ready to launch the Virtual Network Sensor instan
         2.  Subnet: Select the subnet for the maintenance port.
         3.  Security groups: Select the security group for the maintenance port.
         4.  Primary IP: Specify an IP address available on the subnet, or leave blank to have AWS automatically assign the IP address.
-15. Use the Configure storage settings to specify the size of the root volume for your instance. Set the root volume size according to your throughput. Here we use 50GB, the smallest.
+6.  Use the Configure storage settings to specify the size of the root volume for your instance. Set the root volume size according to your throughput. Here we use 50GB, the smallest.
 
     ![alt text](images/deploy-vns-11.png "VNS")
-16. Expand the Advanced details section.
-17. Locate User data - optional and click Choose file.
-18. Select the token file you downloaded from Network Inventory.
+7.  Expand the Advanced details section.
+8.  Locate User data - optional and click Choose file.
+9.  Select the token file you downloaded from Network Inventory.
 
     ![alt text](images/deploy-vns-13.png "VNS")
-19. Review the settings in the Summary panel and click Launch instance
+10. Review the settings in the Summary panel and click Launch instance
     Once you launch the instance, the Virtual Network Sensor begins installation. Installation may take a few minutes to complete. You can view the status of the instance in the EC2 console by going to Instances → Instances.
     The Virtual Network Appliance is ready to connect and configure when the Instance state is Running and the Status check shows 2/2 checks passed.
 
@@ -345,6 +363,82 @@ PORT     STATE  SERVICE
 5560/tcp closed isqlplus
 
 Nmap done: 256 IP addresses (2 hosts up) scanned in 7.67 seconds
+```
+
+```sh
+nmap -T4 -A -v 10.0.4.0/24
+```
+
+```sh
+Starting Nmap 7.80 ( https://nmap.org ) at 2024-07-30 14:52 UTC
+Nmap scan report for 10.0.4.91
+Host is up (0.00026s latency).
+Not shown: 986 filtered ports
+PORT     STATE  SERVICE  VERSION
+20/tcp   closed ftp-data
+21/tcp   closed ftp
+22/tcp   open   ssh      OpenSSH 8.2p1 Ubuntu 4ubuntu0.7 (Ubuntu Linux; protocol 2.0)
+25/tcp   closed smtp
+53/tcp   closed domain
+80/tcp   closed http
+110/tcp  closed pop3
+113/tcp  closed ident
+143/tcp  closed imap
+443/tcp  closed https
+993/tcp  closed imaps
+1521/tcp closed oracle
+3306/tcp closed mysql
+5560/tcp closed isqlplus
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for linuxweb (10.0.4.145)
+Host is up (0.000093s latency).
+Not shown: 998 closed ports
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.7 (Ubuntu Linux; protocol 2.0)
+80/tcp open  http    nginx 1.18.0 (Ubuntu)
+|_http-server-header: nginx/1.18.0 (Ubuntu)
+|_http-title: Welcome to nginx!
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for 10.0.4.192
+Host is up (0.00081s latency).
+Not shown: 995 filtered ports
+PORT     STATE SERVICE       VERSION
+80/tcp   open  http          Microsoft IIS httpd 10.0
+| http-methods: 
+|_  Potentially risky methods: TRACE
+|_http-server-header: Microsoft-IIS/10.0
+|_http-title: IIS Windows Server
+135/tcp  open  msrpc         Microsoft Windows RPC
+139/tcp  open  netbios-ssn   Microsoft Windows netbios-ssn
+445/tcp  open  microsoft-ds?
+3389/tcp open  ms-wbt-server Microsoft Terminal Services
+| rdp-ntlm-info: 
+|   Target_Name: ADFS
+|   NetBIOS_Domain_Name: ADFS
+|   NetBIOS_Computer_Name: PGO-CA
+|   DNS_Domain_Name: pgo-id.local
+|   DNS_Computer_Name: PGO-CA.pgo-id.local
+|   Product_Version: 10.0.20348
+|_  System_Time: 2024-07-30T14:53:04+00:00
+| ssl-cert: Subject: commonName=PGO-CA.pgo-id.local
+| Not valid before: 2024-07-29T11:08:41
+|_Not valid after:  2025-01-28T11:08:41
+|_ssl-date: 2024-07-30T14:53:44+00:00; 0s from scanner time.
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+|_nbstat: NetBIOS name: PGO-CA, NetBIOS user: <unknown>, NetBIOS MAC: 02:5b:ce:db:4e:69 (unknown)
+| smb2-security-mode: 
+|   2.02: 
+|_    Message signing enabled but not required
+| smb2-time: 
+|   date: 2024-07-30T14:53:04
+|_  start_date: N/A
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 512 IP addresses (3 hosts up) scanned in 64.22 seconds
 ```
 
 Head over to XDR Threat Investigation -> Observed Attack Techniques.

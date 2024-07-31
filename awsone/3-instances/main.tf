@@ -30,6 +30,11 @@ module "ec2" {
   windows_ad_domain_name   = try(data.terraform_remote_state.vpc.outputs.ad_domain_name, "")
   windows_ad_user_name     = try(data.terraform_remote_state.vpc.outputs.ad_domain_admin, "")
   windows_ad_safe_password = try(data.terraform_remote_state.vpc.outputs.ad_admin_password, "")
+
+  # VNS
+  virtual_network_sensor          = var.virtual_network_sensor
+  vns_va_traffic_mirror_filter_id = data.terraform_remote_state.vpc.outputs.vns_va_traffic_mirror_filter_id
+  vns_va_traffic_mirror_target_id = data.terraform_remote_state.vpc.outputs.vns_va_traffic_mirror_target_id
 }
 
 module "iam" {

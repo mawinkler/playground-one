@@ -113,6 +113,82 @@ PORT     STATE  SERVICE
 Nmap done: 256 IP addresses (2 hosts up) scanned in 7.67 seconds
 ```
 
+```sh
+nmap -T4 -A -v 10.0.4.0/24
+```
+
+```sh
+Starting Nmap 7.80 ( https://nmap.org ) at 2024-07-30 14:52 UTC
+Nmap scan report for 10.0.4.91
+Host is up (0.00026s latency).
+Not shown: 986 filtered ports
+PORT     STATE  SERVICE  VERSION
+20/tcp   closed ftp-data
+21/tcp   closed ftp
+22/tcp   open   ssh      OpenSSH 8.2p1 Ubuntu 4ubuntu0.7 (Ubuntu Linux; protocol 2.0)
+25/tcp   closed smtp
+53/tcp   closed domain
+80/tcp   closed http
+110/tcp  closed pop3
+113/tcp  closed ident
+143/tcp  closed imap
+443/tcp  closed https
+993/tcp  closed imaps
+1521/tcp closed oracle
+3306/tcp closed mysql
+5560/tcp closed isqlplus
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for linuxweb (10.0.4.145)
+Host is up (0.000093s latency).
+Not shown: 998 closed ports
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.7 (Ubuntu Linux; protocol 2.0)
+80/tcp open  http    nginx 1.18.0 (Ubuntu)
+|_http-server-header: nginx/1.18.0 (Ubuntu)
+|_http-title: Welcome to nginx!
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for 10.0.4.192
+Host is up (0.00081s latency).
+Not shown: 995 filtered ports
+PORT     STATE SERVICE       VERSION
+80/tcp   open  http          Microsoft IIS httpd 10.0
+| http-methods: 
+|_  Potentially risky methods: TRACE
+|_http-server-header: Microsoft-IIS/10.0
+|_http-title: IIS Windows Server
+135/tcp  open  msrpc         Microsoft Windows RPC
+139/tcp  open  netbios-ssn   Microsoft Windows netbios-ssn
+445/tcp  open  microsoft-ds?
+3389/tcp open  ms-wbt-server Microsoft Terminal Services
+| rdp-ntlm-info: 
+|   Target_Name: ADFS
+|   NetBIOS_Domain_Name: ADFS
+|   NetBIOS_Computer_Name: PGO-CA
+|   DNS_Domain_Name: pgo-id.local
+|   DNS_Computer_Name: PGO-CA.pgo-id.local
+|   Product_Version: 10.0.20348
+|_  System_Time: 2024-07-30T14:53:04+00:00
+| ssl-cert: Subject: commonName=PGO-CA.pgo-id.local
+| Not valid before: 2024-07-29T11:08:41
+|_Not valid after:  2025-01-28T11:08:41
+|_ssl-date: 2024-07-30T14:53:44+00:00; 0s from scanner time.
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+|_nbstat: NetBIOS name: PGO-CA, NetBIOS user: <unknown>, NetBIOS MAC: 02:5b:ce:db:4e:69 (unknown)
+| smb2-security-mode: 
+|   2.02: 
+|_    Message signing enabled but not required
+| smb2-time: 
+|   date: 2024-07-30T14:53:04
+|_  start_date: N/A
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 512 IP addresses (3 hosts up) scanned in 64.22 seconds
+```
+
 Head over to XDR Threat Investigation -> Observed Attack Techniques.
 
 Set the Risk Level to include `Medium` and Datasource to `Network -> Network Sensor`. The following detection should pop up:

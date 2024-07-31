@@ -24,3 +24,13 @@ resource "aws_instance" "windows-server-dc" {
     Configuration = "nw"
   }
 }
+
+resource "aws_ec2_traffic_mirror_session" "vns_traffic_mirror_session_dc" {
+  count = var.virtual_network_sensor ? 1 : 0
+
+  description              = "VNS Traffic mirror session - Windows Server DC"
+  session_number           = 1
+  network_interface_id     = aws_instance.windows-server-dc.primary_network_interface_id #"eni-01b3fee96390b91bb" # aws_instance.test.primary_network_interface_id
+  traffic_mirror_filter_id = var.vns_va_traffic_mirror_filter_id
+  traffic_mirror_target_id = var.vns_va_traffic_mirror_target_id
+}
