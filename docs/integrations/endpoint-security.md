@@ -6,18 +6,18 @@ Instance Web1:
 
 - Ubuntu Linux 20.04
 - Nginx deployment
-- Vision One Endpoint Security Basecamp agent for Server & Workload Protection
+- Vision One Endpoint Security Endpoint Sensor for Server & Workload Protection
 
 Instance Db1:
 
 - Ubuntu Linux 20.04
 - MySql databse
-- Vision One Endpoint Security Basecamp agent for Server & Workload Protection
+- Vision One Endpoint Security Endpoint Sensor for Server & Workload Protection
 
 Instance Srv1:
 
 - Windows Server 2022 Standalone Server
-- Vision One Endpoint Security Basecamp agent for Server & Workload Protection
+- Vision One Endpoint Security Endpoint Sensor for Server & Workload Protection
 
 All instances can be integrated with Vision One Endpoint Security for Server & Workload Protection and have access to the Atomic Launcher (if provided).
 
@@ -59,13 +59,13 @@ Agent-initiated Activation Windows
 
 ## Optional: Drop Atomic Launcher Packages
 
-If you want to experiment with Atomic Launcher download the packages from [here](https://wiki.jarvis.trendmicro.com/display/GRTL/Atomic+Launcher#AtomicLauncher-DownloadAtomicLauncher) and store them in the  `${ONEPATH}/awsone/0-files` directory as well.
+If you want to experiment with Atomic Launcher download the packages (latest Windows and Linux) from [here](https://trendmicro.atlassian.net/wiki/spaces/GRTL/pages/322570154/Atomic+Launcher) and store them in the  `${ONEPATH}/awsone/0-files` directory as well.
 
 Your `${ONEPATH}/awsone/0-files`-directory should look like this:
 
 ```sh
 -rw-rw-r-- 1 user user 17912014 Aug  1 14:50 atomic_launcher_linux_1.0.0.1009.zip
--rw-rw-r-- 1 user user 96135367 Aug  1 14:50 atomic_launcher_windows_1.0.0.1013.zip
+-rw-rw-r-- 1 user user 96135367 Aug  1 14:50 atomic_launcher_windows_2.zip
 -rw-rw-r-- 1 user user        0 Jul 28 06:22 see_documentation
 -rw-rw-r-- 1 user user      144 Aug  1 14:33 TMServerAgent_Linux_deploy.sh
 -rw-rw-r-- 1 user user 27380224 Aug  1 14:50 TMServerAgent_Linux.tar

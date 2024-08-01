@@ -21,6 +21,12 @@ variable "node_count" {
   default     = 3
 }
 
+variable "node_os_sku" {
+  type        = string
+  default     = "Ubuntu"
+  description = "Specifies the OS SKU used by the agent pool."
+}
+
 variable "username" {
   type        = string
   description = "The admin username for the new cluster."

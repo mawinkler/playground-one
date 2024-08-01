@@ -36,7 +36,7 @@ pgo --apply dsw
 
 3. Copy the enrollment token and save the token.
 4. Click `[Save]`.
-5. CLick `[Connect and Transfer]`.
+5. Click `[Connect and Transfer]`.
 
 ![alt text](images/ds-integrate-14.png "Vision One")
 
@@ -56,11 +56,10 @@ pgo --apply dsw
 **Vision One**
 
 11. Go to `Product Instance` App and verify the DSM On Premise being conncted.
-12. Optionally install Endpoint Sensor to the instances.
 
 ![alt text](images/ds-integrate-14b.png "Vision One")
 
-## Install Basecamp Agent on Instances
+## Install Endpoint Sensor on Instances
 
 First, lets get the `ssh` commands to access our servers by running
 
@@ -90,7 +89,7 @@ On the Deep Security software console, go to `Administration > System Settings >
 
 ![alt text](images/ds-integrate-16.png "Deep Security")
 
-This tab shows the Basecamp agent deployment script for the supported platform types. First, select `Linux (64-bit)` and copy the script. In the shell on the connected server run `sudo su` to get `root` and simply paste the script.
+This tab shows the Endpoint Sensor deployment script for the supported platform types. First, select `Linux (64-bit)` and copy the script. In the shell on the connected server run `sudo su` to get `root` and simply paste the script.
 
 ```sh
 Last login: Tue Jul  2 12:57:12 2024 from p57aa067b.dip0.t-ipconnect.de

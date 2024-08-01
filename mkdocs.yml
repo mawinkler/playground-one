@@ -51,6 +51,7 @@ nav:
     - Endpoint Security:
       - Deep Security:
         - Integrate Deep Security with Vision One: scenarios/endpoint-security/deep-security/ds-integrate.md
+        - Integrate Deep Security with Vision One and Demo Benefits: scenarios/endpoint-security/deep-security/ds-integrate-demo.md
         - Integrate Deep Security with Vision One and Service Gateway: scenarios/endpoint-security/deep-security/ds-integrate-and-service-gateway.md
         - Migrate Deep Security to Vision One: scenarios/endpoint-security/deep-security/ds-migrate.md
       - Workload Security:

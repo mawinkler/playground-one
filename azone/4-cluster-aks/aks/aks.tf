@@ -43,6 +43,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     vm_size        = "Standard_D2_v2"
     vnet_subnet_id = data.azurerm_subnet.akssubnet.id
     type           = "VirtualMachineScaleSets"
+    os_sku         = var.node_os_sku
   }
 
   identity {

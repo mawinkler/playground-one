@@ -468,14 +468,16 @@ function get_config() {
 
     # Integrations
     integrations_calico_enabled="$(yq '.services.integrations.calico.enabled' $ONEPATH/config.yaml)"
-    [[ "${integrations_calico_enabled}" = "null" || "${integrations_calico_enabled}" = "" ]] && integrations_calico_enabled=false
     integrations_prometheus_enabled="$(yq '.services.integrations.prometheus.enabled' $ONEPATH/config.yaml)"
     integrations_prometheus_grafana_password="$(yq '.services.integrations.prometheus.grafana-password' $ONEPATH/config.yaml)"
+    integrations_trivy_enabled="$(yq '.services.integrations.trivy.enabled' $ONEPATH/config.yaml)"
+    integrations_istio_enabled="$(yq '.services.integrations.istio.enabled' $ONEPATH/config.yaml)"
+    integrations_metallb_enabled="$(yq '.services.integrations.metallb.enabled' $ONEPATH/config.yaml)"
+    [[ "${integrations_calico_enabled}" = "null" || "${integrations_calico_enabled}" = "" ]] && integrations_calico_enabled=false
     [[ "${integrations_prometheus_enabled}" = "null" || "${integrations_prometheus_enabled}" = "" ]] && integrations_prometheus_enabled=false
     [[ "${integrations_prometheus_grafana_password}" = "null" || "${integrations_prometheus_grafana_password}" = "" ]] && integrations_prometheus_grafana_password="playground"
-    integrations_trivy_enabled="$(yq '.services.integrations.trivy.enabled' $ONEPATH/config.yaml)"
     [[ "${integrations_trivy_enabled}" = "null" || "${integrations_trivy_enabled}" = "" ]] && integrations_trivy_enabled=false
-    integrations_metallb_enabled="$(yq '.services.integrations.metallb.enabled' $ONEPATH/config.yaml)"
+    [[ "${integrations_istio_enabled}" = "null" || "${integrations_istio_enabled}" = "" ]] && integrations_istio_enabled=false
     [[ "${integrations_metallb_enabled}" = "null" || "${integrations_metallb_enabled}" = "" ]] && integrations_metallb_enabled=false
   fi
 

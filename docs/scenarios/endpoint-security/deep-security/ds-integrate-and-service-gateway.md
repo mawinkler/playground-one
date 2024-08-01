@@ -78,7 +78,7 @@ The Service Gateway gets a dedicated AWS Security Group assigned which allows SS
 
 ![alt text](images/ds-integrate-16.png "Deep Security")
 
-This tab shows the Basecamp agent deployment script as well.
+This tab shows the Endpoint Sensor deployment script as well.
 
 **Vision One**
 
@@ -174,7 +174,7 @@ Analogous for `Web Reputation`.
 
 ![alt text](images/ds-integrate-12.png "Deep Security")
 
-## Install Basecamp Agent on Instances
+## Install Endpoint Sensor on Instances
 
 First, lets get the `ssh` commands to access our servers by running
 
@@ -204,7 +204,7 @@ On the Deep Security software console, go to `Administration > System Settings >
 
 ![alt text](images/ds-integrate-16.png "Deep Security")
 
-This tab shows the Basecamp agent deployment script for the supported platform types. First, select `Linux (64-bit)` and copy the script. In the shell on the connected server run `sudo su` to get `root` and simply paste the script.
+This tab shows the Endpoint Sensor deployment script for the supported platform types. First, select `Linux (64-bit)` and copy the script. In the shell on the connected server run `sudo su` to get `root` and simply paste the script.
 
 ```sh
 Last login: Tue Jul  2 12:57:12 2024 from p57aa067b.dip0.t-ipconnect.de

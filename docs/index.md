@@ -142,6 +142,15 @@ Vulnerabilities | grype | See [github.com/anchore/grype](https://github.com/anch
 
 ## Change Log
 
+***0.4.2***
+
+*Changes*
+
+- Added support for Vision One Virtual Network Sensor. If enabled the Virtual Network Sensor is deployed into the PGO VPC. The PGO Active Directory and PGO instances will mirror their traffic to the data port of VNS. Requires the VNS Token from Vision One UI.
+- Added support for Istio on EKS EC2.
+- New Scenario: `Endpoint Security -> Deep Security -> Integrate Deep Security with Vision One and Demo Benefits`.
+- You can now choose the OS SKU for the nodes in the AKS Cluster.
+
 ***0.4.1***
 
 *Changes*

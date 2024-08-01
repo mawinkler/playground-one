@@ -60,3 +60,12 @@ module "prometheus" {
   namespace              = "prometheus"
   grafana_admin_password = var.grafana_admin_password
 }
+
+module "istio" {
+  count = var.istio ? 1 : 0
+
+  source            = "./istio"
+  environment       = var.environment
+  namespace_base    = "istio-system"
+  namespace_ingress = "istio-ingress"
+}

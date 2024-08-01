@@ -57,3 +57,8 @@ variable "prometheus" {
 variable "grafana_admin_password" {
   type = string
 }
+
+# Istio
+variable "istio" {
+  type = bool
+}

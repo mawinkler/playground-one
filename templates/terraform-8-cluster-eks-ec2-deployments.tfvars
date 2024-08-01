@@ -26,3 +26,6 @@ trivy = ${integrations_trivy_enabled}
 # Prometheus
 prometheus = ${integrations_prometheus_enabled}
 grafana_admin_password = "${integrations_prometheus_grafana_password}"
+
+# Istio
+istio = ${integrations_istio_enabled}
