@@ -13,11 +13,6 @@ resource "helm_release" "istiod" {
   wait             = true
 
   set {
-    name  = "telemetry.enabled"
-    value = "true"
-  }
-
-  set {
     name  = "global.istioNamespace"
     value = var.namespace_base
   }

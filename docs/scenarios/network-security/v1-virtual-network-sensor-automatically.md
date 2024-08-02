@@ -4,8 +4,6 @@
 
 !!! warning "NOT FINISHED YET"
 
-    Solve dependency with instances. Create Traffic Mirror Session in instances when VNS is enabled. 
-
 ## Prerequisites
 
 - Playground One Network
@@ -14,11 +12,7 @@
 You need to have activated the Trend Virtual Network Sensor BYOL
  AMI in Marketplace once. To do this, on the AWS Console choose the service EC2 and navigate to `Images --> AMI Catalog`. Select the tab `AWS Marketplace AMIs` and seach for `Trend Micro Virtual Network Sensor`.
 
-![alt text](images/v1-aws-sgm-03.png "Vision One")
-
 There should only be one AMI shown for your current region. Click on `[Select]` and `[Subscribe on instance launch]`. 
-
-![alt text](images/v1-aws-sgm-04.png "Vision One")
 
 Now, check your Playground One configuration.
 
