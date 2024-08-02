@@ -99,7 +99,7 @@ dryrun=False
 # Outputs:
 #   None
 #######################################
-export KUBE_CONFIG_PATH=~/.kube/config
+# export KUBE_CONFIG_PATH=~/.kube/config
 
 #######################################
 # Run a Terraform action
