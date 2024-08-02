@@ -1,14 +1,16 @@
-# helm repo add istio https://istio-release.storage.googleapis.com/charts
-# helm repo update
-# helm install my-istiod-release -n istio-system --create-namespace istio/istiod --set telemetry.enabled=true --set global.istioNamespace=istio-system
+# ####################################
+# Istio discovery
+# ####################################
+# Install the Istio discovery chart which deploys the istiod service
 resource "helm_release" "istiod" {
-  name = "istiod"
 
   repository       = "https://istio-release.storage.googleapis.com/charts"
   chart            = "istiod"
+  name             = "istiod"
   namespace        = var.namespace_base
   create_namespace = true
   version          = "1.22.3"
+  wait             = true
 
   set {
     name  = "telemetry.enabled"
@@ -30,5 +32,13 @@ resource "helm_release" "istiod" {
     value = "gateway"
   }
 
-  depends_on = [helm_release.istio_base]
+  set {
+    name  = "telemetry.enabled"
+    value = "true"
+  }
+
+  depends_on = [
+    helm_release.istio_base,
+    helm_release.istio_cni
+  ]
 }
