@@ -90,6 +90,18 @@ configs=(
 dryrun=False
 
 #######################################
+# Set KUBE_CONFIG_PATH to default
+# config
+# Globals:
+#   None
+# Arguments:
+#   None
+# Outputs:
+#   None
+#######################################
+export KUBE_CONFIG_PATH=~/.kube/config
+
+#######################################
 # Run a Terraform action
 # Globals:
 #   ONEPATH

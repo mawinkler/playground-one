@@ -18,6 +18,7 @@ module "eks" {
 
   cluster_endpoint_private_access = true
   cluster_endpoint_public_access  = true
+  //cluster_endpoint_public_access_cidrs can be added to restrict the cidrs for public access. https://github.com/terraform-aws-modules/terraform-aws-eks/issues/1867
   # cluster_endpoint_public_access_cidrs = var.access_ip
 
   enable_cluster_creator_admin_permissions = true
@@ -126,6 +127,25 @@ module "eks" {
         Product       = "playground-one"
         Configuration = "eks-ec2"
       }
+    }
+  }
+
+  node_security_group_additional_rules = {
+    ingress_15017 = {
+      description                   = "Cluster API - Istio Webhook namespace.sidecar-injector.istio.io"
+      protocol                      = "TCP"
+      from_port                     = 15017
+      to_port                       = 15017
+      type                          = "ingress"
+      source_cluster_security_group = true
+    }
+    ingress_15012 = {
+      description                   = "Cluster API to nodes ports/protocols"
+      protocol                      = "TCP"
+      from_port                     = 15012
+      to_port                       = 15012
+      type                          = "ingress"
+      source_cluster_security_group = true
     }
   }
 
