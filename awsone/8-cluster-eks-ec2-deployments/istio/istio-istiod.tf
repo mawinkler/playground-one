@@ -28,6 +28,11 @@ resource "helm_release" "istiod" {
   }
 
   set {
+    name  = "meshConfig.accessLogFile"
+    value = "/dev/stdout"
+  }
+
+  set {
     name  = "telemetry.enabled"
     value = "true"
   }

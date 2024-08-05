@@ -70,7 +70,7 @@ ssh_instance_dsm = "ssh -i /home/markus/projects/opensource/playground/playgroun
 vpc_id = "vpc-0725e481ee5a3250a"
 ```
 
-Connect to Deep Security using the `dsm_url` using your browser. You have configured the credentials during the configuration workflow, defaults are `masteradmin / playground`.
+Connect to Deep Security using the `dsm_url` using your browser. You have configured the credentials during the configuration workflow, defaults are `masteradmin / trendmicro`.
 
 Verify, that some computers are protected by Deep Security and the agents are up and running.
 

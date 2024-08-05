@@ -1,72 +1,113 @@
+# Scenario: Playing with Istio Service Mesh
+
+***Draft***
+
+!!! warning "NOT FINISHED YET"
+
+## Prerequisites
+
+- Playground One Network
+
+Verify, that you have `Deploy Istio` enabled in your configuration.
+
 ```sh
-cd ../sandbox/istio/
-
-kubectl apply -f samples/bookinfo/platform/kube/bookinfo.yaml
-
-helm ls -n istio-system
-
-# The Kubernetes Gateway API CRDs do not come installed by default on most Kubernetes clusters, so make sure they are installed before using the Gateway API.
-kubectl get crd gateways.gateway.networking.k8s.io &> /dev/null || { kubectl kustomize "github.com/kubernetes-sigs/gateway-api/config/crd?ref=v1.1.0" | kubectl apply -f -; }
-
-# The Bookinfo application is deployed, but not accessible from the outside. To make it accessible, you need to create an ingress gateway, which maps a path to a route at the edge of your mesh.
-kubectl apply -f samples/bookinfo/gateway-api/bookinfo-gateway.yaml
-kubectl wait --for=condition=programmed gtw bookinfo-gateway
-
-export INGRESS_HOST=$(kubectl get gtw bookinfo-gateway -o jsonpath='{.status.addresses[0].value}')
-export INGRESS_PORT=$(kubectl get gtw bookinfo-gateway -o jsonpath='{.spec.listeners[?(@.name=="http")].port}')
-export GATEWAY_URL=$INGRESS_HOST:$INGRESS_PORT
-echo $GATEWAY_URL
-curl -s "http://${GATEWAY_URL}/productpage" | grep -o "<title>.*</title>"
-
-kubectl apply -f samples/bookinfo/platform/kube/bookinfo-versions.yaml
-
-
-# Kiali
-kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.22/samples/addons/kiali.yaml
-kubectl port-forward svc/kiali 20001:20001 -n istio-system --address 0.0.0.0
-
-# Kiali via Helm
-helm repo add kiali https://kiali.org/helm-charts
-helm repo update
-helm install \
-    --set cr.create=true \
-    --set cr.namespace=istio-system \
-    --set cr.spec.auth.strategy="anonymous" \
-    --namespace kiali-operator \
-    --create-namespace \
-    kiali-operator \
-    kiali/kiali-operator
-
-# Cleanup bookinfo
-samples/bookinfo/platform/kube/cleanup.sh
+pgo --config
 ```
 
-kubectl -n istio-system edit kiali 
+```sh
+...
+Section: Kubernetes Deployments
+Please set/update your Integrations configuration
+...
+Deploy Istio? [true]:
+...
+```
 
-spec:
-  auth:
-    strategy: anonymous
-  deployment:
-    accessible_namespaces:
-    - '**'
-  cluster_wide_access: true
-  external_services:
-    istio:
-      component_status:
-        enabled: true
-        components:
-        - app_label: "gateway"
-          namespace: "istio-ingress"
-          is_core: true
-          is_proxy: true
+Then, create the PGO EKS-EC2 cluster by running
 
+```sh
+pgo --apply eks-ec2
+```
 
-kubectl apply -f samples/addons/kiali.yaml 
-kubectl apply -f samples/addons/grafana.yaml 
-kubectl apply -f samples/addons/prometheus.yaml 
-kubectl apply -f samples/addons/jaeger.yaml
+## Add-Ons
 
-kubectl destroy -f samples/addons/kiali.yaml 
-kubectl destroy -f samples/addons/grafana.yaml 
-kubectl destroy -f samples/addons/prometheus.yaml 
-kubectl destroy -f samples/addons/jaeger.yaml
+The Playground One provides a functional but basic Istio configuration only, yet. Since we want to get a little experience with it we deploy some of the most commonly used add-ons by running the commands below:
+
+```sh
+# Install Istio add-ons Kiali, Jaeger, Prmetheus, and Grafana
+for ADDON in kiali jaeger prometheus grafana 
+do 
+   ADDON_URL="https://raw.githubusercontent.com/istio/istio/1.22.3/samples/addons/$ADDON.yaml" 
+   kubectl apply -f $ADDON_URL
+done
+```
+
+***Access Kiali***
+
+```sh
+kubectl port-forward svc/kiali 20001:20001 -n istio-system --address 0.0.0.0
+```
+
+Use your browser to navigate to <http://localhost:20001>. You can replace localhost with the IP of your PGO server, if you need to.
+
+***Access Grafana***
+
+```sh
+kubectl port-forward svc/grafana 3000:3000 -n istio-system --address 0.0.0.0
+```
+
+Use your browser to navigate to <http://localhost:3000/dashboards>. You can replace localhost with the IP of your PGO server, if you need to.
+
+### Get your Shovel
+
+To play with Istio we're using an AWS sample application for now. To deploy it run:
+
+```sh
+# Setup Namespace for Istio Mesh
+cd ${ONEPATH}/experimenting/istio/istio-on-eks/modules/01-getting-started
+
+kubectl create namespace workshop
+kubectl label namespace workshop istio-injection=enabled
+
+# Deploy sample app
+helm install mesh-basic . -n workshop
+```
+
+The application’s (user interface) URL can be retrieved using the following command:
+
+```sh
+ISTIO_INGRESS_URL=$(kubectl get svc istio-ingress -n istio-ingress -o jsonpath='{.status.loadBalancer.ingress[*].hostname}')
+echo "http://$ISTIO_INGRESS_URL"
+```
+
+Accessing this URL in the browser will lead you to the Product Catalog application as shown here:
+
+![alt text](images/istio-app-01.png "APP")
+
+### Generating Traffic
+
+Let’s generate some traffic for our application. Use the siege command line tool to generate traffic to the application’s (user interface) URL by running the following commands in a separate terminal session.
+
+If you get a `command not found` you need to install `siege` first.
+
+```sh
+sudo apt update
+sudo apt install siege -y
+```
+
+Now run
+
+```sh
+ISTIO_INGRESS_URL=$(kubectl get svc istio-ingress -n istio-ingress -o jsonpath='{.status.loadBalancer.ingress[*].hostname}')
+
+# Generate load for 2 minute, with 5 concurrent threads and with a delay of 10s between successive requests
+siege http://$ISTIO_INGRESS_URL -c 5 -d 10 -t 2M
+```
+
+## Cleanup
+
+```sh
+helm uninstall mesh-basic -n workshop
+kubectl delete namespace workshop
+```
+

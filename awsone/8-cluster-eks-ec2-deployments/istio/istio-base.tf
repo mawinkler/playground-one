@@ -21,8 +21,8 @@ resource "helm_release" "istio_base" {
     value = var.namespace_base
   }
 
-  set {
-    name  = "defaultRevision"
-    value = "default"
-  }
+  # set {
+  #   name  = "defaultRevision"
+  #   value = "default"
+  # }
 }

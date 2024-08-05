@@ -6,7 +6,8 @@ resource "visionone_container_cluster" "terraform_cluster" {
   policy_id                  = local.cluster_policy
   runtime_security_enabled   = true
   vulnerability_scan_enabled = true
-  namespaces                 = ["kube-system", "calico-system", "calico-apiserver", "tigera-operator"]
+  # namespaces                 = ["kube-system", "calico-system", "calico-apiserver", "tigera-operator"]
+  namespaces                 = ["kube-system"]
 }
 
 resource "helm_release" "trendmicro" {

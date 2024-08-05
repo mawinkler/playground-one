@@ -34,6 +34,7 @@ nav:
       - CloudTrail: scenarios/xdr/cloudtrail.md
       - Automated Observed Attack Techniques Generation: scenarios/xdr/oat-generation.md
       - Automated Workbench Generation: scenarios/xdr/workbench-generation.md
+      - Detection Model Exceptions: scenarios/xdr/detection-model-exceptions.md
     - Workflow and Automation:
       - Third-Party Integration:
         - Setup Splunk: scenarios/automation/thirdparty/splunk-setup.md
@@ -66,6 +67,7 @@ nav:
           - Runtime Vulnerability Scan: scenarios/cloud-security/container-security/eks/runtime-vulnerability-ec2.md
           - Runtime Vulnerability Scan on Fargate: scenarios/cloud-security/container-security/eks/runtime-vulnerability-fargate.md
           - Integrate V1CS Customer Runtime Security Rules with Splunk: scenarios/automation/thirdparty/splunk-integrate-vision-one-custom-rules.md
+          - Playing with Istio Service Mesh: scenarios/cloud-security/container-security/eks/istio.md
         - ECS:
           - Apache Struts Multipart Encoding Command Injection (Runtime Security): scenarios/cloud-security/container-security/ecs/apache-struts-rce.md
           - Runtime Vulnerability Scan: scenarios/cloud-security/container-security/ecs/runtime-vulnerability.md
