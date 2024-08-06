@@ -5,8 +5,8 @@
 resource "helm_release" "gateway" {
   repository       = "https://istio-release.storage.googleapis.com/charts"
   chart            = "gateway"
-  name             = "istio-ingress"
-  namespace        = var.namespace_ingress
+  name             = "istio-ingressgateway"
+  namespace        = var.namespace_base  #var.namespace_ingress
   create_namespace = true
   version          = "1.22.3"
   wait             = true

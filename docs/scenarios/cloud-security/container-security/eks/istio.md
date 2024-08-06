@@ -45,18 +45,10 @@ done
 ***Access Kiali***
 
 ```sh
-kubectl port-forward svc/kiali 20001:20001 -n istio-system --address 0.0.0.0
+kubectl port-forward svc/kiali 20001:20001 -n istio-system --address 0.0.0.0 &
 ```
 
 Use your browser to navigate to <http://localhost:20001>. You can replace localhost with the IP of your PGO server, if you need to.
-
-***Access Grafana***
-
-```sh
-kubectl port-forward svc/grafana 3000:3000 -n istio-system --address 0.0.0.0
-```
-
-Use your browser to navigate to <http://localhost:3000/dashboards>. You can replace localhost with the IP of your PGO server, if you need to.
 
 ### Get your Shovel
 
@@ -76,7 +68,7 @@ helm install mesh-basic . -n workshop
 The application’s (user interface) URL can be retrieved using the following command:
 
 ```sh
-ISTIO_INGRESS_URL=$(kubectl get svc istio-ingress -n istio-ingress -o jsonpath='{.status.loadBalancer.ingress[*].hostname}')
+ISTIO_INGRESS_URL=$(kubectl get svc istio-ingressgateway -n istio-system -o jsonpath='{.status.loadBalancer.ingress[*].hostname}')
 echo "http://$ISTIO_INGRESS_URL"
 ```
 
@@ -98,11 +90,33 @@ sudo apt install siege -y
 Now run
 
 ```sh
-ISTIO_INGRESS_URL=$(kubectl get svc istio-ingress -n istio-ingress -o jsonpath='{.status.loadBalancer.ingress[*].hostname}')
+ISTIO_INGRESS_URL=$(kubectl get svc istio-ingressgateway -n istio-system -o jsonpath='{.status.loadBalancer.ingress[*].hostname}')
 
 # Generate load for 2 minute, with 5 concurrent threads and with a delay of 10s between successive requests
 siege http://$ISTIO_INGRESS_URL -c 5 -d 10 -t 2M
 ```
+
+And check the traffic graph in kiali.
+
+![alt text](images/istio-app-02.png "APP")
+
+## Grafana
+
+Grafana allows you to query, visualize, alert on and understand your metrics no matter where they are stored.
+
+***Access Grafana***
+
+```sh
+kubectl port-forward svc/grafana 3000:3000 -n istio-system --address 0.0.0.0 &
+```
+
+Use your browser to navigate to <http://localhost:3000/dashboards>. You can replace localhost with the IP of your PGO server, if you need to.
+
+![alt text](images/istio-grafana-01.png "APP")
+
+Navigate into each of the provided Dashboards by clicking on the names as shown in this image. For example, when you navigate to the Istio Control Plane Dashboard you should see a dashboard similar to the image shown here.
+
+Control Plane Dashboard monitors the health and performance of the control plane. Use this link to get details on all dashboards available out of the box: <https://istio.io/latest/docs/ops/integrations/grafana/>.
 
 ## Cleanup
 
