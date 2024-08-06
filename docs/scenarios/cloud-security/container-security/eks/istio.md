@@ -123,5 +123,11 @@ Control Plane Dashboard monitors the health and performance of the control plane
 ```sh
 helm uninstall mesh-basic -n workshop
 kubectl delete namespace workshop
+
+for ADDON in kiali jaeger prometheus grafana 
+do 
+   ADDON_URL="https://raw.githubusercontent.com/istio/istio/1.22.3/samples/addons/$ADDON.yaml" 
+   kubectl delete -f $ADDON_URL
+done
 ```
 

@@ -28,6 +28,23 @@ total 95132
 
 The Atomic Launcher is stored within the downloads folder of each of the instances connected to Deep Security.
 
+Verify, that you have `Enable Deep Security` enabled in your configuration and have set ***a valid Deep Security License***.
+
+```sh
+pgo --config
+```
+
+```sh
+...
+Section: Deep Security (on-prem)
+Please set/update your Deep Security configuration
+Enable Deep Security? [true]: 
+Deep Security License [AP-FHMD-FU...]: 
+Deep Security Username [masteradmin]: 
+Deep Security Password [trendmicro]: 
+...
+```
+
 Now, deploy Deep Security and Deep Security Workload configurations by running:
 
 ```sh
