@@ -4,9 +4,11 @@ resource "visionone_container_cluster" "terraform_cluster" {
   description                = "by Terraform Provider"
   resource_id                = var.cluster_arn
   policy_id                  = local.cluster_policy
+  group_id                   = var.group_id
   runtime_security_enabled   = true
   vulnerability_scan_enabled = true
-  namespaces                 = ["kube-system", "calico-system", "calico-apiserver", "tigera-operator"]
+  namespaces                 = ["kube-system"]
+  # namespaces                 = ["kube-system", "calico-system", "calico-apiserver", "tigera-operator"]
 }
 
 resource "helm_release" "trendmicro" {

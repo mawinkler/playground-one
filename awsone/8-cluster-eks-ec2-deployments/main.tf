@@ -29,6 +29,7 @@ module "vision_one" {
   cluster_arn    = data.terraform_remote_state.eks.outputs.cluster_arn
   cluster_name   = data.terraform_remote_state.eks.outputs.cluster_name
   cluster_policy = var.cluster_policy
+  group_id       = var.group_id
 
   providers = {
     restapi.container_security   = restapi.container_security

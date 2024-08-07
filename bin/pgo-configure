@@ -451,6 +451,19 @@ function update_vision_one_config() {
       echo "Error: Invalid ${key_desc} input."
       exit 0
     fi
+
+    key_desc="Vision One Container Security Cluster Group ID"
+    read -p "${key_desc} [${vision_one_cs_group_id}]: " TEMP
+    if [[ ! -z "${TEMP}" ]]; then
+      vision_one_cs_group_id=${TEMP}
+    fi
+    if [[ "${vision_one_cs_group_id}" =~ ^[0-9a-zA-Z_\-]+$ ]]; then
+      target_val=${vision_one_cs_group_id} \
+        yq -i '.services.vision-one.container-security.group-id = env(target_val)' ${ONEPATH}/config.yaml
+    else
+      echo "Error: Invalid ${key_desc} input."
+      exit 0
+    fi
   else
     printf '%s\n' "Skipping Vision One Container Security configuration"
   fi

@@ -14,7 +14,7 @@ Here, we're going to set exceptions for these detections.
 - Playground One EKS EC2
 - Vision One Container Security
 
-Verify, that you have `Deploy Istio` enabled in your configuration.
+Verify, that you have `Deploy Calico` and `Deploy Istio` enabled in your configuration.
 
 ```sh
 pgo --config
@@ -25,13 +25,40 @@ pgo --config
 Section: Kubernetes Deployments
 Please set/update your Integrations configuration
 ...
+Deploy Calico? [true]:
+...
 Deploy Istio? [true]:
 ...
 ```
 
-## Detection Model Exception for Calico
 
-Calico creates two violations against the runtime rule `TM-0000031` by the containers `flexvol-driver`, `csi-node-driver-registrar`, and `calico-csi`. This is by design and can be excluded.
+## Container Security
+
+### Deploy Policy
+
+Generally, one does not want to run privileged containers, but there might be some reasons for them. So below we're configuring a policy which blocks containers with extended privileges but allows them in two dedicated namespaces:
+
+Below, the upper parts of the deployment policy:
+
+![alt text](images/detection-model-deploy-01.png "Cluster wide")
+
+![alt text](images/detection-model-deploy-02.png "Namespaces Calico")
+
+![alt text](images/detection-model-deploy-03.png "Namespace Istio")
+
+### Runtime Rules
+
+The runtime rules assigned to the policy do have rule `TM-00000031` assigned:
+
+![alt text](images/detection-model-runtime-01.png "Runtime")
+
+![alt text](images/detection-model-runtime-02.png "Runtime")
+
+## Detection Model Management
+
+### Detection Model Exception for Calico
+
+Calico creates two violations against the runtime rule `TM-00000031` by the containers `flexvol-driver`, `csi-node-driver-registrar`, and `calico-csi`. This is by design and can be excluded.
 
 Example on `calico-csi`:
 
@@ -40,28 +67,28 @@ Example on `calico-csi`:
 This allows us to create an exception.
 
 - Targets
-  - Field: `ALL`
+    - Field: `ALL`
 - Event Source
-  - Event type: `CONTAINER_ACTIVITY`
-  - Event ID: `ALL`
+    - Event type: `ALL`
 - Match Criteria
-  - Field type: `detection_name`
-  - Field: `ruleName`  ***IMPORTANT: the `ruleName` in the filter maps to `ruleIdStr` in the OAT***
-  - Values: `TM-00000031`
-  - AND
-  - Field type: `container_identifier`
-  - Field: `k8sNamespace`
-  - Values: `calico-system`
-  - AND
-  - Field type: `container_identifier`
-  - Field: `containerName`
-  - Values: `calico-csi`
+    - Field type: `detection_name`
+    - Field: `ruleName`
+    - Values: `.*Launch Privileged Container`
+    - Edit using wildcards: Checked
+- AND
+    - Field type: `container_identifier`
+    - Field: `k8sNamespace`
+    - Values: `calico-system`
+- AND
+    - Field type: `container_identifier`
+    - Field: `containerName`
+    - Values: `calico-csi`
 
 There are two more containers (`flexvol-driver` and `csi-node-driver-registrar`) triggering the same rule, so we simply add them to the filter. The resulting exception should look like this:
 
 ![alt text](images/detection-model-exceptions-03.png "Calico")
 
-## Detection Model Exception for Istio
+### Detection Model Exception for Istio
 
 The deployment of Istio contains a CNI which runs as a privileged pod. This is by design and can be excluded with the exception below:
 
@@ -103,7 +130,7 @@ istio-system        istio-ingressgateway-9cc99c9db-g7qc4                        
 istio-system        istiod-68659fc5b5-trvn9                                      1/1     Running   0             19m
 ```
 
-This prooves, that Calico and Istio are up including their `cni`-nodes.
+This proves, that Calico and Istio are up including their `cni` nodes.
 
 Head over to `XDR Threat Investigation -> Observed Attack Techniques` and verify, that there are no OATs listed in regards Privileged Containers.
 

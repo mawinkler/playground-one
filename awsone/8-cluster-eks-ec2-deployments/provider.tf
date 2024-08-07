@@ -87,7 +87,7 @@ terraform {
     }
     visionone = {
       source  = "trendmicro/vision-one"
-      version = "~> 1.0.1"
+      version = "~> 1.0.2"
     }
   }
 }
