@@ -58,7 +58,7 @@ The runtime rules assigned to the policy do have rule `TM-00000031` assigned:
 
 ### Detection Model Exception for Calico
 
-Calico creates two violations against the runtime rule `TM-00000031` by the containers `flexvol-driver`, `csi-node-driver-registrar`, and `calico-csi`. This is by design and can be excluded.
+Calico creates violations against the runtime rule `TM-00000031` by several containers. This is by design and can be excluded.
 
 Example on `calico-csi`:
 
@@ -82,9 +82,9 @@ This allows us to create an exception.
 - AND
     - Field type: `container_identifier`
     - Field: `containerName`
-    - Values: `calico-csi`
+    - Values: `calico-csi`, `flexvol-driver`, `csi-node-driver-registrar`, `calico-node`
 
-There are two more containers (`flexvol-driver` and `csi-node-driver-registrar`) triggering the same rule, so we simply add them to the filter. The resulting exception should look like this:
+The resulting exception should look like this:
 
 ![alt text](images/detection-model-exceptions-03.png "Calico")
 
