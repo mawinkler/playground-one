@@ -24,36 +24,19 @@ terraform.tfstate*
 terraform.tfvars
 .pluralith
 
-# Terraform
+# Files
 0-files-park
 files-park
 TMServerAgent_Windows_auto_64_Server_-_Workload_Protection_Manager.zip
 TMServerAgent_Linux_auto_64_Server_-_Workload_Protection_Manager.tar
-
-# Files
 atomic_launcher_linux_1.0.0.1009.zip
 atomic_launcher_windows_1.0.0.1013.zip
 atomic_launcher_windows_2.zip
 TMServerAgent_Linux.tar
 TMServerAgent_Windows.zip
-.pgo.nw.lock
-.pgo.ec2.lock
-.pgo.eks-ec2.lock
-.pgo.eks-fg.lock
-.pgo.scenarios-ec2.lock
-.pgo.scenarios-fg.lock
-.pgo.ecs.lock
-.pgo.dsm.lock
-.pgo.aks.lock
-.pgo.kind.lock
-.pgo.s3scanner.lock
-.pgo.eks-ec2-deployments.lock
-.pgo.instances.lock
-.pgo.kind-deployments.lock
-.pgo.network.lock
-.pgo.aks-deployments.lock
-.pgo.scenarios-aks.lock
 *.out
+*.lock
+*.temp
 overrides.yaml
 dsm.properties
 pgoc
@@ -79,7 +62,6 @@ log/calico/cni/cni.log
 log/calico/cni/config
 log/calico/cni/current
 log/calico/cni/lock
-.pgo.goat.lock
 cspm/exceeded
 cspm/plan.json
 cspm/result.json
@@ -87,7 +69,6 @@ cspm/scan_result.json
 cspm/exceptions.json
 cspm/suppressions.json
 cspm/report.pdf
-.pgo.scenarios-kind.lock
 customrules
 filebeat_ingest_data
 logstash_ingest_data
@@ -109,11 +90,6 @@ cspm/infra/vpc/output.tf
 cspm/infra/vpc/variables.tf
 cspm/infra/vpc/vpc_endpoints.tf
 cspm/infra/vpc/vpc.tf
-.pgo.scenarios-identity.lock
-.pgo.ecs-ec2.lock
-.pgo.ecs-fg.lock
-.pgo.dsw.lock
-.pgo.user.lock
 awsone/7-scenarios-cloudtrail/downloads/passwords.zip
 awsone/7-scenarios-cloudtrail/downloads/server.pem
-awsone/sandbox/traffic_mirror_sessions.tf
+awsone/sandbox

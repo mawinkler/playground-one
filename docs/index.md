@@ -30,41 +30,6 @@ In a nutshell:
     The Playground One is continuously under construction!
     The capabilities and contents are therefore to be enjoyed with caution and can change at any time.
 
-## Major Updates
-
-02/01/2024
-
-- Playground One in a Box - The Playground One Container<br>
-  The Playgrond One Container allows you to use the playground on any container engine hosted either on `arm64` or `amd64` from within a containerized environment not affecting your system.
-
-01/23/2024
-
-- Playground One starts to support Intel and M1+ MacOS as host platform.
-
-01/16/2024
-
-- Playground One starts to support AKS and V1CS on Azure.
-
-12/19/2023
-
-- Automated Vision One Container Security deployment with EKS EC2 and Fargate Profiles.
-
-11/14/2023
-
-- Deep Security integrated for use in migration scenarios.
-
-10/27/2023
-
-- EKS Fargate & EKS Calico on EC2 operational.
-
-10/10/2023
-
-- Playground One goes public.
-
-08/07/2023
-
-- Initial release.
-
 ## Requirements
 
 The Playground One is designed to work on these platforms:
@@ -83,19 +48,24 @@ Playground One native installation:
 
 ### AWS
 
-Component         | Operational | Known Issues | Vision One Cloud Security
------------------ | ----------- | ------------ | ----------------------------------------------------------------
-Network           | Yes         | See 1)       | Service Gateway<br>Identity Security
-EC2 Linux         | Yes         | None         | V1 Server & Workload Protection<br>ASRM
-EC2 Windows       | Yes         | None         | V1 Server & Workload Protection
-EKS EC2           | Yes         | None         | V1CS Runtime Scanning<br>V1CS Runtime Security<br>OAT&WB Generation
-EKS Fargate       | Yes         | None         | V1CS Runtime Scanning<br>V1CS Runtime Security<br>OAT&WB Generation
-ECS EC2           | Yes         | See 2)       | V1CS Runtime Scanning<br>V1CS Runtime Security
-ECS Fargate       | Yes         | See 3)       | V1CS Runtime Scanning<br>V1CS Runtime Security
-Calico            | Yes         | EKS EC2 only |
-Prometheus        | Yes         | EKS EC2 only |
-Trivy             | Yes         | EKS EC2 only |
-Deep Security     | Yes         | None         | V1 Server & Workload Protection
+Component            | Operational | Known Issues | Vision One
+-------------------- | ----------- | ------------ | -------------------
+Network              | Yes         | See 1)       | Service Gateway<br>Identity Security<br>Virtual Network Sensor
+Instances            | Yes         | None         | V1 Server & Workload Protection<br>ASRM<br>Service Gateway<br>Identity Security<br>Virtual Network 
+EKS EC2              | Yes         | None         | V1 Container Security<br>OAT&WB Generation<br>Terraform Provider
+EKS Fargate          | Yes         | None         | V1 Container Security<br>OAT&WB Generation<br>Terraform Provider
+ECS EC2              | Yes         | See 2)       | V1 Container Security
+ECS Fargate          | Yes         | See 3)       | V1 Container Security
+Bucket Scanner       | Yes         |              | V1 FSS SDK
+Scenarios CloudTrail | Yes         |              | V1 CloudTrail
+Scenarios CSPM       | Yes         |              | V1 CSPM
+Scenarios Identity   | Yes         |              | V1 Identity Security
+Calico               | Yes         | EKS EC2 only |
+Prometheus           | Yes         | EKS EC2 only |
+Trivy                | Yes         | EKS EC2 only |
+Istio                | Yes         | EKS EC2 only |
+MetalLB              | Yes         | Kind only    |
+Deep Security        | Yes         | None         | Deep Security Integration & Migration<br>V1 Server & Workload Protection
 
 1) In addition to the network itself the following services can be enabled: Active Directory, AWS Managed Active Directory, and Trend Service Gateway. The Active Directories are experimental and to be integrated deeper in the Playground One over time. They will support additional scenarios with Identity Security, Data Security, and more.
 
@@ -107,7 +77,7 @@ Deep Security     | Yes         | None         | V1 Server & Workload Protection
 
 Component         | Operational | Known Issues | Vision One Cloud Security
 ----------------- | ----------- | ------------ | ----------------------------------------------------------------
-AKS               | Yes         | None         | V1CS Runtime Scanning<br>V1CS Runtime Security
+AKS               | Yes         | None         | V1 Container Security
 
 ### Other
 
@@ -115,8 +85,8 @@ Component         | Operational | Known Issues | Vision One Cloud Security
 ----------------- | ----------- | ------------ | ----------------------------------------------------------------
 TMAS              | Yes         | None         | Artifact Scanning for Vulnerabilities and Malware
 TMFS              | Yes         | None         | File and Directory Scanning for Malware
-Workload Security | Yes         | None         | V1 Server & Workload Protection
-Kind Kubernetes   | In progress | Only native  |
+Workload Security | Yes         | None         | Workload Security Migration<br>V1 Server & Workload Protection
+Kind Kubernetes   | Yes         | Only native  |
 
 ## CLI Commands of the Playground
 
@@ -153,6 +123,8 @@ Vulnerabilities | grype | See [github.com/anchore/grype](https://github.com/anch
   - `Endpoint Security -> Deep Security -> Integrate Deep Security with Vision One and Demo Benefits`.
   - `Cloud Security -> Container Security -> EKS -> Playing with Istio Service Mesh`.
 - You can now choose the OS SKU for the nodes in the AKS Cluster. It defaults to `AzureLinux`.
+- The EKS cluster deployment of V1 Container Security now supports `group_id` using the Terraform Provider.
+- The `pgo` command now checks if your local IP has changed and needs and update.
 
 ***0.4.1***
 

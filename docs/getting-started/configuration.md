@@ -147,17 +147,19 @@ Set/update:
 - `Vision One API Key`: Your Vision One API Key.
 - `Vision One Region Name`: Your Vision One Region.
 - `Vision One ASRM - create Potential Attack Path(s)`: Create potential attack path detections for ASRM.
-- `Vision One Container Security`: Enable or disable the Container Security deployment. If set to `false` Cloud One configuration will be skipped.
-- `Container Security Policy Name`: The name of the Policy to assign.
+- `Enable Vision One Container Security`: Enable or disable the Container Security deployment. If set to `false` Cloud One configuration will be skipped.
+- `Vision One Container Security Policy Name`: The name of the Policy to assign.
+- `Vision One Container Security Cluster Group ID`: The Cluster Group ID to go.
 
 ### Section: Kubernetes Deployments
 
 Set/update:
 
-- `Calico`: Enable/disable the most used Pod network on your EKS cluster. It's currently disabled by default but will come shortly
-- `Prometheus & Grafana`: Enable/disable Prometheus. It is an open-source systems monitoring and alerting toolkit integrated with a preconfigured Grafana.
-- `Trivy`: Enable/disable Trivy vulnerability scanning for comparison.
-- `MetalLB`: Enable/disable MetalLB for Kind cluster.
+- `Deploy Calico`: Enable/disable the most used Pod network on your EKS cluster. It's currently disabled by default but will come shortly
+- `Deploy Prometheus & Grafana`: Enable/disable Prometheus. It is an open-source systems monitoring and alerting toolkit integrated with a preconfigured Grafana.
+- `Deploy Trivy`: Enable/disable Trivy vulnerability scanning for comparison.
+- `Deploy Istio`: Enable/disable for EKS EC2.
+- `Deploy MetalLB`: Enable/disable MetalLB for Kind cluster.
 
 ### Section: Deep Security (on-prem)
 
