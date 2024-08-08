@@ -112,6 +112,14 @@ Vulnerabilities | grype | See [github.com/anchore/grype](https://github.com/anch
 
 ## Change Log
 
+***0.4.3***
+
+*Fixes*
+
+- Fix `pgoc` on arm64
+- Update documentation for PGO user initial setup
+- Update default `group_id` for Container Security on EKS clusters
+
 ***0.4.2***
 
 *Changes*

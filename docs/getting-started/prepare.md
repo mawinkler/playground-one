@@ -90,6 +90,11 @@ Eventually authenticate to AWS and/or Azure by either running
 ```sh
 # Not required when using Cloud9
 aws configure
+
+# Verify
+aws s3 ls
+
+# Should return a list of available S3 buckets
 ```
 
 and/or

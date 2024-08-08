@@ -83,6 +83,15 @@ Examples:
 > 
 > `az account list | jq -r '.[] | [.name, .id] | @tsv'`
 
+If you intent to use the Playground One user on AWS run the following commands now:
+
+```sh
+pgo --init user
+pgo --apply user
+```
+
+This will create a user account in AWS with the necessary permissions only. The credetials are automatically set in the `config.yaml`.
+
 After bootstrapping you need to configure Playground One. To simplify the process use the built in configuration tool. An eventually already existing `config.yaml` will be saved as `config.yaml.bak`. Run
 
 ```sh
