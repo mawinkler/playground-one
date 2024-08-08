@@ -1,12 +1,17 @@
 #!/bin/bash
+
+set -e
+
 PGO_VERSION=$(cat .PGO_VERSION)
 
 printf '%s\n' "Building mcs version ${PGO_VERSION}"
 
 # docker buildx create \
 #   --name container \
-#   --driver=docker-container 
-# docker run --privileged multiarch/qemu-user-static:latest --reset -p yes --credential yes
+#   --driver=docker-container
+
+# https://github.com/docker/buildx/issues/1335
+docker run --privileged multiarch/qemu-user-static:latest --reset -p yes --credential yes
 
 # docker buildx version
 # docker buildx stop
