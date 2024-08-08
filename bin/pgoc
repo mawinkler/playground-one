@@ -95,7 +95,7 @@ case $1 in
   start)
     pgoc_start
     ;;
-  |restart)
+  restart)
     pgoc_stop
     pgoc_start
     ;;
