@@ -89,10 +89,14 @@ case $1 in
     pgoc_stop
     pgoc_update
     ;;
-  stop|restart)
+  stop)
     pgoc_stop
-    ;;&
-  start|restart)
+    ;;
+  start)
+    pgoc_start
+    ;;
+  |restart)
+    pgoc_stop
     pgoc_start
     ;;
 esac
