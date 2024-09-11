@@ -7,7 +7,7 @@
 # #############################################################################
 resource "aws_instance" "linux1" {
 
-  count = var.create_linux ? 1 : 0
+  count = var.create_linux ? local.linux_amzn2_count : 0
 
   ami                    = data.aws_ami.amzn2.id
   instance_type          = "t3.medium"
@@ -17,7 +17,7 @@ resource "aws_instance" "linux1" {
   key_name               = var.key_name
 
   tags = {
-    Name          = "${var.environment}-linux1"
+    Name          = "${var.environment}-linux1-${count.index}"
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "dsm"
@@ -34,7 +34,7 @@ resource "aws_instance" "linux1" {
 
 resource "aws_instance" "linux2" {
 
-  count = var.create_linux ? 1 : 0
+  count = var.create_linux ? local.linux_ubuntu_count : 0
 
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t3.medium"
@@ -44,7 +44,7 @@ resource "aws_instance" "linux2" {
   key_name               = var.key_name
 
   tags = {
-    Name          = "${var.environment}-linux2"
+    Name          = "${var.environment}-linux2-${count.index}"
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "dsm"
@@ -67,7 +67,7 @@ resource "random_password" "windows_password" {
 
 resource "aws_instance" "windows1" {
 
-  count = var.create_windows ? 1 : 0
+  count = var.create_windows ? local.windows_count : 0
 
   ami                    = data.aws_ami.windows.id
   instance_type          = "t3.medium"
@@ -77,7 +77,7 @@ resource "aws_instance" "windows1" {
   key_name               = var.key_name
 
   tags = {
-    Name          = "${var.environment}-windows1"
+    Name          = "${var.environment}-windows1-${count.index}"
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "dsm"

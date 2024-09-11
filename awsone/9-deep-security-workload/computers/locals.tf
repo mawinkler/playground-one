@@ -22,4 +22,8 @@ locals {
     windows_policy_id = var.windows_policy_id
     public_key        = var.public_key
   })
+
+  linux_amzn2_count = 2
+  linux_ubuntu_count = 1
+  windows_count = 1
 }
