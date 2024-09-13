@@ -41,10 +41,10 @@ output "ds_apikey" {
   value = data.terraform_remote_state.deep_security.outputs.ds_apikey
 }
 
-# output "linux_policy_id" {
-#   value = module.dsm.linux_policy_id
-# }
+output "linux_policy_id" {
+  value = module.dsm.linux_policy_id
+}
 
-# output "windows_policy_id" {
-#   value = module.dsm.windows_policy_id
-# }
+output "windows_policy_id" {
+  value = module.dsm.windows_policy_id
+}
