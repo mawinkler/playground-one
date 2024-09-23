@@ -554,6 +554,19 @@ function update_workload_security_config() {
   fi
 
   if ${workload_security_enabled} ; then
+    key_desc="Region"
+    read -p "${key_desc} [${workload_security_region:0:10}...]: " TEMP
+    if [[ ! -z "${TEMP}" ]]; then
+      workload_security_region=${TEMP}
+    fi
+    if [[ "${workload_security_region}" =~ ^[0-9a-z\-]+$ ]]; then
+      target_val=${workload_security_region} \
+        yq -i '.services.workload-security.region = env(target_val)' ${ONEPATH}/config.yaml
+    else
+      echo "Error: Invalid ${key_desc} input."
+      exit 0
+    fi
+
     key_desc="Tenant ID"
     read -p "${key_desc} [${workload_security_tenant_id:0:10}...]: " TEMP
     if [[ ! -z "${TEMP}" ]]; then

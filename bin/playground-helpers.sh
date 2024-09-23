@@ -461,10 +461,12 @@ function get_config() {
     [[ "${deep_security_enabled}" = "null" || "${deep_security_enabled}" = "" ]] && deep_security_enabled=false
 
     # Workload Security
+    workload_security_region="$(yq '.services.workload-security.region' $ONEPATH/config.yaml)"
     workload_security_tenant_id="$(yq '.services.workload-security.tenant-id' $ONEPATH/config.yaml)"
     workload_security_token="$(yq '.services.workload-security.token' $ONEPATH/config.yaml)"
     workload_security_api_key="$(yq '.services.workload-security.api-key' $ONEPATH/config.yaml)"
     workload_security_enabled="$(yq '.services.workload-security.enabled' $ONEPATH/config.yaml)"
+    [[ "${workload_security_region}" = "null" || "${workload_security_region}" = "" ]] && workload_security_region="trend-us-1"
     [[ "${workload_security_tenant_id}" = "null" || "${workload_security_tenant_id}" = "" ]] && workload_security_tenant_id=""
     [[ "${workload_security_token}" = "null" || "${workload_security_token}" = "" ]] && workload_security_token=""
     [[ "${workload_security_api_key}" = "null" || "${workload_security_api_key}" = "" ]] && workload_security_api_key=""

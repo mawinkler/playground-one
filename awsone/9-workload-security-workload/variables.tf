@@ -23,7 +23,6 @@ variable "environment" {
 ################################################################################
 variable "ws_region" {
   type = string
-  default = "trend-us-1"
 }
 
 variable "ws_tenant_id" {

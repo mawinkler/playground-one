@@ -22,6 +22,7 @@ create_linux = ${pgo_ec2_create_linux}
 create_windows = ${pgo_ec2_create_windows}
 
 # Workload Security
+ws_region = "${workload_security_region}"
 ws_tenant_id = "${workload_security_tenant_id}"
 ws_token = "${workload_security_token}"
 ws_apikey = "${workload_security_api_key}"

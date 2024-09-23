@@ -584,6 +584,7 @@ function init() {
       pgo_access_ip=${pgo_access_ip} \
       pgo_ec2_create_linux=${pgo_ec2_create_linux} \
       pgo_ec2_create_windows=${pgo_ec2_create_windows} \
+      workload_security_region=${workload_security_region} \
       workload_security_tenant_id=${workload_security_tenant_id} \
       workload_security_token=${workload_security_token} \
       workload_security_api_key=${workload_security_api_key} \

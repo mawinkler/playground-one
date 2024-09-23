@@ -4,7 +4,7 @@
 variable "firewall_rules" {
   type = set(string)
   default = [
-    "Allow ICMP fragmentation packet (type 3, code 4)",
+    "Allow ICMP type 3 code 4",
     "Allow solicited ICMP replies",
     "Allow solicited TCP/UDP replies",
     "ARP",
@@ -29,7 +29,7 @@ data "restapi_object" "firewall_rules" {
 }
 
 locals {
-  firewall_rule_allow_icmp_fragmentation_packet = jsondecode(data.restapi_object.firewall_rules["Allow ICMP fragmentation packet (type 3, code 4)"].api_response).ID
+  firewall_rule_allow_icmp_fragmentation_packet = jsondecode(data.restapi_object.firewall_rules["Allow ICMP type 3 code 4"].api_response).ID
   firewall_rule_allow_solicited_icmp_replies    = jsondecode(data.restapi_object.firewall_rules["Allow solicited ICMP replies"].api_response).ID
   firewall_rule_allow_solicited_tcpudp_replies  = jsondecode(data.restapi_object.firewall_rules["Allow solicited TCP/UDP replies"].api_response).ID
   firewall_rule_arp                             = jsondecode(data.restapi_object.firewall_rules["ARP"].api_response).ID
