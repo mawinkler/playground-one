@@ -533,6 +533,70 @@ function update_deep_security_config() {
   fi
 }
 
+function update_workload_security_config() {
+  printf '\n%s\n' "${bold}${blue}Section: Workload Security (on-prem)${normal}"
+  printf '%s\n' "Please set/update your Workload Security configuration"
+
+  ##
+  ## Workload Security
+  ##
+  key_desc="Enable Workload Security?"
+  read -p "${key_desc} [${workload_security_enabled}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    workload_security_enabled=${TEMP}
+  fi
+  if [[ "${workload_security_enabled}" =~ ^true|false$ ]]; then
+    target_val=${workload_security_enabled} \
+      yq -i '.services.workload-security.enabled = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  if ${workload_security_enabled} ; then
+    key_desc="Tenant ID"
+    read -p "${key_desc} [${workload_security_tenant_id:0:10}...]: " TEMP
+    if [[ ! -z "${TEMP}" ]]; then
+      workload_security_tenant_id=${TEMP}
+    fi
+    if [[ "${workload_security_tenant_id}" =~ ^[0-9A-Z\-]+$ ]]; then
+      target_val=${workload_security_tenant_id} \
+        yq -i '.services.workload-security.tenant-id = env(target_val)' ${ONEPATH}/config.yaml
+    else
+      echo "Error: Invalid ${key_desc} input."
+      exit 0
+    fi
+
+    key_desc="Token"
+    read -p "${key_desc} [${workload_security_token:0:10}]: " TEMP
+    if [[ ! -z "${TEMP}" ]]; then
+      workload_security_token=${TEMP}
+    fi
+    if [[ "${workload_security_token}" =~ ^[0-9A-Z\-]+$ ]]; then
+      target_val=${workload_security_token} \
+        yq -i '.services.workload-security.token = env(target_val)' ${ONEPATH}/config.yaml
+    else
+      echo "Error: Invalid ${key_desc} input."
+      exit 0
+    fi
+
+    key_desc="API Key"
+    read -p "${key_desc} [${workload_security_api_key:0:10}]: " TEMP
+    if [[ ! -z "${TEMP}" ]]; then
+      workload_security_api_key=${TEMP}
+    fi
+    if [[ "${workload_security_api_key}" =~ ^[0-9A-Z\-]+:[0-9A-Z\-]+:[0-9a-zA-Z\/\=]+$ ]]; then
+      target_val=${workload_security_api_key} \
+        yq -i '.services.workload-security.api-key = env(target_val)' ${ONEPATH}/config.yaml
+    else
+      echo "Error: Invalid ${key_desc} input."
+      exit 0
+    fi
+  else
+    printf '%s\n' "Skipping Workload Security configuration"
+  fi
+}
+
 # function update_vision_one_config() {
 #   printf '\n%s\n' "Please set/update your Server & Workload Protection configuration"
 
@@ -720,6 +784,7 @@ update_vision_one_config
 # update_vision_one_config
 update_integrations_config
 update_deep_security_config
+update_workload_security_config
 
 stickies
 

@@ -460,6 +460,16 @@ function get_config() {
     [[ "${deep_security_password}" = "null" || "${deep_security_password}" = "" ]] && deep_security_password="trendmicro"
     [[ "${deep_security_enabled}" = "null" || "${deep_security_enabled}" = "" ]] && deep_security_enabled=false
 
+    # Workload Security
+    workload_security_tenant_id="$(yq '.services.workload-security.tenant-id' $ONEPATH/config.yaml)"
+    workload_security_token="$(yq '.services.workload-security.token' $ONEPATH/config.yaml)"
+    workload_security_api_key="$(yq '.services.workload-security.api-key' $ONEPATH/config.yaml)"
+    workload_security_enabled="$(yq '.services.workload-security.enabled' $ONEPATH/config.yaml)"
+    [[ "${workload_security_tenant_id}" = "null" || "${workload_security_tenant_id}" = "" ]] && workload_security_tenant_id=""
+    [[ "${workload_security_token}" = "null" || "${workload_security_token}" = "" ]] && workload_security_token=""
+    [[ "${workload_security_api_key}" = "null" || "${workload_security_api_key}" = "" ]] && workload_security_api_key=""
+    [[ "${workload_security_enabled}" = "null" || "${workload_security_enabled}" = "" ]] && workload_security_enabled=false
+
     # # Vision One
     # vision_one_server_tenant_id="$(yq '.services.vision-one.server-workload-protection.tenant-id' $ONEPATH/config.yaml)"
     # vision_one_server_token="$(yq '.services.vision-one.server-workload-protection.token' $ONEPATH/config.yaml)"

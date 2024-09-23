@@ -7,7 +7,7 @@
 # #############################################################################
 resource "aws_instance" "linux-web" {
 
-  count = var.create_linux ? 1 : 0
+  count = var.create_linux ? local.linux_web_count : 0
 
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.linux_instance_type
@@ -17,7 +17,7 @@ resource "aws_instance" "linux-web" {
   key_name               = var.key_name
 
   tags = {
-    Name          = "${var.environment}-linux-web"
+    Name          = "${var.environment}-linux-web-${count.index}"
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "ec2"

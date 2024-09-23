@@ -72,6 +72,7 @@ configs=(
   ["goat"]=${ONEPATH}/awsone/7-goat
   ["dsm"]=${ONEPATH}/awsone/9-deep-security
   ["dsw"]=${ONEPATH}/awsone/9-deep-security-workload
+  ["wsw"]=${ONEPATH}/awsone/9-workload-security-workload
   ["kind"]=${ONEPATH}/kindone/4-cluster-kind
   ["scenarios-kind"]=${ONEPATH}/kindone/7-scenarios-kind
   ["kind-deployments"]=${ONEPATH}/kindone/8-cluster-kind-deployments
@@ -574,6 +575,23 @@ function init() {
 
       [ "$2" = "" ] && tf dsw init
       ;;&
+    wsw|all)
+      printf '%s\n' "Create terraform.tfvars for workload security workload"
+      aws_region=${aws_region} \
+      aws_pgo_user_access_key=${aws_pgo_user_access_key} \
+      aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
+      environment_name=${environment_name} \
+      pgo_access_ip=${pgo_access_ip} \
+      pgo_ec2_create_linux=${pgo_ec2_create_linux} \
+      pgo_ec2_create_windows=${pgo_ec2_create_windows} \
+      workload_security_tenant_id=${workload_security_tenant_id} \
+      workload_security_token=${workload_security_token} \
+      workload_security_api_key=${workload_security_api_key} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-9-workload-security-workload.tfvars >${configs[wsw]}/terraform.tfvars
+
+      [ "$2" = "" ] && tf wsw init
+      ;;&
     kind|all)
       printf '%s\n' "Create terraform.tfvars for cluster-kind"
       environment_name=${environment_name} \
@@ -709,6 +727,10 @@ function apply() {
       tf dsw apply
       printf '%s\n' "public_instance_password_windows1 = \"$(terraform -chdir=${configs[dsw]} output -raw public_instance_password_windows1)\""
       ;;&
+    wsw|all)
+      tf wsw apply
+      printf '%s\n' "public_instance_password_windows1 = \"$(terraform -chdir=${configs[wsw]} output -raw public_instance_password_windows1)\""
+      ;;&
     kind|all)
       tf kind apply
       tf kind-deployments apply
@@ -769,7 +791,7 @@ function update_ip() {
     exit 0
   fi
 
-  for config in network eks-ec2 eks-fg aks ecs-ec2 ecs-fg scenarios-ec2 scenarios-fg scenarios-aks dsm dsw ; do
+  for config in network eks-ec2 eks-fg aks ecs-ec2 ecs-fg scenarios-ec2 scenarios-fg scenarios-aks dsm dsw wsw; do
     init ${config}
     if checklock ${config} ; then
       apply ${config}
@@ -835,6 +857,70 @@ function deep_security_delete_computers() {
   for id in ${computer_ids}; do
     printf 'Deleting Computer with ID: %s\n' "${id}"
     curl --location -ks --request DELETE ${dsm_url}/api/computers/${id} \
+      --header 'api-version: v1' \
+      --header 'Content-Type: application/json' \
+      --header 'Accept: application/json' \
+      --header 'api-secret-key: '${api_key}
+  done
+}
+
+#######################################
+# Deletes computers from Workload Security
+# with Playground policy assigned
+# Globals:
+#   ONEPATH
+# Arguments:
+#   None
+# Outputs:
+#   None
+#######################################
+function workload_security_delete_computers() {
+
+  # cd "${configs[wsw]}"
+  wsw_url=$(terraform -chdir=${configs[wsw]} output -raw wsw_url)
+  api_key=$(terraform -chdir=${configs[wsw]} output -raw ds_apikey)
+  linux_policy_id=$(terraform -chdir=${configs[wsw]} output -raw linux_policy_id)
+  windows_policy_id=$(terraform -chdir=${configs[wsw]} output -raw windows_policy_id)
+  computer_ids=$(curl --location -ks ${wsw_url}/api/computers/search \
+    --header 'api-version: v1' \
+    --header 'Content-Type: application/json' \
+    --header 'Accept: application/json' \
+    --header 'api-secret-key: '${api_key} \
+    --data '{
+      "searchCriteria": [
+        {
+          "fieldName": "policyID",
+          "numericTest": "equal",
+          "numericValue": "'${linux_policy_id}'"
+        }
+      ]
+    }' | jq -r '.computers[].ID')
+  for id in ${computer_ids}; do
+    printf 'Deleting Computer with ID: %s\n' "${id}"
+    curl --location -ks --request DELETE ${wsw_url}/api/computers/${id} \
+      --header 'api-version: v1' \
+      --header 'Content-Type: application/json' \
+      --header 'Accept: application/json' \
+      --header 'api-secret-key: '${api_key}
+  done
+
+  computer_ids=$(curl --location -ks ${wsw_url}/api/computers/search \
+    --header 'api-version: v1' \
+    --header 'Content-Type: application/json' \
+    --header 'Accept: application/json' \
+    --header 'api-secret-key: '${api_key} \
+    --data '{
+      "searchCriteria": [
+        {
+          "fieldName": "policyID",
+          "numericTest": "equal",
+          "numericValue": "'${windows_policy_id}'"
+        }
+      ]
+    }' | jq -r '.computers[].ID')
+  for id in ${computer_ids}; do
+    printf 'Deleting Computer with ID: %s\n' "${id}"
+    curl --location -ks --request DELETE ${wsw_url}/api/computers/${id} \
       --header 'api-version: v1' \
       --header 'Content-Type: application/json' \
       --header 'Accept: application/json' \
@@ -1049,6 +1135,14 @@ function destroy() {
         printf '%s\n' "Configuration dsw is not applied"
       fi
       ;;&
+    wsw|all)
+      if checklock wsw ; then
+        deep_security_delete_computers
+        tf wsw destroy
+      else
+        printf '%s\n' "Configuration wsw is not applied"
+      fi
+      ;;&
     dsm|deepsecurity|all)
       if checklock dsw ; then
         printf '%s\n' "Destroy dsw configuration first"
@@ -1239,6 +1333,10 @@ function output() {
       tf dsw output
       printf '%s\n' "public_instance_password_windows1 = $(terraform -chdir=${configs[dsw]} output -raw public_instance_password_windows1)"
       ;;&
+    wsw|all)
+      tf wsw output
+      printf '%s\n' "public_instance_password_windows1 = $(terraform -chdir=${configs[wsw]} output -raw public_instance_password_windows1)"
+      ;;&
     kind|all)
       tf kind output
       tf kind-deployments output
@@ -1340,6 +1438,9 @@ function state() {
     dsw|all)
       tf dsw state
       ;;&
+    wsw|all)
+      tf wsw state
+      ;;&
     kind|all)
       tf kind state
       tf kind-deployments state
@@ -1422,6 +1523,9 @@ function show() {
     dsw|all)
       tf dsw show
       ;;&
+    wsw|all)
+      tf wsw show
+      ;;&
     kind|all)
       tf kind show
       tf kind-deployments show
@@ -1502,6 +1606,9 @@ function validate() {
       ;;&
     dsw|all)
       tf dsw validate
+      ;;&
+    wsw|all)
+      tf wsw validate
       ;;&
     kind|all)
       tf kind validate
@@ -1609,6 +1716,9 @@ function erase() {
     dsw|all)
       tf dsw erase
       ;;&
+    wsw|all)
+      tf wsw erase
+      ;;&
     kind|all)
       tf kind erase
       tf kind-deployments erase
@@ -1697,6 +1807,7 @@ function helpcmd() {
   printf '%s\n' "  scenarios-aks        Scenario configuration"
   printf '%s\n' "  dsm                  Deep Security configuration"
   printf '%s\n' "  dsw                  Deep Security Workload configuration"
+  printf '%s\n' "  wsw                  Workload Security Workload configuration"
   printf '%s\n' "  aks                  AKS configuration"
   printf '%s\n' "  all                  All configurations"
   printf '%s\n' ""

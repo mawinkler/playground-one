@@ -22,4 +22,8 @@ locals {
     windows_ad_user_name     = var.windows_ad_user_name
     windows_ad_safe_password = var.windows_ad_safe_password
   })
+
+  linux_db_count  = 2
+  linux_web_count = 2
+  windows_count   = 1
 }

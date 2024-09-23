@@ -93,3 +93,5 @@ cspm/infra/vpc/vpc.tf
 awsone/7-scenarios-cloudtrail/downloads/passwords.zip
 awsone/7-scenarios-cloudtrail/downloads/server.pem
 awsone/sandbox
+awsone/0-files/TMSensorAgent_Linux.tar
+awsone/0-files/TMSensorAgent_Windows.zip

@@ -11,7 +11,7 @@ resource "random_password" "windows_password" {
 
 resource "aws_instance" "windows-server" {
 
-  count = var.create_windows ? 1 : 0
+  count = var.create_windows ? local.windows_count : 0
 
   ami                    = data.aws_ami.windows.id
   instance_type          = var.windows_instance_type
@@ -21,7 +21,7 @@ resource "aws_instance" "windows-server" {
   key_name               = var.key_name
 
   tags = {
-    Name          = "${var.environment}-windows-server"
+    Name          = "${var.environment}-windows-server-${count.index}"
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "ec2"
