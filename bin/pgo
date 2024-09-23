@@ -878,8 +878,8 @@ function deep_security_delete_computers() {
 function workload_security_delete_computers() {
 
   # cd "${configs[wsw]}"
-  wsw_url=$(terraform -chdir=${configs[wsw]} output -raw wsw_url)
-  api_key=$(terraform -chdir=${configs[wsw]} output -raw ds_apikey)
+  wsw_url="https://workload.${workload_security_region}.cloudone.trendmicro.com"
+  api_key=$(terraform -chdir=${configs[wsw]} output -raw ws_apikey)
   linux_policy_id=$(terraform -chdir=${configs[wsw]} output -raw linux_policy_id)
   windows_policy_id=$(terraform -chdir=${configs[wsw]} output -raw windows_policy_id)
   computer_ids=$(curl --location -ks ${wsw_url}/api/computers/search \
@@ -1138,7 +1138,7 @@ function destroy() {
       ;;&
     wsw|all)
       if checklock wsw ; then
-        deep_security_delete_computers
+        workload_security_delete_computers
         tf wsw destroy
       else
         printf '%s\n' "Configuration wsw is not applied"
