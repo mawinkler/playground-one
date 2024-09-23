@@ -29,6 +29,9 @@ resource "restapi_object" "linux_policy" {
         },
         "platformSettingAutoAssignNewIntrusionPreventionRulesEnabled": {
             "value": "true"
+        },
+        "antiMalwareSettingEnableUserTriggerOnDemandScan": {
+          "value": "true"
         }
       },
       "recommendationScanMode": "off",
@@ -192,6 +195,9 @@ resource "restapi_object" "windows_policy" {
         },
         "platformSettingAutoAssignNewIntrusionPreventionRulesEnabled": {
             "value": "true"
+        },
+        "antiMalwareSettingEnableUserTriggerOnDemandScan": {
+          "value": "true"
         }
       },
       "recommendationScanMode": "off",
