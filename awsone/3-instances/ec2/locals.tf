@@ -23,7 +23,7 @@ locals {
     windows_ad_safe_password = var.windows_ad_safe_password
   })
 
-  linux_db_count  = 2
-  linux_web_count = 2
+  linux_db_count  = 1
+  linux_web_count = 1
   windows_count   = 1
 }

@@ -33,8 +33,8 @@ module "ec2" {
 
   # VNS
   virtual_network_sensor          = var.virtual_network_sensor
-  vns_va_traffic_mirror_filter_id = data.terraform_remote_state.vpc.outputs.vns_va_traffic_mirror_filter_id
-  vns_va_traffic_mirror_target_id = data.terraform_remote_state.vpc.outputs.vns_va_traffic_mirror_target_id
+  vns_va_traffic_mirror_filter_id = try(data.terraform_remote_state.vpc.outputs.vns_va_traffic_mirror_filter_id, "")
+  vns_va_traffic_mirror_target_id = try(data.terraform_remote_state.vpc.outputs.vns_va_traffic_mirror_target_id, "")
 }
 
 module "iam" {
