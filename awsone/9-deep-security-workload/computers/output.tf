@@ -9,6 +9,10 @@ output "public_instance_ip_linux2" {
   value = length(aws_instance.linux2) > 0 ? aws_instance.linux2[*].public_ip : null
 }
 
+output "public_instance_ip_linux3" {
+  value = length(aws_instance.linux3) > 0 ? aws_instance.linux3[*].public_ip : null
+}
+
 output "public_instance_ip_windows1" {
   value = length(aws_instance.windows1) > 0 ? aws_instance.windows1[*].public_ip : null
 }
@@ -20,7 +24,12 @@ output "ssh_instance_linux1" {
 
 output "ssh_instance_linux2" {
   description = "Command to ssh to instance linux2"
-  value       = length(aws_instance.linux1) > 0 ? formatlist("ssh -i ${var.private_key_path} -o StrictHostKeyChecking=no ${var.linux_username_ubnt}@%s", aws_instance.linux2[*].public_ip) : null
+  value       = length(aws_instance.linux2) > 0 ? formatlist("ssh -i ${var.private_key_path} -o StrictHostKeyChecking=no ${var.linux_username_ubnt}@%s", aws_instance.linux2[*].public_ip) : null
+}
+
+output "ssh_instance_linux3" {
+  description = "Command to ssh to instance linux3"
+  value       = length(aws_instance.linux3) > 0 ? formatlist("ssh -i ${var.private_key_path} -o StrictHostKeyChecking=no ${var.linux_username_rhel}@%s", aws_instance.linux3[*].public_ip) : null
 }
 
 output "ssh_instance_windows1" {

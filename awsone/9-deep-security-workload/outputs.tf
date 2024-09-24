@@ -29,6 +29,10 @@ output "ssh_instance_linux2" {
   value = module.computers.ssh_instance_linux2
 }
 
+output "ssh_instance_linux3" {
+  value = module.computers.ssh_instance_linux3
+}
+
 output "ssh_instance_windows1" {
   value = module.computers.ssh_instance_windows1
 }

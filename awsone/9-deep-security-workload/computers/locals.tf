@@ -15,6 +15,12 @@ locals {
     linux_policy_id     = var.linux_policy_id
   })
 
+  userdata_rhel = templatefile("${path.module}/userdata_rhel.tftpl", {
+    s3_bucket           = var.s3_bucket
+    linux_username_rhel = var.linux_username_rhel
+    linux_policy_id     = var.linux_policy_id
+  })
+
   userdata_windows = templatefile("${path.module}/userdata_windows.tftpl", {
     s3_bucket         = var.s3_bucket
     windows_username  = var.windows_username
@@ -23,7 +29,8 @@ locals {
     public_key        = var.public_key
   })
 
-  linux_amzn2_count  = 2
-  linux_ubuntu_count = 2
+  linux_amzn2_count  = 1
+  linux_ubuntu_count = 1
+  linux_rhel_count   = 0
   windows_count      = 1
 }

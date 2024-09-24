@@ -40,6 +40,8 @@ variable "linux_username_amzn" {}
 
 variable "linux_username_ubnt" {}
 
+variable "linux_username_rhel" {}
+
 variable "windows_username" {}
 
 variable "linux_policy_id" {}

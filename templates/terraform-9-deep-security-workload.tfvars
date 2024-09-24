@@ -11,6 +11,7 @@ environment = "${environment_name}-dsm"
 # Linux Username (Do not change)
 linux_username_amzn = "ec2-user"
 linux_username_ubnt = "ubuntu"
+linux_username_rhel = "ec2-user"
 
 # Windows Username
 windows_username = "admin"

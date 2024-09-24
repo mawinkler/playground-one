@@ -10,7 +10,7 @@ variable "aws_access_key" {
 }
 
 variable "aws_secret_key" {
-  type = string
+  type      = string
   sensitive = true
 }
 
@@ -34,6 +34,10 @@ variable "linux_username_amzn" {
 }
 
 variable "linux_username_ubnt" {
+  type = string
+}
+
+variable "linux_username_rhel" {
   type = string
 }
 

@@ -59,6 +59,33 @@ resource "aws_instance" "linux2" {
   }
 }
 
+resource "aws_instance" "linux3" {
+
+  count = var.create_linux ? local.linux_rhel_count : 0
+
+  ami                    = data.aws_ami.rhel.id
+  instance_type          = "t3.medium"
+  subnet_id              = var.public_subnets[0]
+  vpc_security_group_ids = [var.public_security_group_id]
+  iam_instance_profile   = var.ec2_profile
+  key_name               = var.key_name
+
+  tags = {
+    Name          = "${var.environment}-linux3-${count.index}"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "dsm"
+  }
+
+  user_data = local.userdata_rhel
+
+  connection {
+    user        = var.linux_username_rhel
+    host        = self.public_ip
+    private_key = file("${var.private_key_path}")
+  }
+}
+
 resource "random_password" "windows_password" {
   length           = 16
   special          = true

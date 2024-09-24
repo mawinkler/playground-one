@@ -32,11 +32,36 @@ data "aws_ami" "ubuntu" {
 
 data "aws_ami" "amzn2" {
   most_recent = true
-  owners = ["amazon"]
+  owners      = ["amazon"]
 
   filter {
     name   = "name"
     values = ["amzn2-ami-hvm-*-x86_64-ebs"]
+  }
+}
+
+data "aws_ami" "rhel" {
+  most_recent = false
+  owners      = ["309956199498"] # RHEL
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+
+  filter {
+    name   = "image-type"
+    values = ["machine"]
+  }
+
+  filter {
+    name   = "name"
+    values = ["RHEL-9.2.0_HVM-20230905-x86_64-38-Hourly2-GP2"]
   }
 }
 
