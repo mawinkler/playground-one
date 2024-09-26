@@ -33,17 +33,52 @@ locals {
           cidr_blocks = ["3.120.181.40/29", "18.202.216.48/29", "3.8.37.24/29", "35.180.112.80/29", "13.48.4.200/30", "18.206.107.24/29", "3.16.146.0/29", "13.52.6.112/29", "18.237.140.160/29"]
           description = "EC2 Instance Connect"
         }
+        http = {
+          from        = 80
+          to          = 80
+          protocol    = "tcp"
+          cidr_blocks = ["0.0.0.0/0"]
+          description = "Allow HTTP Access"
+        }
+        https = {
+          from        = 443
+          to          = 443
+          protocol    = "tcp"
+          cidr_blocks = ["0.0.0.0/0"]
+          description = "Allow HTTPS Access"
+        }
+        rdp = {
+          from        = 3389
+          to          = 3389
+          protocol    = "tcp"
+          cidr_blocks = ["0.0.0.0/0"]
+          description = "Allow RDP Access"
+        }
         postgres = {
           from        = 5432
           to          = 5432
           protocol    = "tcp"
           cidr_blocks = ["0.0.0.0/0"]  
         }
+        winrm = {
+          from        = 5985
+          to          = 5986
+          protocol    = "tcp"
+          cidr_blocks = ["0.0.0.0/0"]
+          description = "Allow WinRM Access"
+        }
         redis = {
           from        = 6379
           to          = 6379
           protocol    = "tcp"
           cidr_blocks = ["0.0.0.0/0"]
+        }
+        http = {
+          from        = 8080
+          to          = 8080
+          protocol    = "tcp"
+          cidr_blocks = ["0.0.0.0/0"]
+          description = "Allow HTTP Access on port 8080"
         }
       }
     }
