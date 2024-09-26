@@ -1,4 +1,7 @@
 locals {
+  manager_version = "20.0.967"
+  agent_version = "20.0.1-19250"
+
   dsm_properties = <<-EOT
     AddressAndPortsScreen.ManagerAddress=
     AddressAndPortsScreen.NewNode=True
@@ -44,18 +47,18 @@ locals {
     sed -i '/^AddressAndPortsScreen.ManagerAddress=/ s/$/&'$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)'/' /home/ec2-user/dsm.properties
 
     # Download Agent Installers
-    curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/20.0/Manager-Linux-20.0.954.x64.sh -o /home/ec2-user/dsm_install.sh
+    curl -fsSL https://files.trendmicro.com/products/deepsecurity/en/20.0/Manager-Linux-${local.manager_version}.x64.sh -o /home/ec2-user/dsm_install.sh
 
     agents='
-      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2-20.0.1-17380.aarch64.zip
-      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2-20.0.1-17380.x86_64.zip
-      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2023-20.0.1-17380.aarch64.zip
-      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2023-20.0.1-17380.x86_64.zip
-      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_20.04-20.0.1-17380.aarch64.zip
-      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_20.04-20.0.1-17380.x86_64.zip
-      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_22.04-20.0.1-17380.aarch64.zip
-      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_22.04-20.0.1-17380.x86_64.zip
-      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Windows-20.0.1-17380.x86_64.zip
+      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2-${local.agent_version}.aarch64.zip
+      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2-${local.agent_version}.x86_64.zip
+      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2023-${local.agent_version}.aarch64.zip
+      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-amzn2023-${local.agent_version}.x86_64.zip
+      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_20.04-${local.agent_version}.aarch64.zip
+      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_20.04-${local.agent_version}.x86_64.zip
+      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_22.04-${local.agent_version}.aarch64.zip
+      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Ubuntu_22.04-${local.agent_version}.x86_64.zip
+      https://files.trendmicro.com/products/deepsecurity/en/20.0/Agent-Windows-${local.agent_version}.x86_64.zip
     '
 
     for agent in $agents; do

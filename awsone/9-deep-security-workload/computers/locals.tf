@@ -31,6 +31,6 @@ locals {
 
   linux_amzn2_count  = 1
   linux_ubuntu_count = 1
-  linux_rhel_count   = 0
+  linux_rhel_count   = 1
   windows_count      = 1
 }
