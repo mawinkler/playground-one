@@ -39,26 +39,6 @@ resource "aws_instance" "windows-server" {
     insecure = true
     timeout  = "13m"
   }
-
-  # connection {
-  #     host = length(aws_instance.windows-server) > 0 ? aws_instance.windows-server[0].public_ip : ""
-  #     type = "ssh"
-  #     user = "${var.windows_username}"
-  #     private_key = "${file("${aws_key_pair.key_pair.key_name}.pem")}"
-  # }
-
-  # Download packages from S3
-  provisioner "remote-exec" {
-    inline = [
-      "PowerShell -Command Read-S3Object -BucketName ${var.s3_bucket} -KeyPrefix download -Folder Downloads"
-    ]
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "powershell.exe -ExecutionPolicy Unrestricted -File Downloads/TMServerAgent_Windows_deploy.ps1"
-    ]
-  }
 }
 
 resource "aws_ec2_traffic_mirror_session" "vns_traffic_mirror_session_win" {

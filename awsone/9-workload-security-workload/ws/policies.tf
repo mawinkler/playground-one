@@ -307,6 +307,7 @@ resource "restapi_object" "windows_policy" {
           ${local.firewall_rule_ident},
           ${local.firewall_rule_netbios_name_service},
           ${local.firewall_rule_web_remote_access_ssh},
+          ${local.firewall_rule_web_remote_access_rdp},
           ${local.firewall_rule_web_server}
         ]
       },

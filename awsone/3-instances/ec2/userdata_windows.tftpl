@@ -188,7 +188,7 @@ function Configure-AWS-Tools {
             if($CheckNugetVersion -ge "2.8.5.201")
             {
                 Write-Log -message "Nuget version is $CheckNugetVersion and that is acceptable."
-            }else {
+            } else {
                 Write-Log -message "Nuget version is $CheckNugetVersion and a newer package will be installed."
                 Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
             }
@@ -271,6 +271,8 @@ if ("${windows_ad_domain_name}" -ne "") {
     } else {
     Write-Log -message "Hostname: $hostname" -level "INFO"
     }
+} else {
+    Write-Log -message "Not chaning host name" -level "INFO"
 }
 
 # Configure WinRM service
@@ -295,9 +297,73 @@ Configure-OpenSSHService
 # Add AWS Tools
 Configure-AWS-Tools
 
+# ###########################
+# Download from S3 bucket
+# ###########################
+$keyPrefix = "download"
+$localFolder = "C:\Users\$username\Downloads"
+
+# Get list of objects with the specified prefix
+$objects = Get-S3Object -BucketName ${s3_bucket} -KeyPrefix $keyPrefix
+
+# Iterate through each object and download it to the local folder
+foreach ($obj in $objects) {
+    # Remove the prefix from the object key to determine the local path
+    $relativePath = $obj.Key.Substring($keyPrefix.Length)
+
+    # Combine the local folder path with the relative object path
+    $localPath = Join-Path $localFolder $relativePath
+
+    # Ensure the directory structure exists
+    $localDir = Split-Path $localPath -Parent
+    if (-not (Test-Path $localDir)) {
+        New-Item -ItemType Directory -Path $localDir
+    }
+
+    # Download the object
+    Read-S3Object -BucketName ${s3_bucket} -Key $obj.Key -File $localPath
+}
+
+# ###########################
+# Basecamp agent
+# ###########################
+Set-Location "$localFolder"
+
+if (!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+    Write-Warning "You are not running as an Administrator. Please try again with admin privileges."
+    exit 1
+}
+
+$archive="${tm_agent}_Windows.zip"
+
+if (Test-Path $archive) {
+
+    Write-Host "Extracting XBC/Basecamp Package" -ForegroundColor Green
+
+    Expand-Archive -LiteralPath $localFolder/$archive -DestinationPath $localFolder -Force
+
+    try {
+        Write-Host "Starting XBC/Basecamp Install Process" -ForegroundColor Green
+
+        Start-Process -FilePath $localFolder/EndpointBasecamp.exe -WorkingDirectory $localFolder -NoNewWindow
+
+        Write-Host "Install Process Completed" -ForegroundColor Green
+    }
+    catch {
+        # Catch errors if they exist.
+        throw $_.Exception.Message
+
+        Write-Host "The installer ran into an issue. Try running the installer manually to determine the casue." -ForegroundColor Red
+
+        exit 3
+    }
+}
+
 # Join AD
 if ("${windows_ad_domain_name}" -ne "") {
     Join-AD
+} else {
+    Write-Log -message "Not joining an Active Directory" -level "INFO"
 }
 
 Stop-Transcript

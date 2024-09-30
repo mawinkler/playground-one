@@ -227,18 +227,44 @@ Configure-OpenSSHService
 # Add AWS Tools
 Configure-AWS-Tools
 
-$Data='
-Start-Transcript -Path $HOME/Downloads/PS-logs.txt
+# ###########################
+# Download from S3 bucket
+# ###########################
+$keyPrefix = "download"
+$localFolder = "C:\Users\$username\Downloads"
 
-Set-Location $HOME/Downloads
+# Get list of objects with the specified prefix
+$objects = Get-S3Object -BucketName ${s3_bucket} -KeyPrefix $keyPrefix
+
+# Iterate through each object and download it to the local folder
+foreach ($obj in $objects) {
+    # Remove the prefix from the object key to determine the local path
+    $relativePath = $obj.Key.Substring($keyPrefix.Length)
+
+    # Combine the local folder path with the relative object path
+    $localPath = Join-Path $localFolder $relativePath
+
+    # Ensure the directory structure exists
+    $localDir = Split-Path $localPath -Parent
+    if (-not (Test-Path $localDir)) {
+        New-Item -ItemType Directory -Path $localDir
+    }
+
+    # Download the object
+    Read-S3Object -BucketName ${s3_bucket} -Key $obj.Key -File $localPath
+}
+
+# ###########################
+# Basecamp agent
+# ###########################
+Set-Location "$localFolder"
 
 if (!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
     Write-Warning "You are not running as an Administrator. Please try again with admin privileges."
     exit 1
 }
 
-
-$archive="TMServerAgent_Windows.zip"
+$archive="TMSensorAgent_Windows.zip"
 
 Copy-S3Object -BucketName ${s3_bucket} -Key download/$archive -LocalFile $HOME/Downloads/$archive
 
@@ -246,12 +272,12 @@ if (Test-Path $archive) {
 
     Write-Host "Extracting XBC/Basecamp Package" -ForegroundColor Green
 
-    Expand-Archive -LiteralPath $HOME/Downloads/$archive -DestinationPath $HOME/Downloads -Force
+    Expand-Archive -LiteralPath $localFolder/$archive -DestinationPath $localFolder -Force
 
     try {
         Write-Host "Starting XBC/Basecamp Install Process" -ForegroundColor Green
 
-        Start-Process -FilePath $HOME/Downloads/EndpointBasecamp.exe -WorkingDirectory $HOME/Downloads -NoNewWindow
+        Start-Process -FilePath $localFolder/EndpointBasecamp.exe -WorkingDirectory $localFolder -NoNewWindow
 
         Write-Host "Install Process Completed" -ForegroundColor Green
     }
@@ -265,10 +291,9 @@ if (Test-Path $archive) {
     }
 }
 
-Stop-Transcript
-'
-$Data | Out-File -FilePath C:\TMServerAgent_Windows_deploy.ps1
-
+# ###########################
+# DSA
+# ###########################
 #requires -version 4.0
 
 # PowerShell 4 or up is required to run this script

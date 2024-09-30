@@ -17,3 +17,8 @@ rm -Rf /tmp/aws /tmp/awscliv2.zip
 mkdir -p /home/ubuntu/download
 aws s3 cp s3://${s3_bucket}/download /home/ubuntu/download --recursive
 chown ubuntu.ubuntu -R /home/ubuntu/download
+
+# agent
+cd /home/ubuntu/download
+chmod +x ./${tm_agent}_Linux_deploy.sh
+./${tm_agent}_Linux_deploy.sh

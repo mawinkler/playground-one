@@ -20,7 +20,7 @@ resource "aws_instance" "linux1" {
     Name          = "${var.environment}-linux1-${count.index}"
     Environment   = "${var.environment}"
     Product       = "playground-one"
-    Configuration = "dsm"
+    Configuration = "ws"
   }
 
   user_data = local.userdata_amzn
@@ -47,7 +47,7 @@ resource "aws_instance" "linux2" {
     Name          = "${var.environment}-linux2-${count.index}"
     Environment   = "${var.environment}"
     Product       = "playground-one"
-    Configuration = "dsm"
+    Configuration = "ws"
   }
 
   user_data = local.userdata_deb
@@ -80,7 +80,7 @@ resource "aws_instance" "windows1" {
     Name          = "${var.environment}-windows1-${count.index}"
     Environment   = "${var.environment}"
     Product       = "playground-one"
-    Configuration = "dsm"
+    Configuration = "ws"
   }
 
   user_data = local.userdata_windows

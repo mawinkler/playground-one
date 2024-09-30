@@ -14,6 +14,7 @@ variable "firewall_rules" {
     "IDENT",
     "NetBios Name Service",
     "Remote Access SSH",
+    "Remote Access RDP",
     "Web Server"
   ]
 }
@@ -39,5 +40,6 @@ locals {
   firewall_rule_ident                           = jsondecode(data.restapi_object.firewall_rules["IDENT"].api_response).ID
   firewall_rule_netbios_name_service            = jsondecode(data.restapi_object.firewall_rules["NetBios Name Service"].api_response).ID
   firewall_rule_web_remote_access_ssh           = jsondecode(data.restapi_object.firewall_rules["Remote Access SSH"].api_response).ID
+  firewall_rule_web_remote_access_rdp           = jsondecode(data.restapi_object.firewall_rules["Remote Access RDP"].api_response).ID
   firewall_rule_web_server                      = jsondecode(data.restapi_object.firewall_rules["Web Server"].api_response).ID
 }

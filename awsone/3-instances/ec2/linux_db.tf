@@ -42,14 +42,6 @@ resource "aws_instance" "linux-db" {
       "sudo /tmp/mysql.sh"
     ]
   }
-
-  # v1 basecamp installation
-  provisioner "remote-exec" {
-    inline = [
-      "chmod +x $HOME/download/TMServerAgent_Linux_deploy.sh",
-      "$HOME/download/TMServerAgent_Linux_deploy.sh"
-    ]
-  }
 }
 
 resource "aws_ec2_traffic_mirror_session" "vns_traffic_mirror_session_linux_db" {
