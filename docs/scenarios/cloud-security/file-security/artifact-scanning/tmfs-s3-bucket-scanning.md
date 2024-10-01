@@ -22,8 +22,9 @@
 The scanner consists out of the following components:
 
 - A Lambda function triggered by `s3:ObjectCreated` events. It uses the File Security Python SDK via gRPC.
-- An S3 Bucket with the permission to notify the Lambda
-- An IAM Role and Policy
+- The function uses a custom layer containing the required dependencies including the SDK.
+- An S3 Bucket with the permission to notify the Lambda.
+- An IAM Role and Policy.
 
 > ***Note:*** Lambda will use Python 3.11
 
@@ -32,41 +33,65 @@ The scanner consists out of the following components:
 Below are the relevant sections of the function code:
 
 ```py
-import boto3
 import json
 import os
+import time
 import urllib.parse
 
 import amaas.grpc
+import boto3
 
-v1_region = os.getenv("TM_V1_REGION")
-v1_amaas_key = os.getenv("TM_AM_AUTH_KEY")
+v1_region = os.getenv("V1_REGION")
+v1_api_key = os.getenv("V1_API_KEY")
+
+s3 = boto3.resource("s3")
 
 
 def lambda_handler(event, context):
 
-  handle = amaas.grpc.init_by_region(v1_region, v1_amaas_key, True)
+    print(f"event -> {str(event)}")
 
-  for record in event["Records"]:
+    handle = amaas.grpc.init_by_region(v1_region, v1_api_key, True)
 
-    bucket = record["s3"]["bucket"]["name"]
-    key = urllib.parse.unquote_plus(record["s3"]["object"]["key"], encoding="utf-8")
+    for record in event["Records"]:
 
-    try:
-      s3 = boto3.resource("s3")
-      s3object = s3.Object(bucket, key)
-      buffer = s3object.get().get("Body").read()
-      scan_resp = amaas.grpc.scan_buffer(handle, buffer, key, ["pgo"])
-      scan_result = json.loads(scan_resp)
-      print(f"scanResult -> {str(scan_result)}")
+        bucket = record["s3"]["bucket"]["name"]
+        key = urllib.parse.unquote_plus(record["s3"]["object"]["key"], encoding="utf-8")
 
-      # Interprete scanResult if tagging or quarantining should be done
+        pml = True
+        feedback = True
+        verbose = True
+        digest = True
 
-    except Exception as e:
-      print(e)
-      print("Error scan object {} from bucket {}.".format(key, bucket))
+        try:
+            s3object = s3.Object(bucket, key)
+            # Load file into a buffer
+            buffer = s3object.get().get("Body").read()
 
-  amaas.grpc.quit(handle)
+            s = time.perf_counter()
+
+            # Scan the file
+            scan_resp = amaas.grpc.scan_buffer(
+                handle,
+                buffer,
+                key,
+                tags=["pgo"],
+                pml=pml,
+                feedback=feedback,
+                verbose=verbose,
+                digest=digest,
+            )
+
+            scan_result = json.loads(scan_resp)
+            elapsed = time.perf_counter() - s
+            print(f"scan executed in {elapsed:0.2f} seconds.")
+            print(f"scan result -> {str(scan_result)}")
+
+        except Exception as e:
+            print(e)
+            print("error scan object {} from bucket {}.".format(key, bucket))
+
+    amaas.grpc.quit(handle)
 ```
 
 ## Deployment
@@ -82,8 +107,9 @@ The following outputs are created:
 ```sh
 Outputs:
 
-aws_lambda_function_name = "pgo-dev-bucket-scanner-v0ui7ows"
-aws_s3_bucket_name = "pgo-dev-scanning-bucket-v0ui7ows"
+aws_lambda_function_name = "pgo-id-bucket-scanner-2kn1vopd"
+aws_lambda_layer_arn = "arn:aws:lambda:eu-central-1:634503960501:layer:pgo-id-filesecurity-layer-2kn1vopd:1"
+aws_s3_bucket_name = "pgo-id-scanning-bucket-2kn1vopd"
 ```
 
 Feel free to review the Lambda function in the AWS console.

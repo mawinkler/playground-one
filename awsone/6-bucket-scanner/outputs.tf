@@ -10,3 +10,8 @@ output "aws_lambda_function_name" {
   description = "Lambda Function name"
   value       = module.scanner.aws_lambda_function_name
 }
+
+output "aws_lambda_layer_arn" {
+  description = "Lambda Layer ARN"
+  value       = module.scanner.aws_lambda_layer_arn
+}

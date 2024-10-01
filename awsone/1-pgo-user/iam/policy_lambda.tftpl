@@ -4,6 +4,16 @@
     {
       "Effect": "Allow",
       "Action": [
+        "lambda:DeleteLayerVersion",
+        "lambda:GetLayerVersion",
+        "lambda:PublishLayerVersion",
+        "lambda:UpdateFunctionConfiguration"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
         "lambda:AddPermission",
         "lambda:CreateFunction",
         "lambda:DeleteFunction",

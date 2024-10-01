@@ -8,5 +8,10 @@ output "aws_s3_bucket_name" {
 
 output "aws_lambda_function_name" {
   description = "Lambda Function name"
-  value       = aws_lambda_function.create_action_handler.id
+  value       = aws_lambda_function.scanner_handler.id
+}
+
+output "aws_lambda_layer_arn" {
+  description = "Lambda Layer ARN"
+  value       = aws_lambda_layer_version.lambda_layer.arn
 }
