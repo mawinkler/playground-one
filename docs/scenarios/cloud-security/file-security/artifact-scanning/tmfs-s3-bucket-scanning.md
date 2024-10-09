@@ -124,7 +124,7 @@ Download the `eicarcom2.zip` and upload it to the scanning bucket.
 
 ```sh
 # Set your bucket name from the outputs
-SCANNING_BUCKET=pgo-dev-scanning-bucket-v0ui7ows
+SCANNING_BUCKET=pgo-id-scanning-bucket-2kn1vopd
 
 wget https://secure.eicar.org/eicarcom2.zip
 aws s3 cp eicarcom2.zip s3://${SCANNING_BUCKET}/eicarcom2.zip

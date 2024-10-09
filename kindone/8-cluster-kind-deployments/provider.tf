@@ -33,6 +33,15 @@ provider "restapi" {
   }
 }
 
+provider "visionone" {
+  alias         = "container_security"
+  api_key       = var.api_key
+  regional_fqdn = var.api_url
+}
+
+# ####################################
+# Provider Configuration
+# ####################################
 terraform {
   required_version = ">= 1.6"
 
@@ -60,6 +69,10 @@ terraform {
     restapi = {
       source  = "Mastercard/restapi"
       version = "1.19.1"
+    }
+    visionone = {
+      source  = "trendmicro/vision-one"
+      version = "~> 1.0.2"
     }
   }
 }
