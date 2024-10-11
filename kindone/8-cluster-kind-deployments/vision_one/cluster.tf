@@ -2,7 +2,6 @@ resource "visionone_container_cluster" "terraform_cluster" {
   provider                   = visionone.container_security
   name                       = replace(var.cluster_name, "-", "_")
   description                = "by Terraform Provider"
-  # resource_id                = var.cluster_arn
   policy_id                  = local.cluster_policy
   group_id                   = var.group_id
   runtime_security_enabled   = true
