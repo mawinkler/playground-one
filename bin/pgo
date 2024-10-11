@@ -68,6 +68,7 @@ configs=(
   ["scenarios-ec2"]=${ONEPATH}/awsone/7-scenarios-ec2
   ["scenarios-fg"]=${ONEPATH}/awsone/7-scenarios-fargate
   ["scenarios-identity"]=${ONEPATH}/awsone/7-scenarios-identity
+  ["scenarios-zerotrust"]=${ONEPATH}/awsone/7-scenarios-zerotrust
   ["scenarios-aks"]=${ONEPATH}/azone/7-scenarios-aks
   ["goat"]=${ONEPATH}/awsone/7-goat
   ["dsm"]=${ONEPATH}/awsone/9-deep-security
@@ -262,7 +263,7 @@ function check_network() {
   #   envsubst <$ONEPATH/templates/terraform-2-network.tfvars >${configs[network]}/terraform.tfvars
 
   # Check locks
-  for config in instances eks-ec2 eks-fg ecs-ec2 ecs-fg scenarios-identity ; do
+  for config in instances eks-ec2 eks-fg ecs-ec2 ecs-fg scenarios-identity scenarios-zerotrust; do
     # init ${config}
     if checklock ${config} ; then
       printf 'Destroy %s configuration first\n' "${config}"
@@ -519,6 +520,19 @@ function init() {
 
       [ "$2" = "" ] && tf scenarios-identity init
       ;;&
+    scenarios-zerotrust|all)
+      printf '%s\n' "Create terraform.tfvars for scenarios-zerotrust deployments"
+      aws_region=${aws_region} \
+      aws_pgo_user_access_key=${aws_pgo_user_access_key} \
+      aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
+      environment_name=${environment_name} \
+      pgo_ec2_create_linux=${pgo_ec2_create_linux} \
+      active_directory=${pgo_active_directory} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-7-scenarios-zerotrust.tfvars >${configs[scenarios-zerotrust]}/terraform.tfvars
+
+      [ "$2" = "" ] && tf scenarios-zerotrust init
+      ;;&
     scenarios-aks|all)
       printf '%s\n' "Create terraform.tfvars for scenarios-aks deployments"
       azure_subscription_id=${azure_subscription_id} \
@@ -715,6 +729,9 @@ function apply() {
       ;;&
     scenarios-identity|all)
       tf scenarios-identity apply
+      ;;&
+    scenarios-zerotrust|all)
+      tf scenarios-zerotrust apply
       ;;&
     scenarios-aks|all)
       tf scenarios-aks apply
@@ -1199,6 +1216,13 @@ function destroy() {
         printf '%s\n' "Configuration scenarios-identity is not applied"
       fi
       ;;
+    scenarios-zerotrust)
+      if checklock scenarios-zerotrust ; then
+        tf scenarios-zerotrust destroy
+      else
+        printf '%s\n' "Configuration scenarios-zerotrust is not applied"
+      fi
+      ;;
     scenarios-aks)
       if checklock scenarios-aks ; then
         tf scenarios-aks destroy
@@ -1322,6 +1346,12 @@ function output() {
         printf '%s\n' "ad_admin_password = $(terraform -chdir=${configs[scenarios-identity]} output -raw ad_admin_password)"
       fi
       ;;&
+    scenarios-zerotrust|all)
+      tf scenarios-zerotrust output
+      if [ "${pgo_active_directory}" == 'true' ]; then
+        printf '%s\n' "ad_admin_password = $(terraform -chdir=${configs[scenarios-zerotrust]} output -raw ad_admin_password)"
+      fi
+      ;;&
     scenarios-aks|all)
       tf scenarios-aks output
       ;;&
@@ -1428,6 +1458,9 @@ function state() {
     scenarios-identity|all)
       tf scenarios-identity state
       ;;&
+    scenarios-identity|all)
+      tf scenarios-identity state
+      ;;&
     scenarios-aks|all)
       tf scenarios-aks state
       ;;&
@@ -1513,6 +1546,9 @@ function show() {
     scenarios-identity|all)
       tf scenarios-identity show
       ;;&
+    scenarios-zerotrust|all)
+      tf scenarios-zerotrust show
+      ;;&
     scenarios-aks|all)
       tf scenarios-aks show
       ;;&
@@ -1596,6 +1632,9 @@ function validate() {
       ;;&
     scenarios-identity|all)
       tf scenarios-identity validate
+      ;;&
+    scenarios-zerotrust|all)
+      tf scenarios-zerotrust validate
       ;;&
     scenarios-aks|all)
       tf scenarios-aks validate
@@ -1706,6 +1745,9 @@ function erase() {
     scenarios-identity|all)
       tf scenarios-identity erase
       ;;&
+    scenarios-zerotrust|all)
+      tf scenarios-zerotrust erase
+      ;;&
     scenarios-aks|all)
       tf scenarios-aks erase
       ;;&
@@ -1805,6 +1847,7 @@ function helpcmd() {
   printf '%s\n' "  scenarios-cloudtrail Scenario configuration"
   printf '%s\n' "  scenarios-cspm       Scenario configuration"
   printf '%s\n' "  scenarios-identity   Scenario configuration"
+  printf '%s\n' "  scenarios-zerotrust   Scenario configuration"
   printf '%s\n' "  scenarios-kind       Scenario configuration"
   printf '%s\n' "  scenarios-aks        Scenario configuration"
   printf '%s\n' "  dsm                  Deep Security configuration"
