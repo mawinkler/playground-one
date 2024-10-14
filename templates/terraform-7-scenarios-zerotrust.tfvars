@@ -14,5 +14,8 @@ active_directory = ${active_directory}
 # Linux Username (Do not change)
 linux_username = "ubuntu"
 
+# Windows Username
+windows_username = "admin"
+
 # Create Linux instance(s)
 create_linux = ${pgo_ec2_create_linux}

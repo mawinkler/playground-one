@@ -118,7 +118,7 @@ output "sg_va_ssh" {
 }
 
 output "sg_ami" {
-  value = var.service_gateway ? module.vns[0].sg_ami : null
+  value = var.service_gateway ? module.sg[0].sg_ami : null
 }
 
 # Virtual Network Sensor

@@ -67,4 +67,6 @@ variable "linux_username" {}
 
 variable "linux_hostname" {}
 
+variable "windows_username" {}
+
 variable "create_linux" {}

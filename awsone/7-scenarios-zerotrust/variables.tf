@@ -27,6 +27,10 @@ variable "linux_username" {
   type = string
 }
 
+variable "windows_username" {
+  type = string
+}
+
 variable "create_linux" {
   type = bool
 }

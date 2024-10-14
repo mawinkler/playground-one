@@ -3,6 +3,11 @@ Start-Transcript -Path 'C:/userdata.log'
 
 $logfilepath="C:\agent.log"
 
+$port_winrm=5986 
+$port_ssh=22
+$username = '${windows_username}'
+$password = ConvertTo-SecureString '${windows_password}' -AsPlainText -Force 
+
 Set-ExecutionPolicy unrestricted -Force
 
 function Write-Log {
@@ -17,6 +22,24 @@ function Write-Log {
     # Append content to log file
     Add-Content -Path $logfilepath -Value "$timestamp [$level] - $message"
 }
+
+function Create-LocalAdmin {
+    process {
+        try {
+            # Create new local user
+            New-LocalUser "$username" -Password $password -FullName "$username" -Description "local admin" -ErrorAction stop
+            Write-Log -message "$username local user created"
+
+            # Add user to administrator group
+            Add-LocalGroupMember -Group "Administrators" -Member "$username" -ErrorAction stop
+            Write-Log -message "$username added to the Administrators group"
+
+        } catch{ Write-log -message $_.Exception.message -level "ERROR"}
+    }    
+}
+
+# Create local admin user
+Create-LocalAdmin 
 
 net user Administrator "${windows_ad_safe_password}"
 
@@ -35,7 +58,7 @@ $domain_password = ConvertTo-SecureString "${windows_ad_safe_password}" -AsPlain
 $credential = New-Object System.Management.Automation.PSCredential($domain_username,$domain_password)
 Write-Log -message "Administrator password set"
 
-if ($domain -ne '${windows_ad_domain_name}' -And ${windows_ad_join} -eq true) {
+if ($domain -ne '${windows_ad_domain_name}' -And '${windows_ad_join}' -eq "true") {
   Write-Log -message "Joining domain in 300 seconds" -level "INFO"
   Start-Sleep -Seconds 300
 

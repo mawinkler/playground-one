@@ -1,6 +1,12 @@
 # #############################################################################
 # Create EC2 Instance
 # #############################################################################
+resource "random_password" "windows_password" {
+  length           = 16
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}
+
 resource "aws_instance" "windows-server-member" {
   count = var.windows_domain_member_count
 

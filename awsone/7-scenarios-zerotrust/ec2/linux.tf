@@ -31,15 +31,15 @@ resource "aws_instance" "linux-docker" {
   }
 
   # mysql installation
-  provisioner "file" {
-    source      = "../1-scripts/mysql.sh"
-    destination = "/tmp/mysql.sh"
-  }
+  # provisioner "file" {
+  #   source      = "../1-scripts/mysql.sh"
+  #   destination = "/tmp/mysql.sh"
+  # }
 
-  provisioner "remote-exec" {
-    inline = [
-      "chmod +x /tmp/mysql.sh",
-      "sudo /tmp/mysql.sh"
-    ]
-  }
+  # provisioner "remote-exec" {
+  #   inline = [
+  #     "chmod +x /tmp/mysql.sh",
+  #     "sudo /tmp/mysql.sh"
+  #   ]
+  # }
 }

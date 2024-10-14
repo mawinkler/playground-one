@@ -732,6 +732,7 @@ function apply() {
       ;;&
     scenarios-zerotrust|all)
       tf scenarios-zerotrust apply
+      printf '%s\n' "local_admin_password = \"$(terraform -chdir=${configs[scenarios-zerotrust]} output -raw local_admin_password)\""
       ;;&
     scenarios-aks|all)
       tf scenarios-aks apply
@@ -1351,6 +1352,7 @@ function output() {
       if [ "${pgo_active_directory}" == 'true' ]; then
         printf '%s\n' "ad_admin_password = $(terraform -chdir=${configs[scenarios-zerotrust]} output -raw ad_admin_password)"
       fi
+      printf '%s\n' "local_admin_password = $(terraform -chdir=${configs[scenarios-zerotrust]} output -raw local_admin_password)"
       ;;&
     scenarios-aks|all)
       tf scenarios-aks output
