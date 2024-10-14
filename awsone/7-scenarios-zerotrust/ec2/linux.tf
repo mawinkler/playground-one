@@ -16,10 +16,10 @@ resource "aws_instance" "linux-docker" {
   key_name               = var.key_name
 
   tags = {
-    Name          = "${var.environment}-linux-db-${count.index}"
+    Name          = "${var.environment}-linux-docker-${count.index}"
     Environment   = "${var.environment}"
     Product       = "playground-one"
-    Configuration = "zt"
+    Configuration = "scenarios-zerotrust"
   }
 
   user_data = local.userdata_linux
@@ -29,17 +29,4 @@ resource "aws_instance" "linux-docker" {
     host        = self.public_ip
     private_key = file("${var.private_key_path}")
   }
-
-  # mysql installation
-  # provisioner "file" {
-  #   source      = "../1-scripts/mysql.sh"
-  #   destination = "/tmp/mysql.sh"
-  # }
-
-  # provisioner "remote-exec" {
-  #   inline = [
-  #     "chmod +x /tmp/mysql.sh",
-  #     "sudo /tmp/mysql.sh"
-  #   ]
-  # }
 }

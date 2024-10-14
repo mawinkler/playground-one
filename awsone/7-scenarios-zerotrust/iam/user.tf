@@ -33,6 +33,6 @@ resource "aws_iam_policy" "ec2_instance_actions" {
     Name          = "${var.environment}-ec2-instance-actions-policy"
     Environment   = "${var.environment}"
     Product       = "playground-one"
-    Configuration = "ec2"
+    Configuration = "scenarios-zerotrust"
   }
 }

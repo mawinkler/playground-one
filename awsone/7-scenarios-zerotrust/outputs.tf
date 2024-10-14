@@ -21,7 +21,7 @@ output "ad_domain_admin" {
   value = var.active_directory ? data.terraform_remote_state.vpc.outputs.ad_domain_admin : null
 }
 
-output "member_dns_names" {
+output "windows_dns_names" {
   value = module.ec2.*.member_dns_names
 }
 
@@ -30,17 +30,25 @@ output "ad_admin_password" {
   sensitive = true
 }
 
-output "local_admin_password" {
+output "windows_local_admin_password" {
   value     = module.ec2.*.local_admin_password[0]
   sensitive = true
 }
 
-output "local_admin_username" {
+output "windows_local_admin_username" {
   value     = "admin"
 }
 
-output "users_dn" {
+output "ad_users_dn" {
   value = "CN=Users,DC=${
     split(".", try(data.terraform_remote_state.vpc.outputs.ad_domain_name, ""))[0]},DC=${
   split(".", try(data.terraform_remote_state.vpc.outputs.ad_domain_name, ""))[1]}"
+}
+
+output "linux_ssh" {
+  value = module.ec2.*.ssh_instance_linux_docker
+}
+
+output "linux_pip" {
+  value = module.ec2.*.linux_pip
 }

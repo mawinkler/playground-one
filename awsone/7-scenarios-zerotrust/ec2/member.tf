@@ -30,6 +30,6 @@ resource "aws_instance" "windows-server-member" {
     Name          = "${var.environment}-windows-server-member-${count.index}"
     Environment   = "${var.environment}"
     Product       = "playground-one"
-    Configuration = "scenarios-identity"
+    Configuration = "scenarios-zerotrust"
   }
 }
