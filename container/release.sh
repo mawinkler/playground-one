@@ -28,6 +28,7 @@ docker buildx build \
     --build-arg gid=$(id -g) \
     --build-arg version=${PGO_VERSION} \
     --platform linux/amd64,linux/arm64/v8 \
+    --no-cache \
     --push \
     .
 

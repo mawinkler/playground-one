@@ -14,6 +14,7 @@ resource "aws_instance" "windows-server-member" {
   instance_type          = var.windows_instance_type
   subnet_id              = var.public_subnets[0]
   vpc_security_group_ids = [var.public_security_group_id]
+  iam_instance_profile   = var.ec2_profile
   source_dest_check      = false
   key_name               = var.key_name
   user_data              = local.userdata_windows[count.index]

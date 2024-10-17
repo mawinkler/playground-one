@@ -22,7 +22,11 @@ output "ad_domain_admin" {
 }
 
 output "windows_dns_names" {
-  value = module.ec2.*.member_dns_names
+  value = module.ec2.*.windows_dns_names
+}
+
+output "windows_ips" {
+  value = module.ec2.*.windows_ips
 }
 
 output "ad_admin_password" {

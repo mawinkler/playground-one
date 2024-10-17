@@ -22,6 +22,12 @@ AWS AD - create PGO Active Directory [true]:
 pgo --apply network
 ```
 
+!!! info "Log in to Domain Controller"
+
+    After the network has been set up, the service gateway has been deployed, and Active Directory has stabilized after about 10 minutes, you must authenticate to the domain controller using RDP at least once. Don't ask why.
+
+    Use the public IP of the domain controller `ad_dc_ip` and the username `Administrator@<your environment name>.local`.
+
 ## Connect an Active Directory
 
 In Vision One head over to `Workflow and Automation -> Service Gateway Management` again. There should now be a Service Gateway listed. Select it, click on `Manage Services` just in the center, and download the `On-premise directory connection` to the gateway.

@@ -26,13 +26,42 @@ function Write-Log {
 function Create-LocalAdmin {
     process {
         try {
+
+            try {
+                Write-Log "Searching for $username in LocalUser DataBase"
+                $ObjLocalUser = Get-LocalUser "$username"
+                Write-Log -message "User $username was found" -level "INFO"
+            }
+            catch [Microsoft.PowerShell.Commands.UserNotFoundException] {
+                Write-Log -message "User $username was not found" -level "INFO"
+                # Create new local user
+                New-LocalUser "$username" -Password $password -FullName "$username" -Description "local admin"
+                # -ErrorAction stop
+                Write-Log -message "$username local user created" -level "INFO"
+                Add-LocalGroupMember -Group "Administrators" -Member "$username" 
+                # -ErrorAction stop
+                Write-Log -message "$username added to the Administrators group" -level "INFO"
+            }
+            catch {
+                Write-Log -message "An unspecifed error occured" -level "ERROR"
+                #Exit # Stop Powershell! 
+            }
+
+            #Create the user if it was not found (Example)
+            #if (!$ObjLocalUser) {
+            #    Write-Verbose "Creating User $($USERNAME)" #(Example)
+            #    # ..... (Your Code Here)
+            #}
+
             # Create new local user
-            New-LocalUser "$username" -Password $password -FullName "$username" -Description "local admin" -ErrorAction stop
-            Write-Log -message "$username local user created"
+            #New-LocalUser "$username" -Password $password -FullName "$username" -Description "local admin"
+            # -ErrorAction stop
+            #Write-Log -message "$username local user created"
 
             # Add user to administrator group
-            Add-LocalGroupMember -Group "Administrators" -Member "$username" -ErrorAction stop
-            Write-Log -message "$username added to the Administrators group"
+            #Add-LocalGroupMember -Group "Administrators" -Member "$username" 
+            # -ErrorAction stop
+            #Write-Log -message "$username added to the Administrators group"
 
         } catch{ Write-log -message $_.Exception.message -level "ERROR"}
     }    
@@ -70,7 +99,7 @@ function Configure-AWS-Tools {
 }
 
 # Create local admin user
-Create-LocalAdmin 
+Create-LocalAdmin
 
 # Add AWS Tools
 Configure-AWS-Tools
@@ -122,8 +151,8 @@ $credential = New-Object System.Management.Automation.PSCredential($domain_usern
 Write-Log -message "Administrator password set"
 
 if ($domain -ne '${windows_ad_domain_name}' -And '${windows_ad_join}' -eq "true") {
-  Write-Log -message "Joining domain in 300 seconds" -level "INFO"
-  Start-Sleep -Seconds 300
+  Write-Log -message "Joining domain in 30 seconds" -level "INFO"
+  Start-Sleep -Seconds 30
 
   # Comment
   $Stoploop = $false

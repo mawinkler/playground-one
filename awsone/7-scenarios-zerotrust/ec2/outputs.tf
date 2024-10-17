@@ -1,8 +1,12 @@
 # #############################################################################
 # Outputs
 # #############################################################################
-output "member_dns_names" {
+output "windows_dns_names" {
   value = aws_instance.windows-server-member.*.public_dns
+}
+
+output "windows_ips" {
+  value = aws_instance.windows-server-member.*.public_ip
 }
 
 output "linux_pip" {

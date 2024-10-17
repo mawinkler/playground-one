@@ -14,19 +14,18 @@ resource "aws_instance" "linux-docker" {
   vpc_security_group_ids = [var.public_security_group_id]
   iam_instance_profile   = var.ec2_profile
   key_name               = var.key_name
+  user_data              = local.userdata_linux
+
+  connection {
+    user        = var.linux_username
+    host        = self.public_ip
+    private_key = file("${var.private_key_path}")
+  }
 
   tags = {
     Name          = "${var.environment}-linux-docker-${count.index}"
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "scenarios-zerotrust"
-  }
-
-  user_data = local.userdata_linux
-
-  connection {
-    user        = var.linux_username
-    host        = self.public_ip
-    private_key = file("${var.private_key_path}")
   }
 }
