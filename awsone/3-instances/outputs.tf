@@ -1,57 +1,64 @@
-output "instance_ip_linux_web" {
-  value = module.ec2.instance_ip_linux_web
+# Linux
+output "linux_ip_web" {
+  value = module.ec2.linux_ip_web
 }
 
-output "instance_ip_linux_db" {
-  value = module.ec2.instance_ip_linux_db
+output "linux_ip_db" {
+  value = module.ec2.linux_ip_db
 }
 
-output "instance_username_linux_server" {
-  value = module.ec2.instance_username_linux_server
+output "linux_username" {
+  value = module.ec2.linux_username
 }
 
-output "instance_ip_windows_server" {
-  value = module.ec2.instance_ip_windows_server
+output "linux_ssh_db" {
+  value = module.ec2.linux_ssh_db
 }
 
-output "instance_username_windows_server" {
-  value = module.ec2.instance_username_windows_server
+output "linux_ssh_web" {
+  value = module.ec2.linux_ssh_web
 }
 
-output "instance_password_windows_server" {
-  value     = module.ec2.instance_password_windows_server
+# Windows
+output "win_ip" {
+  value = module.ec2.win_ip
+}
+
+output "win_pip" {
+  value = module.ec2.win_pip
+}
+
+output "win_username" {
+  value = module.ec2.win_username
+}
+
+output "win_password" {
+  value     = module.ec2.win_password
   sensitive = true
 }
 
-output "instance_password_windows_server_local" {
-  value     = module.ec2.instance_password_windows_server_local
+output "win_local_admin_password" {
+  value     = module.ec2.win_local_admin_password
   sensitive = true
 }
 
+output "win_ssh" {
+  value = module.ec2.win_ssh
+}
+
+
+# S3
 output "s3_bucket" {
   value = module.s3.s3_bucket
 }
 
-output "ssh_instance_linux_db" {
-  value = module.ec2.ssh_instance_linux_db
-}
-
-output "ssh_instance_linux_web" {
-  value = module.ec2.ssh_instance_linux_web
-}
-
-output "ssh_instance_windows_server" {
-  value = module.ec2.ssh_instance_windows_server
-}
-
-
 # Attack Path
-output "instance_ip_linux_pap" {
-  value = var.create_attackpath ? module.pap[0].instance_ip_linux_pap : null
+output "linux_ip_pap" {
+  value = var.create_attackpath ? module.pap[0].linux_ip_pap : null
 }
 
-output "ssh_instance_linux_pap" {
-  value = var.create_attackpath ? module.pap[0].ssh_instance_linux_pap : null
+output "linux_ssh_pap" {
+  value = var.create_attackpath ? module.pap[0].linux_ssh_pap : null
 }
 
 output "rds_identifier" {

@@ -41,10 +41,6 @@ variable "ad_domain_name" {
   type = string
 }
 
-variable "ad_nebios_name" {
-  type = string
-}
-
 variable "ad_domain_admin" {
   type        = string
   description = "Domain Administrator Name"

@@ -45,6 +45,6 @@ output "database_subnet_group" {
   value = module.vpc.database_subnet_group
 }
 
-output "nat_public_ip" {
+output "nat_ip" {
   value = module.vpc.nat_public_ips[0]
 }

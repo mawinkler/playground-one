@@ -1,6 +1,7 @@
 # #############################################################################
 # Outputs
 # #############################################################################
+# Active Directory
 output "ad_domain_name" {
   value = var.active_directory ? data.terraform_remote_state.vpc.outputs.ad_domain_name : null
 }
@@ -21,26 +22,9 @@ output "ad_domain_admin" {
   value = var.active_directory ? data.terraform_remote_state.vpc.outputs.ad_domain_admin : null
 }
 
-output "windows_dns_names" {
-  value = module.ec2.*.windows_dns_names
-}
-
-output "windows_ips" {
-  value = module.ec2.*.windows_ips
-}
-
 output "ad_admin_password" {
   value     = var.active_directory ? data.terraform_remote_state.vpc.outputs.ad_admin_password : null
   sensitive = true
-}
-
-output "windows_local_admin_password" {
-  value     = module.ec2.*.local_admin_password[0]
-  sensitive = true
-}
-
-output "windows_local_admin_username" {
-  value     = "admin"
 }
 
 output "ad_users_dn" {
@@ -49,6 +33,29 @@ output "ad_users_dn" {
   split(".", try(data.terraform_remote_state.vpc.outputs.ad_domain_name, ""))[1]}"
 }
 
+# Windows
+output "win_dns_names" {
+  value = module.ec2.*.win_dns_names
+}
+
+output "win_ips" {
+  value = module.ec2.*.win_ips
+}
+
+output "win_pips" {
+  value = module.ec2.*.win_pips
+}
+
+output "win_local_admin_password" {
+  value     = module.ec2.*.win_local_admin_password[0]
+  sensitive = true
+}
+
+output "win_local_admin_username" {
+  value = "admin"
+}
+
+# Linux
 output "linux_ssh" {
   value = module.ec2.*.ssh_instance_linux_docker
 }

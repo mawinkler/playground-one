@@ -40,7 +40,7 @@ module "ad" {
   public_security_group_id        = module.ec2.public_security_group_id
   key_name                        = module.ec2.key_name
   windows_ad_domain_name          = var.ad_domain_name
-  windows_ad_nebios_name          = var.ad_nebios_name
+  windows_ad_nebios_name          = upper(var.environment)
   windows_ad_user_name            = var.ad_domain_admin
   windows_ad_safe_password        = var.ad_admin_password
   virtual_network_sensor          = var.virtual_network_sensor

@@ -63,8 +63,8 @@ output "private_key_path" {
 }
 
 # NAT Gateway
-output "nat_public_ip" {
-  value = module.vpc.nat_public_ip
+output "nat_ip" {
+  value = module.vpc.nat_ip
 }
 
 # Managed Active Directory

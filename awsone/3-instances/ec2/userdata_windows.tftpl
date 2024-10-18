@@ -228,11 +228,11 @@ function Join-AD {
         $hostname = hostname
         $domain_username = "${windows_ad_domain_name}\${windows_ad_user_name}"
         $domain_password = ConvertTo-SecureString "${windows_ad_safe_password}" -AsPlainText -Force
-        $credential = New-Object System.Management.Automation.PSCredential($domain_username,$domain_password)
+        $credential = New-Object System.Management.Automation.PSCredential($domain_username, $domain_password)
 
         if ($domain -ne '${windows_ad_domain_name}') {
-            Write-Log -message "Joining domain in 300 seconds" -level "INFO"
-            Start-Sleep -Seconds 300
+            Write-Log -message "Joining domain in 30 seconds" -level "INFO"
+            Start-Sleep -Seconds 30
 
             $Stoploop = $false
             [int]$Retrycount = "0"
@@ -266,10 +266,10 @@ Create-LocalAdmin
 if ("${windows_ad_domain_name}" -ne "") {
     $hostname = hostname
     if ("$hostname" -ne "${windows_hostname}") {
-    Write-Log -message "Changing Hostname to ${windows_hostname}" -level "INFO"
-    Rename-Computer -NewName ${windows_hostname} -Force -Restart
+        Write-Log -message "Changing Hostname to ${windows_hostname}" -level "INFO"
+        Rename-Computer -NewName ${windows_hostname} -Force -Restart
     } else {
-    Write-Log -message "Hostname: $hostname" -level "INFO"
+        Write-Log -message "Hostname: $hostname" -level "INFO"
     }
 } else {
     Write-Log -message "Not chaning host name" -level "INFO"

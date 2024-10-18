@@ -24,7 +24,7 @@ pgo --apply network
 
 !!! info "Log in to Domain Controller"
 
-    After the network has been set up, the service gateway has been deployed, and Active Directory has stabilized after about 10 minutes, you must authenticate to the domain controller using RDP at least once. Don't ask why.
+    After the network has been set up, the service gateway has been deployed, and Active Directory has stabilized after about 10 minutes, you must authenticate to the domain controller using RDP at least once. Don't ask why. 
 
     Use the public IP of the domain controller `ad_dc_ip` and the username `Administrator@<your environment name>.local`.
 
@@ -73,6 +73,10 @@ Example with environment name `pgo-id`:
 ![alt text](images/v1-aws-sgm-17.png "Vision One")
 
 This should connect the Active Directory to Vision One via the Service Gateway.
+
+!!! info "Connect does not work"
+    
+    If connecting to the Active Directory via the Third-Party Integration does still not work reboot the Domain Controller once.
 
 ### Install Security Event Forwarding
 

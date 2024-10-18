@@ -10,6 +10,7 @@ $password = ConvertTo-SecureString '${windows_password}' -AsPlainText -Force
 
 Set-ExecutionPolicy unrestricted -Force
 
+
 function Write-Log {
     param(
         [Parameter(Mandatory = $true)][string] $message,
@@ -22,6 +23,7 @@ function Write-Log {
     # Append content to log file
     Add-Content -Path $logfilepath -Value "$timestamp [$level] - $message"
 }
+
 
 function Create-LocalAdmin {
     process {
@@ -67,6 +69,7 @@ function Create-LocalAdmin {
     }    
 }
 
+
 function Configure-AWS-Tools {
 
     $ListofModulesInstalled = (Get-InstalledModule).Name
@@ -98,88 +101,133 @@ function Configure-AWS-Tools {
     }
 }
 
+
+function Download-From-S3 {
+    $keyPrefix = "download"
+    $localFolder = "C:\Downloads"
+    
+    New-Item -ItemType Directory -Force -Path $localFolder
+    
+    # Get list of objects with the specified prefix
+    $objects = Get-S3Object -BucketName ${s3_bucket} -KeyPrefix $keyPrefix
+    
+    # Iterate through each object and download it to the local folder
+    foreach ($obj in $objects) {
+        # Remove the prefix from the object key to determine the local path
+        $relativePath = $obj.Key.Substring($keyPrefix.Length)
+    
+        # Combine the local folder path with the relative object path
+        $localPath = Join-Path $localFolder $relativePath
+    
+        # Ensure the directory structure exists
+        $localDir = Split-Path $localPath -Parent
+        if (-not (Test-Path $localDir)) {
+            New-Item -ItemType Directory -Path $localDir
+        }
+    
+        # Download the object
+        Read-S3Object -BucketName ${s3_bucket} -Key $obj.Key -File $localPath
+    }
+}
+
+
+function Rename-Host {
+    if ("${windows_ad_domain_name}" -ne "") {
+        $hostname = hostname
+        if ("$hostname" -ne "${windows_ad_hostname}") {
+            Write-Log -message "Changing Hostname to ${windows_ad_hostname}" -level "INFO"
+            Rename-Computer -NewName ${windows_ad_hostname} -Force -Restart
+        } else {
+            Write-Log -message "Hostname: $hostname" -level "INFO"
+        }
+    } else {
+        Write-Log -message "Not chaning host name" -level "INFO"
+    }
+}
+
+
+function Join-AD {
+
+    # net user Administrator "${windows_ad_safe_password}"
+    $Stoploop = $false
+    [int]$Retrycount = "0"
+
+    do {
+        try {
+            net user Administrator "${windows_ad_safe_password}"
+            Write-Log -message "Administrator password set"
+            $Stoploop = $true
+        } catch {
+            Write-log -message $_.Exception.message -level "ERROR"
+            if ($Retrycount -gt 20) {
+                Write-Log -message "Set Administrator password failed after 20 retrys" -level "ERROR"
+                $Stoploop = $true
+            } else {
+                Write-Log -message "Could not set Administrator password, retrying in 60 seconds..." -level "WARN"
+                Start-Sleep -Seconds 60
+                $Retrycount = $Retrycount + 1
+            }
+        }
+    } While ($Stoploop -eq $false)
+
+    # $hostname = hostname
+    # if ("$hostname" -ne "${windows_ad_hostname}") {
+    #     Write-Log -message "Changing Hostname" -level "INFO"
+    #     Rename-Computer -NewName ${windows_ad_hostname} -Force -Restart
+    # } else {
+    #     Write-Log -message "Hostname: $hostname" -level "INFO"
+    # }
+
+    $domain = (Get-WmiObject win32_computersystem).Domain
+    $hostname = hostname
+    $domain_username = "${windows_ad_domain_name}\${windows_ad_user_name}"
+    $domain_password = ConvertTo-SecureString "${windows_ad_safe_password}" -AsPlainText -Force
+    $credential = New-Object System.Management.Automation.PSCredential($domain_username, $domain_password)
+
+    if ($domain -ne '${windows_ad_domain_name}' -And '${windows_ad_join}' -eq "true") {
+        Write-Log -message "Joining domain in 30 seconds" -level "INFO"
+        Start-Sleep -Seconds 30
+
+        # Comment
+        $Stoploop = $false
+        [int]$Retrycount = "0"
+            
+        do {
+            try {
+            Add-Computer -DomainName ${windows_ad_domain_name} -Credential $credential -Passthru -Verbose -Force 
+            # -Restart
+            Write-Log -message "Domain join successful" -level "INFO"
+            $Stoploop = $true
+            Restart-Computer -Force;
+            } catch {
+                Write-log -message $_.Exception.message -level "ERROR"
+                if ($Retrycount -gt 20) {
+                    Write-Log -message "Domain join failed after 20 retrys" -level "ERROR"
+                    $Stoploop = $true
+                } else {
+                    Write-Log -message "Could not join domain, retrying in 60 seconds..." -level "WARN"
+                    Start-Sleep -Seconds 60
+                    $Retrycount = $Retrycount + 1
+                }
+            }
+        } While ($Stoploop -eq $false)
+    }
+}
+
 # Create local admin user
 Create-LocalAdmin
+
+# Rename Host
+Rename-Host
 
 # Add AWS Tools
 Configure-AWS-Tools
 
-# ###########################
-# Download from S3 bucket
-# ###########################
-$keyPrefix = "download"
-$localFolder = "C:\Downloads"
+# Download from S3
+Download-From-S3
 
-New-Item -ItemType Directory -Force -Path $localFolder
-
-# Get list of objects with the specified prefix
-$objects = Get-S3Object -BucketName ${s3_bucket} -KeyPrefix $keyPrefix
-
-# Iterate through each object and download it to the local folder
-foreach ($obj in $objects) {
-    # Remove the prefix from the object key to determine the local path
-    $relativePath = $obj.Key.Substring($keyPrefix.Length)
-
-    # Combine the local folder path with the relative object path
-    $localPath = Join-Path $localFolder $relativePath
-
-    # Ensure the directory structure exists
-    $localDir = Split-Path $localPath -Parent
-    if (-not (Test-Path $localDir)) {
-        New-Item -ItemType Directory -Path $localDir
-    }
-
-    # Download the object
-    Read-S3Object -BucketName ${s3_bucket} -Key $obj.Key -File $localPath
-}
-
-net user Administrator "${windows_ad_safe_password}"
-
-$hostname = hostname
-if ("$hostname" -ne "${windows_ad_hostname}") {
-   Write-Log -message "Changing Hostname" -level "INFO"
-   Rename-Computer -NewName ${windows_ad_hostname} -Force -Restart
-} else {
-   Write-Log -message "Hostname: $hostname" -level "INFO"
-}
-
-$domain = (Get-WmiObject win32_computersystem).Domain
-$hostname = hostname
-$domain_username = "${windows_ad_domain_name}\${windows_ad_user_name}"
-$domain_password = ConvertTo-SecureString "${windows_ad_safe_password}" -AsPlainText -Force
-$credential = New-Object System.Management.Automation.PSCredential($domain_username,$domain_password)
-Write-Log -message "Administrator password set"
-
-if ($domain -ne '${windows_ad_domain_name}' -And '${windows_ad_join}' -eq "true") {
-  Write-Log -message "Joining domain in 30 seconds" -level "INFO"
-  Start-Sleep -Seconds 30
-
-  # Comment
-  $Stoploop = $false
-  [int]$Retrycount = "0"
-    
-  do {
-    try {
-      Add-Computer -DomainName ${windows_ad_domain_name} -Credential $credential -Passthru -Verbose -Force 
-      # -Restart
-      Write-Log -message "Domain join successful" -level "INFO"
-      $Stoploop = $true
-      Restart-Computer -Force;
-    } catch {
-      Write-log -message $_.Exception.message -level "ERROR"
-      if ($Retrycount -gt 20) {
-        Write-Log -message "Domain join failed after 20 retrys" -level "ERROR"
-        $Stoploop = $true
-      } else {
-        Write-Log -message "Could not join domain, retrying in 60 seconds..." -level "WARN"
-        Start-Sleep -Seconds 60
-        $Retrycount = $Retrycount + 1
-      }
-    }
-  } While ($Stoploop -eq $false)
-}
-
-Start-Sleep -Seconds 5
+# Join Active Directory
+Join-AD
 
 Stop-Transcript
 </powershell>

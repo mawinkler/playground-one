@@ -46,6 +46,8 @@ nav:
         - Deploy Service Gateway on AWS Manually: scenarios/automation/service-gateway/v1-aws-service-gateway-manually.md
         - Deploy Service Gateway on AWS Automatically: scenarios/automation/service-gateway/v1-aws-service-gateway-automatically.md
         - Integrate an Active Directory via Service Gateway on AWS: scenarios/automation/service-gateway/v1-integrate-active-directory.md
+    - Zero Trust Secure Access:
+      - Zero Trust Secure Access Environment Setup: scenarios/zero-trust/v1-aws-service-gateway-automatically.md
     - Identity Security:
       - Identity Posture:
         - Populate the Active Directory: scenarios/identity-security/identity-posture/populate-ad.md
