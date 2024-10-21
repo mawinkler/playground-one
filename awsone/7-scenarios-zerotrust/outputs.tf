@@ -63,3 +63,17 @@ output "linux_ssh" {
 output "linux_pip" {
   value = module.ec2.*.linux_pip
 }
+
+# Private Access Gateway
+output "pac_va_ip" {
+  value = var.private_access_gateway ? module.pac[0].public_instance_ip_pac_va : null
+}
+
+output "pac_va_ssh" {
+  description = "Command to ssh to instance pac_va"
+  value       = var.private_access_gateway ? module.pac[0].ssh_instance_pac_va : null
+}
+
+output "pac_ami" {
+  value = var.private_access_gateway ? module.pac[0].pac_ami : null
+}

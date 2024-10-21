@@ -92,13 +92,13 @@ pgo --apply user
 
 This will create a user account in AWS with the necessary permissions only. The credetials are automatically set in the `config.yaml`.
 
-After bootstrapping you need to configure Playground One. To simplify the process use the built in configuration tool. An eventually already existing `config.yaml` will be saved as `config.yaml.bak`. Run
+After bootstrapping you need to configure Playground One. To simplify the process use the built in configuration tool. An already existing `config.yaml` will be saved as `config.yaml.bak`. Run
 
 ```sh
 pgo --config
 ```
 
-This process will create or update your personal `config.yaml`. Eventually existing setting will be shown in square brackets. To accept them just press enter.
+This process will create or update your personal `config.yaml`. Existing settings will be shown in square brackets. To accept them just press enter.
 
 The configuration tool is devided into sections. The following chapters walk you through the process.
 
@@ -137,8 +137,10 @@ Set/update:
 - `Region Name`: If you want to use another region as `eu-central-1`.
 - `Use PGO User`: The Playground One has the ability to create and use a dedicated AWS user with limited privileges. If you want to use this feature you need to run `pgo --apply user` after you have finished the configuration of the Playground One. This will then create a User within a Group with several IAM policies attached.
 - `AD - create PGO Active Directory`: Enable/disable deployment of an Active Directory. This AD is more flexible compared to the AWS Managed Active Directory below.
-- `AD - create Managed Active Directory`: Enable/disable deployment of an AWS Managed Active Directory.
+- `MAD - create Managed Active Directory`: Enable/disable deployment of an AWS Managed Active Directory.
 - `SG - create Service Gateway`: Enable/disable deployment of the Trend Micro Service Gateway.
+- `PAC - create Private Access Gateway`: Enable/disable deployment of the Trend Micro Private Access Gateway.
+- `VNS - create Virtual Network Sensor`: Enable/disable deployment of the Trend Micro Virtual Network Sensor.
 - `EC2 - create Linux EC2`: Enable/disable Linux instances in the `ec2` configuration.
 - `EC2 - create Windows EC2`: Enable/disable Windows instances in the `ec2` configuration.
 
@@ -174,9 +176,19 @@ Set/update:
 
 Set/update:
 
-- `Deep Security`: Enable or disable the Deep Security deployment. If set to `false` Deep Security configuration will be skipped.
+- `Enable Deep Security`: Enable or disable the Deep Security deployment. If set to `false` Deep Security configuration will be skipped.
 - `Deep Security License`: Your Deep Security license key.
 - `Deep Security Username`: Username of the MasterAdmin.
 - `Deep Security Password`: Password of the MasterAdmin.
+
+### Section: Workload Security
+
+Set/update:
+
+- `Enable Workload Security`: Enable or disable the Deep Security deployment. If set to `false` Deep Security configuration will be skipped.
+- `Region`: Your Workload Security Cloud One Region.
+- `Tenant ID`: Workload Security Tenant ID.
+- `Token`: Workload Security Token.
+- `API Key`: Workload Security API Key.
 
 Now, continue with the chapter [General Life-Cycle](life-cycle.md).

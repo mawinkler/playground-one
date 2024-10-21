@@ -14,6 +14,10 @@ variable "aws_secret_key" {
   sensitive = true
 }
 
+variable "access_ip" {
+  type = list(any)
+}
+
 variable "environment" {
   type = string
 }
@@ -34,3 +38,12 @@ variable "windows_username" {
 variable "create_linux" {
   type = bool
 }
+
+# Private Access Gateway
+variable "private_access_gateway" {
+  type = bool
+}
+
+# variable "private_access_gateway_registration_token" {
+#   type = string
+# }

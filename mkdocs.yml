@@ -19,6 +19,7 @@ nav:
     # - XDR for Containers: integrations/xdr-for-containers.md
     - Container Security: integrations/container-security.md
     - Deep Security: integrations/deep-security.md
+    - Workload Security: integrations/workload-security.md
     - Prometheus & Grafana: integrations/prometheus-grafana.md
     - Splunk: integrations/splunk.md
     - Elastic Stack: integrations/elastic-stack.md
@@ -47,7 +48,7 @@ nav:
         - Deploy Service Gateway on AWS Automatically: scenarios/automation/service-gateway/v1-aws-service-gateway-automatically.md
         - Integrate an Active Directory via Service Gateway on AWS: scenarios/automation/service-gateway/v1-integrate-active-directory.md
     - Zero Trust Secure Access:
-      - Zero Trust Secure Access Environment Setup: scenarios/zero-trust/v1-aws-service-gateway-automatically.md
+      - Zero Trust Secure Access Environment Setup: scenarios/zero-trust/zero-trust-lab.md
     - Identity Security:
       - Identity Posture:
         - Populate the Active Directory: scenarios/identity-security/identity-posture/populate-ad.md

@@ -12,7 +12,7 @@ This will prepare all available configurations. No changes done in the clouds ye
 
 If you have changed Playground Ones main configuration using `pgo --config` or updated it via `git pull` please rerun `pgo --init all` again to apply eventual changes to the configurations.
 
-## Create the AWS Environment
+## Create the AWS Environment (Examples)
 
 1. To create the VPC and Network run
 
@@ -60,25 +60,7 @@ If you have changed Playground Ones main configuration using `pgo --config` or u
     pgo --apply ecs-fg
     ```
 
-    S3 Bucket Scanner using File Security SDK:
-
-    ```sh
-    pgo --apply s3scanner
-    ```
-
-4. Create a dedicated (on-prem like) Deep Security environment with activated Computers.
-
-    VPC and Deep Security:
-
-    ```sh
-    pgo --apply dsm
-    ```
-
-    Activated Linux & Windows Computers:
-
-    ```sh
-    pgo --apply dsw
-    ```
+    ...
 
 ## Create the Azure Environment
 
@@ -98,24 +80,66 @@ The most relevant information on your configuration can be queried by running
 pgo --output <configuration>
 ```
 
-Example: `pgo --output instances`:
+Example: `pgo --output network`:
 
 ```sh
-public_instance_id_db1 = "i-072abd953dedaae5d"
-public_instance_id_srv1 = "i-0f2c91e08fd054510"
-public_instance_id_web1 = "i-048ecedf660236f47"
-public_instance_ip_db1 = "3.76.39.227"
-public_instance_ip_srv1 = "3.75.219.198"
-public_instance_ip_web1 = "18.197.106.33"
-public_instance_password_srv1 = <sensitive>
-s3_bucket = "playground-awsone-cesh306v"
-ssh_instance_db1 = "ssh -i ../playground-key-pair.pem -o StrictHostKeyChecking=no ubuntu@3.76.39.227"
-ssh_instance_srv1 = "ssh -i ../playground-key-pair.pem -o StrictHostKeyChecking=no admin@3.75.219.198"
-ssh_instance_web1 = "ssh -i ../playground-key-pair.pem -o StrictHostKeyChecking=no ubuntu@18.197.106.33"
-public_instance_password_srv1 = "4h1v}Q7Hc9tbGWdM"
+ad_admin_password = <sensitive>
+ad_ca_ip = "3.79.240.102"
+ad_dc_ip = "18.199.162.245"
+ad_dc_pip = "10.0.4.243"
+ad_domain_admin = "Administrator"
+ad_domain_name = "pgo-zt.local"
+database_subnet_group = "pgo-zt-vpc"
+database_subnets = [
+  "subnet-024061bce0457ad5a",
+  "subnet-0385d854408871587",
+  "subnet-05eea550f4b109560",
+]
+intra_subnet_cidr_blocks = tolist([
+  "10.0.20.0/24",
+  "10.0.21.0/24",
+  "10.0.22.0/24",
+])
+intra_subnets = [
+  "subnet-0e11990df7299c915",
+  "subnet-0b5aecdff3e5673a1",
+  "subnet-0e29a813d1fc4db82",
+]
+key_name = "pgo-zt-key-pair-fuhp9d81"
+nat_ip = "3.73.242.255"
+private_key_path = "/home/markus/projects/opensource/playground/playground-one/pgo-zt-key-pair-fuhp9d81.pem"
+private_security_group_id = "sg-09685580098cdbbbb"
+private_subnet_cidr_blocks = tolist([
+  "10.0.0.0/24",
+  "10.0.1.0/24",
+  "10.0.2.0/24",
+])
+private_subnets = [
+  "subnet-04c67c83d6cbac862",
+  "subnet-0b641ee8a642ee59b",
+  "subnet-053aa013e78f082c9",
+]
+public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCxtSTOrR4TVxVvz1UWjsR7QxDS99DlHSx3YE7olWGQGraifnW9z2fL9SadHYMeEMgitRndyVRFOWNoMEdsixnwr5UMewUZCPeVmuifZLPSleVhdsjDmEKsvlyed6tbTCFsH/NseNI9GOzGShHravWqkGvKQysT550/xlcjH8NUYpJqRPWVcDatedxuQZdRidWJu3lPmDYOxEYzb7lPdi/sAT4Y6e9VXv7/kc1EWuM+DB/Z6b40hxl8ud+bomk3z+2GxmqdCTbXkQqt+eiSxJirZV7m1xEhfAOBwlzdeTAX7iKJoIAtP+4hCACPcpXi5QU+ufiqpwTnH9XyF42vlpvgiCrSyF7KEKCOTTFmSkin6UDhcqtsHwdRDraszSQcgzrdUSr5qh3xhK9DGymPSLjH5fDAE/NY8FXS1YiJuOBNDz8SVjiIIKJfvO69QGrMo+rtrKySSrLWXHPE2rpTzPnNZA4xfAiIgObzTFpska+9dqeaSgYO/Bf7ZciEcFJsYNVHDisANPeiqDMZ8gL5YIs1cpKL8HtP/MQ9vmk/GvqGdKrjJbpFx5Ck75R4V43ALmY+sYEXrwuqsCEHVaI5M8azduQoYk/7gmMWrwRyZVndRx60yJjawDbOSRrw1ppqA87LlSXHWzD9MqKESA0M7Ktbl1T0UvHoGygX16TsFaeFZw=="
+public_security_group_id = "sg-0450bc4f9b8b6df27"
+public_subnet_cidr_blocks = tolist([
+  "10.0.4.0/24",
+  "10.0.5.0/24",
+  "10.0.6.0/24",
+])
+public_subnets = [
+  "subnet-0801f0e4b2d56adfb",
+  "subnet-097370fd84490c194",
+  "subnet-0e200500c67fc8046",
+]
+sg_ami = "ami-076cc3a0b6e31d873"
+sg_va_ip = "35.159.85.242"
+sg_va_ssh = "ssh -i /home/markus/projects/opensource/playground/playground-one/pgo-zt-key-pair-fuhp9d81.pem -o StrictHostKeyChecking=no admin@35.159.85.242"
+vpc_id = "vpc-09af1cf0b47603e9e"
+vpc_owner_id = "634503960501"
+ad_admin_password = TrendMicro.1
 ```
 
-With this you can always query how to connect to your running EC2 instances. All instances support SSH connections, the Windows Server Remote Desktop as well. For RDP Use the configured `admin` user, the ip address and password for srv1.
+With this you can always query details of your VPC.
 
 ## Play with the Playground One
 

@@ -293,6 +293,6 @@ Optionally, download an Eicar to the linux machine. This will lead to a detectio
 
 ## Result and Benefits
 
-You now have integrated your on-prem Deep Security instance to Vision One and enabled the XDR functionality. Additionally, you have proven some of the benefits when integration Deep Security with Vision One. Eventually think about migrating?
+You now have integrated your on-prem Deep Security instance to Vision One and enabled the XDR functionality. Additionally, you have proven some of the benefits when integration Deep Security with Vision One. Maybe start thinking about migrating?
 
 🎉 Success 🎉

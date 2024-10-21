@@ -112,6 +112,24 @@ Vulnerabilities | grype | See [github.com/anchore/grype](https://github.com/anch
 
 ## Change Log
 
+***0.4.6***
+
+*Changes*
+
+- New scenario: Zero Trust Access - Lab
+
+***0.4.5***
+
+*Changes*
+
+- Kind cluster now uses Terraform Provider for Container Security
+
+***0.4.4***
+
+*Changes*
+
+- Update FSS SDK and improve Bucket Scanner Lambda sample
+
 ***0.4.3***
 
 *Fixes*
@@ -272,7 +290,7 @@ Playground One is now included in Trend Micro Product Experience.
 
 - Simple S3 Bucket scanner now part of Playground One. This includes a dedicated [scenario](https://mawinkler.github.io/playground-one-pages/scenarios/as/tmfs-s3-bucket-scanning/).
 - Improved handling of public IPs in configflow when running on Cloud9.
-- Eventually existing Azure credentials are now made available within the container.
+- Any existing Azure credentials will now be made available within the container.
 
 ***0.2 Maintenance release (02/20/2024)***
 

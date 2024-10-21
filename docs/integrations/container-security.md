@@ -31,7 +31,7 @@ Steps:
     pgo --apply eks-fg
     ```
 
-Done.
+Done. Playground One uses the Terraform provider of Vision One Container Security.
 
 ## Container Security with the Playground One ECS Fargate Cluster
 

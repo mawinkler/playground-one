@@ -1,14 +1,10 @@
 # Scenario: CloudFormation IaC Scanning as GitHub Action
 
-!!! danger "Warning!"
-
-    This scenario does use Cloud One Conformity!
-
 ## Prerequisites
 
-- Clouud One API-Key with the following permissions:
-    - Conformity
-        - PowerUser
+- Vision One API-Key with the following permissions:
+    - Cloud Posture
+        - View
 - GitHub Account.
 - Forked [playground-one-template-scanner](https://github.com/mawinkler/playground-one-template-scanner).
 
@@ -22,19 +18,14 @@ You can configure a GitHub Actions workflow to be triggered when an event occurs
 
 Workflows are defined as YAML files in the .github/workflows directory in a repository, and a repository can have multiple workflows, each of which can perform a different set of tasks.
 
-In this scenario we're going to create a workflow to automatically build, push and scan a container image with Trend Micro Artifact Scanning. The scan will check the image for vulnerabilities and malware and eventually push it to the registry.
+In this scenario we're going to create a workflow to automatically scan a Cloudformation template with Vision One Cloud Posture Template Scanning. The scan will check the configuration for misconfigurations.
 
 The logic implemented in this Action template is as follows:
 
-- Prepare the Docker Buildx environment.
-- Build the image and save it as a tar ball.
-- Scan the built image for vulnerabilities and malware using Vision One Container Security.
-- Upload Scan Result and SBOM Artifact if available. Artifacts allow you to share data between jobs in a workflow and store data once that workflow has completed, in this case saving the scan result and the container image SBOM as an artifact allow you to have proof on what happened on past scans.
-- Optionally fail the workflow if malware and/or the vulnerability threshold was reached. Failing the workflow at this stage prevents the registry to get polluted with insecure images.
-- Authenticate to the deployment registry.
-- Rebuild the image from cache for the desired architectures.
-- Push the image to the registry.
-- Rescan the image in the registry to allow proper admission control integration.
+- Prepare the Cloudformation environment with [rain](https://aws-cloudformation.github.io/rain/).
+- Use the template scanner to scan for misconfigurations.
+- Upload scan artifacts.
+- Eventually fail the action if the findings threshold has been exceeded.
 
 ## Fork the Scenario Repo
 
@@ -67,11 +58,11 @@ on:
     tags: [ v* ]
 
 env:
-  # Conformity API Key
-  CLOUD_ONE_API_KEY: ${{ secrets.API_KEY }}
+  # Vision One API Key
+  API_KEY: ${{ secrets.API_KEY }}
 
-  # Region in which Cloud Conformity serves your organisation
-  CLOUD_ONE_REGION: eu-central-1
+  # Region in which Vision One serves your organisation
+  REGION: ""  # Examples: "eu." "sg." Leave blank if running in us.
 
   # Scan result threshold (fail on risk-level or higher)
   # THRESHOLD: any
@@ -100,18 +91,18 @@ jobs:
       - name: CloudFormation Scan
         run: |
           contents=$(cat cfn/template.json | jq '.' -MRs)
-          payload="{\"data\":{\"attributes\":{\"type\":\"cloudformation-template\",\"contents\":${contents}}}}"
+          payload="{\"type\":\"cloudformation-template\",\"content\":${contents}}"
           printf '%s' ${payload} > data.txt
 
           # # Scan template
           curl -s -X POST \
-              -H "Authorization: ApiKey ${CLOUD_ONE_API_KEY}" \
-              -H "Content-Type: application/vnd.api+json" \
-              https://${CLOUD_ONE_REGION}-api.cloudconformity.com/v1/template-scanner/scan \
+              -H "Authorization: Bearer ${API_KEY}" \
+              -H "Content-Type: application/json;charset=utf-8" \
+              https://api.${REGION}xdr.trendmicro.com/beta/cloudPosture/scanTemplate \
               -d @data.txt > result.json
 
           # Extract findings risk-level
-          risk_levels=$(cat result.json | jq -r '.data[] | select(.attributes.status == "FAILURE") | .attributes."risk-level"')
+          risk_levels=$(cat result.json | jq -r '.scanResults[] | select(.status == "FAILURE") | .riskLevel')
 
           fail=0
           [ "${THRESHOLD}" = "any" ] && \
@@ -130,14 +121,21 @@ jobs:
             ([[ ${risk_levels} == *CRITICAL* ]] || [[ ${risk_levels} == *HIGH* ]] || [[ ${risk_levels} == *MEDIUM* ]] || [[ ${risk_levels} == *LOW* ]]) && fail=5
 
           [ $fail -ne 0 ] && echo !!! Threshold exceeded !!! > exceeded || true
-          rm -f data.txt
+          # rm -f data.txt
 
       # Upload Scan Result if available
       - name: Upload Scan Result Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: scan-result
           path: result.json
+          retention-days: 30
+
+      - name: Upload Scan Result Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: data
+          path: data.txt
           retention-days: 30
 
       # Fail the workflow if theshold reached
@@ -165,7 +163,7 @@ Adapt the environment variables in the `env:`-section as required.
 
 Variable          | Purpose
 ----------------- | -------
-`CLOUD_ONE_REGION`| Cloud One Region of choice (e.g. eu-central-1, us-west-2, etc.).
+`REGION`          | Vision One Region of choice (e.g. "eu." "sg." Leave blank if running in us).
 `THRESHOLD`       | Defines the fail condition of the action in relation to discovered vulnerabilities. A threshold of `critical` does allow any number of vulnerabilities up to the criticality `high`. 
 
 Allowed values for the `THRESHOLD` are:
@@ -190,7 +188,7 @@ Navigate to `Actions` and enable Workflows for the forked repository.
 
 To trigger the action we simply create a tag.
 
-Navigate to `Releases` on the right and then click on `[Draft a new release]`.
+Navigate to `Releases` on the right and then click on `[Create a new release]`.
 
 Next, click on `[Choose a tag]` and type `v0.1`. A new button called `[Create new tag]` should get visible. Click on it.
 

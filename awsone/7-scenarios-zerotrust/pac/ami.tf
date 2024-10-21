@@ -1,7 +1,7 @@
 # #############################################################################
-# Look up the latest Service Gateway AMI
+# Look up the latest Private Access Connector
 # #############################################################################
-data "aws_ami" "sg_va" {
+data "aws_ami" "pac_va" {
   most_recent = true
   owners      = ["679593333241"] # Trend Micro
 
@@ -22,6 +22,6 @@ data "aws_ami" "sg_va" {
 
   filter {
     name   = "name"
-    values = ["sg-va-2*"]
+    values = ["ztna-connector-*"]
   }
 }

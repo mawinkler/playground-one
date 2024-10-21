@@ -57,3 +57,22 @@ module "ad" {
     split(".", try(data.terraform_remote_state.vpc.outputs.ad_domain_name, ""))[0]},DC=${
   split(".", try(data.terraform_remote_state.vpc.outputs.ad_domain_name, ""))[1]}"
 }
+
+module "pac" {
+  count = var.private_access_gateway ? 1 : 0
+
+  source = "./pac"
+
+  access_ip                = var.access_ip
+  environment              = var.environment
+  vpc_id                   = data.terraform_remote_state.vpc.outputs.vpc_id
+  public_security_group_id = data.terraform_remote_state.vpc.outputs.public_security_group_id
+  public_subnets           = data.terraform_remote_state.vpc.outputs.public_subnets.*
+  public_subnets_cidr      = data.terraform_remote_state.vpc.outputs.public_subnet_cidr_blocks
+  private_subnets_cidr     = data.terraform_remote_state.vpc.outputs.private_subnet_cidr_blocks
+  key_name                 = data.terraform_remote_state.vpc.outputs.key_name
+  public_key               = data.terraform_remote_state.vpc.outputs.public_key
+  private_key_path         = data.terraform_remote_state.vpc.outputs.private_key_path
+  # registration_token       = var.private_access_gateway_registration_token
+  instance_type            = "t3.large"
+}

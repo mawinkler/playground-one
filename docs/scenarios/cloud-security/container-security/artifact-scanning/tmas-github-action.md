@@ -20,7 +20,7 @@ You can configure a GitHub Actions workflow to be triggered when an event occurs
 
 Workflows are defined as YAML files in the .github/workflows directory in a repository, and a repository can have multiple workflows, each of which can perform a different set of tasks.
 
-In this scenario we're going to create a workflow to automatically build, push and scan a container image with Trend Micro Artifact Scanning. The scan will check the image for vulnerabilities and malware and eventually push it to the registry.
+In this scenario we're going to create a workflow to automatically build, push and scan a container image with Trend Micro Artifact Scanning. The scan will check the image for vulnerabilities and malware and may push it to the registry.
 
 The logic implemented in this Action template is as follows:
 

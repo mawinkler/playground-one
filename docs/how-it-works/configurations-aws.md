@@ -8,14 +8,20 @@ awsone
 |   ├── ec2 (3-instances)
 |   ├── eks (4-cluster-eks-ec2)
 |   |   ├── eks-deployments (8-cluster-eks-ec2-deployments)
-|   |   └── scenarios (7-scenarios-ec2)
+|   |   └── scenarios-ec2 (7-scenarios-ec2)
 |   ├── eks (4-cluster-eks-fargate)
 |   |   ├── eks-deployments (8-cluster-eks-fargate-deployments)
-|   |   └── scenarios (7-scenarios-fargate)
-|   └── ecs (5-cluster-ecs)
+|   |   └── scenarios-fargate (7-scenarios-fargate)
+|   ├── ecs (5-cluster-ecs-ec2)
+|   ├── ecs (5-cluster-ecs-fargate)
+|   ├── scenarios-cloudtrail (7-scenarios-cloudtrail)
+|   ├── scenarios-identity (7-scenarios-identity)
+|   └── scenarios-zerotrust (7-scenarios-zerotrust)
 ├── s3scanner (6-bucket-scanner)
-└── dsm (9-deep-security)
-    └── workload (9-deep-security-workload) 
+├── scenarios-cspm (7-scenarios-cspm)
+├── dsm (9-deep-security)
+|   └── dsw (9-deep-security-workload)
+└── wsw (9-workload-security-workload)
 ```
 
 As we can see, the configuration `network` is the base for the other configurations. It creates the VPC, Subnets, Route Tables, Security Groups, etc. One can choose to only create the EKS cluster, or ECS cluster, or even the full stack. Everything will reside in the same VPC.
@@ -28,9 +34,9 @@ The following chapters describe the different configurations on a high level, re
 
 This configuration defines a network with the most commonly used architecture, private and public subnets accross three availability zones. It includes everything what a VPC should have, this is amongst others an internet gateway, NAT gateway, security groups, etc. Since a VPC is cheap there's no real need to destroy the networking configuration everyday, just leave it as it is and reuse it the next time. This eases the handling of other components.
 
-In addition to the networking things the following central services can be deployed optionally:
+In addition to networking, the following core services are optional:
 
-- Active Directory including a Certification Authority: An AD the PGO way based on cheap `t2.micro` instances.
+- Active Directory including a Certificate Authority: An AD the PGO way based on cheap `t3.medium` instances.
 - AWS Managed Active Directory: The AWS native variant. This is more on the expensive side (USD 96.48/mo).
 - Trend Service Gateway. The configured and recommended instance type `c5.2xlarge` (8 vCPU, 16GiB, 10 Gigabit) is 0.388 USD/h, just to note.
 
@@ -40,7 +46,7 @@ In addition to the networking things the following central services can be deplo
 
 *Depends on `awsone/2-network`*
 
-Basically, a couple of EC2 instances are created with this configuration. Currently these are two linux and one windows instances. One of the linux instances can be used to demo a potential attack path to RDS.
+Basically, a couple of EC2 instances are created with this configuration. One of the linux instances can be used to demo a potential attack path to RDS, if enabled.
 
 If you store the agent installers for Server and Workload Security in `0-files` the instances will connect to Vision One.
 
@@ -49,6 +55,10 @@ You can optionally drop any file or installer in the `0-files` directory which w
 ## EKS EC2 Cluster
 
 *Configuration located in `awsone/4-cluster-eks-ec2`*
+
+*Deployments Configuration located in `awsone/8-cluster-ec2-deployments`*
+
+*Scenario Configuration located in `awsone/7-scenarios-ec2`*
 
 *Depends on `awsone/2-network`*
 
@@ -60,40 +70,15 @@ So, this is my favorite part. This configuration creates an EKS cluster with som
 - Kubernetes Autoscaler
 - Cluster is located in the private subnets
 
-### Cluster Deployments
-
-*Configuration located in `awsone/8-cluster-ec2-deployments`*
-
-*Depends on `awsone/4-cluster-eks-ec2`*
-
-Currently, the following deployments are defined:
-
-- Container Security
-- Calico
-- Prometheus & Grafana
-- Trivy
-
-### Scenarios
-
-*Configuration located in `awsone/7-scenarios-ec2`*
-
-*Depends on `awsone/4-cluster-eks-ec2`*
-
-*Documentation [Link](../scenarios/cloud-security/container-security/eks/escape.md)*
-
-Currently, the following (vulnerable) deployments are defined:
-
-- WebApp System-Monitor
-- WebApp Health-Check
-- WebApp Hunger-Check
-- Java-Goof
-- Nginx
-
-Automated attacks are running every full hour.
+Automated attacks are running every full hour when scenarios are deployed.
 
 ## EKS Fargate Cluster
 
 *Configuration located in `awsone/4-cluster-eks-fargate`*
+
+*Deployments Configuration located in `awsone/8-cluster-fargate-deployments`*
+
+*Scenario Configuration located in `awsone/7-scenarios-fargate`*
 
 *Depends on `awsone/2-network`*
 
@@ -104,31 +89,7 @@ This configuration creates a Fargate EKS cluster with some nice key features:
 - An additional AWS managed node group
 - Cluster is located in the private subnets
 
-### Cluster Deployments
-
-*Configuration located in `awsone/8-cluster-fargate-deployments`*
-
-*Depends on `awsone/4-cluster-eks-fargate`*
-
-Currently, the following deployments are defined:
-
-- Container Security
-- Calico
-
-### Scenarios
-
-*Configuration located in `awsone/7-scenarios-fargate`*
-
-*Depends on `awsone/4-cluster-eks-fargate`*
-
-*Documentation [Link](../scenarios/cloud-security/container-security/eks/escape.md)*
-
-Currently, the following (vulnerable) deployments are defined:
-
-- Java-Goof
-- Nginx
-
-Automated attacks are running every full hour.
+Automated attacks are running every full hour when scenarios are deployed.
 
 ## ECS EC2 Cluster
 
@@ -141,16 +102,6 @@ Here we're building an ECS cluster using EC2 instances. Key features:
 - Autoscaling group for spot instances. On-demand autoscaler can be enabled in Terraform script.
 - ALB Load Balancer
 - Automatic deployment of a vulnerable service (Java-Goof)
-
-### Scenarios
-
-*Depends on `awsone/4-cluster-ecs-ec2`*
-
-*Documentation [Link](../scenarios/cloud-security/container-security/ecs/apache-struts-rce.md)*
-
-Currently, the following (vulnerable) deployments are defined:
-
-- Java-Goof
 
 ## ECS Fargate Cluster
 
@@ -166,15 +117,24 @@ Here we're building an ECS cluster using Fargate profile. Key features:
 
 You need to activate Container Security by running the supplied script `ecsfg-add-v1cs <CLUSTER NAME>` after enabling it within the Vision One console.
 
-### Scenarios
+## Scenarios CloudTrail
 
-*Depends on `awsone/4-cluster-ecs-fargate`*
+Automated malicious actions are executed on running this scenario which lead to detections in Observed Attack Techniques and the generation of Workbenches.
 
-*Documentation [Link](../scenarios/cloud-security/container-security/ecs/apache-struts-rce.md)*
+## Scenarios Identity
 
-Currently, the following (vulnerable) deployments are defined:
+This scenario is currently very simple. It simply populates Active Directory with some users and groups to allow Identity Security to discover these entities. More to come.
 
-- Java-Goof
+## Scenarios Zero Trust Access
+
+This scenario prepares an environment to play with Vision One Zero Trust Secure Access in AWS. It includes the following assets:
+
+- Microsoft Windows Domain including a Certification Authority
+- A Windows Server standalone
+- A Windows Member Server
+- A Linux host running a dockerized web application
+- Vision One Service Gateway including Active Directory integration
+- Vision One Private Access Gateway
 
 ## S3 Bucket Scanner
 
@@ -182,15 +142,9 @@ Currently, the following (vulnerable) deployments are defined:
 
 Simple S3 Bucket scanner using the File Security Python SDK within a Lambda Function. Scan results will show up on the Vision One console.
 
-### Scenarios
+## Scenarios Cloud Security Posture Management
 
-*Depends on `awsone/6-bucket-scanner`*
-
-*Documentation [Link](../scenarios/cloud-security/file-security/artifact-scanning/tmfs-s3-bucket-scanning.md)*
-
-Currently, the following (vulnerable) deployments are defined:
-
-- Java-Goof
+Creates an S3 bucket with some misconfigurations for Posture Management to detect.
 
 ## Deep Security
 
@@ -202,15 +156,11 @@ The workload configuration creates a demo configuration for Deep Security and tw
 
 Check the Scenarios section to see available integration and migration scenarios.
 
-### Scenarios
+## Workload Security
 
-*Depends on `awsone/9-deep-security` and `awsone/9-deep-security-workload`*
+The workload configuration creates a demo configuration for Workload Security and two custom policies. Linux and one windows instances are created and activated with Workload Security. Some minutes after instance creation the activated computers will run a recommendation scan.
 
-*Documentation [Link](../scenarios/endpoint-security/deep-security/ds-integrate.md)*
-
-Currently, the following (vulnerable) deployments are defined:
-
-- Java-Goof
+Check the Scenarios section to see available integration and migration scenarios.
 
 ## Instance Types in Use as of 06/20/24
 

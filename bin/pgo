@@ -525,9 +525,11 @@ function init() {
       aws_region=${aws_region} \
       aws_pgo_user_access_key=${aws_pgo_user_access_key} \
       aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
+      pgo_access_ip=${pgo_access_ip} \
       environment_name=${environment_name} \
       pgo_ec2_create_linux=${pgo_ec2_create_linux} \
       active_directory=${pgo_active_directory} \
+      private_access_gateway=${pgo_private_access_gateway} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-7-scenarios-zerotrust.tfvars >${configs[scenarios-zerotrust]}/terraform.tfvars
 

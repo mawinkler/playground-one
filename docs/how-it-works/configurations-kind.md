@@ -15,29 +15,10 @@ The following chapters describe the different configurations on a high level, re
 
 *Configuration located in `kindone/4-cluster-kind`*
 
+*Deployments Configuration located in `kindone/8-cluster-kind-deployments`*
+
+*Scenario Configuration located in `kindone/7-scenarios-kind`*
+
 Useful for quickly testing out Kubernetes things :-).
-
-### Cluster Deployments
-
-*Configuration located in `kindone/8-cluster-kind-deployments`*
-
-*Depends on `kindone/4-cluster-kind`*
-
-Currently, the following deployments are defined:
-
-- Container Security
-- Calico
-- Prometheus & Grafana
-- Trivy
-
-### Scenarios
-
-*Configuration located in `kindone/7-scenarios-kind`*
-
-*Depends on `kindone/4-cluster-kind`*
-
-Currently, the following (vulnerable) deployments are defined:
-
-- Nginx
 
 Automated attacks are running every full hour.

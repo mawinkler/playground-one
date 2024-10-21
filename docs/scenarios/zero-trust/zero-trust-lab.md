@@ -7,6 +7,7 @@ This scenario prepares an environment to play with Vision One Zero Trust Secure 
 - A Windows Member Server
 - A Linux host running a dockerized web application
 - Vision One Service Gateway including Active Directory integration
+- Vision One Private Access Gateway
 
 ## Prerequisites
 
@@ -23,7 +24,7 @@ There should only be one AMI shown for your current region. Click on `[Select]` 
 
 Now, check your Playground One configuration.
 
-Verify, that you have `AWS SG - create Service Gateway` enabled in your configuration.
+Verify, that you have the following three services enabled in your configuration.
 
 ```sh
 pgo --config
@@ -33,11 +34,11 @@ pgo --config
 ...
 AD - create PGO Active Directory? [true]:
 AWS SG - create Service Gateway [true]:
+PAC - create Private Access Gateway? [true]:
 ...
 ```
 
 ```sh
-# With SG enabled
 pgo --apply network
 ```
 
@@ -66,9 +67,9 @@ ad_admin_password = TrendMicro.1  # Administrator Password for Active Directory
 
     Use the public IP of the domain controller `ad_dc_ip` and the username `Administrator@<your environment name>.local` and connect via RDP.
 
-## Service Gateway
+## Configure the Service Gateway
 
-### Get the Vision One API Key
+### Get the Vision One API Key for the Service Gateway
 
 In Vision One head over to `Workflow and Automation -> Service Gateway Management` and click on `[Download Virtual Appliance]`.
 
@@ -122,7 +123,7 @@ In Vision One head over to `Workflow and Automation -> Service Gateway Managemen
 
 Since the Playground One is able to create two different Active Directories depending on what you have enabled in your configuration continue if the following chapters.
 
-## Create the Instances required for this Scenario
+## Deploy the Instances and the Private Access Gateway
 
 Run
 
@@ -135,6 +136,7 @@ The above will create the following instances:
 - A ubuntu based Linux server running a docker based Jellyfish web application
 - A standalone windows server 2022
 - A domain joined windows server 2022
+- A Private Access Gateway
 
 All relevant information is shown in the output:
 
@@ -156,6 +158,9 @@ linux_ssh = [
     "ssh -i /home/markus/projects/opensource/playground/playground-one/pgo-id-key-pair-ee6i8qnb.pem -o StrictHostKeyChecking=no ubuntu@3.123.129.154",
   ]),
 ]
+pac_ami = "ami-029c673cf28a3d376"
+pac_va_ip = "18.185.79.240"
+pac_va_ssh = "ssh -i /home/markus/projects/opensource/playground/playground-one/pgo-zt-key-pair-rmh0wu4t.pem -o StrictHostKeyChecking=no admin@18.185.79.240"
 win_dns_names = [
   [
     "ec2-18-159-52-223.eu-central-1.compute.amazonaws.com",
@@ -248,7 +253,68 @@ Heading back to the Active Directory integration of Vision One the agent should 
 
 Your environment should now be ready to play with Zero Trust Secure Access.
 
-## Access the Web Application
+## Configure the Private Access Gateway
+
+### Get the Vision One API Key for the Private Access Gateway
+
+In Vision One head over to `Zero Trust Secure Access -> Secure Access Conifugraion -> Private Access Configuration` and click on `[Add Private Access Connector Group]`.
+
+![alt text](images/v1-aws-pac-01.png "Vision One")
+
+![alt text](images/v1-aws-pac-02.png "Vision One")
+
+Click the `[+]` and copy the registration token shown at the bottom right and save it in a safe place.
+
+![alt text](images/v1-aws-pac-03.png "Vision One")
+
+### Activate the Private Access Gateway
+
+Back to your console/shell run the following command (adapt the parameters to your environment):
+
+```sh
+pgo --output scenarios-zertrust
+```
+
+```sh
+...
+pac_va_ssh = "ssh -i /home/markus/projects/opensource/playground/playground-one/pgo-zt-key-pair-rmh0wu4t.pem -o StrictHostKeyChecking=no admin@18.185.79.240"
+...
+```
+
+The interesting value here is `pac_va_ssh`. Run the given command to connect to the Service Gateway.
+
+```sh
+ssh -i /home/markus/projects/opensource/playground/playground-one/pgo-zt-key-pair-rmh0wu4t.pem -o StrictHostKeyChecking=no admin@18.185.79.240
+```
+
+!!! warning "Register"
+
+    Not fully functional yet
+
+```sh
+ ********************************************
+ *      WARNING: Authorized Access Only     *
+ ********************************************
+        
+Mon Oct 21 04:43:47 PDT 2024
+
+Company ID: 0fcd4xxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+Connector ID: e126exxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+> passwd
+New password: 
+Retype new password: 
+Password changed successfully.
+Run the "enable" command to enter privileged mode.
+> enable
+Password: 
+
+Entering privileged mode...
+# register <registration token>
+```
+
+It can take some time for the Private Access Gateway to show up in the console.
+
+## Test Access the Web Application
 
 A dockerized Jellyfin is deployed on the Linux server. At any time you can retrieve it's private IP address by running
 

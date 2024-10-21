@@ -24,13 +24,3 @@ pgo --destroy dsm
 ```
 
 An applied dsm configuration can be quickly stopped and started via the commands `dsm stop` and `dsm start` without losing any configurations within Deep Security.
-
-To come:
-
-- Documentation of integraion scenarios:
-  - DS with V1ES
-    - WS with V1ES
-- Documentation of migration scenarios:
-    - DS --> V1ES
-    - WS --> V1ES
-- Creation of protected instances and policies.

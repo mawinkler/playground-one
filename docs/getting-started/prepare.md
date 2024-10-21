@@ -17,7 +17,7 @@ Follow this chapter if...
 
 > ***Note***: For the curious ones, here's the [Dockerfile](https://github.com/mawinkler/playground-one/blob/main/container/Dockerfile).
 
-First, start a terminal and ensure to have a running container engine, eventually run `docker ps` to verify this.
+First, start a terminal and make sure you have a running container engine. To check this, run `docker ps`.
 
 > ***Note:*** If you want to specify a Playground One Container version instead of using `latest` create a file with the version (tag) to use by running:
 >
@@ -85,7 +85,7 @@ ssh -p 2222 pgo@localhost
 # password: pgo
 ```
 
-Eventually authenticate to AWS and/or Azure by either running
+Now authenticate to AWS and/or Azure by either running
 
 ```sh
 # Not required when using Cloud9
@@ -111,7 +111,7 @@ Stopping the container is possible with `./pgoc stop`, to start it again just ru
 > 2. Run `./pgoc update`
 >    1. This will backup your current `workdir` and save your `config.yaml`.
 >    2. The desired version of the container is pulled and a new `workdir` is created.
->    3. The previous `config.yaml` is restored alongside the eventually existing `.aws` config.
+>    3. The previous `config.yaml` is restored alongside the possibly existing `.aws` config.
 > 3. Start the new container with `./pgoc start` and login via ssh.
 > 
 > You likely get an error when connecting with ssh. If so, delete the offending line in `~/.ssh/known_hosts` and retry.
