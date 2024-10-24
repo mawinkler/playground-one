@@ -29,8 +29,8 @@ locals {
     public_key        = var.public_key
   })
 
-  linux_amzn2_count  = 1
-  linux_ubuntu_count = 1
-  linux_rhel_count   = 1
+  linux_amzn2_count  = 2
+  linux_ubuntu_count = 2
+  linux_rhel_count   = 0
   windows_count      = 1
 }

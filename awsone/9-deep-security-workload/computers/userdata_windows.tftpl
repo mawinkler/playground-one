@@ -231,7 +231,9 @@ Configure-AWS-Tools
 # Download from S3 bucket
 # ###########################
 $keyPrefix = "download"
-$localFolder = "C:\Users\$username\Downloads"
+$localFolder = "C:\Downloads"
+
+New-Item -ItemType Directory -Force -Path $localFolder
 
 # Get list of objects with the specified prefix
 $objects = Get-S3Object -BucketName ${s3_bucket} -KeyPrefix $keyPrefix
