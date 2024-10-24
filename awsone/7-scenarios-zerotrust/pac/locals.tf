@@ -3,7 +3,7 @@
 # #############################################################################
 locals {
   userdata_pac_va = templatefile("${path.module}/userdata_pac_va.tftpl", {
-    # registration_token = var.registration_token
+    registration_token = var.registration_token
   })
 
   security_groups = {

@@ -73,6 +73,6 @@ module "pac" {
   key_name                 = data.terraform_remote_state.vpc.outputs.key_name
   public_key               = data.terraform_remote_state.vpc.outputs.public_key
   private_key_path         = data.terraform_remote_state.vpc.outputs.private_key_path
-  # registration_token       = var.private_access_gateway_registration_token
+  registration_token       = var.private_access_gateway_registration_token
   instance_type            = "t3.large"
 }

@@ -275,41 +275,17 @@ Back to your console/shell run the following command (adapt the parameters to yo
 pgo --output scenarios-zertrust
 ```
 
-```sh
-...
-pac_va_ssh = "ssh -i /home/markus/projects/opensource/playground/playground-one/pgo-zt-key-pair-rmh0wu4t.pem -o StrictHostKeyChecking=no admin@18.185.79.240"
-...
-```
-
-The interesting value here is `pac_va_ssh`. Run the given command to connect to the Service Gateway.
+Now paste the registration token from above:
 
 ```sh
-ssh -i /home/markus/projects/opensource/playground/playground-one/pgo-zt-key-pair-rmh0wu4t.pem -o StrictHostKeyChecking=no admin@18.185.79.240
-```
-
-!!! warning "Register"
-
-    Not fully functional yet
-
-```sh
- ********************************************
- *      WARNING: Authorized Access Only     *
- ********************************************
-        
-Mon Oct 21 04:43:47 PDT 2024
-
-Company ID: 0fcd4xxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-Connector ID: e126exxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-> passwd
-New password: 
-Retype new password: 
-Password changed successfully.
-Run the "enable" command to enter privileged mode.
-> enable
-Password: 
-
-Entering privileged mode...
-# register <registration token>
+ __                 __   __   __             __      __        ___ 
+|__) |     /\  \ / / _` |__) /  \ |  | |\ | |  \    /  \ |\ | |__  
+|    |___ /~~\  |  \__> |  \ \__/ \__/ | \| |__/    \__/ | \| |___ 
+                                                                   
+Using PDO User Access Key ID: ...D44H
+Configuration scenarios-zerotrust in directory /home/markus/projects/opensource/playground/playground-one/awsone/7-scenarios-zerotrust
+var.private_access_gateway_registration_token
+  Enter a value: eyJhbGciOiJIUzI1NiI...
 ```
 
 It can take some time for the Private Access Gateway to show up in the console.

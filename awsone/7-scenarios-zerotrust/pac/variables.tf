@@ -23,4 +23,4 @@ variable "private_subnets_cidr" {}
 
 variable "instance_type" {}
 
-# variable "registration_token" {}
+variable "registration_token" {}

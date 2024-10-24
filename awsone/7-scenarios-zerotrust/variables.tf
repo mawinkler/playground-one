@@ -44,6 +44,6 @@ variable "private_access_gateway" {
   type = bool
 }
 
-# variable "private_access_gateway_registration_token" {
-#   type = string
-# }
+variable "private_access_gateway_registration_token" {
+  type = string
+}
