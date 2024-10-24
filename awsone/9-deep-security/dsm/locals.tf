@@ -1,6 +1,6 @@
 locals {
-  manager_version = "20.0.967"
-  agent_version = "20.0.1-19250"
+  manager_version = "20.0.979"
+  agent_version = "20.0.1-21510"
 
   dsm_properties = <<-EOT
     AddressAndPortsScreen.ManagerAddress=

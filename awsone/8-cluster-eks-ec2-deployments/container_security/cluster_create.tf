@@ -74,6 +74,20 @@ resource "helm_release" "container_security" {
   }
 
   # set {
+  #   name  = "securityContext.scout.falco.privileged"
+  #   value = false
+  # }
+  # set {
+  #   name  = "securityContext.scout.falco.capabilities.drop"
+  #   value = "ALL"
+  # }
+  # set {
+  #   name  = "securityContext.scout.falco.capabilities.add"
+  #   value = "{sys_admin,sys_resource,sys_ptrace}"
+  # }
+
+
+  # set {
   #   name  = "proxy.httpsProxy"
   #   value = "http://192.168.1.122:3128"
   # }

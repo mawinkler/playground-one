@@ -11,6 +11,7 @@ resource "visionone_container_cluster" "terraform_cluster" {
   # namespaces                 = ["kube-system", "calico-system", "calico-apiserver", "tigera-operator"]
 }
 
+
 resource "helm_release" "trendmicro" {
   name             = "trendmicro-system"
   chart            = "https://github.com/trendmicro/cloudone-container-security-helm/archive/master.tar.gz"
@@ -63,4 +64,16 @@ resource "helm_release" "trendmicro" {
     name  = "securityContext.enabled"
     value = true
   }
+  # set {
+  #   name  = "securityContext.scout.falco.privileged"
+  #   value = false
+  # }
+  # set {
+  #   name  = "securityContext.scout.falco.capabilities.drop"
+  #   value = "ALL"
+  # }
+  # set {
+  #   name  = "securityContext.scout.falco.capabilities.add"
+  #   value = "{sys_admin,sys_resource,sys_ptrace}"
+  # }
 }
