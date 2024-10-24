@@ -33,8 +33,8 @@ chmod +x /home/${linux_username_amzn}/TMServerAgent_Linux_deploy.sh
 chown ${linux_username_amzn}.${linux_username_amzn} /home/${linux_username_amzn}/TMServerAgent_Linux_deploy.sh
 
 # Deep Security Agent
-ACTIVATIONURL='dsm://10.0.0.100:4120/'
-MANAGERURL='https://10.0.0.100:4119'
+ACTIVATIONURL="dsm://${dsm_private_ip}:4120/"
+MANAGERURL="https://${dsm_private_ip}:4119"
 CURLOPTIONS='--silent --tlsv1.2'
 linuxPlatform='';
 isRPM='';

@@ -37,6 +37,7 @@ module "bastion" {
   private_key_path         = module.ec2.private_key_path
   ec2_profile              = module.iam.ec2_profile
   linux_username           = "ubuntu"
+  dsm_private_ip           = "10.0.0.${random_integer.dsm_ip_octet.result}"
 }
 
 module "dsm" {
@@ -52,6 +53,7 @@ module "dsm" {
   public_key                = module.ec2.public_key
   private_key_path          = module.ec2.private_key_path
   ec2_profile               = module.iam.ec2_profile
+  dsm_private_ip            = "10.0.0.${random_integer.dsm_ip_octet.result}"
   s3_bucket                 = module.s3.s3_bucket
   linux_username            = var.linux_username
 

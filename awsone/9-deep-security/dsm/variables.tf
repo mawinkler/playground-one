@@ -37,6 +37,8 @@ variable "dsm_username" {}
 
 variable "dsm_password" {}
 
+variable "dsm_private_ip" {}
+
 # Database
 variable "rds_address" {}
 

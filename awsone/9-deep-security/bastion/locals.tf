@@ -10,7 +10,7 @@ locals {
       error_log  /var/log/nginx/_SERVICE-error.log;
 
       upstream dsm {
-        server 10.0.0.100:4119
+        server ${var.dsm_private_ip}:4119
         max_fails=3
         fail_timeout=10s;
       } server {

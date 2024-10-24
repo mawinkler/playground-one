@@ -14,3 +14,5 @@ variable "private_key_path" {}
 variable "ec2_profile" {}
 
 variable "linux_username" {}
+
+variable "dsm_private_ip" {}

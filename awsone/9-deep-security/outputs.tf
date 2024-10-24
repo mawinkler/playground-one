@@ -110,6 +110,10 @@ output "ds_apikey" {
   value = module.dsm.ds_apikey
 }
 
+output "dsm_private_ip" {
+  value = "10.0.0.${random_integer.dsm_ip_octet.result}"
+}
+
 # Service Gateway
 output "sg_va_ip" {
   value = var.service_gateway ? module.sg[0].public_instance_ip_sg_va : null

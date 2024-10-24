@@ -52,3 +52,5 @@ variable "windows_policy_id" {}
 # Bastion
 #
 variable "bastion_private_ip" {}
+
+variable "dsm_private_ip" {}

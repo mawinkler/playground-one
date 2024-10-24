@@ -7,9 +7,13 @@
 resource "aws_network_interface" "dsm" {
   subnet_id       = var.private_subnets[0]
   security_groups = [var.private_security_group_id]
-  private_ips     = ["10.0.0.100"]
+  private_ips     = ["${var.dsm_private_ip}"]
+
   tags = {
-    Name = "primary_network_interface"
+    Name          = "${var.environment}-dsm-ni"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "dsm"
   }
 }
 

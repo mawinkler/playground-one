@@ -38,4 +38,5 @@ module "computers" {
   windows_username    = var.windows_username
   windows_policy_id   = module.dsm.windows_policy_id
   bastion_private_ip  = data.terraform_remote_state.deep_security.outputs.bastion_private_ip
+  dsm_private_ip      = data.terraform_remote_state.deep_security.outputs.dsm_private_ip
 }

@@ -299,7 +299,7 @@ if (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
    exit 1
 }
 
-$managerUrl="https://10.0.0.100:4119/"
+$managerUrl="https://${dsm_private_ip}:4119/"
 
 $env:LogPath = "$env:appdata\Trend Micro\Deep Security Agent\installer"
 New-Item -path $env:LogPath -type directory
@@ -312,7 +312,7 @@ else {
    $sourceUrl=-join($managerUrl, "software/agent/Windows/i386/agent.msi") }
 echo "$(Get-Date -format T) - Download Deep Security Agent Package" $sourceUrl
 
-$ACTIVATIONURL="dsm://10.0.0.100:4120/"
+$ACTIVATIONURL="dsm://${dsm_private_ip}:4120/"
 
 $WebClient = New-Object System.Net.WebClient
 
