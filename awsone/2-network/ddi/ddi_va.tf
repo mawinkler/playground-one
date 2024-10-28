@@ -17,12 +17,12 @@ resource "aws_instance" "ddi_va" {
 
   network_interface {
     network_interface_id = aws_network_interface.ddi_va_ni_data_private.id
-    device_index         = 1
+    device_index         = 2
   }
 
   network_interface {
     network_interface_id = aws_network_interface.ddi_va_ni_management.id
-    device_index         = 2
+    device_index         = 1
   }
 
   tags = {
@@ -41,7 +41,7 @@ resource "aws_network_interface" "ddi_va_ni_data_public" {
   description     = "Deep Discovery Inspector Data Port"
 
   tags = {
-    Name          = "${var.environment}-ddi-ni-data"
+    Name          = "${var.environment}-ddi-ni-data-public"
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "nw"
@@ -54,7 +54,7 @@ resource "aws_network_interface" "ddi_va_ni_data_private" {
   description     = "Deep Discovery Inspector Data Port"
 
   tags = {
-    Name          = "${var.environment}-ddi-ni-data"
+    Name          = "${var.environment}-ddi-ni-data-private"
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "nw"
