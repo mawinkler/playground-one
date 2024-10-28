@@ -420,6 +420,7 @@ function get_config() {
     pgo_private_access_gateway="$(yq '.services.aws.private-access-gateway' $ONEPATH/config.yaml)"
     pgo_virtual_network_sensor_enabled="$(yq '.services.aws.virtual-network-sensor.enabled' $ONEPATH/config.yaml)"
     pgo_virtual_network_sensor_token="$(yq '.services.aws.virtual-network-sensor.token' $ONEPATH/config.yaml)"
+    pgo_deep_discovery_inspector_enabled="$(yq '.services.aws.deep-discovery-inspector.enabled' $ONEPATH/config.yaml)"
     pgo_ec2_create_linux="$(yq '.services.playground-one.ec2.create-linux' $ONEPATH/config.yaml)"
     pgo_ec2_create_windows="$(yq '.services.playground-one.ec2.create-windows' $ONEPATH/config.yaml)"
     pgo_ec2_create_database="$(yq '.services.playground-one.ec2.create-database' $ONEPATH/config.yaml)"
@@ -432,6 +433,7 @@ function get_config() {
     [[ "${pgo_private_access_gateway}" = "null" || "${pgo_private_access_gateway}" = "" ]] && pgo_private_access_gateway=false
     [[ "${pgo_virtual_network_sensor_enabled}" = "null" || "${pgo_virtual_network_sensor_enabled}" = "" ]] && pgo_virtual_network_sensor_enabled=false
     [[ "${pgo_virtual_network_sensor_token}" = "null" || "${pgo_virtual_network_sensor_token}" = "" ]] && pgo_virtual_network_sensor_token="token"
+    [[ "${pgo_deep_discovery_inspector_enabled}" = "null" || "${pgo_deep_discovery_inspector_enabled}" = "" ]] && pgo_deep_discovery_inspector_enabled=false
     [[ "${pgo_ec2_create_linux}" = "null" || "${pgo_ec2_create_linux}" = "" ]] && pgo_ec2_create_linux=true
     [[ "${pgo_ec2_create_windows}" = "null" || "${pgo_ec2_create_windows}" = "" ]] && pgo_ec2_create_windows=true
     [[ "${pgo_ec2_create_database}" = "null" || "${pgo_ec2_create_database}" = "" ]] && pgo_ec2_create_database=false

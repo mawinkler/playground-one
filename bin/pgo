@@ -314,6 +314,7 @@ function init() {
       service_gateway=${pgo_service_gateway} \
       pgo_virtual_network_sensor_enabled=${pgo_virtual_network_sensor_enabled} \
       pgo_virtual_network_sensor_token=${pgo_virtual_network_sensor_token} \
+      pgo_deep_discovery_inspector_enabled=${pgo_deep_discovery_inspector_enabled} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-2-network.tfvars >${configs[network]}/terraform.tfvars
       

@@ -31,3 +31,6 @@ service_gateway = ${service_gateway}
 virtual_network_sensor = ${pgo_virtual_network_sensor_enabled}
 
 vns_token = "${pgo_virtual_network_sensor_token}"
+
+# Deep Discovery Inspector
+deep_discovery_inspector = ${pgo_deep_discovery_inspector_enabled}

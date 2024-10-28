@@ -29,12 +29,26 @@ resource "aws_network_interface" "vns_va_ni_data" {
   subnet_id       = var.public_subnets[0]
   security_groups = [aws_security_group.sg_sg_va["data_port"].id]
   description     = "Virtual Network Sensor Data Port"
+
+  tags = {
+    Name          = "${var.environment}-vns-ni-data"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "nw"
+  }
 }
 
 resource "aws_network_interface" "vns_va_ni_management" {
   subnet_id       = var.public_subnets[0]
   security_groups = [aws_security_group.sg_sg_va["management_port"].id]
   description     = "Virtual Network Sensor Management Port"
+
+  tags = {
+    Name          = "${var.environment}-vns-ni-management"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "nw"
+  }
 }
 
 resource "aws_eip" "vns_va_public_ip" {

@@ -91,6 +91,8 @@ nav:
       - Virtual Network Sensor:
         - Deploying Virtual Network Sensor on AWS Manually: scenarios/network-security/v1-virtual-network-sensor-manually.md
         - Deploying Virtual Network Sensor on AWS Automatically: scenarios/network-security/v1-virtual-network-sensor-automatically.md
+      - Deep Discovery Inspector:
+        - Deploying Deep Discovery Inspector on AWS: scenarios/network-security/v1-deep-discovery-inspector.md
     # - Privileged Shell: scenarios/container-security-eks-privileged-shell.md
     # - Server & Workload Protection:
     #   - Malware Upload: scenarios/server-workload-ecs-ec2-malware-upload.md

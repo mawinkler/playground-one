@@ -61,9 +61,15 @@ variable "service_gateway" {
 # Virtual Network Ssensor
 variable "virtual_network_sensor" {
   type    = bool
-  default = true
+  default = false
 }
 
 variable "vns_token" {
   type = string
+}
+
+# Deep Discovery Inspector
+variable "deep_discovery_inspector" {
+  type    = bool
+  default = false
 }

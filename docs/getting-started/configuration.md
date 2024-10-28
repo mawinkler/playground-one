@@ -141,6 +141,7 @@ Set/update:
 - `SG - create Service Gateway`: Enable/disable deployment of the Trend Micro Service Gateway.
 - `PAC - create Private Access Gateway`: Enable/disable deployment of the Trend Micro Private Access Gateway.
 - `VNS - create Virtual Network Sensor`: Enable/disable deployment of the Trend Micro Virtual Network Sensor.
+- `DDI - create Deep Discovery Inspector`: Enable/disable deployment of the Trend Micro Deep Discovery Inspector.
 - `EC2 - create Linux EC2`: Enable/disable Linux instances in the `ec2` configuration.
 - `EC2 - create Windows EC2`: Enable/disable Windows instances in the `ec2` configuration.
 

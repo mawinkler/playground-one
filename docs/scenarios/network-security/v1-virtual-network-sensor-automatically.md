@@ -9,14 +9,13 @@
 - Playground One Network
 - Activated Marketplace AMI for Trend Virtual Network Sensor BYOL
 
-You need to have activated the Trend Virtual Network Sensor BYOL
- AMI in Marketplace once. To do this, on the AWS Console choose the service EC2 and navigate to `Images --> AMI Catalog`. Select the tab `AWS Marketplace AMIs` and seach for `Trend Micro Virtual Network Sensor`.
+You need to have activated the Trend Virtual Network Sensor BYOL AMI in Marketplace once. To do this, on the AWS Console choose the service EC2 and navigate to `Images --> AMI Catalog`. Select the tab `AWS Marketplace AMIs` and seach for `Trend Micro Virtual Network Sensor`.
 
 There should only be one AMI shown for your current region. Click on `[Select]` and `[Subscribe on instance launch]`. 
 
 Now, check your Playground One configuration.
 
-Verify, that you have `AWS SG - create Virtual Network Sensor` enabled in your configuration.
+Verify, that you have `VNS - create Virtual Network Sensor` enabled in your configuration.
 
 ```sh
 pgo --config
