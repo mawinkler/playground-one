@@ -35,6 +35,11 @@ module "ec2" {
   virtual_network_sensor          = var.virtual_network_sensor
   vns_va_traffic_mirror_filter_id = try(data.terraform_remote_state.vpc.outputs.vns_va_traffic_mirror_filter_id, "")
   vns_va_traffic_mirror_target_id = try(data.terraform_remote_state.vpc.outputs.vns_va_traffic_mirror_target_id, "")
+
+  # DDI
+  deep_discovery_inspector        = var.deep_discovery_inspector
+  ddi_va_traffic_mirror_filter_id = try(data.terraform_remote_state.vpc.outputs.ddi_va_traffic_mirror_filter_id, "")
+  ddi_va_traffic_mirror_target_id = try(data.terraform_remote_state.vpc.outputs.ddi_va_traffic_mirror_target_id, "")
 }
 
 module "iam" {

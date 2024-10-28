@@ -54,3 +54,7 @@ variable "windows_ad_safe_password" {}
 variable "virtual_network_sensor" {}
 variable "vns_va_traffic_mirror_filter_id" {}
 variable "vns_va_traffic_mirror_target_id" {}
+
+variable "deep_discovery_inspector" {}
+variable "ddi_va_traffic_mirror_filter_id" {}
+variable "ddi_va_traffic_mirror_target_id" {}

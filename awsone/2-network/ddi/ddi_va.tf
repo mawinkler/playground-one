@@ -15,10 +15,10 @@ resource "aws_instance" "ddi_va" {
     device_index         = 0
   }
 
-  network_interface {
-    network_interface_id = aws_network_interface.ddi_va_ni_data_private.id
-    device_index         = 2
-  }
+  # network_interface {
+  #   network_interface_id = aws_network_interface.ddi_va_ni_data_private.id
+  #   device_index         = 2
+  # }
 
   network_interface {
     network_interface_id = aws_network_interface.ddi_va_ni_management.id
@@ -48,18 +48,18 @@ resource "aws_network_interface" "ddi_va_ni_data_public" {
   }
 }
 
-resource "aws_network_interface" "ddi_va_ni_data_private" {
-  subnet_id       = var.private_subnets[0]
-  security_groups = [aws_security_group.sg["data_port"].id]
-  description     = "Deep Discovery Inspector Data Port"
+# resource "aws_network_interface" "ddi_va_ni_data_private" {
+#   subnet_id       = var.private_subnets[0]
+#   security_groups = [aws_security_group.sg["data_port"].id]
+#   description     = "Deep Discovery Inspector Data Port"
 
-  tags = {
-    Name          = "${var.environment}-ddi-ni-data-private"
-    Environment   = "${var.environment}"
-    Product       = "playground-one"
-    Configuration = "nw"
-  }
-}
+#   tags = {
+#     Name          = "${var.environment}-ddi-ni-data-private"
+#     Environment   = "${var.environment}"
+#     Product       = "playground-one"
+#     Configuration = "nw"
+#   }
+# }
 
 resource "aws_network_interface" "ddi_va_ni_management" {
   subnet_id       = var.public_subnets[0]

@@ -332,6 +332,7 @@ function init() {
       vision_one_asrm_create_attackpath=${vision_one_asrm_create_attackpath} \
       active_directory=${pgo_active_directory} \
       pgo_virtual_network_sensor_enabled=${pgo_virtual_network_sensor_enabled} \
+      pgo_deep_discovery_inspector_enabled=${pgo_deep_discovery_inspector_enabled} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-3-instances.tfvars >${configs[instances]}/terraform.tfvars
 
@@ -683,8 +684,8 @@ function apply() {
     ec2|instances|all)
       tf instances apply
       if [ "${pgo_ec2_create_windows}" = "true" ]; then
-        printf '%s\n' "instance_password_windows_server = \"$(terraform -chdir=${configs[instances]} output -raw instance_password_windows_server)\""
-        printf '%s\n' "instance_password_windows_server_local = \"$(terraform -chdir=${configs[instances]} output -raw instance_password_windows_server_local)\""
+        printf '%s\n' "win_password = \"$(terraform -chdir=${configs[instances]} output -raw win_password)\""
+        printf '%s\n' "win_local_admin_password = \"$(terraform -chdir=${configs[instances]} output -raw win_local_admin_password)\""
       fi
       ;;&
     eks|eks-ec2|all)
@@ -1308,8 +1309,8 @@ function output() {
     ec2|instances|all)
       tf instances output
       if [ "${pgo_ec2_create_windows}" = "true" ]; then
-        printf '%s\n' "instance_password_windows_server = \"$(terraform -chdir=${configs[instances]} output -raw instance_password_windows_server)\""
-        printf '%s\n' "instance_password_windows_server_local = \"$(terraform -chdir=${configs[instances]} output -raw instance_password_windows_server_local)\""
+        printf '%s\n' "win_password = \"$(terraform -chdir=${configs[instances]} output -raw win_password)\""
+        printf '%s\n' "win_local_admin_password = \"$(terraform -chdir=${configs[instances]} output -raw win_local_admin_password)\""
       fi
       ;;&
     eks|eks-ec2|all)

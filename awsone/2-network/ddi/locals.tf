@@ -14,7 +14,7 @@ locals {
           from        = 0
           to          = 0
           protocol    = -1
-          cidr_blocks = ["0.0.0.0/0"]
+          cidr_blocks = setunion(var.public_subnets_cidr, var.private_subnets_cidr)
         }
       }
     }

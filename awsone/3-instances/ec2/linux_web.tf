@@ -67,3 +67,13 @@ resource "aws_ec2_traffic_mirror_session" "vns_traffic_mirror_session_linux_web"
   traffic_mirror_filter_id = var.vns_va_traffic_mirror_filter_id
   traffic_mirror_target_id = var.vns_va_traffic_mirror_target_id
 }
+
+resource "aws_ec2_traffic_mirror_session" "ddi_traffic_mirror_session_linux_web" {
+  count = var.deep_discovery_inspector && var.create_linux ? 1 : 0
+
+  description              = "DDI Traffic mirror session - Linux Web"
+  session_number           = 1
+  network_interface_id     = aws_instance.linux-web[0].primary_network_interface_id
+  traffic_mirror_filter_id = var.ddi_va_traffic_mirror_filter_id
+  traffic_mirror_target_id = var.ddi_va_traffic_mirror_target_id
+}

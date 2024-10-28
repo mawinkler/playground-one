@@ -148,13 +148,13 @@ output "ddi_va_ip" {
   value = var.deep_discovery_inspector ? module.ddi[0].ddi_va_ip : null
 }
 
-output "ddi_va_pip_dataport_public_subnet" {
+output "ddi_va_pip_dataport" {
   value = var.deep_discovery_inspector ? module.ddi[0].ddi_va_pip_dataport_public : null
 }
 
-output "ddi_va_pip_dataport_private_subnet" {
-  value = var.deep_discovery_inspector ? module.ddi[0].ddi_va_pip_dataport_private : null
-}
+# output "ddi_va_pip_dataport_private_subnet" {
+#   value = var.deep_discovery_inspector ? module.ddi[0].ddi_va_pip_dataport_private : null
+# }
 
 output "ddi_va_pip_managementport" {
   value = var.deep_discovery_inspector ? module.ddi[0].ddi_va_pip_managementport : null
@@ -162,4 +162,12 @@ output "ddi_va_pip_managementport" {
 
 output "ddi_ami" {
   value = var.deep_discovery_inspector ? module.ddi[0].ddi_ami : null
+}
+
+output "ddi_va_traffic_mirror_filter_id" {
+  value = var.deep_discovery_inspector ? module.ddi[0].ddi_va_traffic_mirror_filter_id : null
+}
+
+output "ddi_va_traffic_mirror_target_id" {
+  value = var.deep_discovery_inspector ? module.ddi[0].ddi_va_traffic_mirror_target_id : null
 }

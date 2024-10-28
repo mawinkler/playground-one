@@ -50,3 +50,13 @@ resource "aws_ec2_traffic_mirror_session" "vns_traffic_mirror_session_win" {
   traffic_mirror_filter_id = var.vns_va_traffic_mirror_filter_id
   traffic_mirror_target_id = var.vns_va_traffic_mirror_target_id
 }
+
+resource "aws_ec2_traffic_mirror_session" "ddi_traffic_mirror_session_win" {
+  count = var.deep_discovery_inspector && var.create_windows ? 1 : 0
+
+  description              = "DDI Traffic mirror session - Windows Server"
+  session_number           = 1
+  network_interface_id     = aws_instance.windows-server[0].primary_network_interface_id
+  traffic_mirror_filter_id = var.ddi_va_traffic_mirror_filter_id
+  traffic_mirror_target_id = var.ddi_va_traffic_mirror_target_id
+}
