@@ -22,8 +22,8 @@ module: groups-and-folders.py
 short_description: Implements for following functionality:
     - List Computer Groups in DS and SWP
     - List Smart Folders in DS and SWP
-    - Create Computer Group structure from DS in SWP and vice versa (copy)
-    - Create Smart Folders structure from DS in SWP and vice versa (copy)
+    - Merge Computer Group structure from DS with SWP and vice versa
+    - Merge Smart Folders structure from DS with SWP and vice versa
 
 description:
     - Using REST APIs of DS and SWP
@@ -40,19 +40,19 @@ requirements:
       to your requirements
 
 options:
-  -h, --help          show this help message and exit
-  --listgroups TYPE   list computer groups (TYPE=ds|swp)
-  --copygroups TYPE   copy computer groups from given source (TYPE=ds|swp)
-  --listfolders TYPE  list smart folders (TYPE=ds|swp)
-  --copyfolders TYPE  list smart folders from given source (TYPE=ds|swp)
+  -h, --help           show this help message and exit
+  --listgroups TYPE    list computer groups (TYPE=ds|swp)
+  --mergegroups TYPE   merge computer groups from given source (TYPE=ds|swp)
+  --listfolders TYPE   list smart folders (TYPE=ds|swp)
+  --mergefolders TYPE  list smart folders from given source (TYPE=ds|swp)
 
 author:
     - Markus Winkler (markus_winkler@trendmicro.com)
 """
 
 EXAMPLES = """
-# Copy Computer Groups from DS to SWP
-$ ./groups-and-folders.py --copygroups ds
+# Merge Computer Groups from DS to SWP
+$ ./groups-and-folders.py --mergegroups ds
 
 # List Smart Folders in SWP
 $ ./groups-and-folders.py --listfolders swp
@@ -136,7 +136,7 @@ class Connector:
             }
             self._verify = True
 
-        if endpoint == ENDPOINT_DS:
+        elif endpoint == ENDPOINT_DS:
             self._url = f"{API_BASE_URL_DS}"
             self._headers = {
                 "Content-type": "application/json",
@@ -145,6 +145,9 @@ class Connector:
                 "api-version": "v1",
             }
             self._verify = False
+
+        else:
+            raise ValueError(f"Invalid endpoint: {endpoint}")
 
     def get(self, endpoint) -> Any:
         """Send an HTTP GET request and check response for errors.
@@ -500,7 +503,7 @@ def add_folder(product, data) -> int:
 
 
 # #############################################################################
-# Copy
+# Merge
 # #############################################################################
 # def get_group_path(groups, path, id) -> List:
 
@@ -514,8 +517,8 @@ def add_folder(product, data) -> int:
 #     return path
 
 
-def copy_groups(product, data) -> None:
-    """Unidirectional copy Computer Groups"""
+def merge_groups(product, data) -> None:
+    """Unidirectional merge Computer Groups"""
 
     tree = {}
     remaining = []
@@ -551,8 +554,8 @@ def copy_groups(product, data) -> None:
         _LOGGER.warning(f"{len(remaining)} groups to create")
 
 
-def copy_folders(product, data) -> None:
-    """Unidirectional copy Computer Groups"""
+def merge_folders(product, data) -> None:
+    """Unidirectional merge Computer Groups"""
 
     tree = {}
     remaining = []
@@ -602,13 +605,13 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         prog="python3 groups-and-folders.py",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description="List and copy Computer Groups and Smart Folders in between DS and SWP",
+        description="List and merge Computer Groups and Smart Folders in between DS and SWP",
         epilog=textwrap.dedent(
             """\
             Examples:
             --------------------------------
-            # Copy Computer Groups from DS to SWP
-            $ ./groups-and-folders.py --copygroups ds
+            # Merge Computer Groups from DS with SWP
+            $ ./groups-and-folders.py --mergegroups ds
 
             # List Smart Folders in SWP
             $ ./groups-and-folders.py --listfolders swp
@@ -617,30 +620,32 @@ def main() -> None:
     )
     parser.add_argument("--listgroups", type=str, nargs=1, metavar="TYPE", help="list computer groups (TYPE=ds|swp)")
     parser.add_argument(
-        "--copygroups", type=str, nargs=1, metavar="TYPE", help="copy computer groups from given source (TYPE=ds|swp)"
+        "--mergegroups", type=str, nargs=1, metavar="TYPE", help="merge computer groups from given source (TYPE=ds|swp)"
     )
     parser.add_argument("--listfolders", type=str, nargs=1, metavar="TYPE", help="list smart folders (TYPE=ds|swp)")
     parser.add_argument(
-        "--copyfolders", type=str, nargs=1, metavar="TYPE", help="list smart folders from given source (TYPE=ds|swp)"
+        "--mergefolders", type=str, nargs=1, metavar="TYPE", help="list smart folders from given source (TYPE=ds|swp)"
     )
 
     args = parser.parse_args()
 
     if args.listgroups:
         groups = list_groups(args.listgroups[0].lower())
-        pp(groups)
+        for group in groups.values():
+            print(group)
 
-    if args.copygroups:
-        groups = list_groups(args.copygroups[0].lower())
-        copy_groups(args.copygroups[0].lower(), groups)
+    if args.mergegroups:
+        groups = list_groups(args.mergegroups[0].lower())
+        merge_groups(args.mergegroups[0].lower(), groups)
 
     if args.listfolders:
         folders = list_folders(args.listfolders[0].lower())
-        pp(folders)
+        for folder in folders.values():
+            print(folder)
 
-    if args.copyfolders:
-        folders = list_folders(args.copyfolders[0].lower())
-        copy_folders(args.copyfolders[0].lower(), folders)
+    if args.mergefolders:
+        folders = list_folders(args.mergefolders[0].lower())
+        merge_folders(args.mergefolders[0].lower(), folders)
 
 
 if __name__ == "__main__":
