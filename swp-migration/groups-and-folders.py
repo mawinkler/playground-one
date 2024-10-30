@@ -6,10 +6,13 @@ import os
 import sys
 import textwrap
 from pprint import pprint as pp
+from typing import Any, Dict, List
 
 import requests
 import urllib3
+from typeguard import typechecked
 
+# Comment out if DS is using a trusted certificate
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 DOCUMENTATION = """
@@ -122,7 +125,7 @@ class Connector:
         #     "Authorization": f"Bearer {API_KEY_SWP}",
         #     "Content-Type": "application/json;charset=utf-8",
         # }
-        
+
         # SWP / DS
         if endpoint == ENDPOINT_SWP:
             self._url = f"{API_BASE_URL_SWP}"
@@ -137,13 +140,13 @@ class Connector:
             self._url = f"{API_BASE_URL_DS}"
             self._headers = {
                 "Content-type": "application/json",
-                'Accept': 'application/json',
+                "Accept": "application/json",
                 "api-secret-key": API_KEY_DS,
                 "api-version": "v1",
             }
             self._verify = False
-            
-    def get(self, endpoint):
+
+    def get(self, endpoint) -> Any:
         """Send an HTTP GET request and check response for errors.
 
         Args:
@@ -172,7 +175,7 @@ class Connector:
 
         return response.json()
 
-    def patch(self, endpoint, data):
+    def patch(self, endpoint, data) -> Any:
         """Send an HTTP PATCH request and check response for errors.
 
         Args:
@@ -206,7 +209,7 @@ class Connector:
 
         return response.json()
 
-    def post(self, endpoint, data):
+    def post(self, endpoint, data) -> Any:
         """Send an HTTP POST request and check response for errors.
 
         Args:
@@ -240,8 +243,9 @@ class Connector:
 
         return response.json()
 
-    def get_paged(self, endpoint, key):
-        """Retrieve all"""
+    @typechecked
+    def get_paged(self, endpoint, key) -> List:
+        """Retrieve all from endpoint"""
 
         paged = []
         id_value, total_num = 0, 0
@@ -280,11 +284,12 @@ class Connector:
 
         return paged
 
-    def get_by_name(self, endpoint, key, name):
+    @typechecked
+    def get_by_name(self, endpoint, key, name) -> int:
         """Retrieve all"""
 
-        paged = []
-        max_items = 1
+        # We limit to more than one to detect duplicates by name
+        max_items = 10
 
         payload = {
             "maxItems": max_items,
@@ -300,14 +305,18 @@ class Connector:
 
         response = self.post(endpoint + "/search", data=payload)
 
-        for item in response[key]:
+        cnt = len(response[key])
+        if cnt > 1:
+            _LOGGER.warning(f"More than one group or folder where returned. Count {len(response[key])}")
+        elif cnt == 1:
+            item = response[key][0]
             if item.get("ID") is not None:
                 return item.get("ID")
+        else:
+            raise ValueError(f"Group or folder named {name} not found.")
 
-        return paged
-    
     @staticmethod
-    def _check_error(response: requests.Response):
+    def _check_error(response: requests.Response) -> None:
         """Check response for Errors.
 
         Args:
@@ -319,7 +328,7 @@ class Connector:
                 case 400:
                     tre = TrendRequestError("400 Bad request")
                     tre.message = json.loads(response.content.decode("utf-8")).get("message")
-                    print(json.loads(response.content.decode("utf-8")))
+                    _LOGGER.error(f"{tre.message}")
                     raise tre
                 case 401:
                     raise TrendRequestAuthorizationError(
@@ -332,9 +341,7 @@ class Connector:
                 case 404:
                     raise TrendRequestNotFoundError("404 Not found")
                 case 422:
-                    raise TrendRequestValidationError(
-                        "500 Unprocessed Entity. Validation error"
-                    )
+                    raise TrendRequestValidationError("500 Unprocessed Entity. Validation error")
                 case 500:
                     raise TrendRequestError("500 The parsing of the template file failed")
                 case 503:
@@ -346,10 +353,9 @@ class Connector:
 # #############################################################################
 # List
 # #############################################################################
-def list_groups(product) -> dict:
+@typechecked
+def list_groups(product) -> List:
     """List Computer Groups."""
-
-    # _LOGGER.info("List Computer Groups...")
 
     endpoint = "computergroups"
     if product == ENDPOINT_SWP:
@@ -366,10 +372,10 @@ def list_groups(product) -> dict:
     else:
         return response
 
-def list_folders(product) -> dict:
-    """List Smart Folders."""
 
-    # _LOGGER.info("List Smart Folders...")
+@typechecked
+def list_folders(product) -> List:
+    """List Smart Folders."""
 
     endpoint = "smartfolders"
     if product == ENDPOINT_SWP:
@@ -386,13 +392,13 @@ def list_folders(product) -> dict:
     else:
         return response
 
+
 # #############################################################################
 # Add
 # #############################################################################
-def add_group(product, data) -> dict:
+@typechecked
+def add_group(product, data) -> int:
     """Add Computer Group."""
-
-    # _LOGGER.info("Add Computer Group...")
 
     endpoint = "computergroups"
     if product == ENDPOINT_SWP:
@@ -424,7 +430,8 @@ def add_group(product, data) -> dict:
     return response.get("ID")
 
 
-def add_folder(product, data) -> dict:
+@typechecked
+def add_folder(product, data) -> int:
     """Add Smart Folder."""
 
     # _LOGGER.info("Add Computer Group...")
@@ -458,10 +465,11 @@ def add_folder(product, data) -> dict:
 
     return response.get("ID")
 
+
 # #############################################################################
 # Copy
 # #############################################################################
-def copy_groups(product, data):
+def copy_groups(product, data) -> None:
     """Unidirectional copy Computer Groups"""
 
     tree = {}
@@ -480,8 +488,7 @@ def copy_groups(product, data):
             local_id = item.get("ID")
             _LOGGER.info(f"Adding root group {local_id}")
             item["name"] = f"{item["name"]}"
-            group_id = add_group(target, item)
-            tree[local_id] = group_id
+            tree[local_id] = add_group(target, item)
 
         elif item.get("parentGroupID") in tree:
             local_id = item.get("ID")
@@ -489,17 +496,17 @@ def copy_groups(product, data):
             _LOGGER.info(f"Adding child group {local_id} to {parent_id}")
             item["parentGroupID"] = parent_id
             item["name"] = f"{item["name"]}"
-            group_id = add_group(target, item)
-            tree[local_id] = group_id
+            tree[local_id] = add_group(target, item)
 
         else:
             remaining.append(item)
-    
+
     _LOGGER.debug(f"Group mapping: {tree}")
     if len(remaining) > 0:
         _LOGGER.warning(f"{len(remaining)} groups to create")
 
-def copy_folders(product, data):
+
+def copy_folders(product, data) -> None:
     """Unidirectional copy Computer Groups"""
 
     tree = {}
@@ -514,30 +521,26 @@ def copy_folders(product, data):
         raise ValueError(f"Invalid endpoint: {product}")
 
     for item in data:
-        print(tree)
         if item.get("parentSmartFolderID") is None:
             local_id = item.get("ID")
-            _LOGGER.info(f"Adding root group {local_id}")
+            _LOGGER.info(f"Adding root folder {local_id}")
             item["name"] = f"{item["name"]}"
-            print(item)
-            group_id = add_folder(target, item)
-            tree[local_id] = group_id
+            tree[local_id] = add_folder(target, item)
 
         elif item.get("parentSmartFolderID") in tree:
             local_id = item.get("ID")
             parent_id = tree.get(item.get("parentSmartFolderID"))
-            _LOGGER.info(f"Adding child group {local_id} to {parent_id}")
+            _LOGGER.info(f"Adding child folder {local_id} to {parent_id}")
             item["parentSmartFolderID"] = parent_id
             item["name"] = f"{item["name"]}"
-            group_id = add_folder(target, item)
-            tree[local_id] = group_id
+            tree[local_id] = add_folder(target, item)
 
         else:
             remaining.append(item)
-    
-    _LOGGER.debug(f"Group mapping: {tree}")
+
+    _LOGGER.debug(f"Folder mapping: {tree}")
     if len(remaining) > 0:
-        _LOGGER.warning(f"{len(remaining)} groups to create")
+        _LOGGER.warning(f"{len(remaining)} folders to create")
 
 
 # #############################################################################
@@ -547,7 +550,8 @@ def copy_folders(product, data):
 connector_ds = Connector(ENDPOINT_DS)
 connector_swp = Connector(ENDPOINT_SWP)
 
-def main():
+
+def main() -> None:
     """Entry point."""
 
     parser = argparse.ArgumentParser(
@@ -566,15 +570,11 @@ def main():
             """
         ),
     )
-    parser.add_argument(
-        "--listgroups", type=str, nargs=1, metavar="TYPE", help="list computer groups (TYPE=ds|swp)"
-    )
+    parser.add_argument("--listgroups", type=str, nargs=1, metavar="TYPE", help="list computer groups (TYPE=ds|swp)")
     parser.add_argument(
         "--copygroups", type=str, nargs=1, metavar="TYPE", help="copy computer groups from given source (TYPE=ds|swp)"
     )
-    parser.add_argument(
-        "--listfolders", type=str, nargs=1, metavar="TYPE", help="list smart folders (TYPE=ds|swp)"
-    )
+    parser.add_argument("--listfolders", type=str, nargs=1, metavar="TYPE", help="list smart folders (TYPE=ds|swp)")
     parser.add_argument(
         "--copyfolders", type=str, nargs=1, metavar="TYPE", help="list smart folders from given source (TYPE=ds|swp)"
     )
@@ -588,7 +588,7 @@ def main():
     if args.copygroups:
         groups = list_groups(args.copygroups[0].lower())
         copy_groups(args.copygroups[0].lower(), groups)
-        
+
     if args.listfolders:
         folders = list_folders(args.listfolders[0].lower())
         pp(folders)
