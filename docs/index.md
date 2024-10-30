@@ -50,24 +50,21 @@ Playground One native installation:
 
 Component            | Operational | Known Issues | Vision One
 -------------------- | ----------- | ------------ | -------------------
-Network              | Yes         | See 1)       | Service Gateway<br>Identity Security<br>Virtual Network Sensor
-Instances            | Yes         | None         | V1 Server & Workload Protection<br>ASRM<br>Service Gateway<br>Identity Security<br>Virtual Network 
-EKS EC2              | Yes         | None         | V1 Container Security<br>OAT&WB Generation<br>Terraform Provider
-EKS Fargate          | Yes         | None         | V1 Container Security<br>OAT&WB Generation<br>Terraform Provider
-ECS EC2              | Yes         | See 2)       | V1 Container Security
-ECS Fargate          | Yes         | See 3)       | V1 Container Security
-Bucket Scanner       | Yes         |              | V1 FSS SDK
-Scenarios CloudTrail | Yes         |              | V1 CloudTrail
-Scenarios CSPM       | Yes         |              | V1 CSPM
-Scenarios Identity   | Yes         |              | V1 Identity Security
-Calico               | Yes         | EKS EC2 only |
-Prometheus           | Yes         | EKS EC2 only |
-Trivy                | Yes         | EKS EC2 only |
-Istio                | Yes         | EKS EC2 only |
-MetalLB              | Yes         | Kind only    |
-Deep Security        | Yes         | None         | Deep Security Integration & Migration<br>V1 Server & Workload Protection
+Network              | Yes         | See 1)       | Service Gateway<br>Identity Security<br>Virtual Network Sensor<br>Deep Discovery Inspector
+Instances            | Yes         | None         | Server & Workload Protection<br>ASRM<br>Service Gateway<br>Identity Security<br>Virtual Network Sensor<br>Deep Discovery Inspector
+EKS EC2              | Yes         | None         | Container Security<br>OAT&WB Generation<br>Terraform Provider<br>KSPM
+EKS Fargate          | Yes         | None         | Container Security<br>OAT&WB Generation<br>Terraform Provider<br>KSPM
+ECS EC2              | Yes         | See 2)       | Container Security
+ECS Fargate          | Yes         | See 3)       | Container Security
+Bucket Scanner       | Yes         |              | FSS SDK
+Scenarios CloudTrail | Yes         |              | CloudTrail
+Scenarios CSPM       | Yes         |              | CSPM
+Scenarios Identity   | Yes         |              | Identity Security
+Scenarios Zero Trust | Yes         |              | Zero Trust<br>Private Access Gateway
+Deep Security        | Yes         | None         | Deep Security Integration & Migration<br>XDR<br>Server & Workload Protection
+Workload Security    | Yes         | None         | Workload Security Integration & Migration<br>XDR<br>Server & Workload Protection
 
-1) In addition to the network itself the following services can be enabled: Active Directory, AWS Managed Active Directory, and Trend Service Gateway. The Active Directories are experimental and to be integrated deeper in the Playground One over time. They will support additional scenarios with Identity Security, Data Security, and more.
+1) In addition to the network itself the following services can be enabled: Active Directory, AWS Managed Active Directory, Service Gateway, Virtual Network Sensor, and Deep Discovery Inspector. The Active Directories are pretty basic but support SSL. They will support additional scenarios with Identity Security, Data Security, and more.
 
 2) Deleting the cluster requires the deactivation runtime scanning and runtime security before destroying the cluster. If destroy process `module.ecs-ec2[0].module.ecs_service.aws_ecs_service.this[0]: Still destroying...` hangs for a couple of minutes manually terminate the autoscaling group `pgo4-ecs-ec2-asg-spot-...` in AWS.
 
@@ -77,7 +74,7 @@ Deep Security        | Yes         | None         | Deep Security Integration & 
 
 Component         | Operational | Known Issues | Vision One Cloud Security
 ----------------- | ----------- | ------------ | ----------------------------------------------------------------
-AKS               | Yes         | None         | V1 Container Security
+AKS               | Yes         | None         | Container Security
 
 ### Other
 
@@ -85,7 +82,6 @@ Component         | Operational | Known Issues | Vision One Cloud Security
 ----------------- | ----------- | ------------ | ----------------------------------------------------------------
 TMAS              | Yes         | None         | Artifact Scanning for Vulnerabilities and Malware
 TMFS              | Yes         | None         | File and Directory Scanning for Malware
-Workload Security | Yes         | None         | Workload Security Migration<br>V1 Server & Workload Protection
 Kind Kubernetes   | Yes         | Only native  |
 
 ## CLI Commands of the Playground
@@ -111,6 +107,12 @@ Vulnerabilities | syft | See [github.com/anchore/syft](https://github.com/anchor
 Vulnerabilities | grype | See [github.com/anchore/grype](https://github.com/anchore/grype).
 
 ## Change Log
+
+***0.4.7***
+
+*Changes*
+
+- New integration: Deep Discovery Inspector
 
 ***0.4.6***
 

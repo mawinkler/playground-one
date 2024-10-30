@@ -1,11 +1,15 @@
 # Scenario: Deploying Virtual Network Sensor on AWS Manually
 
-***Draft***
-
 !!! warning "NOT FINISHED YET"
 
     Solve dependency with instances. Create Traffic Mirror Session in instances when VNS is enabled. 
-    
+
+## Traffic Mirror on AWS
+
+In an on-premises environment, you would connect the data port of a Deep Discovery Inspector to a single mirror port to capture all traffic on that switch.
+
+In AWS, you can achieve similar functionality to a switch mirror port by using Traffic Mirroring on Elastic Network Interfaces (ENIs). This feature allows you to capture and inspect network traffic by mirroring it to another interface running monitoring software, such as our Inspector. However, unlike physical switches, in AWS you must explicitly configure traffic mirroring for each ENI you want to monitor.
+
 ## Prerequisites
 
 - AWS Cloud Account integrated with Vision One

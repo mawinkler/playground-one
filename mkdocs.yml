@@ -89,8 +89,8 @@ nav:
           - Scan S3 Buckets for Malware: scenarios/cloud-security/file-security/artifact-scanning/tmfs-s3-bucket-scanning.md
     - Network Security:
       - Virtual Network Sensor:
+        - Deploying Virtual Network Sensor on AWS: scenarios/network-security/v1-virtual-network-sensor.md
         - Deploying Virtual Network Sensor on AWS Manually: scenarios/network-security/v1-virtual-network-sensor-manually.md
-        - Deploying Virtual Network Sensor on AWS Automatically: scenarios/network-security/v1-virtual-network-sensor-automatically.md
       - Deep Discovery Inspector:
         - Deploying Deep Discovery Inspector on AWS: scenarios/network-security/v1-deep-discovery-inspector.md
     # - Privileged Shell: scenarios/container-security-eks-privileged-shell.md
