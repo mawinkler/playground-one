@@ -14,13 +14,13 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 DOCUMENTATION = """
 ---
-module: group-migration.py
+module: groups-and-folders.py
 
 short_description: Implements for following functionality:
     - List Computer Groups in DS and SWP
     - List Smart Folders in DS and SWP
-    - Create Computer Group structure from DS in SWP and vice versa
-    - Create Smart Folders structure from DS in SWP and vice versa
+    - Create Computer Group structure from DS in SWP and vice versa (copy)
+    - Create Smart Folders structure from DS in SWP and vice versa (copy)
 
 description:
     - Using REST APIs of DS and SWP
@@ -37,21 +37,22 @@ requirements:
       to your requirements
 
 options:
-  -h, --help            show this help message and exit
-  --listgroups TYPE     list computer groups
-  --syncgroups TYPE     sync computer groups from given source
-  --listsmartfolders TYPE
-                        list smart folders
-  --syncsmartfolders TYPE
-                        list smart folders from given source
+  -h, --help          show this help message and exit
+  --listgroups TYPE   list computer groups (TYPE=ds|swp)
+  --copygroups TYPE   copy computer groups from given source (TYPE=ds|swp)
+  --listfolders TYPE  list smart folders (TYPE=ds|swp)
+  --copyfolders TYPE  list smart folders from given source (TYPE=ds|swp)
 
 author:
     - Markus Winkler (markus_winkler@trendmicro.com)
 """
 
 EXAMPLES = """
-# Sync Computer Groups from DS to SWP
-$ ./group-migration.py --syncgroups ds
+# Copy Computer Groups from DS to SWP
+$ ./groups-and-folders.py --copygroups ds
+
+# List Smart Folders in SWP
+$ ./groups-and-folders.py --listfolders swp
 """
 
 RETURN = """
@@ -318,6 +319,7 @@ class Connector:
                 case 400:
                     tre = TrendRequestError("400 Bad request")
                     tre.message = json.loads(response.content.decode("utf-8")).get("message")
+                    print(json.loads(response.content.decode("utf-8")))
                     raise tre
                 case 401:
                     raise TrendRequestAuthorizationError(
@@ -364,8 +366,31 @@ def list_groups(product) -> dict:
     else:
         return response
 
+def list_folders(product) -> dict:
+    """List Smart Folders."""
+
+    # _LOGGER.info("List Smart Folders...")
+
+    endpoint = "smartfolders"
+    if product == ENDPOINT_SWP:
+        response = connector_swp.get_paged(endpoint=endpoint, key="smartFolders")
+
+    elif product == ENDPOINT_DS:
+        response = connector_ds.get(endpoint=endpoint)
+
+    else:
+        raise ValueError(f"Invalid endpoint: {product}")
+
+    if product == ENDPOINT_DS:
+        return response.get("smartFolders")
+    else:
+        return response
+
+# #############################################################################
+# Add
+# #############################################################################
 def add_group(product, data) -> dict:
-    """List Computer Groups."""
+    """Add Computer Group."""
 
     # _LOGGER.info("Add Computer Group...")
 
@@ -398,28 +423,46 @@ def add_group(product, data) -> dict:
 
     return response.get("ID")
 
-def list_smart_folders(product) -> dict:
-    """List Smart Folders."""
 
-    # _LOGGER.info("List Smart Folders...")
+def add_folder(product, data) -> dict:
+    """Add Smart Folder."""
+
+    # _LOGGER.info("Add Computer Group...")
 
     endpoint = "smartfolders"
     if product == ENDPOINT_SWP:
-        response = connector_swp.get_paged(endpoint=endpoint, key="smartFolders")
+        data.pop("ID")
+        try:
+            response = connector_swp.post(endpoint=endpoint, data=data)
+        except TrendRequestError as tre:
+            if "already exists" in tre.message:
+                id = connector_swp.get_by_name(endpoint=endpoint, key="smartFolders", name=data.get("name"))
+                _LOGGER.debug(f"Smart Folder with name: {data.get("name")} already exists with id: {id}")
+                return id
+            else:
+                raise tre
 
     elif product == ENDPOINT_DS:
-        response = connector_ds.get(endpoint=endpoint)
-
+        data.pop("ID")
+        try:
+            response = connector_ds.post(endpoint=endpoint, data=data)
+        except TrendRequestError as tre:
+            if "already exists" in tre.message:
+                id = connector_ds.get_by_name(endpoint=endpoint, key="smartFolders", name=data.get("name"))
+                _LOGGER.debug(f"Smart Folder name: {data.get("name")} already exists with id: {id}")
+                return id
+            else:
+                raise tre
     else:
         raise ValueError(f"Invalid endpoint: {product}")
 
-    if product == ENDPOINT_DS:
-        return response.get("smartFolders")
-    else:
-        return response
-    
-def synchronize_groups(product, data):
-    """Unidirectional synchronize Computer Groups"""
+    return response.get("ID")
+
+# #############################################################################
+# Copy
+# #############################################################################
+def copy_groups(product, data):
+    """Unidirectional copy Computer Groups"""
 
     tree = {}
     remaining = []
@@ -456,44 +499,84 @@ def synchronize_groups(product, data):
     if len(remaining) > 0:
         _LOGGER.warning(f"{len(remaining)} groups to create")
 
-# Connectors
-connector_ds = Connector(ENDPOINT_DS)
-connector_swp = Connector(ENDPOINT_SWP)
+def copy_folders(product, data):
+    """Unidirectional copy Computer Groups"""
+
+    tree = {}
+    remaining = []
+    if product == ENDPOINT_SWP:
+        target = ENDPOINT_DS
+
+    elif product == ENDPOINT_DS:
+        target = ENDPOINT_SWP
+
+    else:
+        raise ValueError(f"Invalid endpoint: {product}")
+
+    for item in data:
+        print(tree)
+        if item.get("parentSmartFolderID") is None:
+            local_id = item.get("ID")
+            _LOGGER.info(f"Adding root group {local_id}")
+            item["name"] = f"{item["name"]}"
+            print(item)
+            group_id = add_folder(target, item)
+            tree[local_id] = group_id
+
+        elif item.get("parentSmartFolderID") in tree:
+            local_id = item.get("ID")
+            parent_id = tree.get(item.get("parentSmartFolderID"))
+            _LOGGER.info(f"Adding child group {local_id} to {parent_id}")
+            item["parentSmartFolderID"] = parent_id
+            item["name"] = f"{item["name"]}"
+            group_id = add_folder(target, item)
+            tree[local_id] = group_id
+
+        else:
+            remaining.append(item)
+    
+    _LOGGER.debug(f"Group mapping: {tree}")
+    if len(remaining) > 0:
+        _LOGGER.warning(f"{len(remaining)} groups to create")
 
 
 # #############################################################################
 # Main
 # #############################################################################
+# Connectors
+connector_ds = Connector(ENDPOINT_DS)
+connector_swp = Connector(ENDPOINT_SWP)
+
 def main():
     """Entry point."""
 
     parser = argparse.ArgumentParser(
-        prog="python3 scanner_v1.py",
+        prog="python3 groups-and-folders.py",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description="List and sync Computer Groups and Smart Folders in between DS and SWP",
+        description="List and copy Computer Groups and Smart Folders in between DS and SWP",
         epilog=textwrap.dedent(
             """\
             Examples:
             --------------------------------
-            # Sync Computer Groups from DS to SWP
-            $ ./group-migration.py --syncgroups ds
+            # Copy Computer Groups from DS to SWP
+            $ ./groups-and-folders.py --copygroups ds
 
             # List Smart Folders in SWP
-            $ ./group-migration.py --listsmartfolders swp
+            $ ./groups-and-folders.py --listfolders swp
             """
         ),
     )
     parser.add_argument(
-        "--listgroups", type=str, nargs=1, metavar="TYPE", help="list computer groups"
+        "--listgroups", type=str, nargs=1, metavar="TYPE", help="list computer groups (TYPE=ds|swp)"
     )
     parser.add_argument(
-        "--syncgroups", type=str, nargs=1, metavar="TYPE", help="sync computer groups from given source"
+        "--copygroups", type=str, nargs=1, metavar="TYPE", help="copy computer groups from given source (TYPE=ds|swp)"
     )
     parser.add_argument(
-        "--listsmartfolders", type=str, nargs=1, metavar="TYPE", help="list smart folders"
+        "--listfolders", type=str, nargs=1, metavar="TYPE", help="list smart folders (TYPE=ds|swp)"
     )
     parser.add_argument(
-        "--syncsmartfolders", type=str, nargs=1, metavar="TYPE", help="list smart folders from given source"
+        "--copyfolders", type=str, nargs=1, metavar="TYPE", help="list smart folders from given source (TYPE=ds|swp)"
     )
 
     args = parser.parse_args()
@@ -502,17 +585,17 @@ def main():
         groups = list_groups(args.listgroups[0].lower())
         pp(groups)
 
-    if args.syncgroups:
-        groups = list_groups(args.syncgroups[0].lower())
-        synchronize_groups(args.syncgroups[0].lower(), groups)
+    if args.copygroups:
+        groups = list_groups(args.copygroups[0].lower())
+        copy_groups(args.copygroups[0].lower(), groups)
         
-    if args.listsmartfolders:
-        smartfolders = list_smart_folders(args.listsmartfolders[0].lower())
-        pp(smartfolders)
+    if args.listfolders:
+        folders = list_folders(args.listfolders[0].lower())
+        pp(folders)
 
-    if args.syncsmartfolders:
-        groups = list_groups(args.syncsmartfolders[0].lower())
-        # synchronize_syncsmartfolders(args.syncsmartfolders[0].lower(), groups)
+    if args.copyfolders:
+        folders = list_folders(args.copyfolders[0].lower())
+        copy_folders(args.copyfolders[0].lower(), folders)
 
 
 if __name__ == "__main__":
