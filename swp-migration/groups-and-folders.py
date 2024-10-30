@@ -244,10 +244,10 @@ class Connector:
         return response.json()
 
     @typechecked
-    def get_paged(self, endpoint, key) -> List:
+    def get_paged(self, endpoint, key) -> Dict:
         """Retrieve all from endpoint"""
 
-        paged = []
+        paged = {}
         id_value, total_num = 0, 0
         max_items = 100
 
@@ -273,7 +273,7 @@ class Connector:
                 # Filter out groups from cloud providers
                 # TODO: validate checks
                 if item.get("cloudType") is None and item.get("type") != "aws-account":
-                    paged.append(item)
+                    paged[item.get("ID")] = item
 
             id_value = response[key][-1]["ID"]
 
@@ -285,33 +285,60 @@ class Connector:
         return paged
 
     @typechecked
-    def get_by_name(self, endpoint, key, name) -> int:
+    def get_by_name(self, endpoint, key, name, parent_id) -> int:
         """Retrieve all"""
 
         # We limit to more than one to detect duplicates by name
-        max_items = 10
+        max_items = 2
 
-        payload = {
-            "maxItems": max_items,
-            "searchCriteria": [
-                {
-                    "fieldName": "name",
-                    "stringTest": "equal",
-                    "stringValue": name,
-                }
-            ],
-            "sortByObjectID": "true",
-        }
+        if parent_id is None:
+            payload = {
+                "maxItems": max_items,
+                "searchCriteria": [
+                    {
+                        "fieldName": "name",
+                        "stringTest": "equal",
+                        "stringValue": name,
+                    }
+                ],
+                "sortByObjectID": "true",
+            }
+        else:
+            if key == "computerGroups":
+                parent_field = "parentGroupID"
+            elif key == "smartFolders":
+                parent_field = "parentSmartFolderID"
+            else:
+                raise ValueError(f"Invalid key: {key}")
+
+            payload = {
+                "maxItems": max_items,
+                "searchCriteria": [
+                    {
+                        "fieldName": "name",
+                        "stringTest": "equal",
+                        "stringValue": name,
+                    },
+                    {
+                        "fieldName": parent_field,
+                        "numericTest": "equal",
+                        "numericValue": parent_id,
+                    },
+                ],
+                "sortByObjectID": "true",
+            }
 
         response = self.post(endpoint + "/search", data=payload)
 
         cnt = len(response[key])
-        if cnt > 1:
-            _LOGGER.warning(f"More than one group or folder where returned. Count {len(response[key])}")
-        elif cnt == 1:
+        if cnt == 1:
             item = response[key][0]
             if item.get("ID") is not None:
                 return item.get("ID")
+        elif cnt > 1:
+            _LOGGER.warning(f"More than one group or folder where returned. Count {len(response[key])}")
+            # endpoint_groups = self.get_paged(endpoint, key)
+
         else:
             raise ValueError(f"Group or folder named {name} not found.")
 
@@ -354,7 +381,7 @@ class Connector:
 # List
 # #############################################################################
 @typechecked
-def list_groups(product) -> List:
+def list_groups(product) -> Dict:
     """List Computer Groups."""
 
     endpoint = "computergroups"
@@ -362,19 +389,16 @@ def list_groups(product) -> List:
         response = connector_swp.get_paged(endpoint=endpoint, key="computerGroups")
 
     elif product == ENDPOINT_DS:
-        response = connector_ds.get(endpoint=endpoint)
+        response = connector_ds.get_paged(endpoint=endpoint, key="computerGroups")
 
     else:
         raise ValueError(f"Invalid endpoint: {product}")
 
-    if product == ENDPOINT_DS:
-        return response.get("computerGroups")
-    else:
-        return response
+    return response
 
 
 @typechecked
-def list_folders(product) -> List:
+def list_folders(product) -> Dict:
     """List Smart Folders."""
 
     endpoint = "smartfolders"
@@ -382,15 +406,12 @@ def list_folders(product) -> List:
         response = connector_swp.get_paged(endpoint=endpoint, key="smartFolders")
 
     elif product == ENDPOINT_DS:
-        response = connector_ds.get(endpoint=endpoint)
+        response = connector_ds.get_paged(endpoint=endpoint, key="smartFolders")
 
     else:
         raise ValueError(f"Invalid endpoint: {product}")
 
-    if product == ENDPOINT_DS:
-        return response.get("smartFolders")
-    else:
-        return response
+    return response
 
 
 # #############################################################################
@@ -407,7 +428,9 @@ def add_group(product, data) -> int:
             response = connector_swp.post(endpoint=endpoint, data=data)
         except TrendRequestError as tre:
             if "already exists" in tre.message:
-                id = connector_swp.get_by_name(endpoint=endpoint, key="computerGroups", name=data.get("name"))
+                id = connector_swp.get_by_name(
+                    endpoint=endpoint, key="computerGroups", name=data.get("name"), parent_id=data.get("parentGroupID")
+                )
                 _LOGGER.debug(f"Group with name: {data.get("name")} already exists with id: {id}")
                 return id
             else:
@@ -419,7 +442,9 @@ def add_group(product, data) -> int:
             response = connector_ds.post(endpoint=endpoint, data=data)
         except TrendRequestError as tre:
             if "already exists" in tre.message:
-                id = connector_ds.get_by_name(endpoint=endpoint, key="computerGroups", name=data.get("name"))
+                id = connector_ds.get_by_name(
+                    endpoint=endpoint, key="computerGroups", name=data.get("name"), parent_id=data.get("parentGroupID")
+                )
                 _LOGGER.debug(f"Group with name: {data.get("name")} already exists with id: {id}")
                 return id
             else:
@@ -434,8 +459,6 @@ def add_group(product, data) -> int:
 def add_folder(product, data) -> int:
     """Add Smart Folder."""
 
-    # _LOGGER.info("Add Computer Group...")
-
     endpoint = "smartfolders"
     if product == ENDPOINT_SWP:
         data.pop("ID")
@@ -443,7 +466,12 @@ def add_folder(product, data) -> int:
             response = connector_swp.post(endpoint=endpoint, data=data)
         except TrendRequestError as tre:
             if "already exists" in tre.message:
-                id = connector_swp.get_by_name(endpoint=endpoint, key="smartFolders", name=data.get("name"))
+                id = connector_swp.get_by_name(
+                    endpoint=endpoint,
+                    key="smartFolders",
+                    name=data.get("name"),
+                    parent_id=data.get("parentSmartFolderID"),
+                )
                 _LOGGER.debug(f"Smart Folder with name: {data.get("name")} already exists with id: {id}")
                 return id
             else:
@@ -455,7 +483,12 @@ def add_folder(product, data) -> int:
             response = connector_ds.post(endpoint=endpoint, data=data)
         except TrendRequestError as tre:
             if "already exists" in tre.message:
-                id = connector_ds.get_by_name(endpoint=endpoint, key="smartFolders", name=data.get("name"))
+                id = connector_ds.get_by_name(
+                    endpoint=endpoint,
+                    key="smartFolders",
+                    name=data.get("name"),
+                    parent_id=data.get("parentSmartFolderID"),
+                )
                 _LOGGER.debug(f"Smart Folder name: {data.get("name")} already exists with id: {id}")
                 return id
             else:
@@ -469,6 +502,18 @@ def add_folder(product, data) -> int:
 # #############################################################################
 # Copy
 # #############################################################################
+# def get_group_path(groups, path, id) -> List:
+
+#     group = groups.get(id)
+#     parent_id = group.get("parentGroupID")
+
+#     path.append(group.get("ID"))
+#     if parent_id is not None:
+#         path = get_group_path(groups, path, parent_id)
+
+#     return path
+
+
 def copy_groups(product, data) -> None:
     """Unidirectional copy Computer Groups"""
 
@@ -483,7 +528,7 @@ def copy_groups(product, data) -> None:
     else:
         raise ValueError(f"Invalid endpoint: {product}")
 
-    for item in data:
+    for item in data.values():
         if item.get("parentGroupID") is None:
             local_id = item.get("ID")
             _LOGGER.info(f"Adding root group {local_id}")
@@ -520,7 +565,7 @@ def copy_folders(product, data) -> None:
     else:
         raise ValueError(f"Invalid endpoint: {product}")
 
-    for item in data:
+    for item in data.values():
         if item.get("parentSmartFolderID") is None:
             local_id = item.get("ID")
             _LOGGER.info(f"Adding root folder {local_id}")
