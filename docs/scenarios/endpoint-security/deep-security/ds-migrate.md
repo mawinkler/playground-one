@@ -78,7 +78,13 @@ pgo --apply dsw
 6. In the same tab click on the drop down `Migrate Policy (includes references Common Objects)` and press `[Migrate Selected]`.
 7. In the tab `Cloud Accounts` select the cloud accounts to migrate.
 8. In the tab `Agents` click on `Migrate using Computers page`.
-9.  Select the agents to migrate in the Computers page. Right click on a selected Computer and go to `Actions --> Migrate to Workload Security`.
+
+> ***Note:*** Computer Groups/Smart Folders are not automatically migrated to Vision One. The python script [groups-and-policies](https://github.com/mawinkler/ds-swp-migration-tools) is able to merge the groups and smart folders including their settings from Deep Security to Vision One Server & Workload Protection. How to use, see [README](https://github.com/mawinkler/ds-swp-migration-tools?tab=readme-ov-file#groups-and-folders).
+> From left to right: Vision One clean -> Deep Security -> Vision One merged
+
+![alt text](images/ds-migrate-00-groups.png "API Key")
+
+9. Select the agents to migrate in the Computers page. Right click on a selected Computer and go to `Actions --> Migrate to Workload Security`.
 10. In the `Cloud One Workload Security Agent Reactivation Configurations` adapt the settings when needed and check that `Security Policy --> Assign migrated policy` is activated.
 11. Press the button `[Migrate]`
 12. Review the Migration Summary.
