@@ -113,6 +113,9 @@ REPORT_TITLE = "Workflow Tests"
 RISK_LEVEL_FAIL = "MEDIUM"
 # /HERE
 
+# For demoing purposes to quickly expire suppressions.
+TIMESHIFT_DAYS = 8
+
 # Do not change
 RISK_LEVEL = ["LOW", "MEDIUM", "HIGH", "VERY_HIGH", "EXTREME"]
 EXCEPTIONS_FILE = "exceptions.json"
@@ -711,7 +714,6 @@ def remove_expired_exceptions():
     # Building updated profile
     # Iterating over customized rules in scan profile
     for rule in current_profile.get("scanRules", []):
-        pp(rule)
         rule_id = rule.get("id")
         exception = exceptions.get(rule_id, None)
         if exception is not None:
@@ -728,7 +730,7 @@ def remove_expired_exceptions():
                     now = datetime.now(UTC).replace(tzinfo=None) 
 
                     # Test for Suppression expired
-                    if now + timedelta(days=8) > datetime.strptime(suppressions.get(suppression, {}).get("suppress_until"), "%Y-%m-%dT%H:00:00Z"):
+                    if now + timedelta(days=TIMESHIFT_DAYS) > datetime.strptime(suppressions.get(suppression, {}).get("suppress_until"), "%Y-%m-%dT%H:00:00Z"):
                         # Suppression expired, remove Exception Tags
                         _LOGGER.info(
                             "Suppression expired, removing Exception Tags for %s in Profile %s",
@@ -838,19 +840,20 @@ def remove_expired_exceptions():
 def reset_profile():
     """Reset all rule configurations in scan profile."""
 
-    url = f"{API_BASE_URL}/profiles/"
+    url = f"{API_BASE_URL}/profiles/{SCAN_PROFILE_ID}?includes=ruleSettings"
 
-    data = {
-        "included": [],
-        "data": {
-            "type": "profiles",
-            "id": SCAN_PROFILE_ID,
-            "attributes": {"name": "AWS Scanner", "description": "Scan exclusions"},
-            "relationships": {},
-        },
+    # Retrieve current profile
+    current_profile = connector.get(url=url)
+    
+    updated_profile = {
+        "name": current_profile.get("name", ""),
+        "description": current_profile.get("description", ""),
+        "scanRules": [],
     }
-
-    connector.post(url=url, data=data)
+    
+    url = f"{API_BASE_URL}/profiles/{SCAN_PROFILE_ID}"
+    
+    connector.patch(url=url, data=updated_profile)
 
     updated_exceptions = {}
     with open(EXCEPTIONS_FILE, "w", encoding="utf-8") as json_file:
@@ -880,7 +883,7 @@ def retrieve_bot_results():
 
     findings = []
     for risk_level in RISK_LEVEL[RISK_LEVEL.index(RISK_LEVEL_FAIL):]:
-        filter = f"accountId eq '{ACCOUNT_ID}' and service eq 'EC2' and riskLevel eq '{risk_level}'"
+        filter = f"accountId eq '{ACCOUNT_ID}' and riskLevel eq '{risk_level}'"
         page_number = 0
 
         while True:
@@ -919,6 +922,9 @@ def match_scan_result_with_findings(bot_findings):
 
         # Check if rule id matches with exception id
         for bot_finding in bot_findings:
+            if bot_finding.get("status") == "SUCCESS":
+                continue
+
             if (
                 bot_finding.get("ruleId") == exception_id
             ):
