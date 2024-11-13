@@ -2,7 +2,7 @@
 
 !!! warning "Challenge ahead!"
 
-    This scenario is a bit challenging, but you should be able to get through it easily.
+    This scenario is a bit challenging, but you should be able to get through it.
 
 ## Prerequisites
 

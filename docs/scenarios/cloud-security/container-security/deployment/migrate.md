@@ -23,3 +23,5 @@ This second script updates the saved manifests in regards the image location to 
 The image get's then pulled from the public repo and pushed to the internal one. TODO: This is followed by an image scan and the redeployment.
 
 > ***Note:*** at the time of writing the only supported private registry is the internal one.
+
+🎉 Success 🎉

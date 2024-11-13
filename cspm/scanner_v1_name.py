@@ -183,16 +183,14 @@ class Connector:
         Args:
             url (str): API Endpoint
         """
-        
+
         headers = self._headers
         if filter is not None:
             headers["TMV1-Filter"] = filter
 
         response = None
         try:
-            response = requests.get(
-                url, headers=self._headers, params=params, verify=True, timeout=REQUESTS_TIMEOUTS
-            )
+            response = requests.get(url, headers=self._headers, params=params, verify=True, timeout=REQUESTS_TIMEOUTS)
             self._check_error(response)
             response.raise_for_status()
         except requests.exceptions.HTTPError as errh:
@@ -242,7 +240,7 @@ class Connector:
             _LOGGER.error("Exception request")
             raise
 
-        if 'application/json' in response.headers.get('Content-Type', '') and len(response.content):
+        if "application/json" in response.headers.get("Content-Type", "") and len(response.content):
             return response.json()
         else:
             return {}
@@ -280,12 +278,12 @@ class Connector:
         except requests.exceptions.RequestException:
             _LOGGER.error("Exception request")
             raise
-        
+
         # print(response.status_code)
         # for k, v in response.headers.items():
         #     print(f'{k}: {v}')
         # print('')
-        if 'application/json' in response.headers.get('Content-Type', '') and len(response.content):
+        if "application/json" in response.headers.get("Content-Type", "") and len(response.content):
             return response.json()
         else:
             return {}
@@ -316,9 +314,7 @@ class Connector:
                 case 404:
                     raise ConformityNotFoundError("404 Not found")
                 case 422:
-                    raise ConformityValidationError(
-                        "500 Unprocessed Entity. Validation error"
-                    )
+                    raise ConformityValidationError("500 Unprocessed Entity. Validation error")
                 case 500:
                     raise ConformityError("500 The parsing of the template file failed")
                 case 503:
@@ -347,6 +343,7 @@ def terraform_plan(working_dir) -> str:
 
     return plan
 
+
 def terraform_apply(working_dir) -> None:
     """Apply Terraform Plan of Configuration."""
 
@@ -357,6 +354,7 @@ def terraform_apply(working_dir) -> None:
     print()
 
     return None
+
 
 def terraform_destroy(working_dir) -> None:
     """Destroy Terraform Plan of Configuration."""
@@ -533,9 +531,7 @@ def rule_tags_existing(rule_id) -> str:
 
     for rule in response.get("scanRules", []):
         if rule["id"] == rule_id:
-            return (
-                rule.get("exceptions", {}).get("filterTags", [])
-            )
+            return rule.get("exceptions", {}).get("filterTags", [])
     return []
 
 
@@ -551,7 +547,7 @@ def set_exception(rule_id, risk_level, tags):
     if os.path.isfile(EXCEPTIONS_FILE):
         with open(EXCEPTIONS_FILE) as json_file:
             exceptions_profile = json.load(json_file)
-            
+
     # Container for the updated profile
     updated_profile = {
         "name": current_profile.get("name", ""),
@@ -562,7 +558,7 @@ def set_exception(rule_id, risk_level, tags):
     scan_rules = current_profile.get("scanRules", [])
     updated_rules = []
     merged_tags = []
-    
+
     # Check existing scan rules
     for rule in scan_rules:
         if rule.get("id") == rule_id:
@@ -588,11 +584,16 @@ def set_exception(rule_id, risk_level, tags):
             if tag not in merged_tags:
                 if tag.startswith("Name::"):
                     merged_tags.append(tag)
-        rule = { "enabled": True, "exceptions": { "filterTags": merged_tags}, "id": rule_id, "provider": "aws", "riskLevel": risk_level}
+        rule = {
+            "enabled": True,
+            "exceptions": {"filterTags": merged_tags},
+            "id": rule_id,
+            "provider": "aws",
+            "riskLevel": risk_level,
+        }
         updated_rules.append(rule)
 
-    updated_profile["scanRules"] = updated_rules        
-
+    updated_profile["scanRules"] = updated_rules
 
     url = f"{API_BASE_URL}/profiles/{SCAN_PROFILE_ID}"
 
@@ -640,21 +641,13 @@ def clear_exceptions():
         rule_id = rule.get("id", None)
         exception = exceptions.get(rule_id, None)
         if exception is not None:
-            rule_exception_filtertags = (
-                rule.get("exceptions", {}).get("filterTags", [])
-            )
+            rule_exception_filtertags = rule.get("exceptions", {}).get("filterTags", [])
             exception_exception_filtertags = exception.get("tags", [])
 
-            resulting_exception_filtertags = list(
-                set(rule_exception_filtertags) - set(exception_exception_filtertags)
-            )
+            resulting_exception_filtertags = list(set(rule_exception_filtertags) - set(exception_exception_filtertags))
 
-            _LOGGER.info(
-                "Removing Exception Tags for %s in Profile %s", rule_id, SCAN_PROFILE_ID
-            )
-            rule["exceptions"]["filterTags"] = (
-                resulting_exception_filtertags
-            )
+            _LOGGER.info("Removing Exception Tags for %s in Profile %s", rule_id, SCAN_PROFILE_ID)
+            rule["exceptions"]["filterTags"] = resulting_exception_filtertags
             rule.pop("deprecated", None)
             updated_profile["scanRules"].append(rule)
         else:
@@ -727,10 +720,12 @@ def remove_expired_exceptions():
             # Test if an exception is set for this rule which has suppressions assigned
             if exception is not None and len(suppressions_rule_id) > 0:
                 for suppression in suppressions_rule_id:
-                    now = datetime.now(UTC).replace(tzinfo=None) 
+                    now = datetime.now(UTC).replace(tzinfo=None)
 
                     # Test for Suppression expired
-                    if now + timedelta(days=TIMESHIFT_DAYS) > datetime.strptime(suppressions.get(suppression, {}).get("suppress_until"), "%Y-%m-%dT%H:00:00Z"):
+                    if now + timedelta(days=TIMESHIFT_DAYS) > datetime.strptime(
+                        suppressions.get(suppression, {}).get("suppress_until"), "%Y-%m-%dT%H:00:00Z"
+                    ):
                         # Suppression expired, remove Exception Tags
                         _LOGGER.info(
                             "Suppression expired, removing Exception Tags for %s in Profile %s",
@@ -751,25 +746,15 @@ def remove_expired_exceptions():
                         if exception is not None:
                             updated_exceptions[rule_id] = exception
                         if suppression is not None:
-                            updated_suppressions[suppression] = suppressions.get(
-                                suppression, {}
-                            )
+                            updated_suppressions[suppression] = suppressions.get(suppression, {})
                         continue
 
                     # Compare filter tags
-                    rule_exception_filtertags = (
-                        rule.get("attributes", {})
-                        .get("exceptions", {})
-                        .get("filterTags", [])
-                    )
+                    rule_exception_filtertags = rule.get("attributes", {}).get("exceptions", {}).get("filterTags", [])
                     exception_exception_filtertags = exception.get("tags", [])
-                    suppression_filtertags = suppressions.get(suppression, {}).get(
-                        "tags", []
-                    )
+                    suppression_filtertags = suppressions.get(suppression, {}).get("tags", [])
 
-                    if set(exception_exception_filtertags).issubset(
-                        set(suppression_filtertags)
-                    ):
+                    if set(exception_exception_filtertags).issubset(set(suppression_filtertags)):
                         _LOGGER.info(
                             "Exception Filter Tags included in Suppression Filter Tags for %s in Profile %s",
                             rule_id,
@@ -778,8 +763,7 @@ def remove_expired_exceptions():
 
                         # Remove filter Tags from exception
                         resulting_exception_filtertags = list(
-                            set(rule_exception_filtertags)
-                            - set(exception_exception_filtertags)
+                            set(rule_exception_filtertags) - set(exception_exception_filtertags)
                         )
 
                         _LOGGER.info(
@@ -788,9 +772,7 @@ def remove_expired_exceptions():
                             SCAN_PROFILE_ID,
                         )
                         if len(resulting_exception_filtertags) > 0:
-                            rule["attributes"]["exceptions"]["filterTags"] = (
-                                resulting_exception_filtertags
-                            )
+                            rule["attributes"]["exceptions"]["filterTags"] = resulting_exception_filtertags
                             updated_profile["included"].append(rule)
                             data = (
                                 updated_profile.get("data", {})
@@ -799,9 +781,7 @@ def remove_expired_exceptions():
                                 .get("data", [])
                             )
                             data.append({"id": rule_id, "type": "rules"})
-                            updated_profile["data"]["relationships"]["ruleSettings"] = {
-                                "data": data
-                            }
+                            updated_profile["data"]["relationships"]["ruleSettings"] = {"data": data}
 
                         _LOGGER.info(
                             "Removing Exception from storage with Profile %s",
@@ -844,15 +824,15 @@ def reset_profile():
 
     # Retrieve current profile
     current_profile = connector.get(url=url)
-    
+
     updated_profile = {
         "name": current_profile.get("name", ""),
         "description": current_profile.get("description", ""),
         "scanRules": [],
     }
-    
+
     url = f"{API_BASE_URL}/profiles/{SCAN_PROFILE_ID}"
-    
+
     connector.patch(url=url, data=updated_profile)
 
     updated_exceptions = {}
@@ -874,34 +854,34 @@ def retrieve_bot_results():
     created_less_than_days = 5
     compliances = ""  # "AWAF"
 
-    now_24 = datetime.now(UTC).replace(tzinfo=None) - timedelta(hours=24) 
-    
+    now_24 = datetime.now(UTC).replace(tzinfo=None) - timedelta(hours=1)
+
     # filter = f"accountId eq '{ACCOUNT_ID}' and riskLevel eq '{risk_levels}' and status eq 'FAILURE'"
     # filter = f"(accountId eq '{ACCOUNT_ID}') and (status eq 'FAILURE') and (riskLevel eq 'LOW')"
     # filter = f"(riskLevel eq 'HIGH' or riskLevel eq 'MEDIUM') and accountId eq '{ACCOUNT_ID}' and service eq 'EC2'"
     # filter = f"accountId eq '{ACCOUNT_ID}' and service eq 'EC2' and riskLevel eq 'MEDIUM'"
 
     findings = []
-    for risk_level in RISK_LEVEL[RISK_LEVEL.index(RISK_LEVEL_FAIL):]:
+    for risk_level in RISK_LEVEL[RISK_LEVEL.index(RISK_LEVEL_FAIL) :]:
         filter = f"accountId eq '{ACCOUNT_ID}' and riskLevel eq '{risk_level}'"
         page_number = 0
 
         while True:
             url = f"{API_BASE_URL}/checks"
             url += f"?skipToken={page_size * page_number}"
-            
+
             params = {
                 "top": f"{page_size}",
                 "startDateTime": f"{now_24.strftime("%Y-%m-%dT%H:00:00Z")}",
-                "dateTimeTarget": "createdDate"
+                "dateTimeTarget": "createdDate",
             }
 
             response = connector.get(url=url, params=params, filter=filter)
             count = response.get("count", 0)
             findings += response.get("items", [])
-            
+
             _LOGGER.debug("Retrieved %s findings.", len(findings))
-            
+
             if count < page_size:
                 break
             page_number += 1
@@ -925,9 +905,7 @@ def match_scan_result_with_findings(bot_findings):
             if bot_finding.get("status") == "SUCCESS":
                 continue
 
-            if (
-                bot_finding.get("ruleId") == exception_id
-            ):
+            if bot_finding.get("ruleId") == exception_id:
                 # Check if tags match with exception tags
                 bot_finding_tags = bot_finding.get("tags")
 
@@ -940,9 +918,7 @@ def match_scan_result_with_findings(bot_findings):
                 name_tags = [tag for tag in bot_finding_tags if "Name::" in tag]
 
                 if len(name_tags) > 0 and set(name_tags).issubset(set(exception_tags)):
-                    _LOGGER.info(
-                        "Bot finding match %s for Scan Tags %s", exception_id, name_tags
-                    )
+                    _LOGGER.info("Bot finding match %s for Scan Tags %s", exception_id, name_tags)
                     suppress_check(bot_finding.get("id", None), exception_id, exception_tags)
                 else:
                     _LOGGER.info(
@@ -1013,9 +989,7 @@ def main():
             """
         ),
     )
-    parser.add_argument(
-        "--scan", type=str, nargs=1, metavar="CONFIG", help="scan configuration"
-    )
+    parser.add_argument("--scan", type=str, nargs=1, metavar="CONFIG", help="scan configuration")
     parser.add_argument(
         "--exclude",
         type=str,
@@ -1023,15 +997,9 @@ def main():
         metavar="CONFIG",
         help="scan configuration and exclude findings",
     )
-    parser.add_argument(
-        "--apply", type=str, nargs=1, metavar="CONFIG", help="apply configuration"
-    )
-    parser.add_argument(
-        "--destroy", type=str, nargs=1, metavar="CONFIG", help="destroy configuration"
-    )
-    parser.add_argument(
-        "--bot", action="store_const", const=True, default=False, help="scan account"
-    )
+    parser.add_argument("--apply", type=str, nargs=1, metavar="CONFIG", help="apply configuration")
+    parser.add_argument("--destroy", type=str, nargs=1, metavar="CONFIG", help="destroy configuration")
+    parser.add_argument("--bot", action="store_const", const=True, default=False, help="scan account")
     parser.add_argument(
         "--botstatus",
         action="store_const",

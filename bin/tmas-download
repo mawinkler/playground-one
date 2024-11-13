@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+# Check if JQ is installed.
+if ! command -v jq &> /dev/null
+then
+    echo "JQ could not be found."
+    exit
+fi
+
+# Check if curl is installed.
+if ! command -v curl &> /dev/null
+then
+    echo "curl could not be found."
+    exit
+fi
+
+# Check if sudo is installed.
+if ! command -v sudo &> /dev/null
+then
+    echo "sudo could not be found."
+    exit
+fi
+
+BASE_METADATA_URL="https://cli.artifactscan.cloudone.trendmicro.com/tmas-cli/"
+METADATA_URL="${BASE_METADATA_URL}metadata.json"
+
+BASE_URL_AS="https://cli.artifactscan.cloudone.trendmicro.com/tmas-cli/"
+
+VERSION_STRING=$(curl -s $METADATA_URL | jq -r '.latestVersion')
+VERSION="${VERSION_STRING:1}"
+
+OS=$(uname -s)
+ARCH=$(uname -m)
+if [ "$ARCH" = "aarch64" ]; then ARCH=arm64; fi
+ARCHITECTURE="${OS}_${ARCH}"
+
+echo "Downloading version $VERSION of tmfs and tmas CLI for $OS in architecture $ARCHITECTURE"
+
+URL="${BASE_URL_AS}latest/tmas-cli_$ARCHITECTURE.tar.gz"
+curl -Ls "$URL" | tar -xz tmas
+
+#echo Moving the binaries to /usr/local/bin/
+sudo mv tmas /usr/local/bin/

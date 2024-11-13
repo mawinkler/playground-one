@@ -176,9 +176,7 @@ class Connector:
 
         response = None
         try:
-            response = requests.get(
-                url, headers=self._headers, verify=True, timeout=REQUESTS_TIMEOUTS
-            )
+            response = requests.get(url, headers=self._headers, verify=True, timeout=REQUESTS_TIMEOUTS)
             self._check_error(response)
             response.raise_for_status()
         except requests.exceptions.HTTPError as errh:
@@ -287,9 +285,7 @@ class Connector:
                 case 404:
                     raise ConformityNotFoundError("404 Not found")
                 case 422:
-                    raise ConformityValidationError(
-                        "500 Unprocessed Entity. Validation error"
-                    )
+                    raise ConformityValidationError("500 Unprocessed Entity. Validation error")
                 case 500:
                     raise ConformityError("500 The parsing of the template file failed")
                 case 503:
@@ -417,10 +413,7 @@ def download_report() -> None:
     download_endpoint = None
     created_date = 0
     for report in response.get("data", []):
-        if (
-            report["attributes"]["title"] == REPORT_TITLE
-            and report["attributes"]["created-date"] > created_date
-        ):
+        if report["attributes"]["title"] == REPORT_TITLE and report["attributes"]["created-date"] > created_date:
             created_date = report["attributes"]["created-date"]
             included = report.get("attributes", {}).get("included", {})
             for include in included:
@@ -480,12 +473,7 @@ def scan_failures(contents, exclude=False) -> None:
             rule_title = finding.get("attributes", {}).get("rule-title", None)
             tags = list(finding.get("attributes", {}).get("tags", {}))
             resource = finding.get("attributes", {}).get("resource", None)
-            rule_id = (
-                finding.get("relationships", {})
-                .get("rule", {})
-                .get("data", {})
-                .get("id", None)
-            )
+            rule_id = finding.get("relationships", {}).get("rule", {}).get("data", {}).get("id", None)
 
             if exclude:
                 _LOGGER.info(
@@ -515,9 +503,7 @@ def rule_tags_existing(rule_id) -> str:
 
     for rule in response.get("included", []):
         if rule["id"] == rule_id:
-            return (
-                rule.get("attributes", {}).get("exceptions", {}).get("filterTags", [])
-            )
+            return rule.get("attributes", {}).get("exceptions", {}).get("filterTags", [])
     return []
 
 
@@ -568,9 +554,7 @@ def set_exception(rule_id, risk_level, tags, resource):
             "type": "profiles",
             "id": SCAN_PROFILE_ID,
             "attributes": {"name": SCAN_PROFILE_NAME, "description": "Scan exclusions"},
-            "relationships": {
-                "ruleSettings": {"data": [{"type": "rules", "id": rule_id}]}
-            },
+            "relationships": {"ruleSettings": {"data": [{"type": "rules", "id": rule_id}]}},
         },
     }
 
@@ -623,28 +607,15 @@ def clear_exceptions():
         rule_id = rule.get("id", None)
         exception = exceptions.get(rule_id, None)
         if exception is not None:
-            rule_exception_filtertags = (
-                rule.get("attributes", {}).get("exceptions", {}).get("filterTags", [])
-            )
+            rule_exception_filtertags = rule.get("attributes", {}).get("exceptions", {}).get("filterTags", [])
             exception_exception_filtertags = exception.get("tags", [])
 
-            resulting_exception_filtertags = list(
-                set(rule_exception_filtertags) - set(exception_exception_filtertags)
-            )
+            resulting_exception_filtertags = list(set(rule_exception_filtertags) - set(exception_exception_filtertags))
 
-            _LOGGER.info(
-                "Removing Exception Tags for %s in Profile %s", rule_id, SCAN_PROFILE_ID
-            )
-            rule["attributes"]["exceptions"][
-                "filterTags"
-            ] = resulting_exception_filtertags
+            _LOGGER.info("Removing Exception Tags for %s in Profile %s", rule_id, SCAN_PROFILE_ID)
+            rule["attributes"]["exceptions"]["filterTags"] = resulting_exception_filtertags
             updated_profile["included"].append(rule)
-            data = (
-                updated_profile.get("data", {})
-                .get("relationships", {})
-                .get("ruleSettings", {})
-                .get("data", [])
-            )
+            data = updated_profile.get("data", {}).get("relationships", {}).get("ruleSettings", {}).get("data", [])
             data.append({"id": rule_id, "type": "rules"})
             updated_profile["data"]["relationships"]["ruleSettings"] = {"data": data}
         else:
@@ -654,12 +625,7 @@ def clear_exceptions():
                 SCAN_PROFILE_ID,
             )
             updated_profile["included"].append(rule)
-            data = (
-                updated_profile.get("data", {})
-                .get("relationships", {})
-                .get("ruleSettings", {})
-                .get("data", [])
-            )
+            data = updated_profile.get("data", {}).get("relationships", {}).get("ruleSettings", {}).get("data", [])
             data.append({"id": rule_id, "type": "rules"})
             updated_profile["data"]["relationships"]["ruleSettings"] = {"data": data}
 
@@ -753,38 +719,23 @@ def remove_expired_exceptions():
 
                     updated_profile["included"].append(rule)
                     data = (
-                        updated_profile.get("data", {})
-                        .get("relationships", {})
-                        .get("ruleSettings", {})
-                        .get("data", [])
+                        updated_profile.get("data", {}).get("relationships", {}).get("ruleSettings", {}).get("data", [])
                     )
                     data.append({"id": rule_id, "type": "rules"})
-                    updated_profile["data"]["relationships"]["ruleSettings"] = {
-                        "data": data
-                    }
+                    updated_profile["data"]["relationships"]["ruleSettings"] = {"data": data}
 
                     if exception is not None:
                         updated_exceptions[rule_id] = exception
                     if suppression is not None:
-                        updated_suppressions[suppression] = suppressions.get(
-                            suppression, {}
-                        )
+                        updated_suppressions[suppression] = suppressions.get(suppression, {})
                     continue
 
                 # Compare filter tags
-                rule_exception_filtertags = (
-                    rule.get("attributes", {})
-                    .get("exceptions", {})
-                    .get("filterTags", [])
-                )
+                rule_exception_filtertags = rule.get("attributes", {}).get("exceptions", {}).get("filterTags", [])
                 exception_exception_filtertags = exception.get("tags", [])
-                suppression_filtertags = suppressions.get(suppression, {}).get(
-                    "tags", []
-                )
+                suppression_filtertags = suppressions.get(suppression, {}).get("tags", [])
 
-                if set(exception_exception_filtertags).issubset(
-                    set(suppression_filtertags)
-                ):
+                if set(exception_exception_filtertags).issubset(set(suppression_filtertags)):
                     _LOGGER.info(
                         "Exception Filter Tags included in Suppression Filter Tags for %s in Profile %s",
                         rule_id,
@@ -793,8 +744,7 @@ def remove_expired_exceptions():
 
                     # Remove filter Tags from exception
                     resulting_exception_filtertags = list(
-                        set(rule_exception_filtertags)
-                        - set(exception_exception_filtertags)
+                        set(rule_exception_filtertags) - set(exception_exception_filtertags)
                     )
 
                     _LOGGER.info(
@@ -803,9 +753,7 @@ def remove_expired_exceptions():
                         SCAN_PROFILE_ID,
                     )
                     if len(resulting_exception_filtertags) > 0:
-                        rule["attributes"]["exceptions"][
-                            "filterTags"
-                        ] = resulting_exception_filtertags
+                        rule["attributes"]["exceptions"]["filterTags"] = resulting_exception_filtertags
                         updated_profile["included"].append(rule)
                         data = (
                             updated_profile.get("data", {})
@@ -814,9 +762,7 @@ def remove_expired_exceptions():
                             .get("data", [])
                         )
                         data.append({"id": rule_id, "type": "rules"})
-                        updated_profile["data"]["relationships"]["ruleSettings"] = {
-                            "data": data
-                        }
+                        updated_profile["data"]["relationships"]["ruleSettings"] = {"data": data}
 
                     _LOGGER.info(
                         "Removing Exception from storage with Profile %s",
@@ -831,12 +777,7 @@ def remove_expired_exceptions():
                 SCAN_PROFILE_ID,
             )
             updated_profile["included"].append(rule)
-            data = (
-                updated_profile.get("data", {})
-                .get("relationships", {})
-                .get("ruleSettings", {})
-                .get("data", [])
-            )
+            data = updated_profile.get("data", {}).get("relationships", {}).get("ruleSettings", {}).get("data", [])
             data.append({"id": rule_id, "type": "rules"})
             updated_profile["data"]["relationships"]["ruleSettings"] = {"data": data}
             if exception is not None:
@@ -938,28 +879,18 @@ def match_scan_result_with_findings(bot_findings):
 
         # Check if rule id matches with exception id
         for bot_finding in bot_findings:
-            if (
-                bot_finding.get("relationships", {})
-                .get("rule", {})
-                .get("data", {})
-                .get("id")
-                == exception_id
-            ):
+            if bot_finding.get("relationships", {}).get("rule", {}).get("data", {}).get("id") == exception_id:
                 # Check if tags match with exception tags
                 bot_finding_tags = bot_finding.get("attributes", {}).get("tags")
 
                 # Filter bot finding tags on rule id
-                bot_finding_tags = [
-                    tag for tag in bot_finding_tags if f"_{exception_id}" in tag
-                ]
+                bot_finding_tags = [tag for tag in bot_finding_tags if f"_{exception_id}" in tag]
 
                 if bot_finding_tags is None or len(bot_finding_tags) == 0:
                     # Skip bot findings without tags
                     continue
 
-                if len(exception_tags) > 0 and set(bot_finding_tags).issubset(
-                    set(exception_tags)
-                ):
+                if len(exception_tags) > 0 and set(bot_finding_tags).issubset(set(exception_tags)):
                     _LOGGER.info(
                         "Bot finding match %s for Scan Tags %s",
                         exception_id,
@@ -1000,11 +931,7 @@ def suppress_check(check_id, exception_tags) -> None:
 
     # Writing new suppressions file
     suppressions[response.get("data", {}).get("id", {})] = {
-        "rule_id": response.get("data", {})
-        .get("relationships", {})
-        .get("rule", {})
-        .get("data", {})
-        .get("id", {}),
+        "rule_id": response.get("data", {}).get("relationships", {}).get("rule", {}).get("data", {}).get("id", {}),
         "scan_profile_id": SCAN_PROFILE_ID,
         "tags": exception_tags,
         "suppress_until": suppress_until,
@@ -1041,9 +968,7 @@ def main():
             """
         ),
     )
-    parser.add_argument(
-        "--scan", type=str, nargs=1, metavar="CONFIG", help="scan configuration"
-    )
+    parser.add_argument("--scan", type=str, nargs=1, metavar="CONFIG", help="scan configuration")
     parser.add_argument(
         "--exclude",
         type=str,
@@ -1051,15 +976,9 @@ def main():
         metavar="CONFIG",
         help="scan configuration and exclude findings",
     )
-    parser.add_argument(
-        "--apply", type=str, nargs=1, metavar="CONFIG", help="apply configuration"
-    )
-    parser.add_argument(
-        "--destroy", type=str, nargs=1, metavar="CONFIG", help="destroy configuration"
-    )
-    parser.add_argument(
-        "--bot", action="store_const", const=True, default=False, help="scan account"
-    )
+    parser.add_argument("--apply", type=str, nargs=1, metavar="CONFIG", help="apply configuration")
+    parser.add_argument("--destroy", type=str, nargs=1, metavar="CONFIG", help="destroy configuration")
+    parser.add_argument("--bot", action="store_const", const=True, default=False, help="scan account")
     parser.add_argument(
         "--botstatus",
         action="store_const",

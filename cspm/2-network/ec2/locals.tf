@@ -7,8 +7,8 @@ locals {
       name        = "${var.environment}-public-sg"
       description = "Security group for Public Access"
       tags = {
-        "39c34a53-7368-40ba-b96b-254877a7d8a5" = "module.ec2.aws_security_group.sg[\"public\"]_EC2-001"
-        "bf8d1c3f-a6bb-40af-b0e9-6b8820bcf397" = "module.ec2.aws_security_group.sg[\"public\"]_EC2-033"
+        "3ea0ed93-bdcf-456d-adc5-7080ea923bf4" = "module.ec2.aws_security_group.sg[\"public\"]_EC2-001"
+        "7f404fd7-4f7b-4ac6-bfcc-512eed878dd0" = "module.ec2.aws_security_group.sg[\"public\"]_EC2-033"
       }
       ingress = {
         ssh = {
@@ -68,7 +68,7 @@ locals {
       name        = "${var.environment}-private-sg"
       description = "Security group for Private Access"
       tags = {
-        "d2c3b1ee-8278-4b8c-9adb-e82fd5bb79c0" = "module.ec2.aws_security_group.sg[\"private\"]_EC2-033"
+        "2c277201-31d8-42ac-85e2-bda5dd1ef329" = "module.ec2.aws_security_group.sg[\"private\"]_EC2-033"
       }
       ingress = {
         ssh = {

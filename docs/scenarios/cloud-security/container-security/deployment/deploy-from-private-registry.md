@@ -90,3 +90,5 @@ helm install \
     --install \
   https://github.com/trendmicro/cloudone-container-security-helm/archive/master.tar.gz
 ```
+
+🎉 Success 🎉

@@ -1,5 +1,11 @@
 # Scenario: ASRM to detect Predictive Attack Path to RDS via EC2
 
+***DRAFT***
+
+!!! danger "Work in progress!"
+
+    This scenario is not finished yet 
+
 ## Prerequisites
 
 - AWS Cloud Account integrated with Vision One

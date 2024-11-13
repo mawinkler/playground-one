@@ -1,9 +1,5 @@
 # Scenario: Playing with Istio Service Mesh
 
-***Draft***
-
-!!! warning "NOT FINISHED YET"
-
 ## Prerequisites
 
 - Playground One Network
@@ -131,3 +127,4 @@ do
 done
 ```
 
+🎉 Success 🎉

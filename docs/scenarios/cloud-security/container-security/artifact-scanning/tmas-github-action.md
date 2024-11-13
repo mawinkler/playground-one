@@ -51,17 +51,17 @@ The repo containes a very simple Dockerfile and a hidden directory `.github/work
 The Dockerfile specifies the image to build. As we can easily see, it is using the latest `nginx` as the base image and just adds (very obviously) an Eicar.
 
 ```Dockerfile
-FROM nginx
+FROM ubuntu:latest
 
-RUN curl -fsSL http://eicar.eu/eicarcom2.zip -o /usr/share/nginx/html/eicarcom2.zip
+RUN apt update && apt install -y curl && curl -OL https://secure.eicar.org/eicarcom2.zip
 ```
 
 ### The Workflow
 
-The `yaml`-file in `.github/workflows` is more interesting. Let's go through it.
+The `build-push-ghcrio.yaml`-file in `.github/workflows` is more interesting. Let's go through it.
 
 ```yaml
-name: ci
+name: ci-ghcrio
 
 # A push --tags on the repo triggers the workflow
 on:
@@ -72,10 +72,10 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   TMAS_API_KEY: ${{ secrets.TMAS_API_KEY }}
-
   REGION: us-east-1
-  THRESHOLD: "critical"
+  THRESHOLD: "medium"
   MALWARE_SCAN: true
+  SECRETS_SCAN: true
   FAIL_ACTION: true
 
 jobs:
@@ -108,67 +108,85 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           outputs: type=docker,dest=/tmp/image.tar
 
-      # Scan the build image for vulnerabilities and malware.
+      # Scan the build image for vulnerabilities, malware, and secrets.
       - name: Scan
         env:
           SBOM: true # Saves SBOM to sbom.json
         run: |
           # Install tmas latest version
-          curl -s -L https://gist.github.com/raphabot/abae09b46c29afc7c3b918b7b8ec2a5c/raw/ | bash
+          curl -sL https://gist.githubusercontent.com/mawinkler/72a89148b3bcf7ca06b1f26bc84d763f/raw | bash
 
-          tmas scan -V "$(if [ "$MALWARE_SCAN" = true ]; then echo "-M"; fi)" -r "$REGION" docker-archive:/tmp/image.tar "$(if [ "$SBOM" = true ]; then echo "--saveSBOM"; fi)" | tee result.json
+          # Do the image scan (scan the tarball)
+          tmas scan \
+            -V \
+            "$(if [ "$MALWARE_SCAN" = "true" ]; then echo "-M"; fi)" \
+            "$(if [ "$SECRETS_SCAN" = "true" ]; then echo "-S"; fi)" \
+            -r "$REGION" docker-archive:/tmp/image.tar \
+            "$(if [ "$SBOM" = "true" ]; then echo "--saveSBOM"; fi)" | \
+            tee result.json
 
-          if [ "$SBOM" = true ]; then mv SBOM_* sbom.json; fi
+          # Rename the SBOM output file if we want to save it as an artifact
+          if [ "$SBOM" = "true" ]; then mv SBOM_* sbom.json; fi
 
-          # Analyze result
+          # Check for vulnerabilities
           fail_vul=false
           fail_mal=false
+          fail_sec=false
           [ "${THRESHOLD}" = "any" ] && \
-            [ $(jq '.vulnerability.totalVulnCount' result.json) -ne 0 ] && fail_vul=true
+            [ $(jq '.vulnerabilities.totalVulnCount' result.json) != "0" ] && fail_vul=true
 
           [ "${THRESHOLD}" = "critical" ] && \
-            [ $(jq '.vulnerability.criticalCount' result.json) -ne 0 ] && fail_vul=true
+            [ $(jq '.vulnerabilities.criticalCount' result.json) != "0" ] && fail_vul=true
 
           [ "${THRESHOLD}" = "high" ] && \
-            [ $(jq '.vulnerability.highCount + .vulnerability.criticalCount' result.json) -ne 0 ] && fail_vul=true
+            [ $(jq '.vulnerabilities.highCount + .vulnerabilities.criticalCount' result.json) != "0" ] && fail_vul=true
 
           [ "${THRESHOLD}" = "medium" ] && \
-            [ $(jq '.vulnerability.mediumCount + .vulnerability.highCount + .vulnerability.criticalCount' result.json) -ne 0 ] && fail_vul=true
+            [ $(jq '.vulnerabilities.mediumCount + .vulnerabilities.highCount + .vulnerabilities.criticalCount' result.json) != "0" ] && fail_vul=true
 
           [ "${THRESHOLD}" = "low" ] &&
-            [ $(jq '.vulnerability.lowCount + .vulnerability.mediumCount + .vulnerability.highCount + .vulnerability.criticalCount' result.json) -ne 0 ] && fail_vul=true
+            [ $(jq '.vulnerabilities.lowCount + .vulnerabilities.mediumCount + .vulnerabilities.highCount + .vulnerabilities.criticalCount' result.json) != "0" ] && fail_vul=true
 
-          [ $(jq '.malware.scanResult' result.json) -ne 0 ] && fail_mal=true
+          # Check for malware
+          [ $(jq '.malware.scanResult' result.json) != "0" ] && fail_mal=true
 
-          [ "$fail_vul" = true ] && echo !!! Vulnerability threshold exceeded !!! > vulnerabilities || true
-          [ "$fail_mal" = true ] && echo !!! Malware found !!! > malware || true
+          # Check for secrets
+          [ $(jq '.secrets.unmitigatedFindingsCount' result.json) != "0" ] && fail_sec=true
+
+          # If there are findings create the message files which are relevant for the Fail Action
+          [ "$fail_vul" = "true" ] && echo "*** Vulnerability threshold exceeded ***" > vulnerabilities || true
+
+          [ "$fail_mal" = "true" ] && echo "*** Malware found ***" > malware || true
+
+          [ "$fail_sec" = "true" ] && echo "*** Secrets found ***" > secrets || true
 
       # Upload Scan Result and SBOM Artifact if available.
       - name: Upload Scan Result Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: scan-result
           path: result.json
           retention-days: 30
 
       - name: Upload SBOM Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sbom
           path: sbom.json
           retention-days: 30
 
-      # Fail the workflow if malware found or the vulnerability threshold reached.
+      # Fail the workflow if malwares/secrets found or the vulnerability threshold reached.
       - name: Fail Action
         run: |
           if [ "$FAIL_ACTION" = true ]; then
             if [ -f "malware" ]; then cat malware; fi
+            if [ -f "secrets" ]; then cat secrets; fi
             if [ -f "vulnerabilities" ]; then cat vulnerabilities; fi
-            if [ -f "malware" ] || [ -f "vulnerabilities" ]; then exit 1; fi
+            if [ -f "malware" ] || [ -f "secrets" ] || [ -f "vulnerabilities" ]; then exit 1; fi
           fi
 
-      # Login to the registry.
-      - name: Login to the Container registry
+      # Login to the registry. Here we use ghrc
+      - name: Login to the GitHub Container registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -193,7 +211,11 @@ jobs:
       # Rescan in the registry to support admission control
       - name: Registry Scan
         run: |
-          tmas scan -V "$(if [ "$MALWARE_SCAN" = true ]; then echo "-M"; fi)" -r "$REGION" -p linux/amd64 registry:${{ steps.meta.outputs.tags }} || true
+          tmas scan \
+            -V \
+            "$(if [ "$MALWARE_SCAN" = true ]; then echo "-M"; fi)" \
+            "$(if [ "$SECRETS_SCAN" = true ]; then echo "-S"; fi)" \
+            -r "$REGION" -p linux/amd64 registry:${{ steps.meta.outputs.tags }} || true
 ```
 
 ### Secrets
@@ -281,7 +303,7 @@ Next, ensure to have your Container Security policy set with the following prope
 
 ![alt text](images/action-policy.png "Policy")
 
-### Try deployment
+### Try the Deployment
 
 Assuming you have access to a Kubernetes cluster with Vision One Container Security deployed and a policy assigned with the setting from above, you can now run
 
@@ -289,12 +311,6 @@ Assuming you have access to a Kubernetes cluster with Vision One Container Secur
 kubectl run --image=ghcr.io/<GITHUB_USERNAME>/<GITHUB_REPO_NAME>:<IMAGE_TAG> action
 ```
 
-This should result in the following error message since Container Security blocks the deploament:
-
-```sh
-Error from server: admission webhook "trendmicro-admission-controller.trendmicro-system.svc" denied the request: 
-- malware violates rule with properties { count:0 } in container(s) "nginx" (block).
-- vulnerabilities violates rule with properties { max-severity:high } in container(s) "nginx" (block).
-```
+This should result in an error message since Container Security blocks the deployment.
 
 🎉 Success 🎉

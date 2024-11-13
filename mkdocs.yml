@@ -27,10 +27,6 @@ nav:
     - Attack Surface Risk Management:
       - Virtual Instance Predictive Attack Path: scenarios/asrm/virtual-machine-attack-path.md
       - IAM User Predictive Attack Path: scenarios/asrm/iam-user-attack-path.md
-      - Posture Management:
-        - Terraform IaC Scanning with a GitHub Action: scenarios/asrm/pm/template-scanning-terraform-github-action.md
-        - CloudFormation IaC Scanning with a GitHub Action: scenarios/asrm/pm/template-scanning-cfn-github-action.md
-        - Exception Handling with Pipline Scanning: scenarios/asrm/pm/template-scanning-exception-handling.md
     - XDR Threat Investigation:
       - CloudTrail: scenarios/xdr/cloudtrail.md
       - Automated Observed Attack Techniques Generation: scenarios/xdr/oat-generation.md
@@ -62,6 +58,11 @@ nav:
         - Integrate Workload Security with Vision One: scenarios/endpoint-security/workload-security/ws-integrate.md
         # - Migrate Workload Security to Vision One: scenarios/endpoint-security/workload-security/ws-migrate.md
     - Cloud Security:
+      - Posture Management:
+        - Terraform IaC Scanning with a GitHub Action: scenarios/cloud-security/pm/template-scanning-terraform-github-action.md
+        - CloudFormation IaC Scanning with a GitHub Action: scenarios/cloud-security/pm/template-scanning-cfn-github-action.md
+        - Exception Handling with Pipline Scanning: scenarios/cloud-security/pm/template-scanning-exception-handling-v1.md
+        - Exception Handling with Pipline Scanning (Cloud One): scenarios/cloud-security/pm/template-scanning-exception-handling-c1.md
       - Container Security:
         - EKS:
           - Escape to Host System: scenarios/cloud-security/container-security/eks/escape.md
