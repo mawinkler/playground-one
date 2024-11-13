@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 import argparse
 import json
+import logging
 import os
 import os.path
 import sys
-import logging
-import requests
 import textwrap
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
+
+import requests
 
 # from pprint import pprint as pp
 

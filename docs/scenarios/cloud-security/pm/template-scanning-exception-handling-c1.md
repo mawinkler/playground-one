@@ -1,14 +1,12 @@
 # Scenario: Terraform IaC Scanning in Pipelines with Exception Handling (Cloud One)
 
-***DRAFT***
-
 !!! danger "Warning!"
 
-    This scenario does use Cloud One Conformity! The current Vision One Cloud Posture API doesn't support setting a scan profile yet. When this functionality is getting available this scenario will be updated.
+    This scenario does use Cloud One Conformity! For Vision One Cloud Posture Template Scanning use the scenario above!
 
 ## Prerequisites
 
-- Clouud One API-Key with the following permissions:
+- Cloud One API-Key with the following permissions:
     - Conformity
         - Full-Access
 
@@ -86,20 +84,20 @@ The scripts are located in the `cspm`-directory and assume, that all exeption ar
   # /HERE
   ```
 
-  - Get your `ACCOUNT_ID`:
+- Get your `ACCOUNT_ID`:
 
-    ```sh
-    curl --location 'https://conformity.trend-us-1.cloudone.trendmicro.com/api/accounts' \
-        --header 'Content-Type: application/vnd.api+json' \
-        --header 'Authorization: ApiKey <YOUR API KEY>'
-    ```
-  - Get the `SCAN_PROFILE_ID` and `SCAN_PROFILE_NAME`:
+  ```sh
+  curl --location 'https://conformity.trend-us-1.cloudone.trendmicro.com/api/accounts' \
+      --header 'Content-Type: application/vnd.api+json' \
+      --header 'Authorization: ApiKey <YOUR API KEY>'
+  ```
+- Get the `SCAN_PROFILE_ID` and `SCAN_PROFILE_NAME`:
 
-    ```sh
-    curl --location 'https://conformity.trend-us-1.cloudone.trendmicro.com/api/profiles' \
-    --header 'Content-Type: application/vnd.api+json' \
-    --header 'Authorization: ApiKey <YOUR API KEY>'
-    ```
+  ```sh
+  curl --location 'https://conformity.trend-us-1.cloudone.trendmicro.com/api/profiles' \
+  --header 'Content-Type: application/vnd.api+json' \
+  --header 'Authorization: ApiKey <YOUR API KEY>'
+  ```
 
 ### Using Name-Tags
 
@@ -191,8 +189,6 @@ $ ./scanner_c1_name.py --suppress
 
 The above suppressed the findings for a week. Running the script with the `--expire` flag will check all the suppressions and if a suppression is expired, it will remove the exception from the scan profile, simulating an expired exception.
 
-> ***Note:*** For demoing purposes, the script fast forwards the time by 8 days to immedeately expire the exceptions. This is defined by the constant `TIMESHIFT_DAYS` in the script.
-
 ```sh
 # Suppressions are active for 1 week
 $ ./scanner_c1_name.py --expire
@@ -207,7 +203,7 @@ $ ./scanner_c1_name.py --reset
 $ ./scanner_c1_name.py --expire
 ```
 
-### Using UUID-Tags (more ecure)
+### Using UUID-Tags (more secure)
 
 ```sh
 # Run template scan
@@ -326,8 +322,6 @@ $ ./scanner_c1_uuid.py --suppress
 
 The above suppressed the findings for a week. Running the script with the `--expire` flag will check all the suppressions and if a suppression is expired, it will remove the exception from the scan profile, simulating an expired exception.
 
-> ***Note:*** For demoing purposes, the script fast forwards the time by 8 days to immedeately expire the exceptions. This is defined by the constant `TIMESHIFT_DAYS` in the script.
-
 ```sh
 # Suppressions are active for 1 week
 $ ./scanner_c1_uuid.py --expire
@@ -341,3 +335,5 @@ $ ./scanner_c1_uuid.py --destroy 2-network
 $ ./scanner_c1_uuid.py --reset
 $ ./scanner_c1_uuid.py --expire
 ```
+
+🎉 Success 🎉

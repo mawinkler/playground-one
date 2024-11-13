@@ -2,9 +2,11 @@
 
 ## Prerequisites
 
-- Clouud One API-Key with the following permissions:
-    - Conformity
-        - Full-Access
+- Vision One API-Key with the following permissions:
+    - Attack Surface Risk Management
+        - Cloud Posture
+            - View
+            - Configure settings
 
 The provided Python scripts implement the required functionality for Terraform Template Scanning, Exception approval workflows and temporary suppression of findings in Conformity Account Profile. It mainly focuses on the logic to support these kind of scenarios and cannot be used 1-to-1 in real life pipelines without modifications. The implementation assumes that an external workflow engine such as ServiceNow is used for approval workflows, which include an expiration set on the specific exception.
 
@@ -80,22 +82,22 @@ The scripts are located in the `cspm`-directory and assume, that all exeption ar
   # /HERE
   ```
 
-  - Get your `ACCOUNT_ID`:
+- Get your `ACCOUNT_ID`:
 
-    ```sh
-    curl -s --location "https://api.xdr.trendmicro.com/beta/cloudPosture/accounts" \
-      --header 'Content-Type: application/json;charset=utf-8' \
-      --header "Authorization: Bearer ${V1CSPM_SCANNER_KEY}" | \
-      jq -r '.items[] | .id + ": " + .name'
-    ```
-  - Get the `SCAN_PROFILE_ID` and `SCAN_PROFILE_NAME`:
+  ```sh
+  curl -s --location "https://api.xdr.trendmicro.com/beta/cloudPosture/accounts" \
+    --header 'Content-Type: application/json;charset=utf-8' \
+    --header "Authorization: Bearer ${V1CSPM_SCANNER_KEY}" | \
+    jq -r '.items[] | .id + ": " + .name'
+  ```
+- Get the `SCAN_PROFILE_ID` and `SCAN_PROFILE_NAME`:
 
-    ```sh
-    curl -s --location "https://api.xdr.trendmicro.com/beta/cloudPosture/profiles" \
-      --header 'Content-Type: application/json;charset=utf-8' \
-      --header "Authorization: Bearer ${V1CSPM_SCANNER_KEY}" | \
-      jq -r '.items[] | .id + ": " + .name'
-    ```
+  ```sh
+  curl -s --location "https://api.xdr.trendmicro.com/beta/cloudPosture/profiles" \
+    --header 'Content-Type: application/json;charset=utf-8' \
+    --header "Authorization: Bearer ${V1CSPM_SCANNER_KEY}" | \
+    jq -r '.items[] | .id + ": " + .name'
+  ```
 
 ### Using Name-Tags
 
@@ -203,7 +205,7 @@ $ ./scanner_v1_name.py --reset
 $ ./scanner_v1_name.py --expire
 ```
 
-### Using UUID-Tags (more ecure)
+### Using UUID-Tags (more secure)
 
 ```sh
 # Run template scan
@@ -337,3 +339,5 @@ $ ./scanner_v1_uuid.py --destroy 2-network
 $ ./scanner_v1_uuid.py --reset
 $ ./scanner_v1_uuid.py --expire
 ```
+
+🎉 Success 🎉
