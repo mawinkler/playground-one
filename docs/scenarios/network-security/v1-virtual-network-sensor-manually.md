@@ -6,7 +6,7 @@
 
 ## Traffic Mirror on AWS
 
-In an on-premises environment, you would connect the data port of a Deep Discovery Inspector to a single mirror port to capture all traffic on that switch.
+In an on-premises environment, you would connect the data port of network inspecting device to a single mirror port to capture all traffic on that switch.
 
 In AWS, you can achieve similar functionality to a switch mirror port by using Traffic Mirroring on Elastic Network Interfaces (ENIs). This feature allows you to capture and inspect network traffic by mirroring it to another interface running monitoring software, such as our Inspector. However, unlike physical switches, in AWS you must explicitly configure traffic mirroring for each ENI you want to monitor.
 
@@ -450,3 +450,5 @@ Head over to XDR Threat Investigation -> Observed Attack Techniques.
 Set the Risk Level to include `Medium` and Datasource to `Network -> Network Sensor`. The following detection should pop up:
 
 ![alt text](images/vns-detection-01.png "Detection")
+
+🎉 Success 🎉

@@ -214,3 +214,5 @@ Head over to XDR Threat Investigation -> Observed Attack Techniques.
 Set the Risk Level to include `Medium` and Datasource to `Network -> Network Sensor`. The following detection should pop up:
 
 ![alt text](images/vns-detection-01.png "Detection")
+
+🎉 Success 🎉

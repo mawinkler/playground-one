@@ -12,11 +12,6 @@
 
     This scenario uses Playground Ones own S3 Bucket Scanner which is ***not*** the official solution component of Vision One. It uses the File Security Python SDK within a Lambda Function. Scan results will show up on the Vision One console.
 
-## Limitations
-
-- Maximum file size 1GB
-- The scanned files are neither tagged nor quarantined, just scanned.
-
 ## Architecture
 
 The scanner consists out of the following components:
@@ -25,6 +20,7 @@ The scanner consists out of the following components:
 - The function uses a custom layer containing the required dependencies including the SDK.
 - An S3 Bucket with the permission to notify the Lambda.
 - An IAM Role and Policy.
+- The scanned files are tagged
 
 > ***Note:*** Lambda will use Python 3.11
 
@@ -37,6 +33,7 @@ import json
 import os
 import time
 import urllib.parse
+from datetime import datetime
 
 import amaas.grpc
 import boto3
@@ -45,12 +42,17 @@ v1_region = os.getenv("V1_REGION")
 v1_api_key = os.getenv("V1_API_KEY")
 
 s3 = boto3.resource("s3")
+s3_client = boto3.client("s3")
+
+
+FSS_TAG_PREFIX = "fss-"
 
 
 def lambda_handler(event, context):
 
-    print(f"event -> {str(event)}")
-
+    # create v1fs connection handle
+    # handle = amaas.grpc.init(v1_amaas_server, v1_api_key, True)
+    # or use v1 regions
     handle = amaas.grpc.init_by_region(v1_region, v1_api_key, True)
 
     for record in event["Records"]:
@@ -68,6 +70,8 @@ def lambda_handler(event, context):
             # Load file into a buffer
             buffer = s3object.get().get("Body").read()
 
+            print(f"executing scan on {key}.")
+
             s = time.perf_counter()
 
             # Scan the file
@@ -82,10 +86,42 @@ def lambda_handler(event, context):
                 digest=digest,
             )
 
-            scan_result = json.loads(scan_resp)
+            response = json.loads(scan_resp)
+
+            scanning_result = response.get("result")
+            findings = scanning_result.get("atse").get("malwareCount")
+            scan_result = "malicious" if findings else "no issues found"
+            scan_date = datetime.strftime(
+                datetime.fromisoformat(response.get("timestamp").get("end")), "%m/%d/%Y %H:%M:%S"
+            )
+            malware_name = scanning_result.get("atse").get("malware")[0].get("name") if findings else "n/a"
+
+            tags = [
+                f"{FSS_TAG_PREFIX}scanned=true",
+                f"{FSS_TAG_PREFIX}scan-date={scan_date}",
+                f"{FSS_TAG_PREFIX}scan-result={scan_result}",
+                f"{FSS_TAG_PREFIX}scan-detail-code={malware_name}",
+            ]
+
             elapsed = time.perf_counter() - s
+
+            existing_tags = s3_client.get_object_tagging(Bucket=bucket, Key=key)
+
+            # Merge existing tags with new ones
+            merged_tags = existing_tags.get("TagSet") + tags
+
+            # Remove duplicates (if needed)
+            merged_tags = list(set(merged_tags))
+
+            # Convert to TagSet format
+            key_value_dict = [{"Key": item.split("=")[0], "Value": item.split("=")[1]} for item in merged_tags]
+
+            # Put tags on object
+            s3_client.put_object_tagging(Bucket=bucket, Key=key, Tagging={"TagSet": key_value_dict})
+
             print(f"scan executed in {elapsed:0.2f} seconds.")
             print(f"scan result -> {str(scan_result)}")
+            print(f"tags -> {str(merged_tags)}")
 
         except Exception as e:
             print(e)
@@ -129,6 +165,27 @@ SCANNING_BUCKET=pgo-id-scanning-bucket-2kn1vopd
 wget https://secure.eicar.org/eicarcom2.zip
 aws s3 cp eicarcom2.zip s3://${SCANNING_BUCKET}/eicarcom2.zip
 ```
+
+## Example Tags
+
+Malware | Key | Value
+------- | --- | -----
+Eicar | fss-scan-detail-code | OSX_EICAR.PFH
+|| fss-scan-date | 11/14/2024 10:57:18
+|| fss-scan-result | malicious
+|| fss-scanned | true
+|||
+Qjwmonkey | fss-scan-detail-code | PUA.Win32.Qjwmonkey.GZ
+|| fss-scan-date | 11/14/2024 10:57:17
+|| fss-scan-result | malicious
+|| fss-scanned | true
+|||
+Clean file | fss-scan-detail-code | n/a
+|| fss-scan-date | 11/14/2024 11:04:53
+|| fss-scan-result | no issues found
+|| fss-scanned | true
+
+The tested Clean file was a 1.8GB mkv which was scanned in 8.23 secs.
 
 ## Check on Vision One
 
