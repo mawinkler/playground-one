@@ -108,6 +108,14 @@ Vulnerabilities | grype | See [github.com/anchore/grype](https://github.com/anch
 
 ## Change Log
 
+***0.4.8***
+
+*Changes*
+
+- Bump Kubernetes on AWS to 1.31
+- Upgrade Vision One Terraform provider to 1.0.4
+- Enable Runtime Malware Scanning in V1CS
+
 ***0.4.7***
 
 *Changes*
