@@ -41,6 +41,10 @@ resource "helm_release" "trendmicro" {
     value = visionone_container_cluster.terraform_cluster.vulnerability_scan_enabled
   }
   set {
+    name  = "cloudOne.malwareScanning.enabled"
+    value = visionone_container_cluster.terraform_cluster.malware_scan_enabled
+  }
+  set {
     name  = "cloudOne.inventoryCollection.enabled"
     value = visionone_container_cluster.terraform_cluster.inventory_collection
   }
