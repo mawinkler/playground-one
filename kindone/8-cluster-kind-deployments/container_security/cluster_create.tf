@@ -7,6 +7,8 @@ resource "helm_release" "container_security" {
   name         = "container-security"
   namespace    = var.namespace
   reuse_values = true
+  wait         = false
+  timeout      = 600
 
   set {
     name  = "cloudOne.apiKey"
@@ -41,6 +43,21 @@ resource "helm_release" "container_security" {
   set {
     name  = "cloudOne.runtimeSecurity.enabled"
     value = true
+  }
+
+  set {
+    name  = "cloudOne.malwareScanning.enabled"
+    value = true
+  }
+
+  set {
+    name  = "cloudOne.policyOperator.enabled"
+    value = true
+  }
+
+  set {
+    name  = "cloudOne.policyOperator.clusterPolicyName"
+    value = "trendmicro-cluster-policy"
   }
 
   set {

@@ -11,7 +11,8 @@ resource "restapi_object" "cluster" {
     {
       "name": "${local.cluster_name}",
       "description": "Playground Cluster",
-      "policyID": "${local.cluster_policy}"
+      "policyID": "${local.cluster_policy}",
+      "groupId": "${var.group_id}"
     }
   EOT
 }

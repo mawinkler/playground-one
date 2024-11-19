@@ -1,11 +1,12 @@
 resource "visionone_container_cluster" "terraform_cluster" {
   provider                   = visionone.container_security
   name                       = replace(var.cluster_name, "-", "_")
-  description                = "by Terraform Provider"
+  description                = "PlaygroundOne"
   policy_id                  = local.cluster_policy
   group_id                   = var.group_id
   runtime_security_enabled   = true
   vulnerability_scan_enabled = true
+  malware_scan_enabled       = true
   namespaces                 = ["kube-system"]
   # namespaces                 = ["kube-system", "calico-system", "calico-apiserver", "tigera-operator"]
 }
@@ -15,6 +16,8 @@ resource "helm_release" "trendmicro" {
   chart            = "https://github.com/trendmicro/cloudone-container-security-helm/archive/master.tar.gz"
   namespace        = var.namespace
   create_namespace = true
+  wait             = false
+  timeout          = 600
 
   set {
     name  = "cloudOne.apiKey"

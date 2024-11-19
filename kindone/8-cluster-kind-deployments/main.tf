@@ -15,6 +15,7 @@ data "terraform_remote_state" "kind" {
 #   cluster_name   = data.terraform_remote_state.kind.outputs.cluster_name
 #   cluster_policy = var.cluster_policy
 #   api_key        = var.api_key
+#   group_id       = var.group_id
 
 #   providers = {
 #     restapi.container_security = restapi.container_security
@@ -46,8 +47,8 @@ module "calico" {
 module "metallb" {
   count = var.metallb ? 1 : 0
 
-  source                  = "./metallb"
-  namespace               = "metallb-system"
+  source    = "./metallb"
+  namespace = "metallb-system"
 }
 
 module "trivy" {
@@ -59,8 +60,8 @@ module "trivy" {
 }
 
 module "prometheus" {
-  depends_on = [ module.metallb ]
-  count = var.prometheus ? 1 : 0
+  depends_on = [module.metallb]
+  count      = var.prometheus ? 1 : 0
 
   source                 = "./prometheus"
   environment            = var.environment

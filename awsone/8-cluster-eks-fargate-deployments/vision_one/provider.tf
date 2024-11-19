@@ -10,7 +10,7 @@ terraform {
     }
     visionone = {
       source                = "trendmicro/vision-one"
-      version               = "~> 1.0.3"
+      version               = "~> 1.0.4"
       configuration_aliases = [visionone.container_security]
     }
   }

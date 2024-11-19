@@ -15,6 +15,7 @@ data "terraform_remote_state" "eks" {
 #   cluster_name   = data.terraform_remote_state.eks.outputs.cluster_name
 #   cluster_policy = var.cluster_policy
 #   api_key        = var.api_key
+#   group_id       = var.group_id
 
 #   providers = {
 #     restapi.container_security = restapi.container_security
