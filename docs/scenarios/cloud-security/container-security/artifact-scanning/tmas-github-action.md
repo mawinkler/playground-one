@@ -48,7 +48,7 @@ On the next screen you change the name to something shorter like `action`. Then 
 
 The repo containes a very simple Dockerfile and a hidden directory `.github/workflows` with a `yaml`-file.
 
-The Dockerfile specifies the image to build. As we can easily see, it is using the latest `nginx` as the base image and just adds (very obviously) an Eicar.
+The Dockerfile specifies the image to build. As we can easily see, it is using the latest `ubuntu` as the base image and just adds (very obviously) an Eicar.
 
 ```Dockerfile
 FROM ubuntu:latest
@@ -228,7 +228,7 @@ Add the following secret:
 
 ### Template
 
-Below, the workflow tamplate. Adapt it to your needs and save it as a `yaml`-file in the `.github/workflow` directory.
+Below, the workflow template. Adapt it to your needs and save it as a `yaml`-file in the `.github/workflow` directory.
 
 Adapt the environment variables in the `env:`-section as required.
 

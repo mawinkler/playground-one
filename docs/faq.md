@@ -272,7 +272,7 @@ Link: [Trend Micro Business Success Portal](https://success.trendmicro.com/dcx/s
 So, this depends, but typically is easy. Actually, it depends on the `/var/run/docker.sock` available on the host and therefore on the container engine you're using. Depending on the runtime the socket does have different ACLs set. Check them by running
 
 ```sh
-ls -l /var/run/docker.sock`
+ls -l /var/run/docker.sock
 ```
 
 ```sh
@@ -280,9 +280,9 @@ ls -l /var/run/docker.sock`
 srw-rw---- 1 root docker 0 Oct  7 09:44 /var/run/docker.sock
 ```
 
-The above is fine, since the `pgo` user inside the container is member of the `docker` group. A `docker ps` for example should succeed.
+The above is fine, since the `pgo` user inside the container is member of the `docker` group. A `docker ps` should succeed.
 
-In some cases, for example when you're using Docker Desktop on the sockets ACLs are set to `root.root` and a `docker ps` inside the container will fail because the `pgo` user is neither `root` nor in the `root` group.
+In some cases, such as when you're using Docker Desktop the sockets ACLs are set to `root.root` and a `docker ps` inside the container will fail because the `pgo` user is neither `root` nor in the `root` group.
 
 To use the `docker` cli in such a situation you can switch to the root context inside the container doing the following:
 
