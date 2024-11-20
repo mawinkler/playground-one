@@ -1,0 +1,8 @@
+group=$(ls -l /var/run/docker.sock | cut -d' ' -f4)
+
+if grep -q "${group}" "/etc/group"; then
+  echo "Group present"
+else
+  echo "Adding group"
+  echo "docker4pgo:x:${group}:pgo" | sudo tee -a /etc/group
+fi

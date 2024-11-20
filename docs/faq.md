@@ -1,6 +1,54 @@
 # Frequently asked Questions
 
-## How to update the Playgound One?
+## How to update the Playgound One Container
+
+Typically, a complete upgrade of the Playground One Container is not necessary, since you can easily update the *"internals"* of the container at runtime.
+
+***Update the Internals***
+
+Being inside the container do the following:
+
+- Ideally destroy applied infrastructure. This is not a must but if you can you'd avoid some potential trouble later on.
+    ```sh
+    # Destroy your deployments
+    pgo --destroy all
+
+    # Destroy your network
+    pgo --destroy nw
+    ```
+
+- Change to the `playground-one` directory.
+
+    ```sh
+    # Do the update
+    cd ${ONEPATH}
+    ```
+
+- Run `git pull` to update the Playground One.
+- Run `pgo --init all` to upgrade the Terraform Providers.
+
+    ```sh
+    # Do the update
+    git pull
+    pgo --init all
+    ```
+
+- Continue playing 🎡.
+
+***Upgrade the Container***
+
+Updating the container or changing to a different release of the container can be done following these steps:
+
+- Edit the file `.PGO_VERSION` to set the version you want (e.g. `0.4.8`).
+- Run `./pgoc update`
+   - This will backup your current `workdir` and save your `config.yaml`.
+   - The desired version of the container is pulled and a new `workdir` is created.
+   - The previous `config.yaml` is restored alongside the possibly existing `.aws` config.
+- Start the new container with `./pgoc start` and login via ssh. You likely get an error when connecting with ssh. If so, delete the offending line in `~/.ssh/known_hosts` and retry.
+- Run `pgo --init all` to upgrade the Terraform Providers.
+- Continue playing 🎠.
+
+## How to update the Playgound One when running Natively?
 
 The Playground is under contiuous development. Even if I try to not implement breaking changes please follow the steps below ***before*** updating it to the latest version:
 
@@ -15,8 +63,8 @@ pgo --destroy nw
 cd ${ONEPATH}
 git pull
 
-# Run config
-pgo --config
+# Update Terraform Providers
+pgo --init all
 ```
 
 If everything went well you should be able to recreate your environment. If you run into trouble please open an [issue](https://github.com/mawinkler/playground-one/issues/new).
@@ -218,3 +266,34 @@ AU   | Australia        | Australia Central          | Sidney, Australia
 IN   | India            | Mumbai                     | Mumbai
 
 Link: [Trend Micro Business Success Portal](https://success.trendmicro.com/dcx/s/solution/000296614?language=en_US)
+
+## How to use Docker inside the Playground One Container?
+
+So, this depends, but typically is easy. Actually, it depends on the `/var/run/docker.sock` available on the host and therefore on the container engine you're using. Depending on the runtime the socket does have different ACLs set. Check them by running
+
+```sh
+ls -l /var/run/docker.sock`
+```
+
+```sh
+# On Ubuntu
+srw-rw---- 1 root docker 0 Oct  7 09:44 /var/run/docker.sock
+```
+
+The above is fine, since the `pgo` user inside the container is member of the `docker` group. A `docker ps` for example should succeed.
+
+In some cases, for example when you're using Docker Desktop on the sockets ACLs are set to `root.root` and a `docker ps` inside the container will fail because the `pgo` user is neither `root` nor in the `root` group.
+
+To use the `docker` cli in such a situation you can switch to the root context inside the container doing the following:
+
+```sh
+sudo su -
+```
+
+If the ACL of the socket is something else than `root.docker` or `root.root` you can also try the following command:
+
+```sh
+docker4pgo
+```
+
+The above checks the group of the socket, creates this group inside the container and adds the `pgo` user to this group. Now, exit the container and reconnect. Ideally, it does work now.

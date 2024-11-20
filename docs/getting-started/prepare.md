@@ -25,9 +25,11 @@ First, start a terminal and make sure you have a running container engine. To ch
 > 
 > Example:
 >
-> `echo "0.2" >.PGO_VERSION`
+> `echo "0.4.8" >.PGO_VERSION`
 
-Then simply run
+### Get the Playground One Container
+
+Simply run
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/get_pgoc.sh | bash
@@ -105,18 +107,7 @@ az login --use-device-code
 
 Stopping the container is possible with `./pgoc stop`, to start it again just run `./pgoc start`.
 
-> ***Note***: Updating the container or changing to a different release of the container can be done following these steps:
->
-> 1. Edit the file `.PGO_VERSION` to set the version you want (e.g. `0.2`).
-> 2. Run `./pgoc update`
->    1. This will backup your current `workdir` and save your `config.yaml`.
->    2. The desired version of the container is pulled and a new `workdir` is created.
->    3. The previous `config.yaml` is restored alongside the possibly existing `.aws` config.
-> 3. Start the new container with `./pgoc start` and login via ssh.
-> 
-> You likely get an error when connecting with ssh. If so, delete the offending line in `~/.ssh/known_hosts` and retry.
-
-Then, continue with [Configuration](configuration.md).
+On how to keep the Container Up-to-date, see the [FAQ](https://mawinkler.github.io/playground-one-pages/faq/#how-to-update-the-playgound-one-container).
 
 ## Advanced but native
 
