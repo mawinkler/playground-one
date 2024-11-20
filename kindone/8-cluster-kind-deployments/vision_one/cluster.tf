@@ -2,7 +2,7 @@ resource "visionone_container_cluster" "terraform_cluster" {
   provider                   = visionone.container_security
   name                       = replace(var.cluster_name, "-", "_")
   description                = "PlaygroundOne"
-  policy_id                  = local.cluster_policy
+  # policy_id                  = local.cluster_policy
   group_id                   = var.group_id
   runtime_security_enabled   = true
   vulnerability_scan_enabled = true
@@ -45,6 +45,16 @@ resource "helm_release" "trendmicro" {
   }
 
   # PGO
+  set {
+    name  = "cloudOne.policyOperator.enabled"
+    value = true
+  }
+
+  set {
+    name  = "cloudOne.policyOperator.clusterPolicyName"
+    value = "trendmicro-cluster-policy"
+  }
+
   set {
     name  = "cloudOne.oversight.syncPeriod"
     value = "600s"
