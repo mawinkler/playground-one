@@ -60,8 +60,8 @@ The scenarios offer two different terraform configurations that you can play wit
 
 There are two variants implemented which differ in their approach to identity AWS resources to build:
 
-- `scanner_v1_name.py`: Simply uses name tags on the resources.
-- `scanner_v1_uuid.py`: Automatically creates an unique `uuid`-tag for the resources which need to be assigned manually to the resource before deployment to be compliant.
+- `tfscanner_exceptions_v1_name.py`: Simply uses name tags on the resources.
+- `tfscanner_exceptions_v1_uuid.py`: Automatically creates an unique `uuid`-tag for the resources which need to be assigned manually to the resource before deployment to be compliant.
 
 The scripts are located in the `cspm`-directory and assume, that all exeption are granted and expire after seven days.
 
@@ -107,7 +107,7 @@ Here's the quick run-through:
 
 ```sh
 # Run template scan
-$ ./scanner_v1_name.py --scan 2-network
+$ ./tfscanner_exceptions_v1_name.py --scan 2-network
 ```
 
 This produces the following output:
@@ -124,7 +124,7 @@ For now, let's assume the user did run through an approval workflow for the abov
 
 ```sh
 # Run approval workflows in engine, here implementing the approved workflow
-$ ./scanner_v1_name.py --exclude 2-network
+$ ./tfscanner_exceptions_v1_name.py --exclude 2-network
 ```
 
 ```sh
@@ -162,7 +162,7 @@ A subsequent template scan should now pass without findings and the template is 
 
 ```sh
 # Run template scan again to verify that the scan result is clean
-$ ./scanner_v1_name.py --scan 2-network
+$ ./tfscanner_exceptions_v1_name.py --scan 2-network
 ```
 
 ```sh
@@ -174,17 +174,17 @@ Now, lets apply the configuration and trigger a bot run:
 
 ```sh
 # Apply configuration
-$ ./scanner_v1_name.py --apply 2-network
+$ ./tfscanner_exceptions_v1_name.py --apply 2-network
 
 # Trigger bot run
-$ ./scanner_v1_name.py --bot
+$ ./tfscanner_exceptions_v1_name.py --bot
 ```
 
 Even if the scan was clean, the bot will still identify violations since the bot uses the account and not the scanning template. To temporarily suppress the findings run:
 
 ```sh
 # Suppress findings
-$ ./scanner_v1_name.py --suppress
+$ ./tfscanner_exceptions_v1_name.py --suppress
 ```
 
 The above suppressed the findings for a week. Running the script with the `--expire` flag will check all the suppressions and if a suppression is expired, it will remove the exception from the scan profile, simulating an expired exception.
@@ -193,23 +193,23 @@ The above suppressed the findings for a week. Running the script with the `--exp
 
 ```sh
 # Suppressions are active for 1 week
-$ ./scanner_v1_name.py --expire
+$ ./tfscanner_exceptions_v1_name.py --expire
 ```
 
 To do a cleanup and remove the suppressions and exceptions run:
 
 ```sh
 # Cleanup
-$ ./scanner_v1_name.py --destroy 2-network
-$ ./scanner_v1_name.py --reset
-$ ./scanner_v1_name.py --expire
+$ ./tfscanner_exceptions_v1_name.py --destroy 2-network
+$ ./tfscanner_exceptions_v1_name.py --reset
+$ ./tfscanner_exceptions_v1_name.py --expire
 ```
 
 ### Using UUID-Tags (more secure)
 
 ```sh
 # Run template scan
-$ ./scanner_v1_uuid.py --scan 2-network
+$ ./tfscanner_exceptions_v1_uuid.py --scan 2-network
 ```
 
 This produces the following output:
@@ -226,7 +226,7 @@ For now, let's assume the user did run through an approval workflow for the abov
 
 ```sh
 # Run approval workflows in engine, here implementing the approved workflow
-$ ./scanner_v1_uuid.py --exclude 2-network
+$ ./tfscanner_exceptions_v1_uuid.py --exclude 2-network
 ```
 
 ```sh
@@ -295,7 +295,7 @@ A subsequent template scan should now pass without findings and the template is 
 
 ```sh
 # Run template scan again to verify that the scan result is clean
-$ ./scanner_v1_uuid.py --scan 2-network
+$ ./tfscanner_exceptions_v1_uuid.py --scan 2-network
 ```
 
 The scan results are now clean:
@@ -309,17 +309,17 @@ Now, lets apply the configuration and trigger a bot run:
 
 ```sh
 # Apply configuration
-$ ./scanner_v1_uuid.py --apply 2-network
+$ ./tfscanner_exceptions_v1_uuid.py --apply 2-network
 
 # Trigger bot run
-$ ./scanner_v1_uuid.py --bot
+$ ./tfscanner_exceptions_v1_uuid.py --bot
 ```
 
 Even if the scan was clean, the bot will still identify violations since the bot uses the account and not the scanning template. To temporarily suppress the findings run:
 
 ```sh
 # Suppress findings
-$ ./scanner_v1_uuid.py --suppress
+$ ./tfscanner_exceptions_v1_uuid.py --suppress
 ```
 
 The above suppressed the findings for a week. Running the script with the `--expire` flag will check all the suppressions and if a suppression is expired, it will remove the exception from the scan profile, simulating an expired exception.
@@ -328,16 +328,16 @@ The above suppressed the findings for a week. Running the script with the `--exp
 
 ```sh
 # Suppressions are active for 1 week
-$ ./scanner_v1_uuid.py --expire
+$ ./tfscanner_exceptions_v1_uuid.py --expire
 ```
 
 To do a cleanup and remove the suppressions and exceptions run:
 
 ```sh
 # Cleanup
-$ ./scanner_v1_uuid.py --destroy 2-network
-$ ./scanner_v1_uuid.py --reset
-$ ./scanner_v1_uuid.py --expire
+$ ./tfscanner_exceptions_v1_uuid.py --destroy 2-network
+$ ./tfscanner_exceptions_v1_uuid.py --reset
+$ ./tfscanner_exceptions_v1_uuid.py --expire
 ```
 
 🎉 Success 🎉

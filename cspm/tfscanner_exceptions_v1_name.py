@@ -13,7 +13,7 @@ import requests
 
 DOCUMENTATION = """
 ---
-module: scanner_v1_name.py
+module: tfscanner_exceptions_v1_name.py
 
 short_description: Implements for following functionality:
     - Create Terrafrom Plan of Configuration and run Conformity Template Scan
@@ -60,33 +60,33 @@ author:
 
 EXAMPLES = """
 # Run template scan
-$ ./scanner_v1_name.py --scan 2-network
+$ ./tfscanner_exceptions_v1_name.py --scan 2-network
 
 # Run approval workflows in engine, here implementing the approved workflow
-$ ./scanner_v1_name.py --exclude 2-network
+$ ./tfscanner_exceptions_v1_name.py --exclude 2-network
 
 # Run template scan again to verify that the scan result is clean
-$ ./scanner_v1_name.py --scan 2-network
+$ ./tfscanner_exceptions_v1_name.py --scan 2-network
 
 # Apply configuration
-$ ./scanner_v1_name.py --apply 2-network
+$ ./tfscanner_exceptions_v1_name.py --apply 2-network
 
 # Trigger bot run
-$ ./scanner_v1_name.py --bot
+$ ./tfscanner_exceptions_v1_name.py --bot
 
 # Suppress findings
-$ ./scanner_v1_name.py --suppress
+$ ./tfscanner_exceptions_v1_name.py --suppress
 
 # Suppressions are active for 1 week
-$ ./scanner_v1_name.py --expire
+$ ./tfscanner_exceptions_v1_name.py --expire
 
 # Wait for suppressions to expire
-$ ./scanner_v1_name.py --expire
+$ ./tfscanner_exceptions_v1_name.py --expire
 
 # Cleanup
-$ ./scanner_v1_name.py --destroy 2-network
-$ ./scanner_v1_name.py --reset
-$ ./scanner_v1_name.py --expire
+$ ./tfscanner_exceptions_v1_name.py --destroy 2-network
+$ ./tfscanner_exceptions_v1_name.py --reset
+$ ./tfscanner_exceptions_v1_name.py --expire
 """
 
 RETURN = """
@@ -982,10 +982,10 @@ def main():
             Examples:
             --------------------------------
             # Run template scan
-            $ ./scanner_v1_name.py --scan 7-scenarios-cspm
+            $ ./tfscanner_exceptions_v1_name.py --scan 7-scenarios-cspm
 
             # trigger bot run
-            $ ./scanner_v1_name.py --bot
+            $ ./tfscanner_exceptions_v1_name.py --bot
             """
         ),
     )

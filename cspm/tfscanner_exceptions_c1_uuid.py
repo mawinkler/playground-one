@@ -15,7 +15,7 @@ import requests
 
 DOCUMENTATION = """
 ---
-module: scanner_c1_uuid.py
+module: tfscanner_exceptions_c1_uuid.py
 
 short_description: Implements for following functionality:
     - Create Terrafrom Plan of Configuration and run Conformity Template Scan
@@ -62,36 +62,36 @@ author:
 
 EXAMPLES = """
 # Run template scan
-$ ./scanner_c1_uuid.py --scan 2-network
+$ ./tfscanner_exceptions_c1_uuid.py --scan 2-network
 
 # Run approval workflows in engine, here implementing the approved workflow
-$ ./scanner_c1_uuid.py --exclude 2-network
+$ ./tfscanner_exceptions_c1_uuid.py --exclude 2-network
 
 # Now add the exclusion tags to the corresponding resources
 # in the Terraform template
 
 # Run template scan again to verify that the scan result is clean
-$ ./scanner_c1_uuid.py --scan 2-network
+$ ./tfscanner_exceptions_c1_uuid.py --scan 2-network
 
 # Apply configuration
-$ ./scanner_c1_uuid.py --apply 2-network
+$ ./tfscanner_exceptions_c1_uuid.py --apply 2-network
 
 # Trigger bot run
-$ ./scanner_c1_uuid.py --bot
+$ ./tfscanner_exceptions_c1_uuid.py --bot
 
 # Suppress findings
-$ ./scanner_c1_uuid.py --suppress
+$ ./tfscanner_exceptions_c1_uuid.py --suppress
 
 # Suppressions are active for 1 week
-$ ./scanner_c1_uuid.py --expire
+$ ./tfscanner_exceptions_c1_uuid.py --expire
 
 # Wait for suppressions to expire
-$ ./scanner_c1_uuid.py --expire
+$ ./tfscanner_exceptions_c1_uuid.py --expire
 
 # Cleanup
-$ ./scanner_c1_uuid.py --destroy 2-network
-$ ./scanner_c1_uuid.py --reset
-$ ./scanner_c1_uuid.py --expire
+$ ./tfscanner_exceptions_c1_uuid.py --destroy 2-network
+$ ./tfscanner_exceptions_c1_uuid.py --reset
+$ ./tfscanner_exceptions_c1_uuid.py --expire
 """
 
 RETURN = """
@@ -961,10 +961,10 @@ def main():
             Examples:
             --------------------------------
             # Run template scan
-            $ ./scanner_c1_uuid.py --scan 7-scenarios-cspm
+            $ ./tfscanner_exceptions_c1_uuid.py --scan 7-scenarios-cspm
 
             # trigger bot run
-            $ ./scanner_c1_uuid.py --bot
+            $ ./tfscanner_exceptions_c1_uuid.py --bot
             """
         ),
     )
