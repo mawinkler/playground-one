@@ -7,18 +7,18 @@ import os.path
 import sys
 import textwrap
 from datetime import UTC, datetime, timedelta
-
-# from pprint import pprint as pp
 from typing import Dict
 
 import requests
 
+# from pprint import pprint as pp
+
 DOCUMENTATION = """
 ---
-module: category_compliance_v1.py
+module: category_compliance_c1.py
 
 short_description: Implements for following functionality:
-    - Run Posture Management Bot and request status
+    - Run Conformity Bot and request status
     - Report Compliance status for Categories
 
 description:
@@ -26,8 +26,8 @@ description:
       and a minimum level of criticality.
 
 requirements:
-    - Set environment variable V1CSPM_SCANNER_KEY with the API key owning
-      Full Access to Posture Management.
+    - Set environment variable C1CSPM_SCANNER_KEY with the API key owning 
+      Full Access to Conformity.
     - Adapt the constants in between
       # HERE
       and
@@ -35,7 +35,7 @@ requirements:
       to your requirements
 
 options:
-  -h, --help    show this help message and exit
+  -h, --help        show this help message and exit
   --bot         scan account
   --botstatus   account bot status
   --compliance  retrieve compliance with category
@@ -46,10 +46,10 @@ author:
 
 EXAMPLES = """
 # Get the Compliance by Categories
-$ ./category_compliance_v1.py --compliance
+$ ./category_compliance_c1.py --compliance
 
-# Start the Posture Management Bot
-$ ./category_compliance_v1.py --bot
+# Start the Conformity Bot
+$ ./category_compliance_c1.py --bot
 """
 
 RETURN = """
@@ -68,19 +68,16 @@ logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 # HERE
-REGION = ""  # Examples: eu-central-1 or "" for us-east-1
-ACCOUNT_ID = "e37fe1b7-2b14-4b2c-96a4-db1bb2be8c8b"
+REGION = "trend-us-1"
+ACCOUNT_ID = "ed68602b-0eb1-4cbb-ad0b-64676877fadf"
 RISK_LEVEL_FAIL = "LOW"
 CREATED_LESS_THAN_DAYS = 90
 # /HERE
 
 # Do not change
 RISK_LEVEL = ["LOW", "MEDIUM", "HIGH", "VERY_HIGH", "EXTREME"]
-API_KEY = os.environ["V1CSPM_SCANNER_KEY"]
-if REGION == "us-east-1" or REGION == "":
-    API_BASE_URL = "https://api.xdr.trendmicro.com/beta/cloudPosture"
-else:
-    API_BASE_URL = f"https://api.{REGION}.xdr.trendmicro.com/beta/cloudPosture"
+API_KEY = os.environ["C1CSPM_SCANNER_KEY"]
+API_BASE_URL = f"https://conformity.{REGION}.cloudone.trendmicro.com/api"
 REQUESTS_TIMEOUTS = (2, 30)
 CATEGORIES = [
     "security",
@@ -126,24 +123,20 @@ class ConformityNotFoundError(ConformityError):
 class Connector:
     def __init__(self) -> None:
         self._headers = {
-            "Authorization": f"Bearer {API_KEY}",
-            "Content-Type": "application/json;charset=utf-8",
+            "Authorization": f"ApiKey {API_KEY}",
+            "Content-Type": "application/vnd.api+json",
         }
 
-    def get(self, url, params=None, filter=None):
+    def get(self, url):
         """Send an HTTP GET request to Conformity and check response for errors.
 
         Args:
             url (str): API Endpoint
         """
 
-        headers = self._headers
-        if filter is not None:
-            headers["TMV1-Filter"] = filter
-
         response = None
         try:
-            response = requests.get(url, headers=self._headers, params=params, verify=True, timeout=REQUESTS_TIMEOUTS)
+            response = requests.get(url, headers=self._headers, verify=True, timeout=REQUESTS_TIMEOUTS)
             self._check_error(response)
             response.raise_for_status()
         except requests.exceptions.HTTPError as errh:
@@ -172,7 +165,6 @@ class Connector:
         if not response.ok:
             match response.status_code:
                 case 400:
-                    print(response.text)
                     raise ConformityError("400 Bad request")
                 case 401:
                     raise ConformityAuthorizationError(
@@ -192,6 +184,8 @@ class Connector:
                     raise ConformityError("503 Service unavailable")
                 case _:
                     raise ConformityError(response.text)
+
+
 
 
 # #############################################################################
@@ -220,7 +214,7 @@ def bot_status_account() -> None:
 
     response = connector.get(url=url)
 
-    bot_status = response.get("scanStatus")
+    bot_status = response.get("data", {}).get("attributes", {}).get("bot-status")
 
     _LOGGER.info("Account Bot status: %s", bot_status)
 
@@ -233,39 +227,37 @@ def retrieve_bot_results():
 
     page_size = 200
     page_number = 0
-    start_datetime = datetime.now(UTC).replace(tzinfo=None) - timedelta(days=CREATED_LESS_THAN_DAYS)
-
-    # filter = f"accountId eq '{ACCOUNT_ID}' and riskLevel eq '{risk_levels}' and status eq 'FAILURE'"
-    # filter = f"(accountId eq '{ACCOUNT_ID}') and (status eq 'FAILURE') and (riskLevel eq 'LOW')"
-    # filter = f"(riskLevel eq 'HIGH' or riskLevel eq 'MEDIUM') and accountId eq '{ACCOUNT_ID}' and service eq 'EC2'"
-    # filter = f"accountId eq '{ACCOUNT_ID}' and service eq 'EC2' and riskLevel eq 'MEDIUM'"
+    service_names = ""
+    risk_levels = ";".join(RISK_LEVEL[RISK_LEVEL.index(RISK_LEVEL_FAIL) :])
+    compliances = ""  # "AWAF"
 
     findings = []
-    for risk_level in RISK_LEVEL[RISK_LEVEL.index(RISK_LEVEL_FAIL) :]:
-        filter = f"accountId eq '{ACCOUNT_ID}' and riskLevel eq '{risk_level}'"
-        page_number = 0
+    while True:
+        url = f"{API_BASE_URL}/checks"
+        url += f"?accountIds={ACCOUNT_ID}"
+        url += f"&page[size]={page_size}"
+        url += f"&page[number]={page_number}"
+        url += f"&filter[services]={service_names}"
+        url += f"&filter[createdLessThanDays]={CREATED_LESS_THAN_DAYS}"
+        url += f"&filter[riskLevels]={risk_levels}"
+        url += f"&filter[compliances]={compliances}"
+        url += "&filter[statuses]=FAILURE"
+        url += "&consistentPagination=true"
 
-        while True:
-            url = f"{API_BASE_URL}/checks"
-            url += f"?skipToken={page_size * page_number}"
+        response = connector.get(url=url)
 
-            params = {
-                "top": f"{page_size}",
-                "startDateTime": f"{start_datetime.strftime("%Y-%m-%dT%H:00:00Z")}",
-                "dateTimeTarget": "createdDate",
-            }
+        additional_findings = response.get("data", [])
+        findings += additional_findings
 
-            response = connector.get(url=url, params=params, filter=filter)
-            count = response.get("count", 0)
-            findings += response.get("items", [])
+        total = response.get("meta", {}).get("total", 0)
+        if (page_number * page_size) >= total:
+            break
+        page_number += 1
 
-            _LOGGER.debug("Retrieved %s findings.", len(findings))
-
-            if count < page_size:
-                break
-            page_number += 1
+        _LOGGER.debug("Retrieved %s of %s findings", len(findings), total)
 
     return findings
+
 
 
 class Categories:
@@ -291,11 +283,9 @@ class Categories:
     def increment_failure(self, category):
         self._categories[category]["failure"] = self._categories.get(category).get("failure") + 1
 
-
-# Posture Management Connector
+# Conformity Connector
 connector = Connector()
 categories_summary = Categories()
-
 
 # #############################################################################
 # Main
@@ -303,18 +293,18 @@ categories_summary = Categories()
 def main():
     """Entry point."""
     parser = argparse.ArgumentParser(
-        prog="python3 category_compliance_v1.py",
+        prog="python3 category_compliance_c1.py",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description="Run the PM Bot and calculate Compliance by Categories.",
+        description="Run the Conformity Bot and calculate Compliance by Categories.",
         epilog=textwrap.dedent(
             """\
             Examples:
             --------------------------------
             # Get the Compliance by Categories
-            $ ./category_compliance_v1.py --compliance
+            $ ./category_compliance_c1.py --compliance
 
-            # Start the Posture Management Bot
-            $ ./category_compliance_v1.py --bot
+            # Start the Conformity Bot
+            $ ./category_compliance_c1.py --bot
             """
         ),
     )
@@ -333,7 +323,9 @@ def main():
         default=False,
         help="retrieve compliance with category",
     )
+
     args = parser.parse_args()
+
 
     if args.bot:
         scan_account()
@@ -355,7 +347,6 @@ def main():
 
         for category in CATEGORIES:
             _LOGGER.info(f"Category: {category.capitalize()} - {categories_summary.category(category)}")
-
 
 if __name__ == "__main__":
     main()

@@ -328,7 +328,7 @@ class Connector:
 
 
 # #############################################################################
-# Terraform functions - migrated
+# Terraform functions
 # #############################################################################
 def terraform_plan(working_dir) -> str:
     """Create Terraform Plan of Configuration."""
@@ -373,7 +373,7 @@ def terraform_destroy(working_dir) -> None:
 
 
 # #############################################################################
-# Scan template - migrated
+# Scan template
 # #############################################################################
 def scan_template(contents) -> str:
     """Initiate Posture Management Template Scan."""
@@ -399,7 +399,7 @@ def scan_template(contents) -> str:
 
 
 # #############################################################################
-# Scan account - migrated
+# Scan account
 # #############################################################################
 def scan_account() -> None:
     """Initiate Posture Management Account Scan."""
