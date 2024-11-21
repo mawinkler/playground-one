@@ -4,6 +4,7 @@ import logging
 import os
 import sys
 from pprint import pprint as pp
+from typing import Dict
 
 import requests
 import yaml
@@ -22,322 +23,380 @@ logging.getLogger("urllib3").setLevel(logging.WARNING)
 REQUESTS_TIMEOUTS = (2, 30)
 
 
-def read_yaml(yaml_file):
-    with open(yaml_file, "r", encoding="utf-8") as file:
-        yaml_data = yaml.load(file, Loader=yaml.FullLoader)
-    return yaml_data
+# #############################################################################
+# Errors
+# #############################################################################
+class VisionOneError(Exception):
+    """Define a base error."""
+
+    pass
 
 
-def write_yaml(yaml_file, data):
-    with open(yaml_file, "w") as file:
-        yaml.dump(data, file)
+class VisionOneAuthorizationError(VisionOneError):
+    """Define an error related to invalid API Permissions."""
+
+    pass
 
 
-def read_json(json_file):
-    with open(json_file) as json_file:
-        json_data = json.load(json_file)
-    return json_data
+class VisionOneValidationError(VisionOneError):
+    """Define an error related to a validation error from a request."""
+
+    pass
 
 
-def write_json(json_file, data):
-    json_string = json.dumps(data)
-    with open(json_file, "w") as outfile:
-        outfile.write(json_string)
+class VisionOneNotFoundError(VisionOneError):
+    """Define an error related to requested information not found."""
+
+    pass
 
 
-# Vision One
-pgo_config = read_yaml(f"{os.getenv("ONEPATH")}/config.yaml")
-region = pgo_config.get("services").get("vision-one").get("region")
-api_key = pgo_config.get("services").get("vision-one").get("api-key")
-policy_name = pgo_config.get("services").get("vision-one").get("container-security").get("policy")
-_LOGGER.info(f"Vision One Region: {region}")
-_LOGGER.info(f"Vision One API Key: {api_key[:10]}")
-_LOGGER.info(f"Container Security Policy: {policy_name}")
+# #############################################################################
+# Connector to VisionOne
+# #############################################################################
+class Connector:
+    def __init__(self) -> None:
+        self._headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json;charset=utf-8",
+        }
 
-url = ""
-if region == "us-east-1":
-    url = "https://api.xdr.trendmicro.com/v3.0/containerSecurity/policies"
-else:
-    url = f"https://api.{region}.xdr.trendmicro.com/v3.0/containerSecurity/policies"
+    def get(self, url, params=None, filter=None):
+        """Send an HTTP GET request to VisionOne and check response for errors.
 
-_LOGGER.info(f"Vision One URL: {url}")
+        Args:
+            url (str): API Endpoint
+        """
 
-headers = {
-    "Authorization": f"Bearer {api_key}",
-    "Content-Type": "application/json;charset=utf-8",
-}
+        headers = self._headers
+        if filter is not None:
+            headers["TMV1-Filter"] = filter
 
-try:
-    response = requests.get(url, headers=headers, verify=True, timeout=REQUESTS_TIMEOUTS)
-    response.raise_for_status()
-    policies = response.json()
-except requests.exceptions.HTTPError as errh:
-    _LOGGER.error(errh.args[0])
-    raise
-except requests.exceptions.ReadTimeout:
-    _LOGGER.error("Time out")
-    raise
-except requests.exceptions.ConnectionError:
-    _LOGGER.error("Connection error")
-    raise
-except requests.exceptions.RequestException:
-    _LOGGER.error("Exception request")
-    raise
+        response = None
+        try:
+            response = requests.get(url, headers=self._headers, params=params, verify=True, timeout=REQUESTS_TIMEOUTS)
+            self._check_error(response)
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as errh:
+            _LOGGER.error(errh.args[0])
+            raise
+        except requests.exceptions.ReadTimeout:
+            _LOGGER.error("Time out")
+            raise
+        except requests.exceptions.ConnectionError:
+            _LOGGER.error("Connection error")
+            raise
+        except requests.exceptions.RequestException:
+            _LOGGER.error("Exception request")
+            raise
 
-json_policy = {}
-for item in policies.get("items"):
-    if item.get("name") == policy_name:
-        json_policy = item
-        break
+        return response.json()
 
-_LOGGER.info(f"Container Security Policy ID: {json_policy.get("id")}")
+    def patch(self, url, data):
+        """Send an HTTP PATCH request to VisionOne and check response for errors.
 
-url += f"/{json_policy.get("id")}"
-try:
-    response = requests.get(url, headers=headers, verify=True, timeout=REQUESTS_TIMEOUTS)
-    response.raise_for_status()
-    policy = response.json()
-except requests.exceptions.HTTPError as errh:
-    _LOGGER.error(errh.args[0])
-    raise
-except requests.exceptions.ReadTimeout:
-    _LOGGER.error("Time out")
-    raise
-except requests.exceptions.ConnectionError:
-    _LOGGER.error("Connection error")
-    raise
-except requests.exceptions.RequestException:
-    _LOGGER.error("Exception request")
-    raise
+        Args:
+            url (str): API Endpoint
+            data (json): PATCH request body.
+        """
 
-runtime_rulesets = policy.get("runtime").get("rulesets")
+        response = None
+        try:
+            response = requests.patch(
+                url,
+                data=json.dumps(data),
+                headers=self._headers,
+                verify=True,
+                timeout=REQUESTS_TIMEOUTS,
+            )
+            self._check_error(response)
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as errh:
+            _LOGGER.error(errh.args[0])
+            raise
+        except requests.exceptions.ReadTimeout:
+            _LOGGER.error("Time out")
+            raise
+        except requests.exceptions.ConnectionError:
+            _LOGGER.error("Connection error")
+            raise
+        except requests.exceptions.RequestException:
+            _LOGGER.error("Exception request")
+            raise
+
+        if "application/json" in response.headers.get("Content-Type", "") and len(response.content):
+            return response.json()
+        else:
+            return {}
+
+    def post(self, url, data):
+        """Send an HTTP POST request to VisionOne and check response for errors.
+
+        Args:
+            url (str): API Endpoint
+            data (json): POST request body.
+        """
+
+        response = None
+        try:
+            response = requests.post(
+                url,
+                data=json.dumps(data),
+                headers=self._headers,
+                verify=True,
+                timeout=REQUESTS_TIMEOUTS,
+            )
+            self._check_error(response)
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as errh:
+            _LOGGER.error(errh.args[0])
+            raise
+        except requests.exceptions.ReadTimeout:
+            _LOGGER.error("Time out")
+            raise
+        except requests.exceptions.ConnectionError:
+            _LOGGER.error("Connection error")
+            raise
+        except requests.exceptions.RequestException:
+            _LOGGER.error("Exception request")
+            raise
+
+        # print(response.status_code)
+        # for k, v in response.headers.items():
+        #     print(f'{k}: {v}')
+        # print('')
+        if "application/json" in response.headers.get("Content-Type", "") and len(response.content):
+            return response.json()
+        else:
+            return {}
+
+    @staticmethod
+    def _check_error(response: requests.Response):
+        """Check response from VisionOne for Errors.
+
+        Args:
+            response (Response): Response from VisionOne to check.
+        """
+
+        if not response.ok:
+            match response.status_code:
+                case 400:
+                    print(response.text)
+                    raise VisionOneError("400 Bad request")
+                case 401:
+                    raise VisionOneAuthorizationError(
+                        "401 Unauthorized. The requesting user does not have enough privilege."
+                    )
+                case 403:
+                    raise VisionOneAuthorizationError(
+                        "403 Forbidden. The requesting user does not have enough privilege."
+                    )
+                case 404:
+                    raise VisionOneNotFoundError("404 Not found")
+                case 422:
+                    raise VisionOneValidationError("500 Unprocessed Entity. Validation error")
+                case 500:
+                    raise VisionOneError("500 The parsing of the template file failed")
+                case 503:
+                    raise VisionOneError("503 Service unavailable")
+                case _:
+                    raise VisionOneError(response.text)
+
 
 # #############################################################################
 # Cluster Policy
 # #############################################################################
-cluster_policy = {
-    "apiVersion": "visionone.trendmicro.com/v1alpha1",
-    "kind": "ClusterPolicy",
-    "metadata": {"name": policy_name},
-    "spec": {"xdrEnabled": json_policy.get("xdrEnabled"), "rules": [], "exceptions": []},
-}
+def migrate_cluster_policy(policy) -> Dict:
 
-rules = []
+    cluster_policy = {
+        "apiVersion": "visionone.trendmicro.com/v1alpha1",
+        "kind": "ClusterPolicy",
+        "metadata": {"name": policy.get("name")},
+        "spec": {"xdrEnabled": policy.get("xdrEnabled"), "rules": [], "exceptions": []},
+    }
 
-s_default_rules = json_policy.get("default").get("rules")
-s_default_rules_unprocessed = []
+    rules = []
 
-_LOGGER.info(f"Migrating {len(s_default_rules)} rules")
-for rule in s_default_rules:
+    s_default_rules = policy.get("default").get("rules")
+    s_default_rules_unprocessed = []
 
-    # Skip disabled rules
-    if rule.get("enabled") is False:
-        continue
+    _LOGGER.info(f"Migrating {len(s_default_rules)} rules")
+    for rule in s_default_rules:
 
-    _rule = {}
-    if rule.get("statement") is not None:
-        _rule_properties = rule.get("statement").get("properties")
+        # Skip disabled rules
+        if rule.get("enabled") is False:
+            continue
 
-    _rule["action"] = rule.get("action")
-    _rule["mitigation"] = rule.get("mitigation")
+        _rule = {}
+        if rule.get("statement") is not None:
+            _rule_properties = rule.get("statement").get("properties")
 
-    # Pod properties
-    if rule.get("type") == "podSecurityContext":
-        _rule["type"] = _rule_properties[0].get("key")
+        _rule["action"] = rule.get("action")
+        _rule["mitigation"] = rule.get("mitigation")
 
-    # Container properties
-    elif rule.get("type") == "containerSecurityContext":
-        _rule["type"] = _rule_properties[0].get("key")
-        if _rule_properties[0].get("key") == "capabilities-rule":
+        # Pod properties
+        if rule.get("type") == "podSecurityContext":
+            _rule["type"] = _rule_properties[0].get("key")
+
+        # Container properties
+        elif rule.get("type") == "containerSecurityContext":
+            _rule["type"] = _rule_properties[0].get("key")
+            if _rule_properties[0].get("key") == "capabilities-rule":
+                _rule["properties"] = {}
+                _rule["properties"]["capabilityRestriction"] = _rule_properties[0].get("value")
+
+        # Image properties
+        elif rule.get("type") == "registry":
+            _rule["type"] = "imageRegistry"
             _rule["properties"] = {}
-            _rule["properties"]["capabilityRestriction"] = _rule_properties[0].get("value")
+            _rule["properties"]["operator"] = _rule_properties[0].get("key")
+            _vals = []
+            for _prop in _rule_properties:
+                _vals.append(_prop.get("value"))
+            _rule["properties"]["values"] = _vals
 
-    # Image properties
-    elif rule.get("type") == "registry":
-        _rule["type"] = "imageRegistry"
-        _rule["properties"] = {}
-        _rule["properties"]["operator"] = _rule_properties[0].get("key")
-        _vals = []
-        for _prop in _rule_properties:
-            _vals.append(_prop.get("value"))
-        _rule["properties"]["values"] = _vals
+        elif rule.get("type") == "image":
+            _rule["type"] = "imageName"
+            _rule["properties"] = {}
+            _rule["properties"]["operator"] = _rule_properties[0].get("key")
+            _vals = []
+            for _prop in _rule_properties:
+                _vals.append(_prop.get("value"))
+            _rule["properties"]["values"] = _vals
 
-    elif rule.get("type") == "image":
-        _rule["type"] = "imageName"
-        _rule["properties"] = {}
-        _rule["properties"]["operator"] = _rule_properties[0].get("key")
-        _vals = []
-        for _prop in _rule_properties:
-            _vals.append(_prop.get("value"))
-        _rule["properties"]["values"] = _vals
+        elif rule.get("type") == "tag":
+            _rule["type"] = "imageTag"
+            _rule["properties"] = {}
+            _rule["properties"]["operator"] = _rule_properties[0].get("key")
+            _vals = []
+            for _prop in _rule_properties:
+                _vals.append(_prop.get("value"))
+            _rule["properties"]["values"] = _vals
 
-    elif rule.get("type") == "tag":
-        _rule["type"] = "imageTag"
-        _rule["properties"] = {}
-        _rule["properties"]["operator"] = _rule_properties[0].get("key")
-        _vals = []
-        for _prop in _rule_properties:
-            _vals.append(_prop.get("value"))
-        _rule["properties"]["values"] = _vals
+        elif rule.get("type") == "imagePath":
+            _rule["type"] = "imagePath"
+            _rule["properties"] = {}
+            _rule["properties"]["operator"] = _rule_properties[0].get("key")
+            _vals = []
+            for _prop in _rule_properties:
+                _vals.append(_prop.get("value"))
+            _rule["properties"]["values"] = _vals
 
-    elif rule.get("type") == "imagePath":
-        _rule["type"] = "imagePath"
-        _rule["properties"] = {}
-        _rule["properties"]["operator"] = _rule_properties[0].get("key")
-        _vals = []
-        for _prop in _rule_properties:
-            _vals.append(_prop.get("value"))
-        _rule["properties"]["values"] = _vals
+        # Unscanned images
+        elif rule.get("type") == "unscannedImageMalware":
+            _rule["type"] = "imagesNotScanned"
+            _rule["properties"] = {"scanType": "malware", "maxScanAge": _rule_properties[0].get("value")}
 
-    # Unscanned images
-    elif rule.get("type") == "unscannedImageMalware":
-        _rule["type"] = "imagesNotScanned"
-        _rule["properties"] = {"scanType": "malware", "maxScanAge": _rule_properties[0].get("value")}
+        elif rule.get("type") == "unscannedImage":
+            _rule["type"] = "imagesNotScanned"
+            _rule["properties"] = {"scanType": "vulnerability", "maxScanAge": _rule_properties[0].get("value")}
 
-    elif rule.get("type") == "unscannedImage":
-        _rule["type"] = "imagesNotScanned"
-        _rule["properties"] = {"scanType": "vulnerability", "maxScanAge": _rule_properties[0].get("value")}
+        elif rule.get("type") == "unscannedImageSecret":
+            _rule["type"] = "imagesNotScanned"
+            _rule["properties"] = {"scanType": "secret", "maxScanAge": _rule_properties[0].get("value")}
 
-    elif rule.get("type") == "unscannedImageSecret":
-        _rule["type"] = "imagesNotScanned"
-        _rule["properties"] = {"scanType": "secret", "maxScanAge": _rule_properties[0].get("value")}
+        # Artifact Scanner Scan results
+        elif rule.get("type") == "malware":
+            _rule["type"] = "imagesWithMalware"
 
-    # Artifact Scanner Scan results
-    elif rule.get("type") == "malware":
-        _rule["type"] = "imagesWithMalware"
+        elif rule.get("type") == "secrets":
+            _rule["type"] = "imagesWithSecrets"
 
-    elif rule.get("type") == "secrets":
-        _rule["type"] = "imagesWithSecrets"
+        elif rule.get("type") == "vulnerabilities":
+            _rule["type"] = "imagesWithVulnerabilities"
+            _rule["properties"] = {"severity": _rule_properties[0].get("value")}
 
-    elif rule.get("type") == "vulnerabilities":
-        _rule["type"] = "imagesWithVulnerabilities"
-        _rule["properties"] = {"severity": _rule_properties[0].get("value")}
+        elif rule.get("type") == "cvssAttackVector":
+            _rule["type"] = "imagesWithCVSSAttackVector"
+            _rule["properties"] = {}
+            for _prop in _rule_properties:
+                if _prop.get("key") == "cvss-attack-vector":
+                    _rule["properties"]["attackVector"] = _prop.get("value")
+                if _prop.get("key") == "max-severity":
+                    _rule["properties"]["severity"] = _prop.get("value")
 
-    elif rule.get("type") == "cvssAttackVector":
-        _rule["type"] = "imagesWithCVSSAttackVector"
-        _rule["properties"] = {}
-        for _prop in _rule_properties:
-            if _prop.get("key") == "cvss-attack-vector":
-                _rule["properties"]["attackVector"] = _prop.get("value")
-            if _prop.get("key") == "max-severity":
-                _rule["properties"]["severity"] = _prop.get("value")
+        elif rule.get("type") == "cvssAttackComplexity":
+            _rule["type"] = "imagesWithCVSSAttackComplexity"
+            _rule["properties"] = {}
+            for _prop in _rule_properties:
+                if _prop.get("key") == "cvss-attack-complexity":
+                    _rule["properties"]["attackComplexity"] = _prop.get("value")
+                if _prop.get("key") == "max-severity":
+                    _rule["properties"]["severity"] = _prop.get("value")
 
-    elif rule.get("type") == "cvssAttackComplexity":
-        _rule["type"] = "imagesWithCVSSAttackComplexity"
-        _rule["properties"] = {}
-        for _prop in _rule_properties:
-            if _prop.get("key") == "cvss-attack-complexity":
-                _rule["properties"]["attackComplexity"] = _prop.get("value")
-            if _prop.get("key") == "max-severity":
-                _rule["properties"]["severity"] = _prop.get("value")
+        elif rule.get("type") == "cvssAvailability":
+            _rule["type"] = "imagesWithCVSSAvailabilityImpact"
+            _rule["properties"] = {}
+            for _prop in _rule_properties:
+                if _prop.get("key") == "cvss-availability":
+                    _rule["properties"]["availabilityImpact"] = _prop.get("value")
+                if _prop.get("key") == "max-severity":
+                    _rule["properties"]["severity"] = _prop.get("value")
 
-    elif rule.get("type") == "cvssAvailability":
-        _rule["type"] = "imagesWithCVSSAvailabilityImpact"
-        _rule["properties"] = {}
-        for _prop in _rule_properties:
-            if _prop.get("key") == "cvss-availability":
-                _rule["properties"]["availabilityImpact"] = _prop.get("value")
-            if _prop.get("key") == "max-severity":
-                _rule["properties"]["severity"] = _prop.get("value")
+        # Kubectl access
+        elif rule.get("type") == "podexec":
+            _rule["type"] = "podExec"
 
-    # Kubectl access
-    elif rule.get("type") == "podexec":
-        _rule["type"] = "podExec"
+        elif rule.get("type") == "portforward":
+            _rule["type"] = "podPortForward"
 
-    elif rule.get("type") == "portforward":
-        _rule["type"] = "podPortForward"
+        else:
+            s_default_rules_unprocessed.append(rule)
+            write_json("clusterpolicy-unprocessed.json", s_default_rules_unprocessed)
+            continue
 
-    else:
-        s_default_rules_unprocessed.append(rule)
-        write_json("clusterpolicy-unprocessed.json", s_default_rules_unprocessed)
-        continue
+        rules.append(_rule)
 
-    rules.append(_rule)
+    cluster_policy["spec"]["rules"] = rules
 
-cluster_policy["spec"]["rules"] = rules
+    s_exceptions = []
+    exceptions = []
 
-s_exceptions = []
-exceptions = []
+    s_exceptions = policy.get("default").get("exceptions")
+    s_namespaced = policy.get("namespaced")
 
-s_exceptions = json_policy.get("default").get("exceptions")
-s_namespaced = json_policy.get("namespaced")
+    # Merge namespaced exceptions
+    for namespaced in s_namespaced:
+        n_exceptions = namespaced.get("exceptions")
+        for exception in n_exceptions:
+            exception["namespaces"] = namespaced.get("namespaces")
+            s_exceptions.append(exception)
 
-# Merge namespaced exceptions
-for namespaced in s_namespaced:
-    n_exceptions = namespaced.get("exceptions")
-    for exception in n_exceptions:
-        exception["namespaces"] = namespaced.get("namespaces")
-        s_exceptions.append(exception)
+    _LOGGER.info(f"Migrating {len(s_exceptions)} exceptions")
+    if s_exceptions is not None:
+        for exception in s_exceptions:
+            _exception = {}
+            if exception.get("statement") is not None:
+                _exception_properties = exception.get("statement").get("properties")
 
-_LOGGER.info(f"Migrating {len(s_exceptions)} exceptions")
-if s_exceptions is not None:
-    for exception in s_exceptions:
-        _exception = {}
-        if exception.get("statement") is not None:
-            _exception_properties = exception.get("statement").get("properties")
+            if exception.get("type") == "image":
+                _exception["type"] = "imageName"
+            if exception.get("type") == "registry":
+                _exception["type"] = "imageRegistry"
+            if exception.get("type") == "tag":
+                _exception["type"] = "imageTag"
+            if exception.get("type") == "imagePath":
+                _exception["type"] = "imagePath"
 
-        if exception.get("type") == "image":
-            _exception["type"] = "imageName"
-        if exception.get("type") == "registry":
-            _exception["type"] = "imageRegistry"
-        if exception.get("type") == "tag":
-            _exception["type"] = "imageTag"
-        if exception.get("type") == "imagePath":
-            _exception["type"] = "imagePath"
+            _exception["properties"] = {}
+            _exception["properties"]["operator"] = _exception_properties[0].get("key")
+            _vals = []
+            for _prop in _exception_properties:
+                _vals.append(_prop.get("value"))
+            _exception["properties"]["values"] = _vals
+            if exception.get("namespaces") is not None:
+                _exception["namespaces"] = exception.get("namespaces")
 
-        _exception["properties"] = {}
-        _exception["properties"]["operator"] = _exception_properties[0].get("key")
-        _vals = []
-        for _prop in _exception_properties:
-            _vals.append(_prop.get("value"))
-        _exception["properties"]["values"] = _vals
-        if exception.get("namespaces") is not None:
-            _exception["namespaces"] = exception.get("namespaces")
+            exceptions.append(_exception)
 
-        exceptions.append(_exception)
+    cluster_policy["spec"]["exceptions"] = exceptions
 
-cluster_policy["spec"]["exceptions"] = exceptions
+    return cluster_policy
 
-cluster_poliy_file = f"clusterpolicy-{policy_name.lower()}.yaml"
-_LOGGER.info(f"Writing output file {cluster_poliy_file}")
-write_yaml(cluster_poliy_file, cluster_policy)
 
 # #############################################################################
 # Runtime Rulesets
 # #############################################################################
-url = ""
-if region == "us-east-1":
-    url = "https://api.xdr.trendmicro.com/v3.0/containerSecurity/rulesets"
-else:
-    url = f"https://api.{region}.xdr.trendmicro.com/v3.0/containerSecurity/rulesets"
-
-_LOGGER.info(f"Vision One URL: {url}")
-_LOGGER.info(f"Container Security Runtime Ruleset IDs: {list(map(lambda x: x.get("id") , runtime_rulesets))}")
-
-for ruleset_id in list(map(lambda x: x.get("id"), runtime_rulesets)):
-
-    url = ""
-    if region == "us-east-1":
-        url = "https://api.xdr.trendmicro.com/v3.0/containerSecurity/rulesets"
-    else:
-        url = f"https://api.{region}.xdr.trendmicro.com/v3.0/containerSecurity/rulesets"
-    url += f"/{ruleset_id}"
-    try:
-        response = requests.get(url, headers=headers, verify=True, timeout=REQUESTS_TIMEOUTS)
-        response.raise_for_status()
-        ruleset = response.json()
-    except requests.exceptions.HTTPError as errh:
-        _LOGGER.error(errh.args[0])
-        raise
-    except requests.exceptions.ReadTimeout:
-        _LOGGER.error("Time out")
-        raise
-    except requests.exceptions.ConnectionError:
-        _LOGGER.error("Connection error")
-        raise
-    except requests.exceptions.RequestException:
-        _LOGGER.error("Exception request")
-        raise
+def migrate_runtime_ruleset(ruleset) -> Dict:
 
     runtime_ruleset = {
         "apiVersion": "visionone.trendmicro.com/v1alpha1",
@@ -364,6 +423,94 @@ for ruleset_id in list(map(lambda x: x.get("id"), runtime_rulesets)):
             rules.append({"ruleID": rule.get("id"), "mitigation": rule.get("mitigation")})
     runtime_ruleset["spec"]["definition"]["rules"] = rules
 
-    runtime_ruleset_file = f"runtimeruleset-{ruleset.get("name").lower()}.yaml"
-    _LOGGER.info(f"Writing output file {runtime_ruleset_file}")
-    write_yaml(runtime_ruleset_file, runtime_ruleset)
+    return runtime_ruleset
+
+
+# #############################################################################
+# YAML and JSON IO
+# #############################################################################
+def read_yaml(yaml_file):
+    with open(yaml_file, "r", encoding="utf-8") as file:
+        yaml_data = yaml.load(file, Loader=yaml.FullLoader)
+    return yaml_data
+
+
+def write_yaml(yaml_file, data):
+    with open(yaml_file, "w") as file:
+        yaml.dump(data, file)
+
+
+def read_json(json_file):
+    with open(json_file) as json_file:
+        json_data = json.load(json_file)
+    return json_data
+
+
+def write_json(json_file, data):
+    json_string = json.dumps(data)
+    with open(json_file, "w") as outfile:
+        outfile.write(json_string)
+
+
+# #############################################################################
+# Main
+# #############################################################################
+# Vision One
+pgo_config = read_yaml(f"{os.getenv("ONEPATH")}/config.yaml")
+region = pgo_config.get("services").get("vision-one").get("region")
+api_key = pgo_config.get("services").get("vision-one").get("api-key")
+policy_name = pgo_config.get("services").get("vision-one").get("container-security").get("policy")
+_LOGGER.info(f"Vision One Region: {region}")
+_LOGGER.info(f"Vision One API Key: {api_key[:10]}")
+_LOGGER.info(f"Container Security Policy: {policy_name}")
+
+# Vision One Connector
+connector = Connector()
+
+
+def main():
+    """Entry point."""
+
+    url = ""
+    if region == "us-east-1":
+        url = "https://api.xdr.trendmicro.com/v3.0/containerSecurity"
+    else:
+        url = f"https://api.{region}.xdr.trendmicro.com/v3.0/containerSecurity"
+
+    _LOGGER.info(f"Vision One URL: {url}")
+
+    policies = connector.get(url=f"{url}/policies")
+
+    selected_policy = {}
+    for policy in policies.get("items"):
+        if policy.get("name") == policy_name:
+            selected_policy = policy
+            break
+
+    _LOGGER.info(f"Container Security Policy ID: {selected_policy.get("id")}")
+
+    migrate_policy = connector.get(url=f"{url}/policies/{selected_policy.get("id")}")
+
+    runtime_rulesets = migrate_policy.get("runtime").get("rulesets")
+
+    cluster_policy = migrate_cluster_policy(migrate_policy)
+
+    cluster_poliy_file = f"clusterpolicy-{migrate_policy.get("name").lower()}.yaml"
+    _LOGGER.info(f"Writing output file {cluster_poliy_file}")
+    write_yaml(cluster_poliy_file, cluster_policy)
+
+    _LOGGER.info(f"Container Security Runtime Ruleset IDs: {list(map(lambda x: x.get("id") , runtime_rulesets))}")
+
+    for ruleset_id in list(map(lambda x: x.get("id"), runtime_rulesets)):
+
+        ruleset = connector.get(url=f"{url}/rulesets/{ruleset_id}")
+
+        runtime_ruleset = migrate_runtime_ruleset(ruleset)
+
+        runtime_ruleset_file = f"runtimeruleset-{ruleset.get("name").lower()}.yaml"
+        _LOGGER.info(f"Writing output file {runtime_ruleset_file}")
+        write_yaml(runtime_ruleset_file, runtime_ruleset)
+
+
+if __name__ == "__main__":
+    main()
