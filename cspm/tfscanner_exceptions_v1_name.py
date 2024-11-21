@@ -16,24 +16,24 @@ DOCUMENTATION = """
 module: tfscanner_exceptions_v1_name.py
 
 short_description: Implements for following functionality:
-    - Create Terrafrom Plan of Configuration and run Conformity Template Scan
+    - Create Terrafrom Plan of Configuration and run Posture Management Template Scan
     - Set Exceptions in Scan Profile based on Name-Tags assigned to the resource
     - Create Terraform Apply of Configuration
     - Create Terraform Destroy of Configuration
     - Remove Exceptions in Scan Profile or reset the Scan Profile
     - Suppress Findings in Account Profile
     - Expire Findings in Account Profile
-    - Run Conformity Bot and request status
+    - Run Posture Management Bot and request status
     - Download latest Report
 
 description:
     - Implements required functionality for Terraform Template Scan, Exception
-      approval workflows and temporary suppression of findings in Conformity
+      approval workflows and temporary suppression of findings in Posture Management
       Account Profile.
 
 requirements:
     - Set environment variable V1CSPM_SCANNER_KEY with the API key of the
-      Conformity Scanner owning Full Access to Conformity.
+      Posture Management Scanner owning Full Access to Posture Management.
     - Adapt the constants in between
       # HERE
       and
@@ -168,7 +168,7 @@ class ConformityNotFoundError(ConformityError):
 
 
 # #############################################################################
-# Connector to Conformity
+# Connector to Posture Management
 # #############################################################################
 class Connector:
     def __init__(self) -> None:
@@ -178,7 +178,7 @@ class Connector:
         }
 
     def get(self, url, params=None, filter=None):
-        """Send an HTTP GET request to Conformity and check response for errors.
+        """Send an HTTP GET request to Posture Management and check response for errors.
 
         Args:
             url (str): API Endpoint
@@ -209,7 +209,7 @@ class Connector:
         return response.json()
 
     def patch(self, url, data):
-        """Send an HTTP PATCH request to Conformity and check response for errors.
+        """Send an HTTP PATCH request to Posture Management and check response for errors.
 
         Args:
             url (str): API Endpoint
@@ -248,7 +248,7 @@ class Connector:
         # return response.json()
 
     def post(self, url, data):
-        """Send an HTTP POST request to Conformity and check response for errors.
+        """Send an HTTP POST request to Posture Management and check response for errors.
 
         Args:
             url (str): API Endpoint
@@ -292,10 +292,10 @@ class Connector:
 
     @staticmethod
     def _check_error(response: requests.Response):
-        """Check response from Conformity for Errors.
+        """Check response from Posture Management for Errors.
 
         Args:
-            response (Response): Response from Conformity to check.
+            response (Response): Response from Posture Management to check.
         """
 
         if not response.ok:
@@ -372,7 +372,7 @@ def terraform_destroy(working_dir) -> None:
 # Scan template - migrated
 # #############################################################################
 def scan_template(contents) -> str:
-    """Initiate Conformity Template Scan."""
+    """Initiate Posture Management Template Scan."""
 
     _LOGGER.info("Starting Template Scan...")
 
@@ -398,7 +398,7 @@ def scan_template(contents) -> str:
 # Scan account - migrated
 # #############################################################################
 def scan_account() -> None:
-    """Initiate Conformity Account Scan."""
+    """Initiate Posture Management Account Scan."""
 
     _LOGGER.info("Starting Account Scan...")
 
@@ -412,9 +412,9 @@ def scan_account() -> None:
 
 
 def bot_status_account() -> None:
-    """Retrieve Conformity Bot Status."""
+    """Retrieve Posture Management Bot Status."""
 
-    _LOGGER.info("Retrieving Conformity Bot Status...")
+    _LOGGER.info("Retrieving Posture Management Bot Status...")
 
     url = f"{API_BASE_URL}/accounts/{ACCOUNT_ID}"
 
@@ -429,7 +429,7 @@ def bot_status_account() -> None:
 # Report functions - endpoint not available yet
 # #############################################################################
 # def download_report() -> None:
-#     """Download latest Conformity Report for Account"""
+#     """Download latest Posture Management Report for Account"""
 
 #     url = f"{API_BASE_URL}/reports?accountId={ACCOUNT_ID}"
 
@@ -964,7 +964,7 @@ def suppress_check(check_id, rule_id, exception_tags) -> None:
     _LOGGER.info("Check %s suppressed", check_id)
 
 
-# Conformity Connector
+# Posture Management Connector
 connector = Connector()
 
 
@@ -974,7 +974,7 @@ connector = Connector()
 def main():
     """Entry point."""
     parser = argparse.ArgumentParser(
-        prog="python3 scanner_v1.py",
+        prog="python3 tfscanner_exceptions_v1_name.py",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description="Run template scans and handle scan exceptions and suppressions.",
         epilog=textwrap.dedent(

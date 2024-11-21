@@ -953,7 +953,7 @@ connector = Connector()
 def main():
     """Entry point."""
     parser = argparse.ArgumentParser(
-        prog="python3 scanner_c1.py",
+        prog="python3 tfscanner_exceptions_c1_uuid.py",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description="Run template scans and handle scan exceptions and suppressions.",
         epilog=textwrap.dedent(
