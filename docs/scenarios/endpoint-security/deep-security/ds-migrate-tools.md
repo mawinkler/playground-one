@@ -17,7 +17,7 @@ The workflow described in this scenario is composed from the following steps:
 
 ## Prerequisites
 
-If you want to play through this scenario using Playground Ones Deep Security follow the Prerequisites described in You can follow [Migrate Deep Security to Vision One](scenarios/endpoint-security/deep-security/ds-migrate.md/#prerequisites) for the deployment. ***Don't do the actual migration now, just meet the requirements!***
+If you want to play through this scenario using Playground Ones Deep Security follow the Prerequisites described in You can follow [Migrate Deep Security to Vision One](ds-migrate.md/#prerequisites) for the deployment. ***Don't do the actual migration now, just meet the requirements!***
 
 ## Get the Tools
 
@@ -99,7 +99,7 @@ $ ./groups-and-folders.py --listfolders swp
 
 ## Migrate the Common Objects, Policies, and Computers with the official Migration Tool
 
-Do the Deep Security migration using the official migration tool. You can follow [Migrate Deep Security to Vision One](scenarios/endpoint-security/deep-security/ds-migrate.md/#migration-workflow) for a guided migration.
+Do the Deep Security migration using the official migration tool. You can follow [Migrate Deep Security to Vision One](ds-migrate.md/#migration-workflow) for a guided migration.
 
 The migrated policies will get a suffix generated (e.g. ` (2024-11-14T16:26:36Z 10.0.0.84)`). Use this suffix as the `--policysuffix` for `scheduled-tasks.py` in the next step.
 
