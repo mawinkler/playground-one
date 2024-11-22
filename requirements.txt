@@ -1,3 +1,5 @@
 mkdocs
 pymdown-extensions
 mkdocs-material
+Requests
+black

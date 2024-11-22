@@ -137,7 +137,6 @@ REQUESTS_TIMEOUTS = (2, 30)
 #      --header "Authorization: Bearer ${V1CSPM_SCANNER_KEY}" | \
 #      jq -r '.items[] | .id + ": " + .name'
 
-
 # curl -s --location "https://api.xdr.trendmicro.com/beta/cloudPosture/profiles" \
 #      --header 'Content-Type: application/json;charset=utf-8' \
 #      --header "Authorization: Bearer ${V1CSPM_SCANNER_KEY}" | \

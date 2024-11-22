@@ -11,8 +11,6 @@ from typing import Dict
 
 import requests
 
-# from pprint import pprint as pp
-
 DOCUMENTATION = """
 ---
 module: category_compliance_c1.py
@@ -69,7 +67,7 @@ logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 # HERE
 REGION = "trend-us-1"
-ACCOUNT_ID = "ed68602b-0eb1-4cbb-ad0b-64676877fadf"
+ACCOUNT_ID = "25327442-87be-46cf-a322-dfe5193e4857"
 RISK_LEVEL_FAIL = "LOW"
 CREATED_LESS_THAN_DAYS = 90
 # /HERE
@@ -89,6 +87,11 @@ CATEGORIES = [
 ]
 # /Do not change
 
+# Get account and template id
+# curl -s --location "https://conformity.${REGION}.cloudone.trendmicro.com/api/accounts" \
+#     --header "Content-Type: application/vnd.api+json" \
+#     --header "Authorization: ApiKey ${C1CSPM_SCANNER_KEY}" | \
+#     jq -r '.data[] | .id + ": " + .attributes.name'
 
 # #############################################################################
 # Errors
@@ -228,33 +231,33 @@ def retrieve_bot_results():
     page_size = 200
     page_number = 0
     service_names = ""
-    risk_levels = ";".join(RISK_LEVEL[RISK_LEVEL.index(RISK_LEVEL_FAIL) :])
     compliances = ""  # "AWAF"
 
     findings = []
-    while True:
-        url = f"{API_BASE_URL}/checks"
-        url += f"?accountIds={ACCOUNT_ID}"
-        url += f"&page[size]={page_size}"
-        url += f"&page[number]={page_number}"
-        url += f"&filter[services]={service_names}"
-        url += f"&filter[createdLessThanDays]={CREATED_LESS_THAN_DAYS}"
-        url += f"&filter[riskLevels]={risk_levels}"
-        url += f"&filter[compliances]={compliances}"
-        url += "&filter[statuses]=FAILURE"
-        url += "&consistentPagination=true"
+    for risk_level in RISK_LEVEL[RISK_LEVEL.index(RISK_LEVEL_FAIL) :]:
+        page_number = 0
 
-        response = connector.get(url=url)
+        while True:
+            url = f"{API_BASE_URL}/checks"
+            url += f"?accountIds={ACCOUNT_ID}"
+            url += f"&page[size]={page_size}"
+            url += f"&page[number]={page_number}"
+            url += f"&filter[services]={service_names}"
+            url += f"&filter[createdLessThanDays]={CREATED_LESS_THAN_DAYS}"
+            url += f"&filter[riskLevels]={risk_level}"
+            url += f"&filter[compliances]={compliances}"
+            url += "&consistentPagination=true"
 
-        additional_findings = response.get("data", [])
-        findings += additional_findings
+            response = connector.get(url=url)
+            additional_findings = response.get("data", [])
+            findings += additional_findings
 
-        total = response.get("meta", {}).get("total", 0)
-        if (page_number * page_size) >= total:
-            break
-        page_number += 1
+            total = response.get("meta", {}).get("total", 0)
+            if (page_number * page_size) >= total:
+                break
+            page_number += 1
 
-        _LOGGER.debug("Retrieved %s of %s findings", len(findings), total)
+            _LOGGER.debug("Retrieved %s findings.", len(findings))
 
     return findings
 
@@ -326,7 +329,6 @@ def main():
 
     args = parser.parse_args()
 
-
     if args.bot:
         scan_account()
 
@@ -337,8 +339,8 @@ def main():
         bot_findings = retrieve_bot_results()
 
         for finding in bot_findings:
-            status = finding.get("status")
-            categories = finding.get("categories")
+            status = finding.get("attributes").get("status")
+            categories = finding.get("attributes").get("categories")
             for category in categories:
                 if status == "SUCCESS":
                     categories_summary.increment_success(category)

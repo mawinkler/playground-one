@@ -108,7 +108,7 @@ logging.getLogger("urllib3").setLevel(logging.WARNING)
 # HERE
 REGION = "trend-us-1"
 SCAN_PROFILE_ID = "Tc0NcdFKU"
-ACCOUNT_ID = "ed68602b-0eb1-4cbb-ad0b-64676877fadf"
+ACCOUNT_ID = "25327442-87be-46cf-a322-dfe5193e4857"
 SCAN_PROFILE_NAME = "Scan Profile Benelux"
 REPORT_TITLE = "Workflow Tests"
 RISK_LEVEL_FAIL = "MEDIUM"
@@ -125,6 +125,16 @@ API_BASE_URL = f"https://conformity.{REGION}.cloudone.trendmicro.com/api"
 REQUESTS_TIMEOUTS = (2, 30)
 # /Do not change
 
+# Get account and template id
+# curl -s --location "https://conformity.${REGION}.cloudone.trendmicro.com/api/accounts" \
+#     --header "Content-Type: application/vnd.api+json" \
+#     --header "Authorization: ApiKey ${C1CSPM_SCANNER_KEY}" | \
+#     jq -r '.data[] | .id + ": " + .attributes.name'
+
+# curl -s --location "https://conformity.${REGION}.cloudone.trendmicro.com/api/profiles" \
+#     --header "Content-Type: application/vnd.api+json" \
+#     --header "Authorization: ApiKey ${C1CSPM_SCANNER_KEY}" | \
+#     jq -r '.data[] | .id + ": " + .attributes.name'
 
 # #############################################################################
 # Errors
@@ -821,40 +831,39 @@ def reset_profile():
 def retrieve_bot_results():
     """Retrieve Bot results from AWS Account"""
 
-    page_size = 10
+    page_size = 200
     page_number = 0
     service_names = ""
     created_less_than_days = 5
-    risk_levels = ";".join(RISK_LEVEL[RISK_LEVEL.index(RISK_LEVEL_FAIL) :])
     compliances = ""  # "AWAF"
 
     findings = []
-    while True:
-        url = f"{API_BASE_URL}/checks"
-        url += f"?accountIds={ACCOUNT_ID}"
-        url += f"&page[size]={page_size}"
-        url += f"&page[number]={page_number}"
-        url += f"&filter[services]={service_names}"
-        url += f"&filter[createdLessThanDays]={created_less_than_days}"
-        url += f"&filter[riskLevels]={risk_levels}"
-        url += f"&filter[compliances]={compliances}"
-        url += "&filter[statuses]=FAILURE"
-        url += "&consistentPagination=true"
+    for risk_level in RISK_LEVEL[RISK_LEVEL.index(RISK_LEVEL_FAIL) :]:
+        page_number = 0
 
-        response = connector.get(url=url)
+        while True:
+            url = f"{API_BASE_URL}/checks"
+            url += f"?accountIds={ACCOUNT_ID}"
+            url += f"&page[size]={page_size}"
+            url += f"&page[number]={page_number}"
+            url += f"&filter[services]={service_names}"
+            url += f"&filter[createdLessThanDays]={created_less_than_days}"
+            url += f"&filter[riskLevels]={risk_level}"
+            url += f"&filter[compliances]={compliances}"
+            url += "&consistentPagination=true"
 
-        additional_findings = response.get("data", [])
-        findings += additional_findings
+            response = connector.get(url=url)
+            additional_findings = response.get("data", [])
+            findings += additional_findings
 
-        total = response.get("meta", {}).get("total", 0)
-        if (page_number * page_size) >= total:
-            break
-        page_number += 1
+            total = response.get("meta", {}).get("total", 0)
+            if (page_number * page_size) >= total:
+                break
+            page_number += 1
 
-        _LOGGER.debug("Retrieved %s of %s findings", len(findings), total)
+            _LOGGER.debug("Retrieved %s findings.", len(findings))
 
     return findings
-
 
 def match_scan_result_with_findings(bot_findings):
     """Match Scan Results with Findings."""

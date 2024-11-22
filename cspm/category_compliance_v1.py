@@ -7,8 +7,6 @@ import os.path
 import sys
 import textwrap
 from datetime import UTC, datetime, timedelta
-
-# from pprint import pprint as pp
 from typing import Dict
 
 import requests
@@ -92,6 +90,11 @@ CATEGORIES = [
 ]
 # /Do not change
 
+# Get account and template id
+# curl -s --location "https://api.xdr.trendmicro.com/beta/cloudPosture/accounts" \
+#      --header 'Content-Type: application/json;charset=utf-8' \
+#      --header "Authorization: Bearer ${V1CSPM_SCANNER_KEY}" | \
+#      jq -r '.items[] | .id + ": " + .name'
 
 # #############################################################################
 # Errors

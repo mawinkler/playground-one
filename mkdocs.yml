@@ -54,6 +54,7 @@ nav:
         - Integrate Deep Security with Vision One and Demo Benefits: scenarios/endpoint-security/deep-security/ds-integrate-demo.md
         - Integrate Deep Security with Vision One and Service Gateway: scenarios/endpoint-security/deep-security/ds-integrate-and-service-gateway.md
         - Migrate Deep Security to Vision One: scenarios/endpoint-security/deep-security/ds-migrate.md
+        - Helper Tools for Deep Security Migration: scenarios/endpoint-security/deep-security/ds-migrate-tools.md
       - Workload Security:
         - Integrate Workload Security with Vision One: scenarios/endpoint-security/workload-security/ws-integrate.md
         # - Migrate Workload Security to Vision One: scenarios/endpoint-security/workload-security/ws-migrate.md
@@ -63,6 +64,8 @@ nav:
         - CloudFormation IaC Scanning with a GitHub Action: scenarios/cloud-security/pm/template-scanning-cfn-github-action.md
         - Exception Handling with Pipline Scanning: scenarios/cloud-security/pm/template-scanning-exception-handling-v1.md
         - Exception Handling with Pipline Scanning (Cloud One): scenarios/cloud-security/pm/template-scanning-exception-handling-c1.md
+        - Compliance by Category with Vision One Posture Management: scenarios/cloud-security/pm/compliance-by-category-v1.md
+        - Compliance by Category with Cloud One Conformity: scenarios/cloud-security/pm/compliance-by-category-c1.md
       - Container Security:
         - EKS:
           - Escape to Host System: scenarios/cloud-security/container-security/eks/escape.md
