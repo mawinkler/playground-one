@@ -872,7 +872,7 @@ def retrieve_bot_results():
 
             params = {
                 "top": f"{page_size}",
-                "startDateTime": f"{now_24.strftime("%Y-%m-%dT%H:00:00Z")}",
+                "startDateTime": f"{now_24.strftime('%Y-%m-%dT%H:00:00Z')}",
                 "dateTimeTarget": "createdDate",
             }
 
