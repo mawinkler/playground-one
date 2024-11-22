@@ -93,6 +93,7 @@ CATEGORIES = [
 #     --header "Authorization: ApiKey ${C1CSPM_SCANNER_KEY}" | \
 #     jq -r '.data[] | .id + ": " + .attributes.name'
 
+
 # #############################################################################
 # Errors
 # #############################################################################
@@ -189,8 +190,6 @@ class Connector:
                     raise ConformityError(response.text)
 
 
-
-
 # #############################################################################
 # Scan account
 # #############################################################################
@@ -262,7 +261,6 @@ def retrieve_bot_results():
     return findings
 
 
-
 class Categories:
 
     def __init__(self):
@@ -286,9 +284,11 @@ class Categories:
     def increment_failure(self, category):
         self._categories[category]["failure"] = self._categories.get(category).get("failure") + 1
 
+
 # Conformity Connector
 connector = Connector()
 categories_summary = Categories()
+
 
 # #############################################################################
 # Main
@@ -349,6 +349,7 @@ def main():
 
         for category in CATEGORIES:
             _LOGGER.info(f"Category: {category.capitalize()} - {categories_summary.category(category)}")
+
 
 if __name__ == "__main__":
     main()

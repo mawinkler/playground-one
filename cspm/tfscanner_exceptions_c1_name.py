@@ -136,6 +136,7 @@ REQUESTS_TIMEOUTS = (2, 30)
 #     --header "Authorization: ApiKey ${C1CSPM_SCANNER_KEY}" | \
 #     jq -r '.data[] | .id + ": " + .attributes.name'
 
+
 # #############################################################################
 # Errors
 # #############################################################################
@@ -864,6 +865,7 @@ def retrieve_bot_results():
             _LOGGER.debug("Retrieved %s findings.", len(findings))
 
     return findings
+
 
 def match_scan_result_with_findings(bot_findings):
     """Match Scan Results with Findings."""
