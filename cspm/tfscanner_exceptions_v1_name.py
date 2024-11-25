@@ -105,7 +105,7 @@ logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 # HERE
-REGION = ""  # Examples: eu. sg.
+REGION = ""  # Examples: eu-central-1 or "" for us-east-1
 SCAN_PROFILE_ID = "TQNDl13ix"
 ACCOUNT_ID = "e37fe1b7-2b14-4b2c-96a4-db1bb2be8c8b"
 SCAN_PROFILE_NAME = "Playground One Template Scanner"
@@ -123,7 +123,10 @@ SUPPRESSIONS_FILE = "suppressions.json"
 PLAN_FILE = "plan.json"
 SCAN_RESULT_FILE = "scan_result.json"
 API_KEY = os.environ["V1CSPM_SCANNER_KEY"]
-API_BASE_URL = f"https://api.{REGION}xdr.trendmicro.com/beta/cloudPosture"
+if REGION == "us-east-1" or REGION == "":
+    API_BASE_URL = "https://api.xdr.trendmicro.com/beta/cloudPosture"
+else:
+    API_BASE_URL = f"https://api.{REGION}.xdr.trendmicro.com/beta/cloudPosture"
 REQUESTS_TIMEOUTS = (2, 30)
 # /Do not change
 
