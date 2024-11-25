@@ -14,7 +14,7 @@ The scenario uses the python script `category_compliance_c1.py` located in the `
 
 ### Prepare
 
-- Set environment variable `C1CSPM_SCANNER_KEY` with the API key.
+- Set environment variable `C1CSPM_SCANNER_KEY` with the API key and `REGION` to your Cloud One region.
 - Get your `ACCOUNT_ID`:
 
   ```sh
@@ -63,7 +63,7 @@ The calculated results match closely with the Conformity view.
 
 ![alt text](images/compliance-c1.png "Compliance Status")
 
-What we could also be interested in is, how we did in the last 30 days? Did we introduce new findings with a criticality of HIGH or worse?
+What we might also be interested in is how have we performed over the last 30 days? Have we introduced any new findings with a criticality of HIGH or worse?
 
 For this, we change two variables in the python script:
 

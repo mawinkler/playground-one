@@ -101,32 +101,30 @@ Scanning for secrets is very similar:
 tmas scan secrets registry:trufflesecurity/secrets
 ```
 
-## False Positives
+## Secrets - False Positives
 
-Here, we're going to tackle false positives in the scan results
-
-### Secrets
+Here, we're going to tackle false positives in the scan results.
 
 Depending on the programming language used in a containerized app and how it got containerized `tmas` will likely discover lots of generic secrets. These false positives are usually found within unit tests or examples included in the language runtime distribution.
 
-Let's play with one of my apps, UpTonight.
+Let's play with one of my apps, [UpTonight](https://github.com/mawinkler/uptonight).
 
-Running a scan on my `dev` image (10/09/2024):
+First, let's run a scan on my `2.2` image:
 
 ```sh
-tmas scan -VMS registry:mawinkler/uptonight:dev
+tmas scan -VMS registry:mawinkler/uptonight:2.2
 ```
 
 ![alt text](images/tmas-01.png "Results")
 
-So, there are apparently 79 secrets...
+So, there are apparently 306 secrets...
 
 If we want to inspect a specific finding we need to dissect the container image into it's layers. Make sure to use the correct image digest reported by Vision One.
 
 ```sh
-docker pull docker.io/mawinkler/uptonight@sha256:b152f6bce0df2a9bfadc5b435a094e1bd91611a9ba7040808c8c5a32b2fc6618
+docker pull docker.io/mawinkler/uptonight@sha256:2dbb4a927b796b9384cc9deb6a51690407d1e661caeae163f4db4ecd53167701
 
-docker save -o uptonight.tar docker.io/mawinkler/uptonight@sha256:b152f6bce0df2a9bfadc5b435a094e1bd91611a9ba7040808c8c5a32b2fc6618
+docker save -o uptonight.tar docker.io/mawinkler/uptonight@sha256:2dbb4a927b796b9384cc9deb6a51690407d1e661caeae163f4db4ecd53167701
 ```
 
 The above command saves the image including all of its layers into a tar archive. Extracting this archive we get the following structure:
@@ -139,24 +137,24 @@ tar xf uptonight.tar
 .
 ├── blobs
 │   └── sha256
-│       ├── 2efecd3a4b7c7c8f3a21f437984e8ec09342bf55c48a81215007b00cbf6f6ec9
-│       ├── 32b517b1d73ed10c4adbd50e64d5f2d61712ccc6e4fb6ce39005f159e23fe1ac
-│       ├── 386776cc98d16d99a5bd775dc73c6fee6bd9bdd5e379e30a1d14157012a5432e
-│       ├── 48e6d4ad1ab793bf30ac91047f884b34d331698c6c8ba688956ce2463ad59135
-│       ├── 4f49f9e01d50b4900868481954bd38c905ba3d3a3be6db2df3e78930becc04ba
-│       ├── 51c6a8652010bf8563a76c609536f254293f170248dd6cf926ca48b72f5eaaf8
-│       ├── 63c88cab4a2898393f7cc92e0c99c9d0fe85b6dd8958f1662d1aa2d279717784
-│       ├── 7da81db4d2f8fbdb34206fdfcde3a883b94b59aaf28df2d5fcf737a4a6f154cd
-│       ├── 7f66fa794225f77a772f98a2c9ed4f63aebd658d3a09dd533cd7d8b259364d68
-│       ├── 83ff8a522845857392c79290e3f9ab594d347f21ae72dc5a9732965e33bc6dbe
-│       ├── b30379741c872a6f008e915694ec2449708f8b907954f18d4b882103b27fbe45
-│       ├── b82d9de2867dd7879d9c1b530b77cd553f21d1baca9b20b133e50f75fc2ff6bf
-│       ├── ba2c96a1cc369c328320f8d9d3b4df81012580d0abe85e0e4b4eb458322d7283
-│       ├── ba8dbc5b24b59c2e6aff3639f32c5402af5e30be686342d08925ad852bd8c7c4
-│       ├── bca81598344e69c99a6ff00b66d09117888131d67cc0aae65d49d4b241c7c043
-│       ├── cfd6a0a02c40bdeff86ac669b87d9e1224aa703200f066bab494b0a76846dc16
-│       ├── d45039a6283cffb3dfa0d8341a027fc88bfbe42398d05b173ea2d281f6030821
-│       └── ea7ca101baa01ced632efd5613d87deda6b4c3914a9676f1fbead657ae935b24
+│       ├── 0289e2ec8bd41c714a9c9cb966178936fbee43d105fe01228248dfb8f7e2e65f
+│       ├── 14400b4a9b67b699da1139d477d547ec7641c0ed426154e44dc8801049b194d0
+│       ├── 1e2970d0bac38bc6f58c786a4afd5edd618f2234ac4544d252c076d1d5ba8bcb
+│       ├── 2573e0d8158209ed54ab25c87bcdcb00bd3d2539246960a3d592a1c599d70465
+│       ├── 3af7b477f81821ea399f9e0ec15c01da98760385de5215b48305818ffe387eb0
+│       ├── 4d4d9b9d193f30fc49e7a4436c528b23ac727344f5d1a2750be3fb306b49fc2b
+│       ├── 699776f4e4fc26d1405c79779ac8884dace05694168924be559f87f938b1a2e4
+│       ├── 6b6e322dc8865457a6eb8d5855f40c6a83c5719d30dfe557d0e2fa841fe4178e
+│       ├── 7c51e6dae7e6949b891fee75e2035795f5cddf244b86bc05bc96b1917b542c9a
+│       ├── 8498a0b71ea370be3ea0f1939319046bc8b71df07d5f7c35396d410e4b93ed90
+│       ├── 895e113eb7ccd19522d9b7ca0279bc79579363c1d690d60d4d572dddbea3ef00
+│       ├── 906f0ecb429801119a0bba0298aa2eaa26ba7f852ec44c7cd43d9779d4ba0cd4
+│       ├── abef58d990b11bc9a7da4190cdcb05f03b6edaa3f63802d2949e4a3dd2501bba
+│       ├── ac12c35f8650c0ec8b7f3bae9050a2e4ea9a30cf573a46dddb76958dababb7ff
+│       ├── c72dfe6bf14c642d21076c0d9d1c1917894f8dbcc60b95d4b01ff3b71d196bf7
+│       ├── ccc40309c2e9d4552ee8d86e9bb0e88be2d82bf2527755f95608076b6ac0a730
+│       ├── dbe0eae7d2c32f7c87d0f6020a390f7d97b699d26c6021e81871a06a862ddab9
+│       └── e72b88a7237022c675a9909b1125f50a4ad49120af2cbf52f27b9017f6b520ff
 ├── index.json
 ├── manifest.json
 ├── oci-layout
@@ -165,72 +163,104 @@ tar xf uptonight.tar
 2 directories, 22 files
 ```
 
+Just to be clear, the files in the `blobs/sha256` directory contain the file system of each layer that makes up the image.
+
 Now, let us inspect some files with potential secret findings.
 
-*Facebook Page Access Token*
+*JSON Web Token*
+
+![alt text](images/tmas-02.png "Results")
 
 ```txt
-Secret type: facebook-page-access-token
-Description: Discovered a Facebook Page Access Token, posing a risk of unauthorized access to Facebook accounts and personal data exposure.
-Image name: mawinkler/uptonight
-Image ID: docker.io/mawinkler/uptonight@sha256:b152f6bce0df2a9bfadc5b435a094e1bd91611a9ba7040808c8c5a32b2fc6618
-Layer ID: sha256:ba8dbc5b24b59c2e6aff3639f32c5402af5e30be686342d08925ad852bd8c7c4
-Location path: /var/lib/dpkg/available
-...
-Secret: eaac******26a7
+Secret Type: jwt
+Description: Uncovered a JSON Web Token, which may lead to unauthorized access to web applications and sensitive user data.
+Artifact ID: docker.io/mawinkler/uptonight@sha256:2dbb4a927b796b9384cc9deb6a51690407d1e661caeae163f4db4ecd53167701
+Path: /root/.local/lib/python3.10/site-packages/astroquery/eso/tests/data/oidc_token.json
+Layer ID: sha256:c72dfe6bf14c642d21076c0d9d1c1917894f8dbcc60b95d4b01ff3b71d196bf7
+Start Line: 3
+End Line: 3
+Start Column: 17
+End Column: 122
+Secret: eyJhbGciOiJIU******EPqgpup30c6Mg
+Scan ID: 3148a308-6a5b-43c8-bca5-3e361e182912
 ```
 
 Extract the file:
 
 ```sh
-tar xf blobs/sha256/ba8dbc5b24b59c2e6aff3639f32c5402af5e30be686342d08925ad852bd8c7c4 var/lib/dpkg/available
+tar xf blobs/sha256/c72dfe6bf14c642d21076c0d9d1c1917894f8dbcc60b95d4b01ff3b71d196bf7 root/.local/lib/python3.10/site-packages/astroquery/eso/tests/data/oidc_token.json
 ```
 
-When opening the file and seaching for the discovered secret we can proove that it's a false positive.
+When we open the file and search for the discovered secret, we can see that it does look like a JWT token, but since it's in a tests directory from an external library, we can be pretty sure that this is a false positive.
 
 ```
-Package: libapt-pkg6.0t64
-Architecture: amd64
-Version: 2.7.14build2
-Multi-Arch: same
-Priority: important
-Build-Essential: yes
-Section: libs
-Source: apt
-Origin: Ubuntu
-Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
-Original-Maintainer: APT Development Team <deity@lists.debian.org>
-Bugs: https://bugs.launchpad.net/ubuntu/+filebug
-Installed-Size: 3244
-Provides: libapt-pkg (= 2.7.14build2), libapt-pkg6.0 (= 2.7.14build2)
-Depends: libbz2-1.0, libc6 (>= 2.38), libgcc-s1 (>= 3.3.1), libgcrypt20 (>= 1.10.0), liblz4-1 (>= 0.0~r127), liblzma5 (>= 5.1.1alpha+20120614), libstdc++6 (>= 13.1), libsystemd0 (>= 221), libudev1 (>= 183), libxxhash0 (>= 0.7.1), libzstd1 (>= 1.5.5), zlib1g (>= 1:1.2.2.3)
-Recommends: apt (>= 2.7.14build2)
-Conflicts: libnettle8 (<< 3.9.1-2.2~)
-Breaks: appstream (<< 0.9.0-3~), apt (<< 1.6~), aptitude (<< 0.8.9), dpkg (<< 1.20.8), libapt-inst1.5 (<< 0.9.9~), libapt-pkg6.0 (<< 2.7.14build2)
-Replaces: libapt-pkg6.0
-Filename: pool/main/a/apt/libapt-pkg6.0t64_2.7.14build2_amd64.deb
-Size: 985310
-MD5sum: 0bfb233537666f4104b02f399c3f13cc
-SHA1: d06e76be3cfc7130dd9becff690f4173bbda2089
-SHA256: 3915b0cdfbaae551d9089400f47be749b89c30914985982b39e57fd2016be852
-SHA512: 0a304cbf749e8f64a8a543a83112a4ddeff4ca3b2f01e88fea54a322998e2dd774d1a5c6eeedd967a550d4e4ffcdfb33ba08941e158ecdd49b85afde55bf6796
-Description: package management runtime library
-Task: cloud-minimal, minimal, server-minimal
-Description-md5: eaacd63db236f47bdcc19e3bea7026a7
+{
+  "access_token": "some-access-token",
+  "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2Nzg2Mjg5NTl9.qqKrC1MesQQmLtqsFOm2kxe4f_Nqo4EPqgpup30c6Mg",
+  "token_type": "bearer",
+  "expires_in": 28800,
+  "scope": ""
+}
 ```
 
-*AWS credentials*
+Very similar, there are AWS Access Tokens and a lot of generic secrets detected in the `botocore` which we will exclude.
 
-Similar to the above...
+It is a fairly common result to have lots of findings about generic API keys, JWT tokens, etc. when the container image uses a programming language like Python and is not stripped down to what is really needed to run the application. We will later retest the same application with the container image properly stripped down.
 
+For now, we can create an overrides file for a tmas rescan:
+
+`tmas_overrides.yaml`
+
+```yaml
+secrets:
+  paths:
+    - patterns:
+        - ".*/tests/.*"
+      reason: Unit tests
+    - patterns:
+        - "./botocore/data/.*/examples-1.json"
+      reason: Botocore examples
+    - patterns:
+        - ".*/site-packages/cryptography/hazmat/.*"
+        - ".*/site-packages/cryptography/x509/.*"
+        - ".*/site-packages/numpy/core/include/numpy/old_defines.h"
+      reason: "False positive in external library"
 ```
-Layer ID:
-sha256:ba2c96a1cc369c328320f8d9d3b4df81012580d0abe85e0e4b4eb458322d7283
-Location path:
-/root/.local/lib/python3.12/site-packages/PIL/ImageFont.py
-Secret: AK******0A
+
+When now rescan the same image by running
+
+```sh
+tmas scan -S registry:mawinkler/uptonight:2.2 -o tmas_overrides.yaml
 ```
 
-Going through this Python file we can discover the *secret* within the base64 encoded FreeType font. So again a false positive.
+We have only 11 findings left, 295 are overridden.
+
+```json
+{
+  "secrets": {
+    "totalFilesScanned": 16531,
+    "unmitigatedFindingsCount": 11,
+    "overriddenFindingsCount": 295,
+    "findings": {
+```
+
+As promised, let's see the difference with a properly stripped down image of the same application, now in version 2.3:
+
+```sh
+tmas scan -S registry:mawinkler/uptonight:2.3
+```
+
+```json
+{
+  "secrets": {
+    "totalFilesScanned": 1686,
+    "unmitigatedFindingsCount": 0,
+    "overriddenFindingsCount": 0,
+    "findings": {}
+  }
+}
+```
+
+The number of vulnerabilities decreased from 66 to 15, with a maximum severity rating of medium. The image size decreased from 291MB to 137MB.
 
 🎉 Success 🎉

@@ -65,7 +65,7 @@ The calculated results match with the posture management view.
 
 ![alt text](images/compliance-v1.png "Compliance Status")
 
-What we could also be interested in is, how we did in the last 30 days? Did we introduce new findings with a criticality of HIGH or worse?
+What we might also be interested in is how have we performed over the last 30 days? Have we introduced any new findings with a criticality of HIGH or worse?
 
 For this, we change two variables in the python script:
 
