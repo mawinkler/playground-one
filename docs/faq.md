@@ -297,3 +297,17 @@ docker4pgo
 ```
 
 The above checks the group of the socket, creates this group inside the container and adds the `pgo` user to this group. Now, exit the container and reconnect. Ideally, it does work now.
+
+## `tmas` Not Working w/ Colima?
+
+Set:
+
+```sh
+export DOCKER_HOST="unix://$HOME/.colima/docker.sock"
+```
+
+Verify with
+
+```sh
+docker info
+```
