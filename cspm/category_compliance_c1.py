@@ -18,6 +18,7 @@ module: category_compliance_c1.py
 short_description: Implements for following functionality:
     - Run Conformity Bot and request status
     - Report Compliance status for Categories
+    - Report and write json files on Improvements for selected Categories
 
 description:
     - The reporting of compliance status may be limited by the number of days back in
@@ -33,11 +34,16 @@ requirements:
       to your requirements
 
 options:
-  -h, --help        show this help message and exit
-  --bot         scan account
-  --botstatus   account bot status
-  --compliance  retrieve compliance with category
-
+  -h, --help            show this help message and exit
+  --bot                 scan account
+  --botstatus           account bot status
+  --compliance          retrieve compliance with category
+  --bot                 scan account
+  --botstatus           account bot status
+  --compliance          retrieve compliance with category
+  --improve CATEGORIES  retrieve findings to improve compliance with category. Allowed args separated by ',':
+                        all | security | cost-optimisation | reliability | performance-efficiency |
+                        operational-excellence | sustainability  
 author:
     - Markus Winkler (markus_winkler@trendmicro.com)
 """
@@ -45,6 +51,9 @@ author:
 EXAMPLES = """
 # Get the Compliance by Categories
 $ ./category_compliance_c1.py --compliance
+
+# Get the Improve Checks by Categories, write separate json lists
+$ ./category_compliance_c1.py --improve security,cost-optimisation
 
 # Start the Conformity Bot
 $ ./category_compliance_c1.py --bot
@@ -68,7 +77,7 @@ logging.getLogger("urllib3").setLevel(logging.WARNING)
 # HERE
 REGION = "trend-us-1"
 ACCOUNT_ID = "25327442-87be-46cf-a322-dfe5193e4857"
-RISK_LEVEL_FAIL = "LOW"
+RISK_LEVEL_FAIL = "MEDIUM"
 CREATED_LESS_THAN_DAYS = 90
 # /HERE
 
@@ -224,7 +233,7 @@ def bot_status_account() -> None:
 # #############################################################################
 # Suppress findings in AWS Account
 # #############################################################################
-def retrieve_bot_results():
+def retrieve_bot_results(statuses=None, categories=None):
     """Retrieve Bot results from AWS Account"""
 
     page_size = 200
@@ -245,6 +254,10 @@ def retrieve_bot_results():
             url += f"&filter[createdLessThanDays]={CREATED_LESS_THAN_DAYS}"
             url += f"&filter[riskLevels]={risk_level}"
             url += f"&filter[compliances]={compliances}"
+            if statuses is not None:
+                url += f"&filter[statuses]={statuses}"
+            if categories is not None:
+                url += f"&filter[categories]={categories}"
             url += "&consistentPagination=true"
 
             response = connector.get(url=url)
@@ -260,6 +273,13 @@ def retrieve_bot_results():
 
     return findings
 
+
+# #############################################################################
+# JSON
+# #############################################################################
+def write_json(json_file, data):
+    with open(json_file, "w") as outfile:
+        json.dump(data, outfile, indent=2)
 
 class Categories:
 
@@ -306,6 +326,9 @@ def main():
             # Get the Compliance by Categories
             $ ./category_compliance_c1.py --compliance
 
+            # Get the Improve Checks by Categories, write separate json lists
+            $ ./category_compliance_c1.py --improve security,cost-optimisation
+
             # Start the Conformity Bot
             $ ./category_compliance_c1.py --bot
             """
@@ -326,7 +349,14 @@ def main():
         default=False,
         help="retrieve compliance with category",
     )
-
+    parser.add_argument(
+        "--improve",
+        type=str,
+        nargs=1,
+        metavar="CATEGORIES",
+        help="retrieve findings to improve compliance with category. Allowed args separated by ',': all | security | cost-optimisation | reliability | performance-efficiency | operational-excellence | sustainability",
+    )
+    
     args = parser.parse_args()
 
     if args.bot:
@@ -350,6 +380,16 @@ def main():
         for category in CATEGORIES:
             _LOGGER.info(f"Category: {category.capitalize()} - {categories_summary.category(category)}")
 
+    if args.improve:
+        categories = args.improve
+        if "all" in categories:
+            categories=["security", "cost-optimisation", "reliability", "performance-efficiency", "operational-excellence", "sustainability"]
+        else:
+            categories=str(args.improve[0]).split(",")
+        for category in categories:
+            bot_findings = retrieve_bot_results(statuses="FAILURE", categories=category)
+            write_json(f"improve-{category}.json", bot_findings)
+            _LOGGER.info(f"Improvements for {category} written to improve-{category}.json")
 
 if __name__ == "__main__":
     main()
