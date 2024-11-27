@@ -72,3 +72,7 @@ module "istio" {
   namespace_base    = "istio-system"
   namespace_ingress = "istio-ingress"
 }
+
+module "metrics" {
+  source = "./metrics-server"
+}
