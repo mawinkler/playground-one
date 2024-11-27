@@ -153,7 +153,7 @@ clusterpolicy.visionone.trendmicro.com/pgo-cluster-policy created
 2024-11-27 11:30:13 INFO (MainThread) [main] Applying Runtime Security Ruleset clusterpolicy-playgroundone.yaml
 runtimeruleset.visionone.trendmicro.com/playgroundone created```
 
-The above created three `yaml` files:
+The above created two `yaml` files:
 
 ```sh
 -rw-r--r--  1 pgo pgo  1523 Nov 25 15:37 clusterpolicy-playgroundone.yaml

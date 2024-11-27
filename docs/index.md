@@ -108,6 +108,12 @@ Vulnerabilities | grype | See [github.com/anchore/grype](https://github.com/anch
 
 ## Change Log
 
+***0.4.9***
+
+- Introduced Kubernetes Metrics Server for EKS EC2 (`kubectl top pods...`).
+- Added support for Vision One Container Security Policy Operator.
+- New tools for C1 Conformita and Vision One Posture Management added.
+
 ***0.4.8***
 
 *Changes*
