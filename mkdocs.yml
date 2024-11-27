@@ -75,6 +75,7 @@ nav:
           - Runtime Vulnerability Scan on Fargate: scenarios/cloud-security/container-security/eks/runtime-vulnerability-fargate.md
           - Integrate V1CS Customer Runtime Security Rules with Splunk: scenarios/automation/thirdparty/splunk-integrate-vision-one-custom-rules.md
           - Playing with Istio Service Mesh: scenarios/cloud-security/container-security/eks/istio.md
+          - Migrate a Policy to a Cluster Policy including Runtime Rulesets: scenarios/cloud-security/container-security/eks/cluster-policy.md
         - ECS:
           - Apache Struts Multipart Encoding Command Injection (Runtime Security): scenarios/cloud-security/container-security/ecs/apache-struts-rce.md
           - Runtime Vulnerability Scan: scenarios/cloud-security/container-security/ecs/runtime-vulnerability.md
@@ -83,10 +84,13 @@ nav:
         #   - JNDI Injection in HTTP Request (XDR for Containers): scenarios/xdr4c/ecs-log4j.md
         #   - Apache Struts Multipart Encoding Command Injection (XDR for Containers): scenarios/xdr4c/ecs-struts.md
         #   - Apache Struts Multipart Encoding Command Injection: scenarios/xdr4c/eks-struts.md
+        - Kind:
+          - Migrate a Policy to a Cluster Policy including Runtime Rulesets: scenarios/cloud-security/container-security/kind/cluster-policy.md
         - Artifact Scanning:
           - Container Image Scanning for Vulnerabilities, Malware, and Secrets: scenarios/cloud-security/container-security/artifact-scanning/tmas-artifact-scanning.md
           - Scan Containers with a GitHub Action: scenarios/cloud-security/container-security/artifact-scanning/tmas-github-action.md
           - Shift Left Security - Preview: scenarios/cloud-security/container-security/artifact-scanning/tmas-shift-left-security.md
+          - Fixing Vulnerabilities and Secrets with Artifact Scanning: scenarios/cloud-security/container-security/artifact-scanning/tmas-artifact-scanning-fixing.md
       - File Security:
         - Artifact Scanning:
           - Scan Files and Directories for Malware: scenarios/cloud-security/file-security/artifact-scanning//tmfs-artifact-scanning.md

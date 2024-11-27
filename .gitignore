@@ -96,3 +96,6 @@ awsone/sandbox
 awsone/0-files/TMSensorAgent_Linux.tar
 awsone/0-files/TMSensorAgent_Windows.zip
 result.json
+clusterpolicy-playgroundone.yaml
+runtimeruleset-playgroundone.yaml
+tmas_overrides.yaml

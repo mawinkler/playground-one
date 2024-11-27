@@ -1,8 +1,16 @@
 # #############################################################################
 # Kind Cluster
 # #############################################################################
+resource "random_string" "suffix" {
+  length  = 8
+  lower   = true
+  upper   = false
+  numeric = true
+  special = false
+}
+
 resource "kind_cluster" "kind" {
-  name            = "${var.environment}-kind"
+  name            = "${var.environment}-kind-${random_string.suffix.result}"
   kubeconfig_path = local.k8s_config_path
   node_image      = "kindest/node:v${var.kubernetes_version}"
   wait_for_ready  = true

@@ -27,19 +27,6 @@ provider "helm" {
   }
 }
 
-# ####################################
-# Container Security API Configuration
-# ####################################
-terraform {
-  required_providers {
-    restapi = {
-      source  = "Mastercard/restapi"
-      version = "~> 1.18.2"
-    }
-  }
-  required_version = ">= 1.6"
-}
-
 provider "restapi" {
   alias                = "container_security"
   uri                  = var.api_url
@@ -50,5 +37,42 @@ provider "restapi" {
     Authorization = "Bearer ${var.api_key}"
     Content-Type  = "application/json"
     api-version   = "v1"
+  }
+}
+
+
+provider "visionone" {
+  alias         = "container_security"
+  api_key       = var.api_key
+  regional_fqdn = var.api_url
+}
+
+# ####################################
+# Provider Configuration
+# ####################################
+terraform {
+  required_version = ">= 1.6"
+
+  required_providers {
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.14.0"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.31.0"
+    }
+    null = {
+      source  = "hashicorp/null"
+      version = "~> 3.2.2"
+    }
+    restapi = {
+      source  = "Mastercard/restapi"
+      version = "1.19.1"
+    }
+    visionone = {
+      source  = "trendmicro/vision-one"
+      version = "~> 1.0.4"
+    }
   }
 }

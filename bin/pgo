@@ -354,6 +354,7 @@ function init() {
       pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
       vision_one_cs_enabled=${vision_one_cs_enabled} \
       vision_one_cs_policy=${vision_one_cs_policy} \
+      vision_one_cs_policy_operator=${vision_one_cs_policy_operator} \
       vision_one_cs_group_id=${vision_one_cs_group_id} \
       vision_one_api_key=${vision_one_api_key} \
       vision_one_api_url=${vision_one_api_url} \
@@ -385,6 +386,7 @@ function init() {
       pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
       vision_one_cs_enabled=${vision_one_cs_enabled} \
       vision_one_cs_policy=${vision_one_cs_policy} \
+      vision_one_cs_policy_operator=${vision_one_cs_policy_operator} \
       vision_one_cs_group_id=${vision_one_cs_group_id} \
       vision_one_api_key=${vision_one_api_key} \
       vision_one_api_url=${vision_one_api_url} \
@@ -413,6 +415,8 @@ function init() {
       pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
       vision_one_cs_enabled=${vision_one_cs_enabled} \
       vision_one_cs_policy=${vision_one_cs_policy} \
+      vision_one_cs_policy_operator=${vision_one_cs_policy_operator} \
+      vision_one_cs_group_id=${vision_one_cs_group_id} \
       vision_one_api_key=${vision_one_api_key} \
       vision_one_api_url=${vision_one_api_url} \
       vision_one_region=${vision_one_region} \
@@ -620,6 +624,7 @@ function init() {
       environment_name=${environment_name} \
       vision_one_cs_enabled=${vision_one_cs_enabled} \
       vision_one_cs_policy=${vision_one_cs_policy} \
+      vision_one_cs_policy_operator=${vision_one_cs_policy_operator} \
       vision_one_cs_group_id="00000000-0000-0000-0000-000000000000" \
       vision_one_api_key=${vision_one_api_key} \
       vision_one_api_url=${vision_one_api_url} \

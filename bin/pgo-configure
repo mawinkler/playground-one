@@ -478,6 +478,19 @@ function update_vision_one_config() {
       exit 0
     fi
 
+    key_desc="Container Security Enable Policy Operator?"
+    read -p "${key_desc} [${vision_one_cs_policy_operator}]: " TEMP
+    if [[ ! -z "${TEMP}" ]]; then
+      vision_one_cs_policy_operator=${TEMP}
+    fi
+    if [[ "${vision_one_cs_policy_operator}" =~ ^true|false$ ]]; then
+      target_val=${vision_one_cs_policy_operator} \
+        yq -i '.services.vision-one.container-security.policy-operator.enabled = env(target_val)' ${ONEPATH}/config.yaml
+    else
+      echo "Error: Invalid ${key_desc} input."
+      exit 0
+    fi
+
     key_desc="Container Security Cluster Group ID"
     read -p "${key_desc} [${vision_one_cs_group_id}]: " TEMP
     if [[ ! -z "${TEMP}" ]]; then

@@ -51,6 +51,16 @@ resource "helm_release" "trendmicro" {
 
   # PGO
   set {
+    name  = "cloudOne.policyOperator.enabled"
+    value = var.cluster_policy_operator
+  }
+
+  set {
+    name  = "cloudOne.policyOperator.clusterPolicyName"
+    value = "pgo-cluster-policy"
+  }
+
+  set {
     name  = "cloudOne.oversight.syncPeriod"
     value = "600s"
   }

@@ -31,6 +31,10 @@ variable "cluster_policy" {
   type = string
 }
 
+variable "cluster_policy_operator" {
+  type = bool
+}
+
 variable "group_id" {
   type = string
 }

@@ -22,6 +22,7 @@ logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 REQUESTS_TIMEOUTS = (2, 30)
 
+POLICY_NAME = "pgo-cluster-policy"
 
 # #############################################################################
 # Errors
@@ -210,7 +211,7 @@ def migrate_cluster_policy(policy) -> Dict:
     cluster_policy = {
         "apiVersion": "visionone.trendmicro.com/v1alpha1",
         "kind": "ClusterPolicy",
-        "metadata": {"name": policy.get("name")},
+        "metadata": {"name": POLICY_NAME},
         "spec": {"xdrEnabled": policy.get("xdrEnabled"), "rules": [], "exceptions": []},
     }
 
@@ -351,12 +352,12 @@ def migrate_cluster_policy(policy) -> Dict:
     s_exceptions = []
     exceptions = []
 
-    s_exceptions = policy.get("default").get("exceptions")
-    s_namespaced = policy.get("namespaced")
+    s_exceptions = policy.get("default").get("exceptions", [])
+    s_namespaced = policy.get("namespaced", [])
 
     # Merge namespaced exceptions
     for namespaced in s_namespaced:
-        n_exceptions = namespaced.get("exceptions")
+        n_exceptions = namespaced.get("exceptions", [])
         for exception in n_exceptions:
             exception["namespaces"] = namespaced.get("namespaces")
             s_exceptions.append(exception)
@@ -410,7 +411,7 @@ def migrate_runtime_ruleset(ruleset) -> Dict:
 
     s_labels = ruleset.get("labels", [])
     s_rules = ruleset.get("rules", [])
-    _LOGGER.info(f"Migrating {len(s_labels)} label(s) with {len(s_rules)} rule(s) for ruleset {ruleset.get("name")}")
+    _LOGGER.info(f"Migrating {len(s_labels)} label(s) with {len(s_rules)} rule(s) for ruleset {ruleset.get('name')}")
     labels = []
     if s_labels is not None:
         for label in s_labels:
@@ -456,10 +457,12 @@ def write_json(json_file, data):
 # Main
 # #############################################################################
 # Vision One
-pgo_config = read_yaml(f"{os.getenv("ONEPATH")}/config.yaml")
+# HERE
+pgo_config = read_yaml(f"{os.getenv('ONEPATH')}/config.yaml")
 region = pgo_config.get("services").get("vision-one").get("region")
 api_key = pgo_config.get("services").get("vision-one").get("api-key")
 policy_name = pgo_config.get("services").get("vision-one").get("container-security").get("policy")
+# /HERE
 _LOGGER.info(f"Vision One Region: {region}")
 _LOGGER.info(f"Vision One API Key: {api_key[:10]}")
 _LOGGER.info(f"Container Security Policy: {policy_name}")
@@ -487,19 +490,22 @@ def main():
             selected_policy = policy
             break
 
-    _LOGGER.info(f"Container Security Policy ID: {selected_policy.get("id")}")
+    _LOGGER.info(f"Container Security Policy ID: {selected_policy.get('id')}")
 
-    migrate_policy = connector.get(url=f"{url}/policies/{selected_policy.get("id")}")
+    migrate_policy = connector.get(url=f"{url}/policies/{selected_policy.get('id')}")
 
     runtime_rulesets = migrate_policy.get("runtime").get("rulesets")
 
     cluster_policy = migrate_cluster_policy(migrate_policy)
 
-    cluster_poliy_file = f"clusterpolicy-{migrate_policy.get("name").lower()}.yaml"
-    _LOGGER.info(f"Writing output file {cluster_poliy_file}")
+    cluster_poliy_file = f"clusterpolicy-{migrate_policy.get('name').lower()}.yaml"
+    _LOGGER.info(f"Writing Cluster Policy output file {cluster_poliy_file}")
     write_yaml(cluster_poliy_file, cluster_policy)
 
-    _LOGGER.info(f"Container Security Runtime Ruleset IDs: {list(map(lambda x: x.get("id") , runtime_rulesets))}")
+    _LOGGER.info(f"Applying Cluster Policy {cluster_poliy_file}")
+    os.system(f"kubectl apply -f {cluster_poliy_file}")
+
+    _LOGGER.info(f"Container Security Runtime Ruleset IDs: {list(map(lambda x: x.get('id') , runtime_rulesets))}")
 
     for ruleset_id in list(map(lambda x: x.get("id"), runtime_rulesets)):
 
@@ -507,10 +513,12 @@ def main():
 
         runtime_ruleset = migrate_runtime_ruleset(ruleset)
 
-        runtime_ruleset_file = f"runtimeruleset-{ruleset.get("name").lower()}.yaml"
-        _LOGGER.info(f"Writing output file {runtime_ruleset_file}")
+        runtime_ruleset_file = f"runtimeruleset-{ruleset.get('name').lower()}.yaml"
+        _LOGGER.info(f"Writing Runtime Security Ruleset output file {runtime_ruleset_file}")
         write_yaml(runtime_ruleset_file, runtime_ruleset)
 
+        _LOGGER.info(f"Applying Runtime Security Ruleset {cluster_poliy_file}")
+        os.system(f"kubectl apply -f {runtime_ruleset_file}")
 
 if __name__ == "__main__":
     main()

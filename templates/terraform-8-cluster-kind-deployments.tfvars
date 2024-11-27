@@ -2,11 +2,12 @@
 environment = "${environment_name}"
 
 # Vision One
-container_security = ${vision_one_cs_enabled}
-api_key            = "${vision_one_api_key}"
-api_url            = "${vision_one_api_url}"
-cluster_policy     = "${vision_one_cs_policy}"
-group_id           = "${vision_one_cs_group_id}"
+container_security      = ${vision_one_cs_enabled}
+api_key                 = "${vision_one_api_key}"
+api_url                 = "${vision_one_api_url}"
+cluster_policy          = "${vision_one_cs_policy}"
+cluster_policy_operator = "${vision_one_cs_policy_operator}"
+group_id                = "${vision_one_cs_group_id}"
 
 # Calico
 calico = false  #${integrations_calico_enabled}

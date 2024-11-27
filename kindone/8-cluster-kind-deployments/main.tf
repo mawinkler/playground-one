@@ -25,11 +25,12 @@ data "terraform_remote_state" "kind" {
 module "vision_one" {
   count = var.container_security ? 1 : 0
 
-  source         = "./vision_one"
-  environment    = var.environment
-  cluster_name   = "kindone"
-  cluster_policy = var.cluster_policy
-  group_id       = var.group_id
+  source                  = "./vision_one"
+  environment             = var.environment
+  cluster_name            = data.terraform_remote_state.kind.outputs.cluster_name
+  cluster_policy          = var.cluster_policy
+  cluster_policy_operator = var.cluster_policy_operator
+  group_id                = var.group_id
 
   providers = {
     restapi.container_security   = restapi.container_security
