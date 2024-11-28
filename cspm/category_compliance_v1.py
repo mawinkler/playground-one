@@ -18,6 +18,7 @@ module: category_compliance_v1.py
 short_description: Implements for following functionality:
     - Run Posture Management Bot and request status
     - Report Compliance status for Categories
+    - Report Improvements and write json files for selected Categories
 
 description:
     - The reporting of compliance status may be limited by the number of days back in
@@ -67,9 +68,9 @@ logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 # HERE
 REGION = ""  # Examples: eu-central-1 or "" for us-east-1
-ACCOUNT_ID = "e37fe1b7-2b14-4b2c-96a4-db1bb2be8c8b"
-RISK_LEVEL_FAIL = "LOW"
-CREATED_LESS_THAN_DAYS = 90
+ACCOUNT_ID = "7758a778-9c2f-42d1-ae33-fc3d02e3780b"
+RISK_LEVEL_FAIL = "HIGH"
+CREATED_LESS_THAN_DAYS = 2  #90
 # /HERE
 
 # Do not change
@@ -177,6 +178,7 @@ class Connector:
             match response.status_code:
                 case 400:
                     print(response.text)
+                    print(response.headers)
                     raise ConformityError("400 Bad request")
                 case 401:
                     raise ConformityAuthorizationError(
@@ -232,7 +234,7 @@ def bot_status_account() -> None:
 # #############################################################################
 # Suppress findings in AWS Account
 # #############################################################################
-def retrieve_bot_results():
+def retrieve_bot_results(statuses=None, categories=None):
     """Retrieve Bot results from AWS Account"""
 
     page_size = 200
@@ -247,8 +249,23 @@ def retrieve_bot_results():
     findings = []
     for risk_level in RISK_LEVEL[RISK_LEVEL.index(RISK_LEVEL_FAIL) :]:
         filter = f"accountId eq '{ACCOUNT_ID}' and riskLevel eq '{risk_level}'"
-        page_number = 0
+        # filter = f"accountId eq '{ACCOUNT_ID}' and status eq 'FAILURE'"
+        if categories is not None:
+            filter += f" and hassubset(categories, {[categories]})"
+        if statuses is not None:
+            # filter += f" and hassubset(status, {[statuses]})"
+            # filter += f" and status eq '{statuses}'"
+            filter += f" and status eq 'FAILURE'"
+        # print(filter)
+        # # print(filter)
+        # # filter="accountId eq '7758a778-9c2f-42d1-ae33-fc3d02e3780b' and status eq 'FAILURE' and riskLevel eq 'HIGH'" # and hassubset(categories, ['reliability'])"
+        # # filter="accountId eq '7758a...' and riskLevel eq 'HIGH'"
+        # # filter="accountId eq '7758a...' and status eq 'FAILURE'"
+        # # filter="accountId eq '7758a...' and riskLevel eq 'HIGH' and status eq 'FAILURE'"
+        # # filter="accountId eq '7758a...' and riskLevel eq 'HIGH' and hassubset(categories, ['reliability'])"
+        # filter="accountId eq '7758a778-9c2f-42d1-ae33-fc3d02e3780b' and status eq 'FAILURE' and hassubset(categories, ['reliability'])"
 
+        page_number = 0
         while True:
             url = f"{API_BASE_URL}/checks"
             url += f"?skipToken={page_size * page_number}"
@@ -258,6 +275,10 @@ def retrieve_bot_results():
                 "startDateTime": f"{start_datetime.strftime('%Y-%m-%dT%H:00:00Z')}",
                 "dateTimeTarget": "createdDate",
             }
+
+            # print(f"URL: {url}")
+            # print(f"Params: {params}")
+            # print(f"Filter: {filter}")
 
             response = connector.get(url=url, params=params, filter=filter)
             count = response.get("count", 0)
@@ -271,7 +292,24 @@ def retrieve_bot_results():
 
     return findings
 
+def filter_findings_statuses(findings, statuses=None):
+    filtered = []
+    for finding in findings:
+        if finding.get("status", "") == statuses:
+            filtered.append(finding)
 
+    _LOGGER.debug(f"Filtered {len(filtered)} from {len(findings)} findings.")
+    
+    return filtered
+        
+# #############################################################################
+# JSON
+# #############################################################################
+def write_json(json_file, data):
+    with open(json_file, "w") as outfile:
+        json.dump(data, outfile, indent=2)
+        
+        
 class Categories:
 
     def __init__(self):
@@ -337,6 +375,15 @@ def main():
         default=False,
         help="retrieve compliance with category",
     )
+    
+    parser.add_argument(
+        "--improve",
+        type=str,
+        nargs=1,
+        metavar="CATEGORIES",
+        help="retrieve findings to improve compliance with category. Allowed args separated by ',': all | security | cost-optimisation | reliability | performance-efficiency | operational-excellence | sustainability",
+    )
+
     args = parser.parse_args()
 
     if args.bot:
@@ -359,6 +406,20 @@ def main():
 
         for category in CATEGORIES:
             _LOGGER.info(f"Category: {category.capitalize()} - {categories_summary.category(category)}")
+
+    if args.improve:
+        categories = args.improve
+        if "all" in categories:
+            categories=["security", "cost-optimisation", "reliability", "performance-efficiency", "operational-excellence", "sustainability"]
+        else:
+            categories=str(args.improve[0]).split(",")
+        for category in categories:
+            # Broken
+            # bot_findings = retrieve_bot_results(statuses="FAILURE", categories=category)
+            bot_findings = retrieve_bot_results(categories=category)
+            bot_findings = filter_findings_statuses(bot_findings, statuses="FAILURE")
+            write_json(f"improve-{category}.json", bot_findings)
+            _LOGGER.info(f"Improvements for {category} written to improve-{category}.json")
 
 
 if __name__ == "__main__":

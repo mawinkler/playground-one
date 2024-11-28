@@ -50,6 +50,7 @@ temp
 
 # Workdir
 workdir*
+docs-in-work*
 
 # In development
 4-cluster-eks-redesign
@@ -100,3 +101,5 @@ clusterpolicy-playgroundone.yaml
 runtimeruleset-playgroundone.yaml
 tmas_overrides.yaml
 v1_cam_stack_settings.txt
+
+rosa.md

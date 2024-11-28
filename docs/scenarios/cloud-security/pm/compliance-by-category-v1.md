@@ -95,4 +95,33 @@ The script will produce an output like this.
 
 Not too bad, but apparently we have introduced 3 new security misconfigurations that we should check.
 
+## Report Improvements by Selected Categories
+
+Choose a desired risk level as the lower boundary and maximum age when the finding has been created.
+
+Example:
+
+`category_compliance_v1.py`
+
+```py
+RISK_LEVEL_FAIL = "HIGH"
+CREATED_LESS_THAN_DAYS = 90
+```
+
+```sh
+# Get the Improvements for selected Categories
+$ ./category_compliance_v1.py --improve security,cost-optimisation
+```
+
+This will then create two files:
+
+- improve-security.json
+- improve-cost-optimisation.json
+
+The individual file will contain all FAILED checks belonging to its category if they were created less than or equal to 90 days ago and have a risk level of at least HIGH.
+
+If a check belongs to more than one of these categories, it will be included in the other output files as well.
+
+`--improve all` will cover all supported categories.
+
 🎉 Success 🎉
