@@ -6,11 +6,11 @@ output "instance_id_linux_pap" {
   value = aws_instance.linux-pap.id
 }
 
-output "instance_ip_linux_pap" {
+output "linux_ip_pap" {
   value = aws_instance.linux-pap.public_ip
 }
 
-output "ssh_instance_linux_pap" {
+output "linux_ssh_pap" {
   description = "Command to ssh to instance linux-pap"
   value       = "ssh -i ${var.private_key_path} -o StrictHostKeyChecking=no ubuntu@${aws_instance.linux-pap.public_ip}"
 }
