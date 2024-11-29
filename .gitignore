@@ -43,6 +43,8 @@ TMServerAgent_Linux.tar
 TMServerAgent_Windows.zip
 TMSensorAgent_Linux.tar
 TMSensorAgent_Windows.zip
+TMSensorAgent_Linux_auto_x86_64.tar
+TMSensorAgent_Windows_x86_64.zip
 overrides.yaml
 tmas_overrides.yaml
 v1_cam_stack_settings.txt
@@ -55,9 +57,6 @@ infrastructure
 # Exploits
 exploits
 exploits-archive
-v1demo
-temp
-.ecsfg
 
 # Logs
 log/calico
@@ -75,6 +74,9 @@ cspm/exceeded
 cspm/infra
 cspm/report.pdf
 
+# ECS
+.ecsfg
+
 # Experimenting
 experimenting/migrate/migrated
 experimenting/migrate/source
@@ -87,8 +89,3 @@ stacks/*/*/*.log
 
 # In development
 temp/
-
-clusterpolicy-playgroundone.yaml
-customrules
-
-rosa.md
