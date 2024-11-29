@@ -114,7 +114,7 @@ module "eks" {
       key_name     = "${var.key_name}"
 
       instance_types = ["t3.medium"]
-      capacity_type  = "SPOT"
+      capacity_type  = "SPOT"  # "ON_DEMAND"
       labels = {
         Name        = "${var.environment}-eks"
         Environment = "${var.environment}"

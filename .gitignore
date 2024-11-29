@@ -1,11 +1,5 @@
 .DS_Store
 
-# Directories
-infrastructure
-log/containers
-log/pods
-log/*.log
-
 # Config
 config.yaml
 config.yaml.bak
@@ -24,6 +18,19 @@ terraform.tfstate*
 terraform.tfvars
 .pluralith
 
+# Terraform Configurations
+awsone/7-scenarios-cloudtrail/downloads/passwords.zip
+awsone/7-scenarios-cloudtrail/downloads/server.pem
+awsone/9-deep-security/cookie.txt
+awsone/9-deep-security/dsm/apikey
+awsone/sandbox
+azone/4-cluster-aks/kubeconfig
+
+# Generic
+*.out
+*.lock
+*.temp
+
 # Files
 0-files-park
 files-park
@@ -34,12 +41,16 @@ atomic_launcher_windows_1.0.0.1013.zip
 atomic_launcher_windows_2.zip
 TMServerAgent_Linux.tar
 TMServerAgent_Windows.zip
-*.out
-*.lock
-*.temp
+TMSensorAgent_Linux.tar
+TMSensorAgent_Windows.zip
 overrides.yaml
-dsm.properties
-pgoc
+tmas_overrides.yaml
+v1_cam_stack_settings.txt
+eicarcom2.zip
+result.json
+
+# Infrastructure
+infrastructure
 
 # Exploits
 exploits
@@ -48,58 +59,36 @@ v1demo
 temp
 .ecsfg
 
+# Logs
+log/calico
+log/containers
+log/pods
+log/*.log
+
 # Workdir
 workdir*
 docs-in-work*
 
-# In development
-4-cluster-eks-redesign
-9-deep-security-bastion
-awsone/9-deep-security/dsm/apikey
-awsone/9-deep-security/cookie.txt
-azone/4-cluster-aks/kubeconfig
-eicarcom2.zip
-log/calico/cni/cni.log
-log/calico/cni/config
-log/calico/cni/current
-log/calico/cni/lock
+# CSPM
+cspm/*.json
 cspm/exceeded
-cspm/plan.json
-cspm/result.json
-cspm/scan_result.json
-cspm/exceptions.json
-cspm/suppressions.json
+cspm/infra
 cspm/report.pdf
-customrules
-filebeat_ingest_data
-logstash_ingest_data
-hacks/(T1620)File_Executed_from_Memory.md
-hacks/tm_falco_rules-20240417.yaml
-hacks/tm_override_rules-20240417.yaml
-cspm/infra/main.tf
-cspm/infra/outputs.tf
-cspm/infra/provider.tf
-cspm/infra/variables.tf
-cspm/infra/ec2/key_pair.tf
-cspm/infra/ec2/locals.tf
-cspm/infra/ec2/output.tf
-cspm/infra/ec2/sg.tf
-cspm/infra/ec2/variables.tf
-cspm/infra/vpc/data.tf
-cspm/infra/vpc/locals.tf
-cspm/infra/vpc/output.tf
-cspm/infra/vpc/variables.tf
-cspm/infra/vpc/vpc_endpoints.tf
-cspm/infra/vpc/vpc.tf
-awsone/7-scenarios-cloudtrail/downloads/passwords.zip
-awsone/7-scenarios-cloudtrail/downloads/server.pem
-awsone/sandbox
-awsone/0-files/TMSensorAgent_Linux.tar
-awsone/0-files/TMSensorAgent_Windows.zip
-result.json
+
+# Experimenting
+experimenting/migrate/migrated
+experimenting/migrate/source
+
+# Hacks
+hacks/
+
+# Stacks
+stacks/*/*/*.log
+
+# In development
+temp/
+
 clusterpolicy-playgroundone.yaml
-runtimeruleset-playgroundone.yaml
-tmas_overrides.yaml
-v1_cam_stack_settings.txt
+customrules
 
 rosa.md

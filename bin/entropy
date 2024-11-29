@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+import math
+import sys
+from collections import Counter
+
+
+def calculate_entropy(data):
+    # If the input is a string, convert it to a byte array (for more general use)
+    if isinstance(data, str):
+        data = data.encode("utf-8")
+
+    # Count the frequency of each byte in the data
+    total_chars = len(data)
+    char_counts = Counter(data)
+
+    # Calculate the entropy using the Shannon entropy formula
+    entropy_value = 0
+    for count in char_counts.values():
+        p_x = count / total_chars
+        entropy_value += -p_x * math.log2(p_x)
+
+    return entropy_value
+
+
+# Example usage
+# ./entropy supoersecret
+
+entropy = calculate_entropy(sys.argv[1])
+print(f"Entropy of the string: {entropy:.4f}")

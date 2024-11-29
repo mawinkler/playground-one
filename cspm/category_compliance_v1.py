@@ -70,7 +70,7 @@ logging.getLogger("urllib3").setLevel(logging.WARNING)
 REGION = ""  # Examples: eu-central-1 or "" for us-east-1
 ACCOUNT_ID = "7758a778-9c2f-42d1-ae33-fc3d02e3780b"
 RISK_LEVEL_FAIL = "HIGH"
-CREATED_LESS_THAN_DAYS = 2  #90
+CREATED_LESS_THAN_DAYS = 7  #90
 # /HERE
 
 # Do not change
@@ -241,29 +241,14 @@ def retrieve_bot_results(statuses=None, categories=None):
     page_number = 0
     start_datetime = datetime.now(UTC).replace(tzinfo=None) - timedelta(days=CREATED_LESS_THAN_DAYS)
 
-    # filter = f"accountId eq '{ACCOUNT_ID}' and riskLevel eq '{risk_levels}' and status eq 'FAILURE'"
-    # filter = f"(accountId eq '{ACCOUNT_ID}') and (status eq 'FAILURE') and (riskLevel eq 'LOW')"
-    # filter = f"(riskLevel eq 'HIGH' or riskLevel eq 'MEDIUM') and accountId eq '{ACCOUNT_ID}' and service eq 'EC2'"
-    # filter = f"accountId eq '{ACCOUNT_ID}' and service eq 'EC2' and riskLevel eq 'MEDIUM'"
-
     findings = []
     for risk_level in RISK_LEVEL[RISK_LEVEL.index(RISK_LEVEL_FAIL) :]:
         filter = f"accountId eq '{ACCOUNT_ID}' and riskLevel eq '{risk_level}'"
-        # filter = f"accountId eq '{ACCOUNT_ID}' and status eq 'FAILURE'"
         if categories is not None:
             filter += f" and hassubset(categories, {[categories]})"
         if statuses is not None:
-            # filter += f" and hassubset(status, {[statuses]})"
-            # filter += f" and status eq '{statuses}'"
             filter += f" and status eq 'FAILURE'"
         # print(filter)
-        # # print(filter)
-        # # filter="accountId eq '7758a778-9c2f-42d1-ae33-fc3d02e3780b' and status eq 'FAILURE' and riskLevel eq 'HIGH'" # and hassubset(categories, ['reliability'])"
-        # # filter="accountId eq '7758a...' and riskLevel eq 'HIGH'"
-        # # filter="accountId eq '7758a...' and status eq 'FAILURE'"
-        # # filter="accountId eq '7758a...' and riskLevel eq 'HIGH' and status eq 'FAILURE'"
-        # # filter="accountId eq '7758a...' and riskLevel eq 'HIGH' and hassubset(categories, ['reliability'])"
-        # filter="accountId eq '7758a778-9c2f-42d1-ae33-fc3d02e3780b' and status eq 'FAILURE' and hassubset(categories, ['reliability'])"
 
         page_number = 0
         while True:
@@ -276,9 +261,9 @@ def retrieve_bot_results(statuses=None, categories=None):
                 "dateTimeTarget": "createdDate",
             }
 
-            # print(f"URL: {url}")
-            # print(f"Params: {params}")
-            # print(f"Filter: {filter}")
+            _LOGGER.debug(f"URL: {url}")
+            _LOGGER.debug(f"Params: {params}")
+            _LOGGER.debug(f"Filter: {filter}")
 
             response = connector.get(url=url, params=params, filter=filter)
             count = response.get("count", 0)

@@ -1,0 +1,19 @@
+resources:
+  - migrated/cadvisor.yaml
+
+commonLabels:
+  migrated: playground
+
+patches:
+- path: regcred-daemonset.yaml
+  target:
+    kind: DaemonSet
+- path: regcred-replicaset.yaml
+  target:
+    kind: ReplicaSet
+- path: regcred-statefulset.yaml
+  target:
+    kind: StatefulSet
+- path: regcred-deployment.yaml
+  target:
+    kind: Deployment
