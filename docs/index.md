@@ -108,6 +108,10 @@ Vulnerabilities | grype | See [github.com/anchore/grype](https://github.com/anch
 
 ## Change Log
 
+***0.4.10***
+
+- Introduced Sandbox Analysis with Bucket Scanner.
+
 ***0.4.9***
 
 - Introduced Kubernetes Metrics Server for EKS EC2 (`kubectl top pods...`).

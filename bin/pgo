@@ -61,7 +61,7 @@ configs=(
   ["aks-deployments"]=${ONEPATH}/azone/8-cluster-aks-deployments
   ["ecs-ec2"]=${ONEPATH}/awsone/5-cluster-ecs-ec2
   ["ecs-fg"]=${ONEPATH}/awsone/5-cluster-ecs-fargate
-  ["s3scanner"]=${ONEPATH}/awsone/6-bucket-scanner
+  ["bucketscanner"]=${ONEPATH}/awsone/6-bucket-scanner
   ["scenarios-cloudtrail"]=${ONEPATH}/awsone/7-scenarios-cloudtrail
   ["scenarios-cspm"]=${ONEPATH}/awsone/7-scenarios-cspm
   ["scenarios-data"]=${ONEPATH}/awsone/7-scenarios-data
@@ -455,18 +455,20 @@ function init() {
 
       [ "$2" = "" ] && tf ecs-fg init
       ;;&
-    s3scanner|all)
-      printf '%s\n' "Create terraform.tfvars for s3scanner"
+    bucketscanner|all)
+      printf '%s\n' "Create terraform.tfvars for bucketscanner"
       aws_region=${aws_region} \
       aws_pgo_user_access_key=${aws_pgo_user_access_key} \
       aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
       environment_name=${environment_name} \
       vision_one_api_key=${vision_one_api_key} \
       vision_one_region=${vision_one_region} \
+      vision_one_bs_fss=${vision_one_bs_fss} \
+      vision_one_bs_sandbox=${vision_one_bs_sandbox} \
       ONEPATH=${ONEPATH} \
-        envsubst <$ONEPATH/templates/terraform-6-bucket-scanner.tfvars >${configs[s3scanner]}/terraform.tfvars
+        envsubst <$ONEPATH/templates/terraform-6-bucket-scanner.tfvars >${configs[bucketscanner]}/terraform.tfvars
 
-      [ "$2" = "" ] && tf s3scanner init
+      [ "$2" = "" ] && tf bucketscanner init
       ;;&
     scenarios|scenarios-ec2|all)
       printf '%s\n' "Create terraform.tfvars for scenarios-ec2 deployments"
@@ -648,9 +650,6 @@ function init() {
 
       [ "$2" = "" ] && tf scenarios-kind init
       ;;
-    *)
-      echo Configuration $1 not found
-      ;;
   esac
   printf '%s\n' "💬 Terraform terraform.tfvars dropped to configurations"
 }
@@ -725,8 +724,8 @@ function apply() {
     ecs-fg|all)
       tf ecs-fg apply
       ;;&
-    s3scanner|all)
-      tf s3scanner apply
+    bucketscanner|all)
+      tf bucketscanner apply
       ;;&
     scenarios|scenarios-ec2|all)
       tf scenarios-ec2 apply
@@ -770,9 +769,6 @@ function apply() {
       ;;&
     scenarios-kind|all)
       tf scenarios-kind apply
-      ;;
-    *)
-      echo Configuration $1 not found
       ;;
   esac
 }
@@ -1156,11 +1152,11 @@ function destroy() {
         printf '%s\n' "Configuration ecs-fg is not applied"
       fi
       ;;&
-    s3scanner|all)
-      if checklock s3scanner ; then
-        tf s3scanner destroy
+    bucketscanner|all)
+      if checklock bucketscanner ; then
+        tf bucketscanner destroy
       else
-        printf '%s\n' "Configuration s3scanner is not applied"
+        printf '%s\n' "Configuration bucketscanner is not applied"
       fi
       ;;&
     dsw|all)
@@ -1286,9 +1282,6 @@ function destroy() {
         printf '%s\n' "Configuration scenarios-kind is not applied"
       fi
       ;;
-    *)
-      echo Configuration $1 not found
-      ;;
   esac
 }
 
@@ -1345,8 +1338,8 @@ function output() {
     ecs-fg|all)
       tf ecs-fg output
       ;;&
-    s3scanner|all)
-      tf s3scanner output
+    bucketscanner|all)
+      tf bucketscanner output
       ;;&
     scenarios|scenarios-ec2|all)
       tf scenarios-ec2 output
@@ -1396,9 +1389,6 @@ function output() {
       ;;&
     scenarios-kind|all)
       tf scenarios-kind output
-      ;;
-    *)
-      echo Configuration $1 not found
       ;;
   esac
 }
@@ -1464,8 +1454,8 @@ function state() {
     ecs-fg|all)
       tf ecs-fg state
       ;;&
-    s3scanner|all)
-      tf s3scanner state
+    bucketscanner|all)
+      tf bucketscanner state
       ;;&
     scenarios|scenarios-ec2|all)
       tf scenarios-ec2 state
@@ -1506,9 +1496,6 @@ function state() {
       ;;&
     scenarios-kind|all)
       tf scenarios-kind state
-      ;;
-    *)
-      echo Configuration $1 not found
       ;;
   esac
 }
@@ -1555,8 +1542,8 @@ function show() {
     ecs-fg|all)
       tf ecs-fg show
       ;;&
-    s3scanner|all)
-      tf s3scanner show
+    bucketscanner|all)
+      tf bucketscanner show
       ;;&
     scenarios|scenarios-ec2|all)
       tf scenarios-ec2 show
@@ -1597,9 +1584,6 @@ function show() {
       ;;&
     scenarios-kind|all)
       tf scenarios-kind show
-      ;;
-    *)
-      echo Configuration $1 not found
       ;;
   esac
 }
@@ -1645,8 +1629,8 @@ function validate() {
     ecs-fg|all)
       tf ecs-fg validate
       ;;&
-    s3scanner|all)
-      tf s3scanner validate
+    bucketscanner|all)
+      tf bucketscanner validate
       ;;&
     scenarios|scenarios-ec2|all)
       tf scenarios-ec2 validate
@@ -1687,9 +1671,6 @@ function validate() {
       ;;&
     scenarios-kind|all)
       tf scenarios-kind validate
-      ;;
-    *)
-      echo Configuration $1 not found
       ;;
   esac
 }
@@ -1760,8 +1741,8 @@ function erase() {
     ecs-fg|all)
       tf ecs-fg erase
       ;;&
-    s3scanner|all)
-      tf s3scanner erase
+    bucketscanner|all)
+      tf bucketscanner erase
       ;;&
     scenarios|scenarios-ec2|all)
       tf scenarios-ec2 erase
@@ -1802,9 +1783,6 @@ function erase() {
       ;;&
     scenarios-kind|all)
       tf scenarios-kind erase
-      ;;
-    *)
-      echo Configuration $1 not found
       ;;
   esac
 }
@@ -1876,7 +1854,7 @@ function helpcmd() {
   printf '%s\n' "  eks-fg               EKS configuration"
   printf '%s\n' "  ecs-ec2              ECS configuration"
   printf '%s\n' "  ecs-fg               ECS configuration"
-  printf '%s\n' "  s3scanner            S3 Bucket scanner"
+  printf '%s\n' "  bucketscanner            S3 Bucket scanner"
   printf '%s\n' "  kind                 Kind configuration"
   printf '%s\n' "  scenarios-ec2        Scenario configuration"
   printf '%s\n' "  scenarios-fg         Scenario configuration"

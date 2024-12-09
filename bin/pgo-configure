@@ -506,6 +506,35 @@ function update_vision_one_config() {
   else
     printf '%s\n' "Skipping Vision One Container Security configuration"
   fi
+
+  ##
+  ## Vision One Bucket Scanner
+  ##
+  key_desc="Enable Bucket Scanner with File Security?"
+  read -p "${key_desc} [${vision_one_bs_fss}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    vision_one_bs_fss=${TEMP}
+  fi
+  if [[ "${vision_one_bs_fss}" =~ ^true|false$ ]]; then
+    target_val=${vision_one_bs_fss} \
+      yq -i '.services.vision-one.bucket-scanner.fss = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  key_desc="Enable Bucket Scanner with Sandbox?"
+  read -p "${key_desc} [${vision_one_bs_sandbox}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    vision_one_bs_sandbox=${TEMP}
+  fi
+  if [[ "${vision_one_bs_sandbox}" =~ ^true|false$ ]]; then
+    target_val=${vision_one_bs_sandbox} \
+      yq -i '.services.vision-one.bucket-scanner.sandbox = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
 }
 
 function update_deep_security_config() {

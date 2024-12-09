@@ -15,6 +15,8 @@ resource "aws_lambda_function" "scanner_handler" {
       REGION     = var.aws_region
       V1_API_KEY = var.api_key
       V1_REGION  = var.vision_one_region
+      V1_FSS     = var.fss
+      V1_SANDBOX = var.sandbox
     }
   }
 
@@ -26,6 +28,10 @@ resource "aws_lambda_function" "scanner_handler" {
 
   timeout     = local.lambda_timeout
   memory_size = local.lambda_memory_size
+
+  logging_config {
+    log_format = "JSON"
+  }
 
   tags = {
     Name          = "${var.environment}-bucket-scanner"

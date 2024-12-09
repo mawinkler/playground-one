@@ -17,7 +17,7 @@ awsone
 |   ├── scenarios-cloudtrail (7-scenarios-cloudtrail)
 |   ├── scenarios-identity (7-scenarios-identity)
 |   └── scenarios-zerotrust (7-scenarios-zerotrust)
-├── s3scanner (6-bucket-scanner)
+├── bucketscanner (6-bucket-scanner)
 ├── scenarios-cspm (7-scenarios-cspm)
 ├── dsm (9-deep-security)
 |   └── dsw (9-deep-security-workload)

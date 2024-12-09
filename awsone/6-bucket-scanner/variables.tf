@@ -10,7 +10,7 @@ variable "aws_access_key" {
 }
 
 variable "aws_secret_key" {
-  type = string
+  type      = string
   sensitive = true
 }
 
@@ -24,4 +24,12 @@ variable "vision_one_region" {
 
 variable "api_key" {
   type = string
+}
+
+variable "fss" {
+  type = bool
+}
+
+variable "sandbox" {
+  type = bool
 }

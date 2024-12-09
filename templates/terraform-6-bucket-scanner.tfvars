@@ -11,3 +11,5 @@ environment = "${environment_name}"
 # Vision One
 vision_one_region = "${vision_one_region}"
 api_key           = "${vision_one_api_key}"
+fss               = ${vision_one_bs_fss}
+sandbox           = ${vision_one_bs_sandbox}

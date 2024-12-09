@@ -57,7 +57,7 @@ Available configurations:
   eks-fg              EKS configuration
   ecs-ec2             ECS configuration
   ecs-fg              ECS configuration
-  s3scanner           S3 Bucket scanner
+  bucketscanner       S3 Bucket scanner
   kind                Kind configuration
   scenarios-ec2       Scenario configuration
   scenarios-fg        Scenario configuration
