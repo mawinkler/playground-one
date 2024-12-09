@@ -120,6 +120,7 @@ function tf() {
   printf '%s\n' "Configuration ${config} in directory ${configs[$config]}"
   case "$action" in
     init)
+      terraform -chdir=${configs[$config]} init
       terraform -chdir=${configs[$config]} init --upgrade
       # versions ${configs[$config]}
       ;;
@@ -646,7 +647,10 @@ function init() {
         envsubst <$ONEPATH/templates/terraform-7-scenarios-kind.tfvars >${configs[scenarios-kind]}/terraform.tfvars
 
       [ "$2" = "" ] && tf scenarios-kind init
-      ;;&
+      ;;
+    *)
+      echo Configuration $1 not found
+      ;;
   esac
   printf '%s\n' "💬 Terraform terraform.tfvars dropped to configurations"
 }
@@ -766,6 +770,9 @@ function apply() {
       ;;&
     scenarios-kind|all)
       tf scenarios-kind apply
+      ;;
+    *)
+      echo Configuration $1 not found
       ;;
   esac
 }
@@ -1279,6 +1286,9 @@ function destroy() {
         printf '%s\n' "Configuration scenarios-kind is not applied"
       fi
       ;;
+    *)
+      echo Configuration $1 not found
+      ;;
   esac
 }
 
@@ -1387,6 +1397,9 @@ function output() {
     scenarios-kind|all)
       tf scenarios-kind output
       ;;
+    *)
+      echo Configuration $1 not found
+      ;;
   esac
 }
 
@@ -1494,6 +1507,9 @@ function state() {
     scenarios-kind|all)
       tf scenarios-kind state
       ;;
+    *)
+      echo Configuration $1 not found
+      ;;
   esac
 }
 
@@ -1582,6 +1598,9 @@ function show() {
     scenarios-kind|all)
       tf scenarios-kind show
       ;;
+    *)
+      echo Configuration $1 not found
+      ;;
   esac
 }
 
@@ -1668,6 +1687,9 @@ function validate() {
       ;;&
     scenarios-kind|all)
       tf scenarios-kind validate
+      ;;
+    *)
+      echo Configuration $1 not found
       ;;
   esac
 }
@@ -1780,6 +1802,9 @@ function erase() {
       ;;&
     scenarios-kind|all)
       tf scenarios-kind erase
+      ;;
+    *)
+      echo Configuration $1 not found
       ;;
   esac
 }
