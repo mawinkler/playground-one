@@ -1,11 +1,8 @@
-# Scenario: S3 Bucket Malware Scanning
+# Scenario: S3 Bucket Malware Scanning with Sandbox
 
 ## Prerequisites
 
 - Vision One Cloud Security File Scanner API-Key with the following permissions:
-    - Cloud Security Operations
-        - File Security
-            - Run file scan via SDK
     - Platform Capabilities
         - Threat Intelligence
             - Sandbox Analysis
@@ -29,7 +26,7 @@ pgo --config
 Section: Vision One
 Please set/update your Vision One configuration
 ...
-Enable Bucket Scanner with File Security? [true]: 
+Enable Bucket Scanner with File Security? [false]: 
 Enable Bucket Scanner with Sandbox? [true]: 
 ...
 ```
@@ -38,7 +35,7 @@ Enable Bucket Scanner with Sandbox? [true]:
 
 The scanner consists out of the following components:
 
-- A Lambda function triggered by `s3:ObjectCreated` events. It uses the File Security Python SDK via gRPC for File Security or RESTful API for Sandbox submission.
+- A Lambda function triggered by `s3:ObjectCreated` events. It uses the RESTful API for Sandbox submission.
 - The function uses a custom layer containing the required dependencies including the File Security Python SDK.
 - An S3 Bucket with the permission to notify the Lambda.
 - An IAM Role and Policy.
@@ -86,27 +83,6 @@ wget https://secure.eicar.org/eicarcom2.zip
 aws s3 cp eicarcom2.zip s3://${SCANNING_BUCKET}/eicarcom2.zip
 ```
 
-## Example Tags with File Security
-
-Malware | Key | Value
-------- | --- | -----
-Eicar | filesecurity-scan-detail-code | OSX_EICAR.PFH
-| filesecurity-scan-date | 11/14/2024 10:57:18
-| filesecurity-scan-result | malicious
-| filesecurity-scanned | true
-|||
-Qjwmonkey | filesecurity-scan-detail-code | PUA.Win32.Qjwmonkey.GZ
-| filesecurity-scan-date | 11/14/2024 10:57:17
-| filesecurity-scan-result | malicious
-| filesecurity-scanned | true
-|||
-Clean file | filesecurity-scan-detail-code | n/a
-| filesecurity-scan-date | 11/14/2024 11:04:53
-| filesecurity-scan-result | no issues found
-| filesecurity-scanned | true
-
-The tested Clean file was a 1.8GB mkv which was scanned in 8.23 secs.
-
 ## Example Tags with Sandbox
 
 Malware | Key | Value
@@ -118,11 +94,7 @@ Loki | sandbox-detection-names | TSPY_HPLOKI.SMBD
 
 ## Check on Vision One
 
-When heading over to your Vision One console to `Cloud Security Operations --> File Security` you should see scan results with potentially detected malware if you have enabled File Security.
-
-![alt text](images/bucketscanner-fss.png "Console")
-
-For the Sandbox analysis, if enabled, check `Threat Intelligence --> Sandbox Analysis`.
+For the Sandbox analysis check `Threat Intelligence --> Sandbox Analysis`.
 
 ![alt text](images/bucketscanner-sandbox.png "Console")
 

@@ -32,6 +32,9 @@ nav:
       - Automated Observed Attack Techniques Generation: scenarios/xdr/oat-generation.md
       - Automated Workbench Generation: scenarios/xdr/workbench-generation.md
       - Detection Model Exceptions for Container Security: scenarios/xdr/detection-model-exceptions.md
+    - Threat Ingelligence:
+      - Sandbox Analysis:
+        - Scan S3 Buckets for Malware: scenarios/threat-intelligence/sandbox-analysis/sb-s3-bucket-scanning.md
     - Workflow and Automation:
       - Third-Party Integration:
         - Setup Splunk: scenarios/automation/thirdparty/splunk-setup.md
