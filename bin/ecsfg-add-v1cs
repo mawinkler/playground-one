@@ -70,7 +70,8 @@ aws ecs describe-task-definition \
 # TARGET SOURCE         FSTYPE OPTIONS
 # /      /dev/nvme0n1p1 xfs    rw,noatime,seclabel,attr2,inode64,logbufs=8,logbsize=32k,sunit=1024,swidth=1024,noquota
 
-# findmnt /TARGET SOURCE  FSTYPE  OPTIONS
+# findmnt /
+# TARGET SOURCE  FSTYPE  OPTIONS
 # /      overlay overlay rw,relatime,seclabel,lowerdir=/var/lib/docker/overlay2/l/LF5OWVJWMQ6KS5U64OBSH4BTSZ:/var/lib/docker/overlay2
 
 # get home with: docker inspect pgoc-0.2.1 | jq -r '.[0].Mounts[] | select(.Source | endswith("workdir")) | .Source'

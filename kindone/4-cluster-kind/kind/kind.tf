@@ -101,8 +101,8 @@ EOF
       role = "worker"
     }
 
-    node {
-      role = "worker"
-    }
+    # node {
+    #   role = "worker"
+    # }
   }
 }

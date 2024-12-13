@@ -111,7 +111,8 @@ Vulnerabilities | grype | See [github.com/anchore/grype](https://github.com/anch
 ***0.4.10***
 
 - Introduced Sandbox Analysis with Bucket Scanner.
-- Introducing PGOWeb
+- Introducing PGOWeb for eks-ec2 and kind clusters.
+- Fixed MetalLB and Contour on Kind cluster.
 
 ***0.4.9***
 

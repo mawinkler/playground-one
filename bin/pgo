@@ -635,6 +635,8 @@ function init() {
         envsubst <$ONEPATH/templates/terraform-4-cluster-kind.tfvars >${configs[kind]}/terraform.tfvars
 
       environment_name=${environment_name} \
+      aws_pgo_user_access_key=${aws_pgo_user_access_key} \
+      aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
       vision_one_cs_enabled=${vision_one_cs_enabled} \
       vision_one_cs_policy=${vision_one_cs_policy} \
       vision_one_cs_policy_operator=${vision_one_cs_policy_operator} \
@@ -647,6 +649,7 @@ function init() {
       integrations_prometheus_grafana_password=${integrations_prometheus_grafana_password} \
       integrations_trivy_enabled=${integrations_trivy_enabled} \
       integrations_metallb_enabled=${integrations_metallb_enabled} \
+      integrations_pgoweb_enabled=${integrations_pgoweb_enabled} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-8-cluster-kind-deployments.tfvars >${configs[kind-deployments]}/terraform.tfvars
 

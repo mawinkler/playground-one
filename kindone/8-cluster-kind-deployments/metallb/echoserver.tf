@@ -57,20 +57,20 @@ resource "kubernetes_service" "echoserver" {
     }
 }
 
-resource "kubectl_manifest" "echoserver_httpproxy" {
-  depends_on = [helm_release.projectcontour, kubernetes_service.echoserver]
-  yaml_body  = <<YAML
-apiVersion: projectcontour.io/v1
-kind: HTTPProxy
-metadata:
-  name: echoserver
-  namespace: echoserver
-spec:
-  virtualhost:
-    fqdn: localhost
-  routes:
-    - services:
-      - name: echoserver
-        port: 8080
-YAML
-}
+# resource "kubectl_manifest" "echoserver_httpproxy" {
+#   depends_on = [helm_release.projectcontour, kubernetes_service.echoserver]
+#   yaml_body  = <<YAML
+# apiVersion: projectcontour.io/v1
+# kind: HTTPProxy
+# metadata:
+#   name: echoserver
+#   namespace: echoserver
+# spec:
+#   virtualhost:
+#     fqdn: localhost
+#   routes:
+#     - services:
+#       - name: echoserver
+#         port: 8080
+# YAML
+# }

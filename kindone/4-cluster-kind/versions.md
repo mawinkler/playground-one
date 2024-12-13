@@ -16,7 +16,7 @@ available module | version
 
 current provider | version
 ---------------- | -------
-registry.terraform.io/tehcyx/kind | 0.4.0
+registry.terraform.io/tehcyx/kind | 0.7.0
 
 ## Providers available
 
