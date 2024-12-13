@@ -741,6 +741,22 @@ function update_integrations_config() {
   printf '%s\n' "Please set/update your Integrations configuration"
 
   ##
+  ## PGOWeb
+  ##
+  key_desc="Deploy PGOWeb?"
+  read -p "${key_desc} [${integrations_pgoweb_enabled}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    integrations_pgoweb_enabled=${TEMP}
+  fi
+  if [[ "${integrations_pgoweb_enabled}" =~ ^true|false$ ]]; then
+    target_val=${integrations_pgoweb_enabled} \
+      yq -i '.services.integrations.pgoweb.enabled = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  ##
   ## Calico
   ##
   key_desc="Deploy Calico?"

@@ -24,6 +24,8 @@ nav:
     - Splunk: integrations/splunk.md
     - Elastic Stack: integrations/elastic-stack.md
   - Scenarios:
+    - PGOWeb:
+      - File Cruncher: scenarios/pgoweb/file-crunching.md
     - Attack Surface Risk Management:
       - Virtual Instance Predictive Attack Path: scenarios/asrm/virtual-machine-attack-path.md
       - IAM User Predictive Attack Path: scenarios/asrm/iam-user-attack-path.md

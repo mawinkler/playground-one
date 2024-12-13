@@ -31,3 +31,6 @@ grafana_admin_password = "${integrations_prometheus_grafana_password}"
 
 # Istio
 istio = ${integrations_istio_enabled}
+
+# PGOWeb
+pgoweb = ${integrations_pgoweb_enabled}

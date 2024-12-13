@@ -111,6 +111,7 @@ Vulnerabilities | grype | See [github.com/anchore/grype](https://github.com/anch
 ***0.4.10***
 
 - Introduced Sandbox Analysis with Bucket Scanner.
+- Introducing PGOWeb
 
 ***0.4.9***
 

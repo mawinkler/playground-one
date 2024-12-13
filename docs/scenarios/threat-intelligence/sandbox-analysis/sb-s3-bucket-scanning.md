@@ -15,7 +15,7 @@
 
     This scenario uses Playground Ones own S3 Bucket Scanner which is ***not*** the official solution component of Vision One. It uses the File Security Python SDK and/or Vision One API within a Lambda Function. Scan results will show up on the Vision One console.
 
-Verify, that you have enabled the Bucket Scanner with `File Security` and/or `Sandbox` in your configuration.
+Verify, that you have enabled the Bucket Scanner with `Sandbox` in your configuration.
 
 ```sh
 pgo --config

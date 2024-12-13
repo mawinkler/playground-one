@@ -76,3 +76,14 @@ module "istio" {
 module "metrics" {
   source = "./metrics-server"
 }
+
+module "pgoweb" {
+  count = var.pgoweb ? 1 : 0
+
+  source    = "./pgoweb"
+  namespace = "pgoweb"
+  aws_access_key = var.aws_access_key
+  aws_secret_key = var.aws_secret_key
+  access_ip = var.access_ip
+  api_key = var.api_key
+}

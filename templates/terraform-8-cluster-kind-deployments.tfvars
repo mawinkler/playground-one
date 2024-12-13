@@ -16,7 +16,7 @@ calico = false  #${integrations_calico_enabled}
 trivy = ${integrations_trivy_enabled}
 
 # MetalLB
-metallb = false  #${integrations_metallb_enabled}
+metallb = ${integrations_metallb_enabled}
 
 # Prometheus
 prometheus = false  #${integrations_prometheus_enabled}

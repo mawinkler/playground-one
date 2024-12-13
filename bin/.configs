@@ -1,0 +1,35 @@
+(
+  ["all"]=${ONEPATH}
+  ["user"]=${ONEPATH}/awsone/1-pgo-user
+  ["network"]=${ONEPATH}/awsone/2-network
+  ["nw"]=${ONEPATH}/awsone/2-network
+  ["ec2"]=${ONEPATH}/awsone/3-instances
+  ["instances"]=${ONEPATH}/awsone/3-instances
+  ["eks"]=${ONEPATH}/awsone/4-cluster-eks-ec2
+  ["eks-ec2"]=${ONEPATH}/awsone/4-cluster-eks-ec2
+  ["eks-ec2-deployments"]=${ONEPATH}/awsone/8-cluster-eks-ec2-deployments
+  ["eks-fg"]=${ONEPATH}/awsone/4-cluster-eks-fargate
+  ["eks-fg-deployments"]=${ONEPATH}/awsone/8-cluster-eks-fargate-deployments
+  ["aks"]=${ONEPATH}/azone/4-cluster-aks
+  ["aks-deployments"]=${ONEPATH}/azone/8-cluster-aks-deployments
+  ["ecs-ec2"]=${ONEPATH}/awsone/5-cluster-ecs-ec2
+  ["ecs-fg"]=${ONEPATH}/awsone/5-cluster-ecs-fargate
+  ["bucketscanner"]=${ONEPATH}/awsone/6-bucket-scanner
+  ["scenarios-cloudtrail"]=${ONEPATH}/awsone/7-scenarios-cloudtrail
+  ["scenarios-cspm"]=${ONEPATH}/awsone/7-scenarios-cspm
+  ["scenarios-data"]=${ONEPATH}/awsone/7-scenarios-data
+  ["scenarios"]=${ONEPATH}/awsone/7-scenarios-ec2
+  ["scenarios-ec2"]=${ONEPATH}/awsone/7-scenarios-ec2
+  ["scenarios-fg"]=${ONEPATH}/awsone/7-scenarios-fargate
+  ["scenarios-identity"]=${ONEPATH}/awsone/7-scenarios-identity
+  ["scenarios-zerotrust"]=${ONEPATH}/awsone/7-scenarios-zerotrust
+  ["scenarios-aks"]=${ONEPATH}/azone/7-scenarios-aks
+  ["goat"]=${ONEPATH}/awsone/7-goat
+  ["deepsecurity"]=${ONEPATH}/awsone/9-deep-security
+  ["dsm"]=${ONEPATH}/awsone/9-deep-security
+  ["dsw"]=${ONEPATH}/awsone/9-deep-security-workload
+  ["wsw"]=${ONEPATH}/awsone/9-workload-security-workload
+  ["kind"]=${ONEPATH}/kindone/4-cluster-kind
+  ["scenarios-kind"]=${ONEPATH}/kindone/7-scenarios-kind
+  ["kind-deployments"]=${ONEPATH}/kindone/8-cluster-kind-deployments
+)

@@ -70,3 +70,7 @@ variable "grafana_admin_password" {
 variable "istio" {
   type = bool
 }
+
+variable "pgoweb" {
+  type = bool
+}
