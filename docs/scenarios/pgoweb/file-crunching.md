@@ -77,12 +77,16 @@ services:
 docker compose up pgoweb
 ```
 
-### Kubernetes with `eks-ec2`
+### Kubernetes with `eks-ec2` and `kind`
 
-If you've enabled PGOWeb in your configuration, it will be automatically deployed when the EKS EC2 Kubernetes cluster is created.
+If you've enabled PGOWeb in your configuration, it will be automatically deployed when the EKS EC2 or Kind Kubernetes cluster is created.
 
 ```sh
+# EKS
 pgo --apply eks-ec2
+
+# Kind
+pgo --apply kind
 ```
 
 The following outputs are created:
@@ -95,67 +99,13 @@ loadbalancer_dns_pgoweb = "k8s-pgoweb-pgowebin-69953cce7e-847792142.eu-central-1
 
 Access it using your browser.
 
-### Kubernetes with a Manifest
-
-`pgoweb.yaml`:
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: pgoweb
-  labels:
-    app: pgoweb
-spec:
-  type: LoadBalancer
-  ports:
-  - port: 5000
-    name: pgoweb
-    targetPort: 5000
-  selector:
-    app: pgoweb
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    app: pgoweb
-  name: pgoweb
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: pgoweb
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 1
-  template:
-    metadata:
-      labels:
-        app: pgoweb
-    spec:
-      containers:
-      - name: pgoweb
-        image: mawinkler/pgoweb
-        imagePullPolicy: Always
-        env:
-        - name: AWS_ACCESS_KEY_ID
-          value: <AWS_ACCESS_KEY_ID>
-        - name: AWS_SECRET_ACCESS_KEY
-          value: <AWS_SECRET_ACCESS_KEY>
-        - name: V1_API_KEY
-          value: <V1_API_KEY>
-        ports:
-        - containerPort: 5000
-```
-
-Deploy
+With kind run
 
 ```sh
-kubectl apply -f pgoweb.yaml
+kubectl -n projectcontour port-forward service/contour-envoy 8080:80 --address='0.0.0.0'
 ```
+
+and connect to port `8080`.
 
 ## Start Crunching
 
@@ -171,7 +121,7 @@ The `[SANDBOX]` button sends the file directly to the Vision One Sandbox. When t
 
 The `[FILE SECURITY]` button uses the File Security SDK to scan the file.
 
-Finally, press the `[COMTAINER SECURITY]` button to drop the file into the running container. If you have Vision One Container Security with runtime scanning enabled, it should detect and report a malicious file. Check under `Search` or `Cloud Security --> Container Protection --> Events --> Kubernetes Runtime`.
+Finally, press the `[COMTAINER SECURITY]` button to drop the file into the running container. If you have Vision One Container Security with runtime scanning enabled, it should detect and report a malicious file. Check under `Search` or `Cloud Security --> Container Protection --> Events --> Kubernetes Runtime`. The scheduled scan will then identify the dropped file as well, if it is malicious.
 
 ![alt text](images/pgoweb-02.png "PGOWeb")
 

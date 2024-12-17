@@ -2,7 +2,7 @@
 
 set -e
 
-PGO_VERSION=$(cat .PGO_VERSION)
+PGO_VERSION=$(cat ../.PGO_VERSION)
 
 printf '%s\n' "Building pgoc version ${PGO_VERSION}"
 
