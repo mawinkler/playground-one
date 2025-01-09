@@ -28,8 +28,8 @@ locals {
   })
 
   linux_db_count  = 1
-  linux_web_count = 1
-  windows_count   = 1
+  linux_web_count = 2
+  windows_count   = 2
 
   # Which agent to deploy?
   # Allowed values:

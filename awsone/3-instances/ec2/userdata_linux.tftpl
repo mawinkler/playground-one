@@ -21,4 +21,4 @@ chown ubuntu.ubuntu -R /home/ubuntu/download
 # agent
 cd /home/ubuntu/download
 chmod +x ./${tm_agent}_Linux_deploy.sh
-./${tm_agent}_Linux_deploy.sh
+HOME=/home/ubuntu ./${tm_agent}_Linux_deploy.sh
