@@ -16,6 +16,11 @@ output "private_security_group_id" {
   value = module.ec2.private_security_group_id
 }
 
+# SSM
+output "ssm_key" {
+  value = module.ec2.ssm_key
+}
+
 # Subnets
 output "public_subnets" {
   value = module.vpc.public_subnets

@@ -41,6 +41,19 @@ resource "aws_instance" "windows-server" {
   }
 }
 
+# AWS Systems Manager
+resource "aws_ssm_association" "windows_server_agent" {
+  count = var.create_linux ? local.windows_count : 0
+
+  name = aws_ssm_document.windows.name
+
+  targets {
+    key    = "InstanceIds"
+    values = [aws_instance.windows-server[count.index].id]
+  }
+}
+
+# Traffic Mirror
 resource "aws_ec2_traffic_mirror_session" "vns_traffic_mirror_session_win" {
   count = var.virtual_network_sensor && var.create_windows ? 1 : 0
 

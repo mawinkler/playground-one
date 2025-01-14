@@ -32,17 +32,17 @@ resource "aws_instance" "linux-web" {
   }
 
   # nginx installation
-  provisioner "file" {
-    source      = "../1-scripts/nginx.sh"
-    destination = "/tmp/nginx.sh"
-  }
+  # provisioner "file" {
+  #   source      = "../1-scripts/nginx.sh"
+  #   destination = "/tmp/nginx.sh"
+  # }
 
-  provisioner "remote-exec" {
-    inline = [
-      "chmod +x /tmp/nginx.sh",
-      "sudo /tmp/nginx.sh"
-    ]
-  }
+  # provisioner "remote-exec" {
+  #   inline = [
+  #     "chmod +x /tmp/nginx.sh",
+  #     "sudo /tmp/nginx.sh"
+  #   ]
+  # }
 
   # # wordpress installation
   # provisioner "file" {
@@ -58,6 +58,19 @@ resource "aws_instance" "linux-web" {
   # }
 }
 
+# AWS Systems Manager
+resource "aws_ssm_association" "linux_web_server_agent" {
+  count = var.create_linux ? local.linux_web_count : 0
+
+  name = aws_ssm_document.linux.name
+
+  targets {
+    key    = "InstanceIds"
+    values = [aws_instance.linux-web[count.index].id]
+  }
+}
+
+# Traffic Mirror
 resource "aws_ec2_traffic_mirror_session" "vns_traffic_mirror_session_linux_web" {
   count = var.virtual_network_sensor && var.create_linux ? 1 : 0
 

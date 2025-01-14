@@ -48,6 +48,7 @@ module "iam" {
   environment = var.environment
   aws_region  = var.aws_region
   s3_bucket   = module.s3.s3_bucket
+  ssm_key     = data.terraform_remote_state.vpc.outputs.ssm_key
 }
 
 module "s3" {

@@ -27,7 +27,7 @@ locals {
     tm_agent                 = local.tm_agent
   })
 
-  linux_db_count  = 1
+  linux_db_count  = 2
   linux_web_count = 2
   windows_count   = 2
 
@@ -35,5 +35,5 @@ locals {
   # Allowed values:
   #   TMServerAgent (Server and Workload Security)
   #   TMSensorAgent (Basecamp)
-  tm_agent        = "TMServerAgent"
+  tm_agent = "TMServerAgent"
 }

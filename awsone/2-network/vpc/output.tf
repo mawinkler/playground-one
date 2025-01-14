@@ -25,6 +25,10 @@ output "private_subnet_cidr_blocks" {
   value = module.vpc.private_subnets_cidr_blocks
 }
 
+output "private_route_table_ids" {
+  value = module.vpc.private_route_table_ids
+}
+
 output "intra_subnets" {
   value = module.vpc.intra_subnets
 }

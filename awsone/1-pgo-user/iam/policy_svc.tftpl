@@ -9,7 +9,11 @@
 				"servicediscovery:CreateHttpNamespace",
 				"servicediscovery:GetOperation",
 				"servicediscovery:ListTagsForResource",
-				"servicediscovery:TagResource"
+				"servicediscovery:TagResource",
+        "ssm:CreateAssociation",
+        "ssm:DescribeAssociation",
+        "ssm:DeleteAssociation",
+        "ssm:UpdateAssociation"
 			],
 			"Resource": "*"
 		},
@@ -48,7 +52,17 @@
     },
     {
       "Effect": "Allow",
-      "Action": "ssm:GetParameters",
+      "Action": [
+        "ssm:GetParameters",
+        "ssm:CreateDocument",
+        "ssm:AddTagsToResource",
+        "ssm:DescribeDocument",
+        "ssm:GetDocument",
+        "ssm:DescribeDocumentPermission",
+        "ssm:DeleteDocument",
+        "ssm:UpdateDocument",
+        "ssm:UpdateDocumentDefaultVersion"
+      ],
       "Resource": "arn:aws:ssm:${Region}:${Account}:*"
     }
   ]

@@ -327,37 +327,38 @@ foreach ($obj in $objects) {
 # ###########################
 # Basecamp agent
 # ###########################
-Set-Location "$localFolder"
+# Moved to SSM Document
+# Set-Location "$localFolder"
 
-if (!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-    Write-Warning "You are not running as an Administrator. Please try again with admin privileges."
-    exit 1
-}
+# if (!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+#     Write-Warning "You are not running as an Administrator. Please try again with admin privileges."
+#     exit 1
+# }
 
-$archive="${tm_agent}_Windows.zip"
+# $archive="${tm_agent}_Windows.zip"
 
-if (Test-Path $archive) {
+# if (Test-Path $archive) {
 
-    Write-Host "Extracting XBC/Basecamp Package" -ForegroundColor Green
+#     Write-Host "Extracting XBC/Basecamp Package" -ForegroundColor Green
 
-    Expand-Archive -LiteralPath $localFolder/$archive -DestinationPath $localFolder -Force
+#     Expand-Archive -LiteralPath $localFolder/$archive -DestinationPath $localFolder -Force
 
-    try {
-        Write-Host "Starting XBC/Basecamp Install Process" -ForegroundColor Green
+#     try {
+#         Write-Host "Starting XBC/Basecamp Install Process" -ForegroundColor Green
 
-        Start-Process -FilePath $localFolder/EndpointBasecamp.exe -WorkingDirectory $localFolder -NoNewWindow
+#         Start-Process -FilePath $localFolder/EndpointBasecamp.exe -WorkingDirectory $localFolder -NoNewWindow
 
-        Write-Host "Install Process Completed" -ForegroundColor Green
-    }
-    catch {
-        # Catch errors if they exist.
-        throw $_.Exception.Message
+#         Write-Host "Install Process Completed" -ForegroundColor Green
+#     }
+#     catch {
+#         # Catch errors if they exist.
+#         throw $_.Exception.Message
 
-        Write-Host "The installer ran into an issue. Try running the installer manually to determine the casue." -ForegroundColor Red
+#         Write-Host "The installer ran into an issue. Try running the installer manually to determine the casue." -ForegroundColor Red
 
-        exit 3
-    }
-}
+#         exit 3
+#     }
+# }
 
 # Join AD
 if ("${windows_ad_domain_name}" -ne "") {

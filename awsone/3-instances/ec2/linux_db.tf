@@ -30,20 +30,33 @@ resource "aws_instance" "linux-db" {
     private_key = file("${var.private_key_path}")
   }
 
-  # mysql installation
-  provisioner "file" {
-    source      = "../1-scripts/mysql.sh"
-    destination = "/tmp/mysql.sh"
-  }
+  # # mysql installation
+  # provisioner "file" {
+  #   source      = "../1-scripts/mysql.sh"
+  #   destination = "/tmp/mysql.sh"
+  # }
 
-  provisioner "remote-exec" {
-    inline = [
-      "chmod +x /tmp/mysql.sh",
-      "sudo /tmp/mysql.sh"
-    ]
+  # provisioner "remote-exec" {
+  #   inline = [
+  #     "chmod +x /tmp/mysql.sh",
+  #     "sudo /tmp/mysql.sh"
+  #   ]
+  # }
+}
+
+# AWS Systems Manager
+resource "aws_ssm_association" "linux_db_server_agent" {
+  count = var.create_linux ? local.linux_db_count : 0
+
+  name = aws_ssm_document.linux.name
+
+  targets {
+    key    = "InstanceIds"
+    values = [aws_instance.linux-db[count.index].id]
   }
 }
 
+# Traffic Mirror
 resource "aws_ec2_traffic_mirror_session" "vns_traffic_mirror_session_linux_db" {
   count = var.virtual_network_sensor && var.create_linux ? 1 : 0
 

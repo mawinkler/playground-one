@@ -5,7 +5,30 @@ hostname -b ${linux_hostname}
 
 # install essential packages
 apt-get update
-apt-get install -y unzip
+# apt-get install -y unzip
+
+
+PACKAGE="unzip"  # Package to install, passed as a script argument
+RETRY_COUNT=10  # Number of retries
+WAIT_TIME=10  # Wait time (seconds) between retries
+
+echo "Attempting to install package: $PACKAGE"
+
+for ((i=1; i<=RETRY_COUNT; i++)); do
+    # Try to install the package
+    if sudo apt-get install -y "$PACKAGE"; then
+        echo "Package $PACKAGE installed successfully."
+    else
+        # Check if the error is related to the dpkg lock
+        if grep -q "Unable to acquire the dpkg frontend lock" <(sudo apt-get install -y "$PACKAGE" 2>&1); then
+            echo "Lock is held by another process. Retry $i/$RETRY_COUNT after $WAIT_TIME seconds..."
+            sleep "$WAIT_TIME"
+        else
+            echo "Failed to install package $PACKAGE for another reason."
+            exit 1
+        fi
+    fi
+done
 
 # install aws cli
 curl -fsSL https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o /tmp/awscliv2.zip
@@ -18,7 +41,8 @@ mkdir -p /home/ubuntu/download
 aws s3 cp s3://${s3_bucket}/download /home/ubuntu/download --recursive
 chown ubuntu.ubuntu -R /home/ubuntu/download
 
-# agent
-cd /home/ubuntu/download
-chmod +x ./${tm_agent}_Linux_deploy.sh
-HOME=/home/ubuntu ./${tm_agent}_Linux_deploy.sh
+# Moved to SSM Document
+# # agent
+# cd /home/ubuntu/download
+# chmod +x ./${tm_agent}_Linux_deploy.sh
+# HOME=/home/ubuntu ./${tm_agent}_Linux_deploy.sh
