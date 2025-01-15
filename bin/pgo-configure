@@ -309,32 +309,6 @@ function update_aws_config() {
     echo "Error: Invalid ${key_desc} input."
     exit 0
   fi
-
-  key_desc="EC2 - create Linux EC2?"
-  read -p "${key_desc} [${pgo_ec2_create_linux}]: " TEMP
-  if [[ ! -z "${TEMP}" ]]; then
-    pgo_ec2_create_linux=${TEMP}
-  fi
-  if [[ "${pgo_ec2_create_linux}" =~ ^true|false$ ]]; then
-    target_val=${pgo_ec2_create_linux} \
-      yq -i '.services.playground-one.ec2.create-linux = env(target_val)' ${ONEPATH}/config.yaml
-  else
-    echo "Error: Invalid ${key_desc} input."
-    exit 0
-  fi
-
-  key_desc="EC2 - create Windows EC2?"
-  read -p "${key_desc} [${pgo_ec2_create_windows}]: " TEMP
-  if [[ ! -z "${TEMP}" ]]; then
-    pgo_ec2_create_windows=${TEMP}
-  fi
-  if [[ "${pgo_ec2_create_windows}" =~ ^true|false$ ]]; then
-    target_val=${pgo_ec2_create_windows} \
-      yq -i '.services.playground-one.ec2.create-windows = env(target_val)' ${ONEPATH}/config.yaml
-  else
-    echo "Error: Invalid ${key_desc} input."
-    exit 0
-  fi
 }
 
 function update_azure_config() {

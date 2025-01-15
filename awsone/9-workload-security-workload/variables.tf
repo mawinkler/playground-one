@@ -10,7 +10,7 @@ variable "aws_access_key" {
 }
 
 variable "aws_secret_key" {
-  type = string
+  type      = string
   sensitive = true
 }
 
@@ -41,11 +41,13 @@ variable "ws_apikey" {
 # Computers
 ################################################################################
 variable "create_linux" {
-  type = bool
+  type    = bool
+  default = true
 }
 
 variable "create_windows" {
-  type = bool
+  type    = bool
+  default = true
 }
 
 variable "linux_username_amzn" {

@@ -27,8 +27,8 @@ module "vision_one" {
 
   source                  = "./vision_one"
   environment             = var.environment
-  cluster_arn             = data.terraform_remote_state.eks.outputs.cluster_arn
-  cluster_name            = data.terraform_remote_state.eks.outputs.cluster_name
+  cluster_arn             = ""
+  cluster_name            = "pgo"
   cluster_policy          = var.cluster_policy
   cluster_policy_operator = var.cluster_policy_operator
   group_id                = var.group_id

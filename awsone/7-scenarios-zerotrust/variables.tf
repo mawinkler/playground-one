@@ -10,7 +10,7 @@ variable "aws_access_key" {
 }
 
 variable "aws_secret_key" {
-  type = string
+  type      = string
   sensitive = true
 }
 
@@ -36,7 +36,8 @@ variable "windows_username" {
 }
 
 variable "create_linux" {
-  type = bool
+  type    = bool
+  default = true
 }
 
 # Private Access Gateway

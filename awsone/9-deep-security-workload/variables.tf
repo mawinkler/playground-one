@@ -22,11 +22,13 @@ variable "environment" {
 # Computers
 ################################################################################
 variable "create_linux" {
-  type = bool
+  type    = bool
+  default = true
 }
 
 variable "create_windows" {
-  type = bool
+  type    = bool
+  default = true
 }
 
 variable "linux_username_amzn" {

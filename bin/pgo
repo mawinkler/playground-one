@@ -335,8 +335,6 @@ function init() {
       aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
       pgo_access_ip=${pgo_access_ip} \
       environment_name=${environment_name} \
-      pgo_ec2_create_linux=${pgo_ec2_create_linux} \
-      pgo_ec2_create_windows=${pgo_ec2_create_windows} \
       vision_one_asrm_create_attackpath=${vision_one_asrm_create_attackpath} \
       active_directory=${pgo_active_directory} \
       pgo_virtual_network_sensor_enabled=${pgo_virtual_network_sensor_enabled} \
@@ -546,7 +544,6 @@ function init() {
       aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
       pgo_access_ip=${pgo_access_ip} \
       environment_name=${environment_name} \
-      pgo_ec2_create_linux=${pgo_ec2_create_linux} \
       active_directory=${pgo_active_directory} \
       private_access_gateway=${pgo_private_access_gateway} \
       ONEPATH=${ONEPATH} \
@@ -603,8 +600,6 @@ function init() {
       deep_security_license=${deep_security_license} \
       deep_security_username=${deep_security_username} \
       deep_security_password=${deep_security_password} \
-      pgo_ec2_create_linux=${pgo_ec2_create_linux} \
-      pgo_ec2_create_windows=${pgo_ec2_create_windows} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-9-deep-security-workload.tfvars >${configs[dsw]}/terraform.tfvars
 
@@ -617,8 +612,6 @@ function init() {
       aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip} \
-      pgo_ec2_create_linux=${pgo_ec2_create_linux} \
-      pgo_ec2_create_windows=${pgo_ec2_create_windows} \
       workload_security_region=${workload_security_region} \
       workload_security_tenant_id=${workload_security_tenant_id} \
       workload_security_token=${workload_security_token} \
@@ -704,10 +697,8 @@ function apply() {
       ;;&
     ec2|instances|all)
       tf instances apply
-      if [ "${pgo_ec2_create_windows}" = "true" ]; then
-        printf '%s\n' "win_password = \"$(terraform -chdir=${configs[instances]} output -raw win_password)\""
-        printf '%s\n' "win_local_admin_password = \"$(terraform -chdir=${configs[instances]} output -raw win_local_admin_password)\""
-      fi
+      printf '%s\n' "win_password = \"$(terraform -chdir=${configs[instances]} output -raw win_password)\""
+      printf '%s\n' "win_local_admin_password = \"$(terraform -chdir=${configs[instances]} output -raw win_local_admin_password)\""
       ;;&
     eks|eks-ec2|all)
       tf eks-ec2 apply
@@ -1329,10 +1320,8 @@ function output() {
       ;;&
     ec2|instances|all)
       tf instances output
-      if [ "${pgo_ec2_create_windows}" = "true" ]; then
-        printf '%s\n' "win_password = \"$(terraform -chdir=${configs[instances]} output -raw win_password)\""
-        printf '%s\n' "win_local_admin_password = \"$(terraform -chdir=${configs[instances]} output -raw win_local_admin_password)\""
-      fi
+      printf '%s\n' "win_password = \"$(terraform -chdir=${configs[instances]} output -raw win_password)\""
+      printf '%s\n' "win_local_admin_password = \"$(terraform -chdir=${configs[instances]} output -raw win_local_admin_password)\""
       ;;&
     eks|eks-ec2|all)
       tf eks-ec2 output

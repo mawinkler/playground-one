@@ -48,7 +48,50 @@ In addition to networking, the following core services are optional:
 
 Basically, a couple of EC2 instances are created with this configuration. One of the linux instances can be used to demo a potential attack path to RDS, if enabled.
 
-If you store the agent installers for Server and Workload Security in `0-files` the instances will connect to Vision One.
+You can set the number of created instances within the `awsone/3-instances/variables.tf`:
+
+```json
+# CUSTOMIZE
+# Number of instances and Vision One Deployment here
+variable "linux_db_count" {
+  type = number
+  default = 1
+}
+
+variable "linux_web_count" {
+  type = number
+  default = 1
+}
+
+variable "windows_count" {
+  type = number
+  default = 1
+}
+```
+
+If you store the Vision One Endpoint Security agent installers in `awsone/0-files`, the instances can optionally connect to Vision One. This is only supported for Server and Workload Protection and the Endpoint Sensor (Basecamp). You must first download *your* installers from *your* Vision One instance! Enable this in the same `variables.tf`:
+
+```json
+# Deploy Vision One Endpoint Agent
+variable "agent_deploy" {
+  type = bool
+  default = true
+}
+
+variable "agent_variant" {
+  type = string
+  # Which agent to deploy?
+  # Allowed values:
+  #   TMServerAgent (Server and Workload Security)
+  #   TMSensorAgent (Basecamp)
+  default = "TMServerAgent"
+}
+# /CUSTOMIZE
+```
+
+If you have `agent_deploy` enabled, the agents will deploy automatically using AWS Systems Manager. If you want to take out the deployment yourself, set the variable to false.
+
+After the instances have been created you can head over to `AWS Systems Manager --> Documents --> Owned by me`. Either choose `TrendMicroServerAgentLinuxDeploy` or `TrendMicroServerAgentWindowsDeploy` and press `[Run command]`. Either select a specific instance or select instances by Tags.
 
 You can optionally drop any file or installer in the `0-files` directory which will then be available in the ec2 instances download folder.
 

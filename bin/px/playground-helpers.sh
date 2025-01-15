@@ -403,8 +403,6 @@ function get_config() {
     pgo_managed_active_directory="$(yq '.services.aws.managed-active-directory' $ONEPATH/config.yaml)"
     pgo_active_directory="$(yq '.services.aws.active-directory' $ONEPATH/config.yaml)"
     pgo_service_gateway="$(yq '.services.aws.service-gateway' $ONEPATH/config.yaml)"
-    pgo_ec2_create_linux="$(yq '.services.playground-one.ec2.create-linux' $ONEPATH/config.yaml)"
-    pgo_ec2_create_windows="$(yq '.services.playground-one.ec2.create-windows' $ONEPATH/config.yaml)"
     pgo_ec2_create_database="$(yq '.services.playground-one.ec2.create-database' $ONEPATH/config.yaml)"
     pgo_azvm_create_linux="$(yq '.services.playground-one.azvm.create-linux' $ONEPATH/config.yaml)"
     [[ "${pgo_access_ip}" = "null" || "${pgo_access_ip}" = "" ]] && pgo_access_ip=[\"0.0.0.0/0\"]
@@ -412,8 +410,6 @@ function get_config() {
     [[ "${pgo_managed_active_directory}" = "null" || "${pgo_managed_active_directory}" = "" ]] && pgo_managed_active_directory=false
     [[ "${pgo_active_directory}" = "null" || "${pgo_active_directory}" = "" ]] && pgo_active_directory=false
     [[ "${pgo_service_gateway}" = "null" || "${pgo_service_gateway}" = "" ]] && pgo_service_gateway=false
-    [[ "${pgo_ec2_create_linux}" = "null" || "${pgo_ec2_create_linux}" = "" ]] && pgo_ec2_create_linux=true
-    [[ "${pgo_ec2_create_windows}" = "null" || "${pgo_ec2_create_windows}" = "" ]] && pgo_ec2_create_windows=true
     [[ "${pgo_ec2_create_database}" = "null" || "${pgo_ec2_create_database}" = "" ]] && pgo_ec2_create_database=false
     [[ "${pgo_azvm_create_linux}" = "null" || "${pgo_azvm_create_linux}" = "" ]] && pgo_azvm_create_linux=true
 
@@ -471,30 +467,21 @@ function telemetry() {
   telemetry_action=$1
   telemetry_configuration=$2
 
-  if is_darwin; then
-    unix_timestamp=$(date -u +%s)
-    account_id_hash=$(echo -n ${aws_account_id} | shasum -a 256 | cut -d " " -f1)
-  else
-    unix_timestamp=$(date --utc +%s)
-    account_id_hash=$(echo -n ${aws_account_id} | sha256sum | cut -d " " -f1)
-  fi
+  unix_date=$(date -u +"%Y-%m-%d %T")
+  account_id_hash=$(echo -n ${aws_account_id} | md5sum | cut -d " " -f1)
+  operating_system="$(uname -s -r -v -m)"
+  # echo ${operating_system}
   curl -X POST "${api_url}/telemetry" \
     -H 'Content-Type: application/json' \
-    -d '
+    -d "
   {
-      "exec_time": "'${unix_timestamp}'",
-      "account_id": "'${account_id_hash}'",
-      "environment": "'${environment_name}'",
-      "region": "'${aws_region}'",
-      "action": "'${telemetry_action}'",
-      "configuration": "'${telemetry_configuration}'",
-      "config_ec2_linux": "'${pgo_ec2_create_linux}'",
-      "config_ec2_windows": "'${pgo_ec2_create_windows}'",
-      "config_ecs_ec2": "'${pgo_ecs_create_ec2}'",
-      "config_ecs_fargate": "'${pgo_ecs_create_fargate}'",
-      "integrations_eks_calico": "'${integrations_calico_enabled}'",
-      "integrations_eks_prometheus": "'${integrations_prometheus_enabled}'",
-      "integrations_eks_trivy": "'${integrations_trivy_enabled}'"
+    \"exec_time\": \"${unix_date}\",
+    \"account_id\": \"${account_id_hash}\",
+    \"operating_system\": \"${operating_system}\",
+    \"environment\": \"${environment_name}\",
+    \"region\": \"${aws_region}\",
+    \"action\": \"${telemetry_action}\",
+    \"configuration\": \"${telemetry_configuration}\"
   }
-      '
+      "
 }

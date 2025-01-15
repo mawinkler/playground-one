@@ -20,8 +20,5 @@ linux_username = "ubuntu"
 # Windows Username
 windows_username = "admin"
 
-# Create Linux instance(s)
-create_linux = ${pgo_ec2_create_linux}
-
 # Private Access Gateway
 private_access_gateway = ${private_access_gateway}

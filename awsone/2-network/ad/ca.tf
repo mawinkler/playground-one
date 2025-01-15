@@ -4,6 +4,7 @@ resource "aws_instance" "windows-server-ca" {
   instance_type          = var.windows_instance_type
   subnet_id              = var.public_subnets[0]
   vpc_security_group_ids = [var.public_security_group_id]
+  iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
   source_dest_check      = false
   key_name               = var.key_name
   user_data              = local.userdata_ca
@@ -21,6 +22,7 @@ resource "aws_instance" "windows-server-ca" {
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "nw"
+    Type          = "${var.environment}-windows-server"
   }
 }
 
