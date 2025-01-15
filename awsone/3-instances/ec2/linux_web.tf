@@ -7,7 +7,7 @@
 # #############################################################################
 resource "aws_instance" "linux-web" {
 
-  count = var.create_linux ? local.linux_web_count : 0
+  count = var.create_linux ? var.linux_web_count : 0
 
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.linux_instance_type
@@ -21,6 +21,7 @@ resource "aws_instance" "linux-web" {
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "ec2"
+    Type          = "${var.environment}-linux-server"
   }
 
   user_data = local.userdata_linux_web
@@ -44,23 +45,23 @@ resource "aws_instance" "linux-web" {
   #   ]
   # }
 
-  # # wordpress installation
-  # provisioner "file" {
-  #     source      = "../1-scripts/wordpress.sh"
-  #     destination = "/tmp/wordpress.sh"
-  # }
+  # wordpress installation
+  provisioner "file" {
+      source      = "../1-scripts/wordpress.sh"
+      destination = "/tmp/wordpress.sh"
+  }
 
-  # provisioner "remote-exec" {
-  #     inline = [
-  #         "chmod +x /tmp/wordpress.sh",
-  #         "sudo /tmp/wordpress.sh"
-  #     ]
-  # }
+  provisioner "remote-exec" {
+      inline = [
+          "chmod +x /tmp/wordpress.sh",
+          "sudo /tmp/wordpress.sh"
+      ]
+  }
 }
 
 # AWS Systems Manager
 resource "aws_ssm_association" "linux_web_server_agent" {
-  count = var.create_linux ? local.linux_web_count : 0
+  count = var.agent_deploy ? var.linux_web_count : 0
 
   name = aws_ssm_document.linux.name
 

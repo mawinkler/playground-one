@@ -23,6 +23,16 @@ variable "linux_db_hostname" {}
 
 variable "linux_web_hostname" {}
 
+variable "linux_db_count" {}
+
+variable "linux_web_count" {}
+
+variable "windows_count" {}
+
+variable "agent_deploy" {}
+
+variable "agent_variant" {}
+
 variable "windows_instance_type" {
   type        = string
   description = "EC2 instance type for Windows Server"

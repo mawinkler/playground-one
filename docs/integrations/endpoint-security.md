@@ -67,9 +67,7 @@ Your `${ONEPATH}/awsone/0-files`-directory should look like this:
 -rw-rw-r-- 1 user user 17912014 Aug  1 14:50 atomic_launcher_linux_1.0.0.1009.zip
 -rw-rw-r-- 1 user user 96135367 Aug  1 14:50 atomic_launcher_windows_2.zip
 -rw-rw-r-- 1 user user        0 Jul 28 06:22 see_documentation
--rw-rw-r-- 1 user user      144 Aug  1 14:33 TMServerAgent_Linux_deploy.sh
 -rw-rw-r-- 1 user user 27380224 Aug  1 14:50 TMServerAgent_Linux.tar
--rw-rw-r-- 1 user user     1145 Aug  1 14:33 TMServerAgent_Windows_deploy.ps1
 -rw-rw-r-- 1 user user  3303522 Aug  1 14:50 TMServerAgent_Windows.zip
 ```
 

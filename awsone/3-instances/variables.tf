@@ -30,10 +30,37 @@ variable "windows_username" {
 
 variable "create_linux" {
   type = bool
+  default = true
 }
 
 variable "create_windows" {
   type = bool
+  default = true
+}
+
+variable "linux_db_count" {
+  type = number
+  default = 0
+}
+variable "linux_web_count" {
+  type = number
+  default = 1
+}
+variable "windows_count" {
+  type = number
+  default = 0
+}
+variable "agent_deploy" {
+  type = bool
+  default = true
+}
+variable "agent_variant" {
+  type = string
+  # Which agent to deploy?
+  # Allowed values:
+  #   TMServerAgent (Server and Workload Security)
+  #   TMSensorAgent (Basecamp)
+  default = "TMServerAgent"
 }
 
 variable "environment" {

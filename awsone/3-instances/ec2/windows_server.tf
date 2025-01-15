@@ -11,7 +11,7 @@ resource "random_password" "windows_password" {
 
 resource "aws_instance" "windows-server" {
 
-  count = var.create_windows ? local.windows_count : 0
+  count = var.create_windows ? var.windows_count : 0
 
   ami                    = data.aws_ami.windows.id
   instance_type          = var.windows_instance_type
@@ -25,6 +25,7 @@ resource "aws_instance" "windows-server" {
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "ec2"
+    Type          = "${var.environment}-windows-server"
   }
 
   user_data = local.userdata_windows
@@ -43,7 +44,7 @@ resource "aws_instance" "windows-server" {
 
 # AWS Systems Manager
 resource "aws_ssm_association" "windows_server_agent" {
-  count = var.create_linux ? local.windows_count : 0
+  count = var.agent_deploy ? var.windows_count : 0
 
   name = aws_ssm_document.windows.name
 

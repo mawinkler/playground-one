@@ -24,6 +24,11 @@ module "ec2" {
   linux_db_hostname        = "linuxdb"
   linux_web_hostname       = "linuxweb"
   create_windows           = var.create_windows
+  linux_db_count           = var.linux_db_count
+  linux_web_count          = var.linux_web_count
+  windows_count            = var.windows_count
+  agent_deploy             = var.agent_deploy
+  agent_variant            = var.agent_variant
 
   # PGO Active Directory
   active_directory         = var.active_directory
@@ -48,7 +53,7 @@ module "iam" {
   environment = var.environment
   aws_region  = var.aws_region
   s3_bucket   = module.s3.s3_bucket
-  ssm_key     = data.terraform_remote_state.vpc.outputs.ssm_key
+  # ssm_key     = data.terraform_remote_state.vpc.outputs.ssm_key
 }
 
 module "s3" {

@@ -6,7 +6,7 @@
 # #############################################################################
 resource "aws_instance" "linux-db" {
 
-  count = var.create_linux ? local.linux_db_count : 0
+  count = var.create_linux ? var.linux_db_count : 0
 
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.linux_instance_type
@@ -20,6 +20,7 @@ resource "aws_instance" "linux-db" {
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "ec2"
+    Type          = "${var.environment}-linux-server"
   }
 
   user_data = local.userdata_linux_db
@@ -30,23 +31,23 @@ resource "aws_instance" "linux-db" {
     private_key = file("${var.private_key_path}")
   }
 
-  # # mysql installation
-  # provisioner "file" {
-  #   source      = "../1-scripts/mysql.sh"
-  #   destination = "/tmp/mysql.sh"
-  # }
+  # mysql installation
+  provisioner "file" {
+    source      = "../1-scripts/mysql.sh"
+    destination = "/tmp/mysql.sh"
+  }
 
-  # provisioner "remote-exec" {
-  #   inline = [
-  #     "chmod +x /tmp/mysql.sh",
-  #     "sudo /tmp/mysql.sh"
-  #   ]
-  # }
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/mysql.sh",
+      "sudo /tmp/mysql.sh"
+    ]
+  }
 }
 
 # AWS Systems Manager
 resource "aws_ssm_association" "linux_db_server_agent" {
-  count = var.create_linux ? local.linux_db_count : 0
+  count = var.agent_deploy ? var.linux_db_count : 0
 
   name = aws_ssm_document.linux.name
 

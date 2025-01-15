@@ -17,9 +17,9 @@ output "private_security_group_id" {
 }
 
 # SSM
-output "ssm_key" {
-  value = module.ec2.ssm_key
-}
+# output "ssm_key" {
+#   value = module.ec2.ssm_key
+# }
 
 # Subnets
 output "public_subnets" {

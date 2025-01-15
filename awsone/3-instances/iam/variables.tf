@@ -7,4 +7,4 @@ variable "aws_region" {}
 
 variable "s3_bucket" {}
 
-variable "ssm_key" {}
+# variable "ssm_key" {}

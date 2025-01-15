@@ -21,6 +21,6 @@ output "private_security_group_id" {
   value = aws_security_group.sg["private"].id
 }
 
-output "ssm_key" {
-  value = aws_kms_alias.ssm_key_alias.arn
-}
+# output "ssm_key" {
+#   value = aws_kms_alias.ssm_key_alias.arn
+# }

@@ -1,6 +1,9 @@
 ################################################################################
 # Create Application Load Balancer
 ################################################################################
+# Issues:
+# https://github.com/eksctl-io/eksctl/issues/7987
+
 module "alb_sg" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "~> 5.1.2"

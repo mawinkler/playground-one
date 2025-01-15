@@ -5,13 +5,13 @@ locals {
   userdata_linux_db = templatefile("${path.module}/userdata_linux.tftpl", {
     s3_bucket      = var.s3_bucket
     linux_hostname = var.linux_db_hostname
-    tm_agent       = local.tm_agent
+    tm_agent       = var.agent_variant
   })
 
   userdata_linux_web = templatefile("${path.module}/userdata_linux.tftpl", {
     s3_bucket      = var.s3_bucket
     linux_hostname = var.linux_web_hostname
-    tm_agent       = local.tm_agent
+    tm_agent       = var.agent_variant
   })
 
   userdata_windows = templatefile("${path.module}/userdata_windows.tftpl", {
@@ -24,16 +24,6 @@ locals {
     windows_ad_domain_name   = var.active_directory ? var.windows_ad_domain_name : ""
     windows_ad_user_name     = var.windows_ad_user_name
     windows_ad_safe_password = var.windows_ad_safe_password
-    tm_agent                 = local.tm_agent
+    tm_agent                 = var.agent_variant
   })
-
-  linux_db_count  = 2
-  linux_web_count = 2
-  windows_count   = 2
-
-  # Which agent to deploy?
-  # Allowed values:
-  #   TMServerAgent (Server and Workload Security)
-  #   TMSensorAgent (Basecamp)
-  tm_agent = "TMServerAgent"
 }
