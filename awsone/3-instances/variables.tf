@@ -18,7 +18,7 @@ variable "windows_count" {
 # Deploy Vision One Endpoint Agent
 variable "agent_deploy" {
   type = bool
-  default = true
+  default = false
 }
 
 variable "agent_variant" {

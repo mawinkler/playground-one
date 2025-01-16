@@ -28,6 +28,10 @@ resource "aws_iam_policy" "ec2_policy" {
           "s3:GetObjectVersion",
           "s3:List*"
         ],
+        "Resource" : [
+          "arn:aws:s3:::*",
+          "arn:aws:s3:::/*"
+        ]
         # "Resource" : [
         #   "arn:aws:s3:::${var.s3_bucket}",
         #   "arn:aws:s3:::${var.s3_bucket}/*"

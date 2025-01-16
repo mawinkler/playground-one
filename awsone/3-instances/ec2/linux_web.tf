@@ -61,9 +61,20 @@ resource "aws_instance" "linux-web" {
 
 # AWS Systems Manager
 resource "aws_ssm_association" "linux_web_server_agent" {
-  count = var.agent_deploy ? var.linux_web_count : 0
+  count = var.agent_deploy ? var.agent_variant == "TMServerAgent" ? var.linux_db_count : 0 : 0
 
-  name = aws_ssm_document.linux.name
+  name = aws_ssm_document.server-agent-linux.name
+
+  targets {
+    key    = "InstanceIds"
+    values = [aws_instance.linux-web[count.index].id]
+  }
+}
+
+resource "aws_ssm_association" "linux_web_sensor_agent" {
+  count = var.agent_deploy ? var.agent_variant == "TMSensorAgent" ? var.linux_db_count : 0 : 0
+
+  name = aws_ssm_document.sensor-agent-linux.name
 
   targets {
     key    = "InstanceIds"
