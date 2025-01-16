@@ -35,13 +35,15 @@ If you want the instances automatically to be activated against your Server and 
 
 The downloaded files are named something similar like
 
-`TMServerAgent_Windows_auto_64_Server_and_Workload_Protection_Manager_-_CLOUDONE-ID.zip`
+`TMServerAgent_Windows_auto_64_Server_and_Workload_Protection_Manager....zip`
 
 and/or
 
-`TMServerAgent_Linux_auto_64_Server_and_Workload_Protection_Manager_-CLOUDONE-ID.tar`.
+`TMServerAgent_Linux_auto_64_Server_and_Workload_Protection_Manager....tar`.
 
-Rename them to `TMServerAgent_Linux.tar` and `TMServerAgent_Windows.zip` respectively and copy the file(s) to `${ONEPATH}/awsone/0-files`.
+Similar for the Endpoint Sensors.
+
+Rename them to `TMServerAgent_Linux.tar`, `TMServerAgent_Windows.zip`,  `TMSensorAgent_Linux.tar`, and `TMSensorAgent_Windows.zip` respectively and copy the file(s) to `${ONEPATH}/awsone/0-files`.
 
 ## Optional: Server & Workload Protection Event-Based Tasks
 

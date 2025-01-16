@@ -445,6 +445,8 @@ function get_config() {
     vision_one_asrm_create_attackpath="$(yq '.services.vision-one.asrm.create-attackpath' $ONEPATH/config.yaml)"
     vision_one_bs_fss="$(yq '.services.vision-one.bucket-scanner.fss' $ONEPATH/config.yaml)"
     vision_one_bs_sandbox="$(yq '.services.vision-one.bucket-scanner.sandbox' $ONEPATH/config.yaml)"
+    vision_one_endpoint_enabled="$(yq '.services.vision-one.endpoint-security.enabled' $ONEPATH/config.yaml)"
+    vision_one_endpoint_type="$(yq '.services.vision-one.endpoint-security.type' $ONEPATH/config.yaml)"
     [[ "${vision_one_api_key}" = "null" || "${vision_one_api_key}" = "" ]] && vision_one_api_key="apikey"
     [[ "${vision_one_region}" = "null" || "${vision_one_region}" = "" ]] && vision_one_region="us-east-1"
     [[ "${vision_one_cs_enabled}" = "null" || "${vision_one_cs_enabled}" = "" ]] && vision_one_cs_enabled=false
@@ -453,7 +455,8 @@ function get_config() {
     [[ "${vision_one_cs_group_id}" = "null" || "${vision_one_cs_group_id}" = "" ]] && vision_one_cs_group_id="00000000-0000-0000-0000-000000000001"
     [[ "${vision_one_asrm_create_attackpath}" = "null" || "${vision_one_asrm_create_attackpath}" = "" ]] && vision_one_asrm_create_attackpath=false
     [[ "${vision_one_bs_fss}" = "null" || "${vision_one_bs_fss}" = "" ]] && vision_one_bs_fss=true
-    [[ "${vision_one_bs_sandbox}" = "null" || "${vision_one_bs_sandbox}" = "" ]] && vision_one_bs_sandbox=false
+    [[ "${vision_one_endpoint_enabled}" = "null" || "${vision_one_endpoint_enabled}" = "" ]] && vision_one_endpoint_enabled=false
+    [[ "${vision_one_endpoint_type}" = "null" || "${vision_one_endpoint_type}" = "" ]] && vision_one_endpoint_type="TMSensorAgent"
     vision_one_map_api_url ${vision_one_region}
 
     # Deep Security

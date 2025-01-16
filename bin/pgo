@@ -339,6 +339,8 @@ function init() {
       active_directory=${pgo_active_directory} \
       pgo_virtual_network_sensor_enabled=${pgo_virtual_network_sensor_enabled} \
       pgo_deep_discovery_inspector_enabled=${pgo_deep_discovery_inspector_enabled} \
+      vision_one_endpoint_enabled=${vision_one_endpoint_enabled} \
+      vision_one_endpoint_type=${vision_one_endpoint_type} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-3-instances.tfvars >${configs[instances]}/terraform.tfvars
 

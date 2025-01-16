@@ -67,27 +67,10 @@ variable "windows_count" {
   type = number
   default = 1
 }
-```
-
-If you store the Vision One Endpoint Security agent installers in `awsone/0-files`, the instances can optionally connect to Vision One. This is only supported for Server and Workload Protection and the Endpoint Sensor (Basecamp). You must first download *your* installers from *your* Vision One instance! Enable this in the same `variables.tf`:
-
-```json
-# Deploy Vision One Endpoint Agent
-variable "agent_deploy" {
-  type = bool
-  default = true
-}
-
-variable "agent_variant" {
-  type = string
-  # Which agent to deploy?
-  # Allowed values:
-  #   TMServerAgent (Server and Workload Security)
-  #   TMSensorAgent (Basecamp)
-  default = "TMServerAgent"
-}
 # /CUSTOMIZE
 ```
+
+If you store the Vision One Endpoint Security agent installers in `awsone/0-files`, the instances can optionally connect to Vision One. This is only supported for Server and Workload Protection and the Endpoint Sensor (Basecamp). You must first download *your* installers from *your* Vision One instance!
 
 If you have `agent_deploy` enabled, the agents will deploy automatically using AWS Systems Manager. If you want to take out the deployment yourself, set the variable to false.
 

@@ -54,6 +54,8 @@ nav:
       - Identity Posture:
         - Populate the Active Directory: scenarios/identity-security/identity-posture/populate-ad.md
     - Endpoint Security:
+      - Endpoint Security:
+        - Endpoint Agent Deployment with AWS Systems Manager: scenarios/endpoint-security/endpoint-security/agent-ssm-deployments.md
       - Deep Security:
         - Integrate Deep Security with Vision One: scenarios/endpoint-security/deep-security/ds-integrate.md
         - Integrate Deep Security with Vision One and Demo Benefits: scenarios/endpoint-security/deep-security/ds-integrate-demo.md

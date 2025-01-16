@@ -14,21 +14,6 @@ variable "windows_count" {
   type = number
   default = 1
 }
-
-# Deploy Vision One Endpoint Agent
-variable "agent_deploy" {
-  type = bool
-  default = false
-}
-
-variable "agent_variant" {
-  type = string
-  # Which agent to deploy?
-  # Allowed values:
-  #   TMServerAgent (Server and Workload Security)
-  #   TMSensorAgent (Basecamp)
-  default = "TMServerAgent"
-}
 # /CUSTOMIZE
 
 variable "aws_region" {
@@ -73,6 +58,21 @@ variable "create_windows" {
 
 variable "environment" {
   type = string
+}
+
+# Deploy Vision One Endpoint Agent
+variable "agent_deploy" {
+  type = bool
+  default = false
+}
+
+variable "agent_variant" {
+  type = string
+  # Which agent to deploy?
+  # Allowed values:
+  #   TMServerAgent (Server and Workload Security)
+  #   TMSensorAgent (Basecamp)
+  default = "TMServerAgent"
 }
 
 #

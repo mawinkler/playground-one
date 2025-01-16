@@ -33,30 +33,30 @@ resource "aws_instance" "linux-web" {
   }
 
   # nginx installation
-  # provisioner "file" {
-  #   source      = "../1-scripts/nginx.sh"
-  #   destination = "/tmp/nginx.sh"
-  # }
-
-  # provisioner "remote-exec" {
-  #   inline = [
-  #     "chmod +x /tmp/nginx.sh",
-  #     "sudo /tmp/nginx.sh"
-  #   ]
-  # }
-
-  # wordpress installation
   provisioner "file" {
-      source      = "../1-scripts/wordpress.sh"
-      destination = "/tmp/wordpress.sh"
+    source      = "../1-scripts/nginx.sh"
+    destination = "/tmp/nginx.sh"
   }
 
   provisioner "remote-exec" {
-      inline = [
-          "chmod +x /tmp/wordpress.sh",
-          "sudo /tmp/wordpress.sh"
-      ]
+    inline = [
+      "chmod +x /tmp/nginx.sh",
+      "sudo /tmp/nginx.sh"
+    ]
   }
+
+  # # wordpress installation
+  # provisioner "file" {
+  #     source      = "../1-scripts/wordpress.sh"
+  #     destination = "/tmp/wordpress.sh"
+  # }
+
+  # provisioner "remote-exec" {
+  #     inline = [
+  #         "chmod +x /tmp/wordpress.sh",
+  #         "sudo /tmp/wordpress.sh"
+  #     ]
+  # }
 }
 
 # AWS Systems Manager

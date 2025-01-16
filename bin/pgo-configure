@@ -423,6 +423,37 @@ function update_vision_one_config() {
   fi
 
   ##
+  ## Vision One Endpoint Security
+  ##
+  key_desc="Enable Endpoint Security Automatic Deployment?"
+  read -p "${key_desc} [${vision_one_endpoint_enabled}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    vision_one_endpoint_enabled=${TEMP}
+  fi
+  if [[ "${vision_one_endpoint_enabled}" =~ ^true|false$ ]]; then
+    target_val=${vision_one_endpoint_enabled} \
+      yq -i '.services.vision-one.endpoint-security.enabled = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  if ${vision_one_endpoint_enabled} ; then
+    key_desc="Endpoint Security Agent Type (TMServerAgent|TMSensorAgent)"
+    read -p "${key_desc} [${vision_one_endpoint_type}]: " TEMP
+    if [[ ! -z "${TEMP}" ]]; then
+      vision_one_endpoint_type=${TEMP}
+    fi
+    if [[ "${vision_one_endpoint_type}" =~ ^TMServerAgent|TMSensorAgent$ ]]; then
+      target_val=${vision_one_endpoint_type} \
+        yq -i '.services.vision-one.endpoint-security.type = env(target_val)' ${ONEPATH}/config.yaml
+    else
+      echo "Error: Invalid ${key_desc} input."
+      exit 0
+    fi
+  fi
+
+  ##
   ## Vision One Container Security
   ##
   key_desc="Enable Container Security?"
