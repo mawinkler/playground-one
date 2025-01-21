@@ -32,3 +32,7 @@ virtual_network_sensor = ${pgo_virtual_network_sensor_enabled}
 
 # Deep Discovery Inspector
 deep_discovery_inspector = ${pgo_deep_discovery_inspector_enabled}
+
+# Endpoint Security
+agent_deploy = ${vision_one_endpoint_enabled}
+agent_variant = "${vision_one_endpoint_type}"

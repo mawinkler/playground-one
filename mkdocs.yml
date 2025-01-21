@@ -96,7 +96,8 @@ nav:
         - Artifact Scanning:
           - Container Image Scanning for Vulnerabilities, Malware, and Secrets: scenarios/cloud-security/container-security/artifact-scanning/tmas-artifact-scanning.md
           - Scan Containers with a GitHub Action: scenarios/cloud-security/container-security/artifact-scanning/tmas-github-action.md
-          - Shift Left Security - Preview: scenarios/cloud-security/container-security/artifact-scanning/tmas-shift-left-security.md
+          - Shift Left Security: scenarios/cloud-security/container-security/artifact-scanning/tmas-shift-left-security.md
+          - Shift Left Security - Scan at Development: scenarios/cloud-security/container-security/artifact-scanning/tmas-shift-left-security-dev.md
           - Fixing Vulnerabilities and Secrets with Artifact Scanning: scenarios/cloud-security/container-security/artifact-scanning/tmas-artifact-scanning-fixing.md
       - File Security:
         - Artifact Scanning:

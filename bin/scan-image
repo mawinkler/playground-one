@@ -1,0 +1,39 @@
+#!/bin/bash
+
+if [ ! -f Dockerfile ]; then
+  printf '%s\n' "Dockerfile not found"
+  exit 0
+fi
+
+image_name=$(basename "$PWD")
+
+if [ $# -gt 0 ]; then
+  PARAMS=$@
+else
+  REGION=""  #us-east-1
+  MALWARE_SCAN=false
+  SECRETS_SCAN=false
+  SBOM=true
+  PARAMS="-V"
+  if [ "${MALWARE_SCAN}" = "true" ]; then PARAMS="${PARAMS} -M" ; fi
+  if [ "${SECRETS_SCAN}" = "true" ]; then PARAMS="${PARAMS} -S" ; fi
+  if [ "${REGION}" != "" ]; then echo "-r ${REGION}" ; fi
+  if [ "${SBOM}" = "true" ]; then PARAMS="${PARAMS} --saveSBOM" ; fi
+fi
+
+temp_dir=$(mktemp -d)
+
+docker build --tag ${image_name} . --load # 2>&1 &> /dev/null
+
+cd ${temp_dir}
+docker save -o ${image_name}.tar ${image_name} # 2>&1 &> /dev/null
+
+tmas scan ${PARAMS} docker-archive:${image_name}.tar > result.json
+
+if [ "$SBOM" = "true" ]; then mv SBOM_* sbom.json; fi
+
+printf '%s\n' "Scan Results:" 
+jq 'del(.vulnerabilities.findings, .secrets.findings, .malware.findings)' result.json
+
+printf '%s\n' "Scan Results File: ${temp_dir}/results.json"
+[ -f ${temp_dir}/sbom.json ] && printf '%s\n' "Image SBOM: ${temp_dir}/sbom.json"

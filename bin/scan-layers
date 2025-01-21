@@ -1,0 +1,45 @@
+#!/bin/bash
+
+if [ ! -f Dockerfile ]; then
+  printf '%s\n' "Dockerfile not found"
+  exit 0
+fi
+
+image_name=$(basename "$PWD")
+
+if [ $# -gt 0 ]; then
+  PARAMS=$@
+else
+  REGION=""  #us-east-1
+  SBOM=true
+  PARAMS="-V"
+  if [ "${REGION}" != "" ]; then PARAMS="${PARAMS} ${REGION}" ; fi
+  if [ "${SBOM}" = "true" ]; then PARAMS="${PARAMS} --saveSBOM" ; fi
+fi
+
+temp_dir=$(mktemp -d)
+
+docker build --tag ${image_name} . --load # 2>&1 &> /dev/null
+
+cd ${temp_dir}
+docker save -o ${image_name}.tar ${image_name} # 2>&1 &> /dev/null
+
+tar xf ${image_name}.tar
+
+layers=$(cat manifest.json | jq -r '.[0].Layers[]')
+
+results="layer\ttotal\tcritical\thigh\tmedium\tlow\tnegligible\tunkown\toverridden\n"
+
+for layer in ${layers}
+do
+  printf '%s\n' "Scanning ${layer}"
+  mkdir -p disk/${layer}
+  tar xf ${layer} -C disk/${layer}
+  tmas scan ${PARAMS} dir:disk/${layer} > result_${layer##*/}.json
+
+  results=${results}${layer##*/}'\t'$(jq -r '.vulnerabilities | "\(.totalVulnCount)\\t\(.criticalCount)\\t\(.highCount)\\t\(.mediumCount)\\t\(.lowCount)\\t\(.negligibleCount)\\t\(.unknownCount)\\t\(.overriddenCount)\\n"' result_${layer##*/}.json)
+done
+
+echo -e ${results} | column -t -s $'\t'
+
+printf '%s\n' "Scan Results: ${temp_dir}/"
