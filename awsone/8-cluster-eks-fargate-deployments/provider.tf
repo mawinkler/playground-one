@@ -70,27 +70,27 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.55.0"
+      version = "~> 5.84.0"
     }
     helm = {
       source  = "hashicorp/helm"
-      version = "~> 2.14.0"
+      version = "~> 2.17.0"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "~> 2.31.0"
+      version = "~> 2.35.1"
     }
     null = {
       source  = "hashicorp/null"
-      version = "~> 3.2.2"
+      version = "~> 3.2.3"
     }
     restapi = {
       source  = "Mastercard/restapi"
-      version = "1.19.1"
+      version = "1.20.0"
     }
     visionone = {
       source  = "trendmicro/vision-one"
-      version = "~> 1.0.4"
+      version = "~> 1.0.5"
     }
   }
 }

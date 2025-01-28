@@ -11,7 +11,7 @@ resource "random_string" "suffix" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "~> 20.14.0"
+  version = "~> 20.33.1"
 
   cluster_name    = "${var.environment}-eks-ec2-${random_string.suffix.result}"
   cluster_version = local.kubernetes_version

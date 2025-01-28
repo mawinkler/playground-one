@@ -127,7 +127,7 @@ function tf() {
   printf '%s\n' "Configuration ${config} in directory ${configs[$config]}"
   case "$action" in
     init)
-      terraform -chdir=${configs[$config]} init
+      # terraform -chdir=${configs[$config]} init
       terraform -chdir=${configs[$config]} init --upgrade
       # versions ${configs[$config]}
       ;;
