@@ -17,11 +17,11 @@ available module | version
 current provider | version
 ---------------- | -------
 registry.terraform.io/hashicorp/ad | 0.5.0
-registry.terraform.io/hashicorp/aws | 5.55.0
+registry.terraform.io/hashicorp/aws | 5.84.0
 
 ## Providers available
 
 available provider | version
 ------------------ | -------
 registry.terraform.io/hashicorp/ad | 0.5.0
-registry.terraform.io/hashicorp/aws | 5.55.0
+registry.terraform.io/hashicorp/aws | 5.84.0

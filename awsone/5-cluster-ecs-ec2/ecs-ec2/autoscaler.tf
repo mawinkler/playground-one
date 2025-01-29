@@ -9,7 +9,7 @@ module "autoscaling" {
     # On-demand instances currently disabled
     # See ecs-ec2.tf and service.tf to reenable
     #
-    # On-demand instances
+    # # On-demand instances
     # asg-ondemand = {
     #   instance_type              = "t3.medium"
     #   use_mixed_instances_policy = false

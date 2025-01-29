@@ -35,23 +35,23 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.55.0"
+      version = "~> 5.84"
     }
     null = {
       source  = "hashicorp/null"
-      version = "~> 3.2.2"
+      version = "~> 3.2"
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.6.2"
+      version = "~> 3.6"
     }
     restapi = {
       source  = "Mastercard/restapi"
-      version = "1.19.1"
+      version = "~> 1.20"
     }
     time = {
       source  = "hashicorp/time"
-      version = "0.11.2"
+      version = "~> 0.12"
     }
   }
 }

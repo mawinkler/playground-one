@@ -22,7 +22,7 @@ module "ecs" {
     # On-demand instances currently disabled
     # See autoscaler.tf and service.tf to reenable
     #
-    # On-demand instances
+    # # On-demand instances
     # asg-ondemand = {
     #   auto_scaling_group_arn         = module.autoscaling["asg-ondemand"].autoscaling_group_arn
     #   managed_termination_protection = "ENABLED"

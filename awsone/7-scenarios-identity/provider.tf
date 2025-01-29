@@ -23,11 +23,11 @@ terraform {
   required_providers {
     ad = {
       source  = "hashicorp/ad"
-      version = "~> 0.5.0"
+      version = "~> 0.5"
     }
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.55.0"
+      version = "~> 5.84"
     }
   }
 }

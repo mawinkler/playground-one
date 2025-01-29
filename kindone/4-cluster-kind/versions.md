@@ -16,10 +16,12 @@ available module | version
 
 current provider | version
 ---------------- | -------
+registry.terraform.io/hashicorp/random | 3.6.3
 registry.terraform.io/tehcyx/kind | 0.7.0
 
 ## Providers available
 
 available provider | version
 ------------------ | -------
-registry.terraform.io/tehcyx/kind | 0.5.1
+registry.terraform.io/hashicorp/random | 3.6.3
+registry.terraform.io/tehcyx/kind | 0.7.0

@@ -12,7 +12,7 @@ module "ecs_service" {
   # Task Definition
   requires_compatibilities = ["EC2"]
   capacity_provider_strategy = {
-    # spot instances
+    # Spot instances
     asg-spot = {
       capacity_provider = module.ecs.autoscaling_capacity_providers["asg-spot"].name
       weight            = 2

@@ -48,6 +48,11 @@ resource "helm_release" "trendmicro" {
     value = visionone_container_cluster.terraform_cluster.inventory_collection
   }
 
+  set {
+    name = "replicas.admissionController"
+    value = 2
+  }
+  
   # PGO
   set {
     name  = "cloudOne.policyOperator.enabled"
@@ -79,4 +84,34 @@ resource "helm_release" "trendmicro" {
     name  = "securityContext.enabled"
     value = true
   }
+
+  # # Malware Scanning
+  # set {
+  #   name  = "malwareScanning.scanner.autoscaling.enabled"
+  #   value = true
+  # }
+  # set {
+  #   name  = "malwareScanning.scanTimeoutSeconds"
+  #   value = 300
+  # }
+  # set {
+  #   name  = "malwareScanning.scanner.autoscaling.minReplicas"
+  #   value = 1
+  # }
+  # set {
+  #   name  = "malwareScanning.scanner.autoscaling.maxReplicas"
+  #   value = 2  # depends on the number compute nodes in cluster
+  # }
+  # set {
+  #   name  = "malwareScanning.scanner.autoscaling.targetCPUUtilization"
+  #   value = 800
+  # }
+  # set {
+  #   name  = "scanManager.maxJobCount"
+  #   value = 4
+  # }
+  # set {
+  #   name  = "scanManager.activeDeadlineSeconds"
+  #   value = 3600
+  # }
 }

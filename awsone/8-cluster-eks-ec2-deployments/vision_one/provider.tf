@@ -5,12 +5,12 @@ terraform {
   required_providers {
     restapi = {
       source                = "Mastercard/restapi"
-      version               = "1.20.0"
+      version               = "~> 1.20"
       configuration_aliases = [restapi.container_security]
     }
     visionone = {
       source                = "trendmicro/vision-one"
-      version               = "~> 1.0.5"
+      version               = "~> 1.0"
       configuration_aliases = [visionone.container_security]
     }
   }

@@ -47,32 +47,32 @@ terraform {
 
   required_providers {
     kubectl = {
-      source = "gavinbunney/kubectl"
-      version = "~> 1.14.0"
+      source  = "gavinbunney/kubectl"
+      version = "~> 1.19"
     }
     external = {
       source  = "hashicorp/external"
-      version = "~> 2.3.3"
+      version = "~> 2.3"
     }
     helm = {
       source  = "hashicorp/helm"
-      version = "~> 2.14.0"
+      version = "~> 2.17"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "~> 2.31.0"
+      version = "~> 2.31"
     }
-    random = { 
+    random = {
       source  = "hashicorp/random"
-      version = "~> 3.6.2"
+      version = "~> 3.6"
     }
     restapi = {
       source  = "Mastercard/restapi"
-      version = "1.19.1"
+      version = "~> 1.20"
     }
     visionone = {
       source  = "trendmicro/vision-one"
-      version = "~> 1.0.4"
+      version = "~> 1.0"
     }
   }
 }

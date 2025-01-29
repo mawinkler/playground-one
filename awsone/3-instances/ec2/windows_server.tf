@@ -44,7 +44,7 @@ resource "aws_instance" "windows-server" {
 
 # AWS Systems Manager
 resource "aws_ssm_association" "windows_server_agent" {
-  count = var.agent_deploy ? var.agent_variant == "TMServerAgent" ? var.linux_db_count : 0 : 0
+  count = var.agent_deploy ? var.agent_variant == "TMServerAgent" ? var.windows_count : 0 : 0
 
   name = aws_ssm_document.server-agent-windows.name
 
@@ -55,7 +55,7 @@ resource "aws_ssm_association" "windows_server_agent" {
 }
 
 resource "aws_ssm_association" "windows_sensor_agent" {
-  count = var.agent_deploy ? var.agent_variant == "TMSensorAgent" ? var.linux_db_count : 0 : 0
+  count = var.agent_deploy ? var.agent_variant == "TMSensorAgent" ? var.windows_count : 0 : 0
 
   name = aws_ssm_document.sensor-agent-windows.name
 

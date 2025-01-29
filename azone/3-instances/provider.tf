@@ -6,20 +6,20 @@ provider "azurerm" {
 }
 
 terraform {
-  required_version = ">=0.12"
+  required_version = ">= 1.6"
 
   required_providers {
     azapi = {
       source  = "azure/azapi"
-      version = "~>1.5"
+      version = "~> 2.2"
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~>2.0"
+      version = "~> 4.16"
     }
     random = {
       source  = "hashicorp/random"
-      version = "~>3.0"
+      version = "~> 3.6"
     }
   }
 }

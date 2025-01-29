@@ -59,14 +59,24 @@ printf '%s\n' "available provider | version" | tee -a ${output_file}
 printf '%s\n' "------------------ | -------" | tee -a ${output_file}
 
 providers="
+  azure/azapi
+  gavinbunney/kubectl
+  hashicorp/ad
   hashicorp/aws
+  hashicorp/azurerm
   hashicorp/cloudinit
+  hashicorp/external
   hashicorp/helm
+  hashicorp/http
   hashicorp/kubernetes
+  hashicorp/local
   hashicorp/null
   hashicorp/random
   hashicorp/time
   hashicorp/tls
+  Mastercard/restapi
+  tehcyx/kind
+  trendmicro/vision-one
 "
 providers=$(terraform version -json | jq -r '.provider_selections | keys[] as $k | "\($k)"' | \
    sed 's/registry.terraform.io\///' | \
