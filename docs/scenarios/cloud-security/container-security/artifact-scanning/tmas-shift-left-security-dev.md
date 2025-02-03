@@ -30,10 +30,10 @@ If you are developing an application that you want to package in a container ima
 
 In this scenario, we'll play with two scripts from Playground One that simplify this approach. The scipts we're going to use are:
 
-- `bin/scan-image`
-- `bin/scan-layers`
+- [`bin/scan-image`](https://github.com/mawinkler/playground-one/blob/main/bin/scan-image)
+- [`bin/scan-layers`](https://github.com/mawinkler/playground-one/blob/main/bin/scan-layers)
 
-As the scripts are not dependent on Playground One, they can be used independently. Internally the scripts use the command line tool `tmas` aka Trend Micro Artifact Scanner CLI.
+As the scripts are not dependent on Playground One, they can be used independently. Internally the scripts use the command line tool `tmas` aka Trend Micro Artifact Scanner CLI `tmas`.
 
 ## Preparations
 
