@@ -21,25 +21,28 @@ temp_dir=$(mktemp -d)
 
 docker build --tag ${image_name} . --load # 2>&1 &> /dev/null
 
-cd ${temp_dir}
-docker save -o ${image_name}.tar ${image_name} # 2>&1 &> /dev/null
+if [ $? -eq 0 ]
+then
+  cd ${temp_dir}
+  docker save -o ${image_name}.tar ${image_name} # 2>&1 &> /dev/null
 
-tar xf ${image_name}.tar
+  tar xf ${image_name}.tar
 
-layers=$(cat manifest.json | jq -r '.[0].Layers[]')
+  layers=$(cat manifest.json | jq -r '.[0].Layers[]')
 
-results="layer\ttotal\tcritical\thigh\tmedium\tlow\tnegligible\tunkown\toverridden\n"
+  results="layer\ttotal\tcritical\thigh\tmedium\tlow\tnegligible\tunkown\toverridden\n"
 
-for layer in ${layers}
-do
-  printf '%s\n' "Scanning ${layer}"
-  mkdir -p disk/${layer}
-  tar xf ${layer} -C disk/${layer}
-  tmas scan ${PARAMS} dir:disk/${layer} > result_${layer##*/}.json
+  for layer in ${layers}
+  do
+    printf '%s\n' "Scanning ${layer}"
+    mkdir -p disk/${layer}
+    tar xf ${layer} -C disk/${layer}
+    tmas scan ${PARAMS} dir:disk/${layer} > result_${layer##*/}.json
 
-  results=${results}${layer##*/}'\t'$(jq -r '.vulnerabilities | "\(.totalVulnCount)\\t\(.criticalCount)\\t\(.highCount)\\t\(.mediumCount)\\t\(.lowCount)\\t\(.negligibleCount)\\t\(.unknownCount)\\t\(.overriddenCount)\\n"' result_${layer##*/}.json)
-done
+    results=${results}${layer##*/}'\t'$(jq -r '.vulnerabilities | "\(.totalVulnCount)\\t\(.criticalCount)\\t\(.highCount)\\t\(.mediumCount)\\t\(.lowCount)\\t\(.negligibleCount)\\t\(.unknownCount)\\t\(.overriddenCount)\\n"' result_${layer##*/}.json)
+  done
 
-echo -e ${results} | column -t -s $'\t'
+  echo -e ${results} | column -t -s $'\t'
 
-printf '%s\n' "Scan Results: ${temp_dir}/"
+  printf '%s\n' "Scan Results: ${temp_dir}/"
+fi
