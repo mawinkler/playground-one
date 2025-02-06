@@ -491,6 +491,7 @@ function get_config() {
 
     # Integrations
     integrations_pgoweb_enabled="$(yq '.services.integrations.pgoweb.enabled' $ONEPATH/config.yaml)"
+    integrations_argocd_enabled="$(yq '.services.integrations.argocd.enabled' $ONEPATH/config.yaml)"
     integrations_calico_enabled="$(yq '.services.integrations.calico.enabled' $ONEPATH/config.yaml)"
     integrations_prometheus_enabled="$(yq '.services.integrations.prometheus.enabled' $ONEPATH/config.yaml)"
     integrations_prometheus_grafana_password="$(yq '.services.integrations.prometheus.grafana-password' $ONEPATH/config.yaml)"
@@ -498,6 +499,7 @@ function get_config() {
     integrations_istio_enabled="$(yq '.services.integrations.istio.enabled' $ONEPATH/config.yaml)"
     integrations_metallb_enabled="$(yq '.services.integrations.metallb.enabled' $ONEPATH/config.yaml)"
     [[ "${integrations_pgoweb_enabled}" = "null" || "${integrations_pgoweb_enabled}" = "" ]] && integrations_pgoweb_enabled=true
+    [[ "${integrations_argocd_enabled}" = "null" || "${integrations_argocd_enabled}" = "" ]] && integrations_argocd_enabled=true
     [[ "${integrations_calico_enabled}" = "null" || "${integrations_calico_enabled}" = "" ]] && integrations_calico_enabled=false
     [[ "${integrations_prometheus_enabled}" = "null" || "${integrations_prometheus_enabled}" = "" ]] && integrations_prometheus_enabled=false
     [[ "${integrations_prometheus_grafana_password}" = "null" || "${integrations_prometheus_grafana_password}" = "" ]] && integrations_prometheus_grafana_password="playground"

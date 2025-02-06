@@ -28,3 +28,7 @@ grafana_admin_password = "${integrations_prometheus_grafana_password}"
 
 # PGOWeb
 pgoweb = ${integrations_pgoweb_enabled}
+
+# ArgoCD
+argocd = ${integrations_argocd_enabled}
+argocd_admin_secret = "playground"

@@ -762,6 +762,22 @@ function update_integrations_config() {
   fi
 
   ##
+  ## ArgoCD
+  ##
+  key_desc="Deploy Argo CD?"
+  read -p "${key_desc} [${integrations_argocd_enabled}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    integrations_argocd_enabled=${TEMP}
+  fi
+  if [[ "${integrations_argocd_enabled}" =~ ^true|false$ ]]; then
+    target_val=${integrations_argocd_enabled} \
+      yq -i '.services.integrations.argocd.enabled = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  ##
   ## Calico
   ##
   key_desc="Deploy Calico?"

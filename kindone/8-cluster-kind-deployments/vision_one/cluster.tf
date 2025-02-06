@@ -49,10 +49,10 @@ resource "helm_release" "trendmicro" {
   }
 
   set {
-    name = "replicas.admissionController"
+    name  = "replicas.admissionController"
     value = 2
   }
-  
+
   # PGO
   set {
     name  = "cloudOne.policyOperator.enabled"
@@ -114,4 +114,8 @@ resource "helm_release" "trendmicro" {
   #   name  = "scanManager.activeDeadlineSeconds"
   #   value = 3600
   # }
+  set {
+    name  = "resources.scanner.limits.memory"
+    value = "1024Mi"
+  }
 }

@@ -6,7 +6,7 @@ variable "aws_access_key" {
 }
 
 variable "aws_secret_key" {
-  type = string
+  type      = string
   sensitive = true
 }
 
@@ -65,4 +65,13 @@ variable "grafana_admin_password" {
 
 variable "pgoweb" {
   type = bool
+}
+
+# ArgoCD
+variable "argocd" {
+  type = bool
+}
+
+variable "argocd_admin_secret" {
+  type = string
 }

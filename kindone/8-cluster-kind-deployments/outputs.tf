@@ -36,3 +36,8 @@ output "loadbalancer_ip_pgoweb" {
 output "loadbalancer_ip_range" {
   value = var.metallb ? module.metallb[0].loadbalancer_ip_range : null
 }
+
+output "argocd_admin_secret" {
+  value     = var.argocd ? module.argocd[0].argocd_admin_secret : null
+  sensitive = true
+}

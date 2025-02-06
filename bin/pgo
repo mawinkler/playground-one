@@ -645,6 +645,7 @@ function init() {
       integrations_trivy_enabled=${integrations_trivy_enabled} \
       integrations_metallb_enabled=${integrations_metallb_enabled} \
       integrations_pgoweb_enabled=${integrations_pgoweb_enabled} \
+      integrations_argocd_enabled=${integrations_argocd_enabled} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-8-cluster-kind-deployments.tfvars >${configs[kind-deployments]}/terraform.tfvars
 
@@ -772,6 +773,7 @@ function apply() {
     kind|all)
       tf kind apply
       tf kind-deployments apply
+      printf '%s\n' "argocd_admin_secret = \"$(terraform -chdir=${configs[kind-deployments]} output -raw argocd_admin_secret)\""
       ;;&
     scenarios-kind|all)
       tf scenarios-kind apply
