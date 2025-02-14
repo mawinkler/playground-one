@@ -81,6 +81,8 @@ resource "helm_release" "trendmicro" {
     name  = "securityContext.enabled"
     value = true
   }
+
+  # Minimal privileges for Scout
   # set {
   #   name  = "securityContext.scout.falco.privileged"
   #   value = false
@@ -93,4 +95,20 @@ resource "helm_release" "trendmicro" {
   #   name  = "securityContext.scout.falco.capabilities.add"
   #   value = "{sys_admin,sys_resource,sys_ptrace}"
   # }
+
+  # Set Scout logs to debug
+  set {
+    name  = "logConfig.logLevel"
+    value = "debug"
+  }
+  set {
+    name  = "scout.scout.logLevel"
+    value = "debug"
+  }
+
+
+  set {
+    name  = "resources.scanner.limits.memory"
+    value = "1024Mi"
+  }
 }

@@ -72,11 +72,23 @@ module "prometheus" {
 
 module "pgoweb" {
   depends_on = [module.metallb]
-  count = var.pgoweb ? 1 : 0
+  count      = var.pgoweb ? 1 : 0
 
-  source    = "./pgoweb"
-  namespace = "pgoweb"
+  source         = "./pgoweb"
+  namespace      = "pgoweb"
   aws_access_key = var.aws_access_key
   aws_secret_key = var.aws_secret_key
-  api_key = var.api_key
+  api_key        = var.api_key
+}
+
+module "argocd" {
+  depends_on = [module.metallb]
+  count      = var.argocd ? 1 : 0
+
+  source       = "./argocd"
+  namespace    = "argocd"
+  admin_secret = var.argocd_admin_secret
+  # aws_access_key = var.aws_access_key
+  # aws_secret_key = var.aws_secret_key
+  # api_key = var.api_key
 }

@@ -91,7 +91,7 @@ module "eks" {
     ami_type                              = "AL2_x86_64"
     cluster_additional_security_group_ids = [var.private_security_group_id]
     disk_size                             = 50
-    instance_types                        = ["t3.medium", "t3.large"]
+    instance_types                        = ["t3.medium", "t3.large", "t3.xlarge"]
     vpc_security_group_ids                = [var.private_security_group_id]
   }
 
@@ -113,7 +113,8 @@ module "eks" {
       desired_size = 2
       key_name     = "${var.key_name}"
 
-      instance_types = ["t3.medium"]
+      # instance_types = ["t3.medium"]
+      instance_types = ["t3.xlarge", "t3.large"]
       capacity_type  = "SPOT"  # "ON_DEMAND"
       labels = {
         Name        = "${var.environment}-eks"

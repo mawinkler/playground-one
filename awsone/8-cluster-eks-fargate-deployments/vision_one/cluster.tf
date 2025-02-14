@@ -80,4 +80,8 @@ resource "helm_release" "trendmicro" {
     name  = "securityContext.enabled"
     value = true
   }
+  set {
+    name  = "resources.scanner.limits.memory"
+    value = "1024Mi"
+  }
 }

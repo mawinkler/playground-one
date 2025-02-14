@@ -19,12 +19,12 @@ fi
 
 temp_dir=$(mktemp -d)
 
-docker build --tag ${image_name} . --load # 2>&1 &> /dev/null
+docker build --tag ${image_name} . --load
 
 if [ $? -eq 0 ]
 then
   cd ${temp_dir}
-  docker save -o ${image_name}.tar ${image_name} # 2>&1 &> /dev/null
+  docker save -o ${image_name}.tar ${image_name}
 
   tar xf ${image_name}.tar
 

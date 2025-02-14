@@ -23,19 +23,25 @@ fi
 
 temp_dir=$(mktemp -d)
 
-docker build --tag ${image_name} . --load # 2>&1 &> /dev/null
+docker build --tag ${image_name} . --load
+
+OVERRIDES=""
+if [ -f ./tmas_overrides.yaml ]; then
+  cp ./tmas_overrides.yaml ${temp_dir}
+  OVERRIDES="-o tmas_overrides.yaml"
+fi
 
 if [ $? -eq 0 ]
 then
   cd ${temp_dir}
-  docker save -o ${image_name}.tar ${image_name} # 2>&1 &> /dev/null
+  docker save -o ${image_name}.tar ${image_name}
 
-  tmas scan ${PARAMS} docker-archive:${image_name}.tar > result.json
+  tmas scan ${PARAMS} docker-archive:${image_name}.tar ${OVERRIDES} > results.json
 
   if [ "$SBOM" = "true" ]; then mv SBOM_* sbom.json; fi
 
   printf '%s\n' "Scan Results:" 
-  jq 'del(.vulnerabilities.findings, .secrets.findings, .malware.findings)' result.json
+  jq 'del(.vulnerabilities.findings, .secrets.findings, .malware.findings)' results.json
 
   printf '%s\n' "Scan Results File: ${temp_dir}/results.json"
   [ -f ${temp_dir}/sbom.json ] && printf '%s\n' "Image SBOM: ${temp_dir}/sbom.json"
