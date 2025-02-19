@@ -17,7 +17,7 @@ resource "helm_release" "container_security" {
 
   set {
     name  = "cloudOne.exclusion.namespaces"
-    value = "{calico-system,calico-apiserver,tigera-operator,local-path-storage,kube-system}"
+    value = "{calico-system,calico-apiserver,tigera-operator,local-path-storage,kube-system,trendmicro-system}"
   }
 
   set {

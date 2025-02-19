@@ -7,7 +7,7 @@ resource "visionone_container_cluster" "terraform_cluster" {
   runtime_security_enabled   = true
   vulnerability_scan_enabled = true
   malware_scan_enabled       = true
-  namespaces                 = ["kube-system"]
+  namespaces                 = ["kube-system", "trendmicro-system"]
   # namespaces                 = ["kube-system", "calico-system", "calico-apiserver", "tigera-operator"]
 }
 
