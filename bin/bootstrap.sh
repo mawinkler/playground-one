@@ -221,7 +221,7 @@ function ensure_essentials() {
     printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading essential packages on linux"
     if [ "${PACKAGE_MANAGER}" == "apt" ]; then
       sudo apt-get update
-      sudo apt-get install -y jq apt-transport-https gnupg2 curl nginx apache2-utils pv unzip dialog software-properties-common gettext-base
+      sudo apt-get install -y jq apt-transport-https gnupg2 curl nginx apache2-utils pv unzip dialog software-properties-common gettext-base iputils-ping
     fi
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
       if ! command -v brew &>/dev/null; then
@@ -910,6 +910,16 @@ ensure_eksctl
 ensure_kind
 ensure_syft
 ensure_grype
+
+if [ -f "$HOME/config.yaml" ]; then
+
+  if grep -Fxq "# Values for Playground One." $HOME/config.yaml; then
+    echo 'found config.yaml in home'
+    mv $HOME/config.yaml $ONEPATH
+  else
+    echo 'run pgo -c'
+  fi
+fi
 
 exec_end=`date +%s`
 

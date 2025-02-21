@@ -61,6 +61,7 @@ declare -A configs
 configs=(
   ["all"]=${ONEPATH}
   ["user"]=${ONEPATH}/awsone/1-pgo-user
+  ["satellite"]=${ONEPATH}/awsone/1-pgo-satellite
   ["network"]=${ONEPATH}/awsone/2-network
   ["nw"]=${ONEPATH}/awsone/2-network
   ["ec2"]=${ONEPATH}/awsone/3-instances
@@ -311,6 +312,18 @@ function init() {
         envsubst <$ONEPATH/templates/terraform-1-pgo-user.tfvars >${configs[user]}/terraform.tfvars
       
       [ "$2" = "" ] && tf user init
+      ;;&
+    satellite|all)
+      printf '%s\n' "Create terraform.tfvars for PGO satellite"
+      aws_region=${aws_region} \
+      aws_pgo_user_access_key=${aws_pgo_user_access_key} \
+      aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
+      environment_name="pgo-satellite-"${environment_name} \
+      pgo_access_ip=${pgo_access_ip} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-1-pgo-satellite.tfvars >${configs[satellite]}/terraform.tfvars
+      
+      [ "$2" = "" ] && tf satellite init
       ;;&
     nw|network|all)
       printf '%s\n' "Create terraform.tfvars for network"
@@ -702,6 +715,13 @@ function apply() {
       fi
       init all tfvars
       ;;
+    satellite|all)
+      if checklock user ; then
+        tf satellite apply
+      else
+        printf 'Apply user configuration first\n'
+      fi
+      ;;&
     nw|network|all)
       # check_network
       tf network apply
@@ -994,6 +1014,8 @@ function destroy() {
       if checklock user ; then
         if checklock network ; then
           printf 'Destroy network configuration first\n'
+        elif checklock satellite ; then
+          printf 'Destroy satellite configuration first\n'
         else
           AWS_ACCESS_KEY_ID="" \
             AWS_SECRET_ACCESS_KEY="" \
@@ -1202,6 +1224,13 @@ function destroy() {
         printf '%s\n' "Configuration dsm is not applied"
       fi
       ;;&
+    satellite|all)
+      if checklock satellite ; then
+        tf satellite destroy
+      else
+        printf '%s\n' "Configuration satellite is not applied"
+      fi
+      ;;
     nw|network|all)
       if checklock network ; then
         check_network
@@ -1320,6 +1349,9 @@ function output() {
       if checklock user ; then
         printf '%s\n' "secret_key = $(terraform -chdir=${configs[user]} output -raw secret_key)"
       fi
+      ;;&
+    satellite|all)
+      tf satellite output
       ;;&
     nw|network|all)
       tf network output
@@ -1445,6 +1477,9 @@ function state() {
     user|all)
       tf user state
       ;;&
+    satellite|all)
+      tf satellite state
+      ;;&
     nw|network|all)
       tf network state
       ;;&
@@ -1533,6 +1568,9 @@ function show() {
     user|all)
       tf user state
       ;;&
+    satellite|all)
+      tf satellite show
+      ;;&
     nw|network|all)
       tf network show
       ;;&
@@ -1619,6 +1657,9 @@ function validate() {
   case $1 in
     user|all)
       tf user validate
+      ;;&
+    satellite|all)
+      tf satellite validate
       ;;&
     nw|network|all)
       tf network validate
@@ -1731,6 +1772,9 @@ function erase() {
   case $1 in
     user|all)
       tf user erase
+      ;;&
+    satellite|all)
+      tf satellite erase
       ;;&
     nw|network|all)
       tf network erase

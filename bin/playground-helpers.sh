@@ -455,6 +455,7 @@ function get_config() {
     [[ "${vision_one_cs_group_id}" = "null" || "${vision_one_cs_group_id}" = "" ]] && vision_one_cs_group_id="00000000-0000-0000-0000-000000000001"
     [[ "${vision_one_asrm_create_attackpath}" = "null" || "${vision_one_asrm_create_attackpath}" = "" ]] && vision_one_asrm_create_attackpath=false
     [[ "${vision_one_bs_fss}" = "null" || "${vision_one_bs_fss}" = "" ]] && vision_one_bs_fss=true
+    [[ "${vision_one_bs_sandbox}" = "null" || "${vision_one_bs_sandbox}" = "" ]] && vision_one_bs_sandbox=false
     [[ "${vision_one_endpoint_enabled}" = "null" || "${vision_one_endpoint_enabled}" = "" ]] && vision_one_endpoint_enabled=false
     [[ "${vision_one_endpoint_type}" = "null" || "${vision_one_endpoint_type}" = "" ]] && vision_one_endpoint_type="TMSensorAgent"
     vision_one_map_api_url ${vision_one_region}

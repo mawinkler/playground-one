@@ -181,6 +181,32 @@ az login --use-device-code
 
 Then, continue with [Configuration](configuration.md).
 
+### Satellite
+
+Requirements:
+
+- Have a configured Playground One
+- Have the user configuration applied
+
+Important:
+
+- Don't destroy the user configuration of your local Playground One. This would remove all permissions of the Satellite in AWS
+- Don't destroy the satellite configuration when it owns any deployments.
+
+Workflow:
+
+```sh
+pgo --apply user
+pgo --apply satellite
+```
+
+1. Get `ssh` command from output
+2. `ssh` into the satellite
+3. Run `pgo --config`
+   1. Enable `Initialize Terraform Configurations`
+   2. (Optionally) change the environment name
+   3. Update the Access IP
+
 ### Cloud9
 
 > ***Note:*** Native installation on Cloud9 is no longer supported. Use [Playground One Container (Easy and portable)](#playground-one-container-easy-and-portable) instead.
