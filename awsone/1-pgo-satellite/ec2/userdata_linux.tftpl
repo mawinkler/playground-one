@@ -41,6 +41,12 @@ mkdir -p /home/ubuntu/download
 aws s3 cp s3://${s3_bucket}/download /home/ubuntu/download --recursive
 chown ubuntu.ubuntu -R /home/ubuntu/download
 
+while sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
+    echo "Waiting for dpkg lock..."
+    sleep 5
+done
+echo "Lock is free, running apt..."
+
 # get pgo
 sudo -u ubuntu bash -c '
     cd /home/ubuntu
