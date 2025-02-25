@@ -17,7 +17,7 @@ resource "aws_instance" "pgo-satellite" {
   key_name               = aws_key_pair.key_pair.key_name
 
   root_block_device {
-    volume_size           = 20
+    volume_size           = 30
   }
 
   tags = {
