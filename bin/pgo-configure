@@ -74,7 +74,7 @@ function update_pgo_config() {
   fi
 
   if is_ec2 ; then
-    key_desc="Public IP accessing Cloud9"
+    key_desc="Public IP of EC2 instance running PGO"
     pgo_access_ip=${pgo_access_ip//[\[\]\"]/}
     read -p "${key_desc} [${pgo_access_ip}]: " TEMP
     if [[ ! -z "${TEMP}" ]]; then

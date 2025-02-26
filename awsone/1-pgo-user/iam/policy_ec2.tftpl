@@ -30,6 +30,7 @@
         "ec2:DescribeIamInstanceProfileAssociations",
         "ec2:DescribeInstances",
         "ec2:DescribeInstanceTypes",
+        "ec2:DescribeInstanceStatus",
         "ec2:DescribeInternetGateways",
         "ec2:DescribeKeyPairs",
         "ec2:DescribeLaunchTemplates",
@@ -131,9 +132,6 @@
         "ec2:RevokeSecurityGroupEgress",
         "ec2:RevokeSecurityGroupIngress",
         "ec2:RunInstances",
-        "ec2:RunInstances",
-        "ec2:RunInstances",
-        "ec2:RunInstances",
         "ec2:StartInstances",
         "ec2:StopInstances",
         "ec2:TerminateInstances"
@@ -157,6 +155,14 @@
         "elasticloadbalancing:ModifyTargetGroupAttributes"
       ],
       "Resource": "arn:aws:elasticloadbalancing:${Region}:${Account}:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeInstances",
+        "ec2-instance-connect:SendSSHPublicKey"
+      ],
+      "Resource": "*"
     }
   ]
 }
