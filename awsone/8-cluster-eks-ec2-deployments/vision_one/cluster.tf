@@ -106,7 +106,6 @@ resource "helm_release" "trendmicro" {
     value = "debug"
   }
 
-
   set {
     name  = "resources.scanner.limits.memory"
     value = "1024Mi"
