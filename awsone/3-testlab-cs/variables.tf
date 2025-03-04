@@ -1,10 +1,6 @@
-# CUSTOMIZE
-variable "windows_count" {
-  type = number
-  default = 1
-}
-# /CUSTOMIZE
-
+# #############################################################################
+# Variables
+# #############################################################################
 variable "aws_region" {
   type = string
 }
@@ -27,15 +23,6 @@ variable "s3_bucket" {
   default = "playground-awsone"
 }
 
-variable "windows_username" {
-  type = string
-}
-
-variable "create_windows" {
-  type = bool
-  default = true
-}
-
 variable "environment" {
   type = string
 }
@@ -45,4 +32,26 @@ variable "environment" {
 #
 variable "active_directory" {
   type = bool
+}
+
+#
+# Instance parameters
+#
+variable "create_apex_one_server" {
+  type    = bool
+  default = true
+}
+
+variable "create_apex_one_central" {
+  type    = bool
+  default = true
+}
+
+variable "windows_client_count" {
+  type    = number
+  default = 2
+}
+
+variable "windows_username" {
+  type = string
 }

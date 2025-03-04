@@ -18,8 +18,9 @@ module "ec2" {
   ec2_profile              = module.iam.ec2_profile
   s3_bucket                = module.s3.s3_bucket
   windows_username         = var.windows_username
-  create_windows           = var.create_windows
-  windows_count            = var.windows_count
+  create_apex_one_server   = var.create_apex_one_server
+  create_apex_one_central  = var.create_apex_one_central
+  windows_client_count     = var.windows_client_count
 
   # PGO Active Directory
   active_directory         = var.active_directory

@@ -1,0 +1,67 @@
+
+function Join-AD {
+    if ('${windows_ad_domain_name}' -ne '') {
+        $Stoploop = $false
+        [int]$Retrycount = "0"
+
+        do {
+            try {
+                net user Administrator "${windows_ad_safe_password}"
+                Write-Log -message "Administrator password set"
+                $Stoploop = $true
+            } catch {
+                Write-log -message $_.Exception.message -level "ERROR"
+                if ($Retrycount -gt 20) {
+                    Write-Log -message "Set Administrator password failed after 20 retrys" -level "ERROR"
+                    $Stoploop = $true
+                } else {
+                    Write-Log -message "Could not set Administrator password, retrying in 60 seconds..." -level "WARN"
+                    Start-Sleep -Seconds 60
+                    $Retrycount = $Retrycount + 1
+                }
+            }
+        } While ($Stoploop -eq $false)
+
+        $domain = (Get-WmiObject win32_computersystem).Domain
+        $hostname = hostname
+        $domain_username = "${windows_ad_domain_name}\${windows_ad_user_name}"
+        $domain_password = ConvertTo-SecureString "${windows_ad_safe_password}" -AsPlainText -Force
+        $credential = New-Object System.Management.Automation.PSCredential($domain_username, $domain_password)
+
+        if ($domain -ne '${windows_ad_domain_name}') {
+            Write-Log -message "Joining domain in 30 seconds" -level "INFO"
+            Start-Sleep -Seconds 30
+
+            $Stoploop = $false
+            [int]$Retrycount = "0"
+
+            do {
+                try {
+                    Add-Computer -DomainName ${windows_ad_domain_name} -Credential $credential -Passthru -Verbose -Force 
+                    # -Restart
+                    Write-Log -message "Domain join successful" -level "INFO"
+                    $Stoploop = $true
+                    Restart-Computer -Force;
+                } catch {
+                    Write-log -message $_.Exception.message -level "ERROR"
+                    if ($Retrycount -gt 20) {
+                        Write-Log -message "Domain join failed after 20 retrys" -level "ERROR"
+                        $Stoploop = $true
+                    } else {
+                        Write-Log -message "Could not join domain, retrying in 60 seconds..." -level "WARN"
+                        Start-Sleep -Seconds 60
+                        $Retrycount = $Retrycount + 1
+                    }
+                }
+            } While ($Stoploop -eq $false)
+        }
+    }
+}
+
+
+# Join AD
+if ("${windows_ad_domain_name}" -ne "") {
+    Join-AD
+} else {
+    Write-Log -message "Not joining an Active Directory" -level "INFO"
+}

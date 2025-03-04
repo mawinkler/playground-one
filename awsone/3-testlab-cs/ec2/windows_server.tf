@@ -9,10 +9,10 @@ resource "random_password" "windows_password" {
 
 resource "aws_instance" "apex_one_server" {
 
-  count = var.create_windows ? var.windows_count : 0
+  count = var.create_apex_one_server ? 1 : 0
 
   ami                    = data.aws_ami.windows.id
-  instance_type          = var.windows_instance_type
+  instance_type          = var.apex_instance_type
   subnet_id              = var.public_subnets[1]
   vpc_security_group_ids = [var.public_security_group_id]
   iam_instance_profile   = var.ec2_profile
@@ -22,8 +22,8 @@ resource "aws_instance" "apex_one_server" {
   get_password_data      = true
 
   root_block_device {
-    volume_size           = var.windows_root_volume_size
-    volume_type           = var.windows_root_volume_type
+    volume_size           = var.apex_root_volume_size
+    volume_type           = var.apex_root_volume_type
     delete_on_termination = true
     encrypted             = true
   }
@@ -50,7 +50,48 @@ resource "aws_instance" "apex_one_server" {
 
 resource "aws_instance" "apex_one_central" {
 
-  count = var.create_windows ? var.windows_count : 0
+  count = var.create_apex_one_central ? 1 : 0
+
+  ami                    = data.aws_ami.windows.id
+  instance_type          = var.apex_instance_type
+  subnet_id              = var.public_subnets[1]
+  vpc_security_group_ids = [var.public_security_group_id]
+  iam_instance_profile   = var.ec2_profile
+  source_dest_check      = false
+  key_name               = var.key_name
+  user_data              = local.userdata_apex_one_central
+  get_password_data      = true
+
+  root_block_device {
+    volume_size           = var.apex_root_volume_size
+    volume_type           = var.apex_root_volume_type
+    delete_on_termination = true
+    encrypted             = true
+  }
+
+  tags = {
+    Name          = "${var.environment}-apex-one-central-${count.index}"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "testlab-cs"
+    Type          = "${var.environment}-windows-server"
+  }
+
+  connection {
+    host     = coalesce(self.public_ip, self.private_ip)
+    type     = "winrm"
+    port     = 5986
+    user     = var.windows_username
+    password = random_password.windows_password.result
+    https    = true
+    insecure = true
+    timeout  = "13m"
+  }
+}
+
+resource "aws_instance" "windows_client" {
+
+  count = var.windows_client_count > 0 ? var.windows_client_count : 0
 
   ami                    = data.aws_ami.windows.id
   instance_type          = var.windows_instance_type
@@ -59,7 +100,7 @@ resource "aws_instance" "apex_one_central" {
   iam_instance_profile   = var.ec2_profile
   source_dest_check      = false
   key_name               = var.key_name
-  user_data              = local.userdata_apex_one_central
+  user_data              = local.userdata_windows_client
   get_password_data      = true
 
   root_block_device {
@@ -70,7 +111,7 @@ resource "aws_instance" "apex_one_central" {
   }
 
   tags = {
-    Name          = "${var.environment}-apex-one-central-${count.index}"
+    Name          = "${var.environment}-windows-client-${count.index}"
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "testlab-cs"
