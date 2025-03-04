@@ -89,3 +89,4 @@ stacks/*/*/*.log
 
 # In development
 temp/
+awsone/2-network/pki

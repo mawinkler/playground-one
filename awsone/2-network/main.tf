@@ -19,6 +19,15 @@ module "ec2" {
   private_route_tables = module.vpc.private_route_table_ids
 }
 
+# module "vpn" {
+#   source = "./vpn"
+
+#   environment     = var.environment
+#   vpc_id          = module.vpc.vpc_id
+#   private_subnets = module.vpc.private_subnets
+#   public_subnets  = module.vpc.public_subnets
+# }
+
 module "mad" {
   count = var.managed_active_directory ? 1 : 0
 

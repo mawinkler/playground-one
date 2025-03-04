@@ -743,7 +743,9 @@ function apply() {
       ;;&
     nw|network|all)
       # check_network
-      tf network apply
+      # AWS_ACCESS_KEY_ID="" \
+      #   AWS_SECRET_ACCESS_KEY="" \
+        tf network apply
       ;;&
     ec2|instances|all)
       tf instances apply
@@ -1265,7 +1267,9 @@ function destroy() {
     nw|network|all)
       if checklock network ; then
         check_network
-        tf network destroy
+        # AWS_ACCESS_KEY_ID="" \
+        #   AWS_SECRET_ACCESS_KEY="" \
+          tf network destroy
       else
         printf '%s\n' "Configuration network is not applied"
       fi
