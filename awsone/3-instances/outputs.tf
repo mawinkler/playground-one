@@ -1,3 +1,29 @@
+# Active Directory
+output "ad_domain_name" {
+  value = data.terraform_remote_state.vpc.outputs.ad_domain_name
+}
+
+output "ad_dc_ip" {
+  value = data.terraform_remote_state.vpc.outputs.ad_dc_ip
+}
+
+output "ad_dc_pip" {
+  value = data.terraform_remote_state.vpc.outputs.ad_dc_pip
+}
+
+output "ad_ca_ip" {
+  value = data.terraform_remote_state.vpc.outputs.ad_ca_ip
+}
+
+output "ad_domain_admin" {
+  value = data.terraform_remote_state.vpc.outputs.ad_domain_admin
+}
+
+output "ad_admin_password" {
+  value     = data.terraform_remote_state.vpc.outputs.ad_admin_password
+  sensitive = true
+}
+
 # Linux
 output "linux_ip_web" {
   value = module.ec2.linux_ip_web

@@ -79,6 +79,14 @@ Configure-OpenSSHService
 # Add AWS Tools
 Configure-AWS-Tools
 
+# Enable Firewall Rules
+# TODO: How to make this persistent with GPOs and AD?
+Set-NetFirewallRule -DisplayGroup 'Remote Event Log Management' -Enabled True -PassThru |
+  Select-Object -Property DisplayName, Enabled
+
+Set-NetFirewallRule -DisplayName 'COM+ Network Access (DCOM-In)' -Enabled True -PassThru |
+  Select-Object -Property DisplayName, Enabled
+
 # ###########################
 # Download from S3 bucket
 # ###########################

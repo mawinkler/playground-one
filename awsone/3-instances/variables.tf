@@ -2,12 +2,12 @@
 # Number of instances and Vision One Deployment here
 variable "linux_db_count" {
   type = number
-  default = 1
+  default = 0
 }
 
 variable "linux_web_count" {
   type = number
-  default = 1
+  default = 0
 }
 
 variable "windows_count" {

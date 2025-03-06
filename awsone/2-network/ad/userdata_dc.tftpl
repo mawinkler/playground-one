@@ -3,7 +3,6 @@ Start-Transcript -Path 'C:/userdata.log'
 
 $logfilepath="C:\agent.log"
 $fqdn="$env:computername"
-$port_winrm=5986 
 
 function Write-Log {
     param(
@@ -18,106 +17,8 @@ function Write-Log {
     Add-Content -Path $logfilepath -Value "$timestamp [$level] - $message"
 }
 
-
-function Delete-WinRMListener {
-    process {
-        $config = winrm enumerate winrm/config/listener
-        foreach($conf in $config) {
-            Write-Log -message "verifying listener configuration"
-            if($conf.Contains("HTTPS")) {
-                try {
-                    Write-Log -message "HTTPS is already configured. Deleting the exisiting configuration"
-                    Remove-Item -Path WSMan:\Localhost\listener\listener* -Recurse
-                } catch { Write-log -message "Remove HTTPS listener - " + $_.Exception.message -level "ERROR"}
-                break
-            }
-        }
-    }
-}
-
-
-function Configure-WinRMHttpsListener {
-    
-    Delete-WinRMListener
-    
-    try {
-        Write-Log -message "creating self-signed certificate"
-        $Cert = (New-SelfSignedCertificate -CertstoreLocation Cert:\LocalMachine\My -dnsname $fqdn -NotAfter (Get-Date).AddMonths(36)).Thumbprint
-        
-        if(-not $Cert) {
-            throw "Failed to create the test certificate."
-            Write-Log -message "failed to create certificate" -level "ERROR"
-        }
-        $WinrmCreate= "winrm create --% winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname=`"$fqdn`";CertificateThumbprint=`"$Cert`"}"
-        invoke-expression $WinrmCreate
-        winrm set winrm/config/service/auth '@{Basic="true"}'
-    } catch { Write-log -message "Create certificate - "+ $_.Exception.message -level "ERROR"}
-    
-}
-
-
-function Add-FirewallRule-WinRM {
-    
-    try {
-        # Delete an exisitng rule
-        Write-Log -message "Deleting the existing firewall rule for port $port_winrm"
-        netsh advfirewall firewall delete rule name="Windows Remote Management (HTTPS-In)" dir=in protocol=TCP localport=$port_winrm | Out-Null
-
-        # Add a new firewall rule
-        Write-Log -message "Adding the firewall rule for port $port_winrm"
-        netsh advfirewall firewall add rule name="Windows Remote Management (HTTPS-In)" dir=in action=allow protocol=TCP localport=$port_winrm | Out-Null
-    } catch { Write-log -message "Add/Remove firewall rule - "+ $_.Exception.message -level "ERROR"}
-    
-}
-
-
-function Configure-WinRMService {
-
-    try {
-        Write-Log -message "Configuring winrm service"
-        netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=yes
-        cmd.exe /c winrm quickconfig -q
-        cmd.exe /c winrm set "winrm/config" '@{MaxTimeoutms="1800000"}'
-        cmd.exe /c winrm set "winrm/config/winrs" '@{MaxMemoryPerShellMB="1024"}'
-        cmd.exe /c winrm set "winrm/config/service" '@{AllowUnencrypted="false"}'
-        cmd.exe /c winrm set "winrm/config/client" '@{AllowUnencrypted="false"}'
-        cmd.exe /c winrm set "winrm/config/service/auth" '@{Basic="true"}'
-        cmd.exe /c winrm set "winrm/config/client/auth" '@{Basic="true"}'
-        cmd.exe /c winrm set "winrm/config/service/auth" '@{CredSSP="true"}'
-    } catch  { Write-log -message "configure winrm service - "+ $_.Exception.message -level "ERROR"}
-}
-
-function Configure-AWS-Tools {
-
-    $ListofModulesInstalled = (Get-InstalledModule).Name
-    Write-Log -message "Ckecking if AWS.Tools.Installer is installed on this instance."
-    
-    if ($ListofModulesInstalled -contains "AWS.Tools.Installer") { 
-        Write-Log -message "AWS.Tools.Installer module exists."
-    } else { 
-        Write-Log -message "AWS.Tools.Installer module does not exist and needs to be installed."
-        $ListofPackagesInstalled = (Get-PackageProvider -ListAvailable).Name
-        Write-Log -message "AWS.Tools.Installer requires nuget package version 2.8.5.201 or above to be installed. Checking if correct version of nuget package is installed."
-        if ($ListofPackagesInstalled -contains "Nuget")
-        {
-            Write-Log -message "Nuget package exists. Ckecking version."
-            $CheckNugetVersion=(get-PackageProvider -Name NuGet).Version
-            if($CheckNugetVersion -ge "2.8.5.201")
-            {
-                Write-Log -message "Nuget version is $CheckNugetVersion and that is acceptable."
-            } else {
-                Write-Log -message "Nuget version is $CheckNugetVersion and a newer package will be installed."
-                Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
-            }
-        } else {
-            Write-Log -message "Nugest package does not exists and will be installed."
-            Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
-        }
-        Install-Module -Name AWS.Tools.Installer -Force
-        Write-Log -message "AWS.Tools.Installer was installed successfully."
-    }
-}
-
+${userdata_windows_winrm}
+${userdata_windows_aws}
 
 function Create-Domain-Forest {
     Add-WindowsFeature AD-Domain-Services -IncludeManagementTools
@@ -149,8 +50,109 @@ winrm enumerate winrm/config/listener
 # Add AWS Tools
 Configure-AWS-Tools
 
+# Define script path
+$taskPath = "C:\AWS\continue_userdata.ps1"
+$taskName = "ContinueUserData"
+
+# Save only the "post-reboot" portion of the script
+$scriptContent = @'
+# Wait for network and domain services to start
+Start-Sleep -Seconds 60
+
+# Example: Install a program after reboot
+Write-Output "Resuming User Data Execution..." | Out-File C:\AWS\userdata.log -Append
+
+Write-Output "Creating GPO" | Out-File C:\AWS\userdata.log -Append
+
+# GPO
+$GpoName = "Enable Remote Management Firewall Rules"
+$dn = ("${windows_ad_domain_name}" -split "\.") -join ",DC="
+# $dn = "OU=Computers,DC=" + $dn
+$dn = "DC=" + $dn
+try {
+    New-GPO -Name $GpoName | New-GPLink -Target "$dn"
+} catch { Write-Output "Create GPO - "+ $_.Exception.message | Out-File C:\AWS\userdata.log -Append}
+
+Write-Output "GPO created" | Out-File C:\AWS\userdata.log -Append
+
+$GpoName = "Enable Remote Management Firewall Rules"
+
+# Enable Windows Remote Management (WinRM)
+try {
+    Set-GPRegistryValue -Name $GpoName -Key "HKLM\SOFTWARE\Policies\Microsoft\Windows\WinRM\Service" -ValueName "AllowAutoConfig" -Type DWord -Value 1
+    Set-GPRegistryValue -Name $GpoName -Key "HKLM\SOFTWARE\Policies\Microsoft\Windows\WinRM\Service" -ValueName "AllowUnencryptedTraffic" -Type DWord -Value 1
+} catch { Write-Output "Create GPO WinRM - "+ $_.Exception.message | Out-File C:\AWS\userdata.log -Append}
+
+Write-Output "GPO WinRM enabled" | Out-File C:\AWS\userdata.log -Append
+
+try {
+    # Enable necessary firewall rules
+    $FirewallRules = @(
+        "RemoteEventLogSvc-In-TCP",
+        "RemoteEventLogSvc-RPCSS-In-TCP",
+        "RemoteEventLogSvc-NP-In-TCP",
+        "RemoteTask-In-TCP",
+        "RemoteTask-RPCSS-In-TCP",
+        "RemoteTask-NP-In-TCP",
+        "RemoteService-In-TCP",
+        "RemoteService-RPCSS-In-TCP",
+        "RemoteService-NP-In-TCP",
+        "WinRM-HTTP-In-TCP",
+        "WinRM-HTTPS-In-TCP",
+        "COM+ Remote Administration (DCOM-In)"
+    )
+
+    foreach ($rule in $FirewallRules) {
+        Set-GPRegistryValue -Name $GpoName -Key "HKLM\SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\FirewallRules" -ValueName $rule -Type String -Value "v2.31|Action=Allow|Active=TRUE"
+        Write-Output "GPO Firewall " + $rule + " configured" | Out-File C:\AWS\userdata.log -Append
+    }
+} catch { Write-Output "Create GPO Firewall - "+ $_.Exception.message | Out-File C:\AWS\userdata.log -Append}
+
+Write-Output "GPO Firewall configured" | Out-File C:\AWS\userdata.log -Append
+
+# Define GPO Name
+$GPOName = "Default Domain Policy"
+
+# Define Policy Path
+$PolicyPath = "HKLM\SOFTWARE\Policies\Microsoft\WindowsFirewall\DomainProfile"
+
+# Ensure the GPO exists
+if (-not (Get-GPO -Name $GPOName -ErrorAction SilentlyContinue)) {
+    Write-Error "GPO '$GPOName' not found!"
+    exit
+}
+
+# Enable Remote Administration Exception (Allow inbound remote admin)
+Set-GPRegistryValue -Name $GPOName -Key "$PolicyPath" -ValueName "AllowRemoteAdmin" -Type DWord -Value 1
+
+Write-Output "Windows Firewall: Allow inbound remote administration exception enabled in Default Domain Policy"  | Out-File C:\AWS\userdata.log -Append
+
+# Force GPO update
+gpupdate /force
+
+Write-Output "GPO update forced"  | Out-File C:\AWS\userdata.log -Append
+
+# Remove Scheduled Task after it runs once
+Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
+'@
+
+# Ensure directory exists and save script
+New-Item -Path "C:\AWS" -ItemType Directory -Force
+$scriptContent | Set-Content -LiteralPath $taskPath -Force
+
+# Create a Scheduled Task to run after reboot
+$Action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-ExecutionPolicy Bypass -File $taskPath"
+$Trigger = New-ScheduledTaskTrigger -AtStartup
+$Settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -DontStopOnIdleEnd
+Register-ScheduledTask -TaskName $taskName -Action $Action -Trigger $Trigger -Settings $Settings -User "SYSTEM" -RunLevel Highest
+
 # Create Domain Forest
 Create-Domain-Forest
+
+# Apply the GPO
+#gpupdate /force
+
+#Write-Log -message "GPO applied"
 
 Stop-Transcript
 </powershell>

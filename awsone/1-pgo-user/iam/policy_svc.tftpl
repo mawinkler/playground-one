@@ -54,6 +54,16 @@
     {
       "Effect": "Allow",
       "Action": [
+        "acm:ImportCertificate",
+        "acm:DescribeCertificate",
+        "acm:ListTagsForCertificate",
+        "acm:DeleteCertificate"
+      ],
+      "Resource": "arn:aws:acm:${Region}:${Account}:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
         "ssm:GetParameters",
         "ssm:CreateDocument",
         "ssm:AddTagsToResource",
