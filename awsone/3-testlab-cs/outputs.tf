@@ -47,20 +47,28 @@ output "ad_admin_password" {
 #
 # Apex One
 # 
-output "apex_one_server_ip" {
-  value = module.ec2.apex_one_server_ip
-}
-
 output "apex_one_central_ip" {
   value = module.ec2.apex_one_central_ip
 }
 
-output "apex_one_server_ssh" {
-  value = module.ec2.apex_one_server_ssh
+output "apex_one_central_id" {
+  value = module.ec2.apex_one_central_id
 }
 
 output "apex_one_central_ssh" {
   value = module.ec2.apex_one_central_ssh
+}
+
+output "apex_one_server_ip" {
+  value = module.ec2.apex_one_server_ip
+}
+
+output "apex_one_server_id" {
+  value = module.ec2.apex_one_server_id
+}
+
+output "apex_one_server_ssh" {
+  value = module.ec2.apex_one_server_ssh
 }
 
 #
@@ -68,6 +76,10 @@ output "apex_one_central_ssh" {
 #
 output "windows_client_ip" {
   value = module.ec2.windows_client_ip
+}
+
+output "windows_client_id" {
+  value = module.ec2.windows_client_id
 }
 
 output "windows_client_ssh" {

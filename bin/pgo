@@ -745,7 +745,10 @@ function apply() {
       # check_network
       # AWS_ACCESS_KEY_ID="" \
       #   AWS_SECRET_ACCESS_KEY="" \
-        tf network apply
+      tf network apply
+      if [ "${pgo_active_directory}" == 'true' ]; then
+        printf '%s\n' "ad_admin_password = \"$(terraform -chdir=${configs[network]} output -raw ad_admin_password)\""
+      fi
       ;;&
     ec2|instances|all)
       tf instances apply
@@ -1899,6 +1902,67 @@ function erase() {
 }
 
 #######################################
+# Freeze EC2 instances, create AMIs
+# Globals:
+#   None
+# Arguments:
+#   Configuration name or all
+# Outputs:
+#   None
+#######################################
+function is_instance_stopped() {
+  instance_state=$(aws ec2 describe-instances --instance-ids $1 | jq -r '.Reservations[0].Instances[0].State.Name')
+  if [ "${instance_state}" == "stopped" ]; then
+    return
+  fi
+  false
+}
+
+function freeze() {
+
+  telemetry "cleanup" $1
+
+  case $1 in
+    nw|network|all)
+      printf '%s\n' "Not implemented yet"
+      ;;&
+    ec2|instances|all)
+      printf '%s\n' "Not implemented yet"
+      ;;&
+    testlab-cs|all)
+      configuration_name="testlab-cs"
+      apex_one_central_id=$(terraform -chdir=${configs[${configuration_name}]} output -raw apex_one_central_id)
+      apex_one_server_id=$(terraform -chdir=${configs[${configuration_name}]} output -raw apex_one_server_id)
+      windows_client_id=$(terraform -chdir=${configs[${configuration_name}]} output -json windows_client_id | jq -r '. |= join(" ")')
+      printf '%s\n' "apex_one_central_id = ${apex_one_central_id}"
+      printf '%s\n' "apex_one_server_id = ${apex_one_server_id}"
+      printf '%s\n' "windows_client_id = ${windows_client_id}"
+      datestr=$(date '+%Y%m%d-%H%M')
+
+      unset AWS_ACCESS_KEY_ID
+      unset AWS_SECRET_ACCESS_KEY
+      for instance_id in ${apex_one_central_id} ${apex_one_server_id} ${windows_client_id}; do
+        aws ec2 stop-instances --instance-ids ${instance_id}
+        i=1
+        while [ $i -le 60 ]; do
+          if is_instance_stopped ${instance_id}; then
+            break
+          fi
+          printf '%s\n' "Waiting for instance ${instance_id} to be in stopped state"
+          sleep 5
+        done
+        instance_name=$(aws ec2 describe-instances --instance-ids ${instance_id} | jq -r '.Reservations[0].Instances[0].Tags[] | select(.Key=="Name") | .Value')
+        printf '%s\n' "Creating AMI of ${instance_id} with name ${instance_name}"
+        aws ec2 create-image \
+          --instance-id ${instance_id} \
+          --name "${configuration_name}-${instance_name}-${datestr}" \
+          --tag-specifications "ResourceType=image,Tags=[{Key=Environment,Value=${environment_name}},{Key=Product,Value=playground-one},{Key=Configuration,Value=${configuration_name}}]"
+      done
+      ;;&
+  esac
+}
+
+#######################################
 # Update Playground One and components
 # Globals:
 #   None
@@ -1948,6 +2012,7 @@ function helpcmd() {
   printf '%s\n' "  -o --output    Show output values"
   printf '%s\n' "  -s --state     Show the current state"
   printf '%s\n' "  -E --erase     Cleanup Terraform state"
+  printf '%s\n' "  -f --freeze    Freeze configuration, create AMIs"
   printf '%s\n' "  -h --help      Show this help"
   printf '%s\n' ""
   printf '%s\n' "Other commands:"
@@ -2007,13 +2072,13 @@ else
 fi
 
 if is_darwin; then
-  TEMP=$(/opt/homebrew/opt/gnu-getopt/bin/getopt -o pci:t:a:ld:o:s:S:v:uhE:C:U --long plan,config,init:,tfvars:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help,erase:,colima:,update -- "$@")
+  TEMP=$(/opt/homebrew/opt/gnu-getopt/bin/getopt -o pci:t:a:ld:o:s:S:v:uhE:f:C:U --long plan,config,init:,tfvars:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help,erase:,freeze:,colima:,update -- "$@")
 
   if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 
   eval set -- "$TEMP"
 else
-  TEMP=$(getopt -o pci:t:a:ld:o:s:S:v:uhE:UC --long plan,config,init:,tfvars:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help,erase:,update,updatev1cs -- "$@")
+  TEMP=$(getopt -o pci:t:a:ld:o:s:S:v:uhE:f:UC --long plan,config,init:,tfvars:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help,erase:,freeze:,update,updatev1cs -- "$@")
   if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 
   eval set -- "$TEMP"
@@ -2049,6 +2114,7 @@ while true; do
     -h | --help ) helpcmd; break ;;
     -C | --colima ) colima-service $2; shift 2 ;;
     -E | --erase ) erase $2; shift 2 ;;
+    -f | --freeze ) freeze $2; shift 2 ;;
     -U | --update ) update; break ;;
     -C | --updatev1cs ) update-v1cs; break ;;
     -- ) shift; break ;;

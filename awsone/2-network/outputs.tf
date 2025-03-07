@@ -95,12 +95,20 @@ output "ad_dc_ip" {
   value = var.active_directory ? module.ad[0].ad_dc_ip : null
 }
 
+output "ad_dc_id" {
+  value = var.active_directory ? module.ad[0].ad_dc_id : null
+}
+
 output "ad_dc_pip" {
   value = var.active_directory ? module.ad[0].ad_dc_pip : null
 }
 
 output "ad_ca_ip" {
   value = var.active_directory ? module.ad[0].ad_ca_ip : null
+}
+
+output "ad_ca_id" {
+  value = var.active_directory ? module.ad[0].ad_ca_id : null
 }
 
 output "ad_domain_admin" {

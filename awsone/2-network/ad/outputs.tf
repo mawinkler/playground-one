@@ -6,8 +6,16 @@ output "ad_dc_pip" {
   value = aws_instance.windows-server-dc.private_ip
 }
 
+output "ad_dc_id" {
+  value = aws_instance.windows-server-dc.id
+}
+
 output "ad_ca_ip" {
   value = aws_instance.windows-server-ca.public_ip
+}
+
+output "ad_ca_id" {
+  value = aws_instance.windows-server-ca.id
 }
 
 output "ad_admin_password" {

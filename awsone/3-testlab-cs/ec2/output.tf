@@ -19,22 +19,30 @@ output "win_local_admin_password" {
 #
 # Apex One
 #
-output "apex_one_server_ip" {
-  value = length(aws_instance.apex_one_server) > 0 ? aws_instance.apex_one_server[0].public_ip : null
-}
-
 output "apex_one_central_ip" {
   value = length(aws_instance.apex_one_central) > 0 ? aws_instance.apex_one_central[0].public_ip : null
 }
 
-output "apex_one_server_ssh" {
-  description = "Command to ssh to instance apex_one_server"
-  value       = length(aws_instance.apex_one_server) > 0 ? formatlist("ssh -i ${var.private_key_path} -o StrictHostKeyChecking=no ${var.windows_username}@%s", aws_instance.apex_one_server[*].public_ip) : null
+output "apex_one_central_id" {
+  value = length(aws_instance.apex_one_central) > 0 ? aws_instance.apex_one_central[0].id : null
 }
 
 output "apex_one_central_ssh" {
   description = "Command to ssh to instance apex_one_central"
   value       = length(aws_instance.apex_one_central) > 0 ? formatlist("ssh -i ${var.private_key_path} -o StrictHostKeyChecking=no ${var.windows_username}@%s", aws_instance.apex_one_central[*].public_ip) : null
+}
+
+output "apex_one_server_ip" {
+  value = length(aws_instance.apex_one_server) > 0 ? aws_instance.apex_one_server[0].public_ip : null
+}
+
+output "apex_one_server_id" {
+  value = length(aws_instance.apex_one_server) > 0 ? aws_instance.apex_one_server[0].id : null
+}
+
+output "apex_one_server_ssh" {
+  description = "Command to ssh to instance apex_one_server"
+  value       = length(aws_instance.apex_one_server) > 0 ? formatlist("ssh -i ${var.private_key_path} -o StrictHostKeyChecking=no ${var.windows_username}@%s", aws_instance.apex_one_server[*].public_ip) : null
 }
 
 #
@@ -43,6 +51,12 @@ output "apex_one_central_ssh" {
 output "windows_client_ip" {
   description = "Windows Client IP"
   value       = length(aws_instance.windows_client) > 0 ? aws_instance.windows_client[*].public_ip : null
+}
+
+output "windows_client_id" {
+  description = "Windows Client IDs"
+  value       = length(aws_instance.windows_client) > 0 ? aws_instance.windows_client[*].id : null
+  # value = length(aws_instance.windows_client) > 0 ? formatlist("name: %s, id: %s", aws_instance.windows_client[*].tags["Name"], aws_instance.windows_client[*].id) : null
 }
 
 output "windows_client_ssh" {
