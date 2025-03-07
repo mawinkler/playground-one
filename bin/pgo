@@ -1958,6 +1958,68 @@ function freeze() {
           --name "${configuration_name}-${instance_name}-${datestr}" \
           --tag-specifications "ResourceType=image,Tags=[{Key=Environment,Value=${environment_name}},{Key=Product,Value=playground-one},{Key=Configuration,Value=${configuration_name}}]"
       done
+
+      # For automated instance re-creation we need:
+      # AMI ID
+      # .Reservations[0].Instances[0].InstanceType
+      # .Reservations[0].Instances[0].KeyName
+      # .Reservations[0].Instances[0].VpcId
+      # .Reservations[0].Instances[0].SubnetId
+      # .Reservations[0].Instances[0].NetworkInterfaces[0].Groups[0].GroupId
+      # .Reservations[0].Instances[0].IamInstanceProfile.Arn
+      #
+      # Re-create with
+      # aws ec2 run-instances \
+      #     --image-id ami-12345678 \  # Replace with your own AMI ID
+      #     --instance-type t3.micro \  # Specify the instance type
+      #     --key-name MyKeyPair \  # Replace with your SSH key pair name
+      #     --security-group-ids sg-0123456789abcdef0 \  # Replace with your security group ID
+      #     --subnet-id subnet-0abcdef1234567890 \  # Replace with your subnet ID
+      #     --count 1 \  # Number of instances to launch
+      #     --associate-public-ip-address \  # Automatically assigns a public IP
+      #     --iam-instance-profile Arn=string,Name=string \  # Instance Profile
+      #     --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=MyInstance}]' \
+      #     # --user-data file://userdata.sh \  # Optional: Custom startup script
+      #     # --region us-east-1  # Replace with your desired AWS region
+
+      ;;&
+    testlab-cs-delete)
+      unset AWS_ACCESS_KEY_ID
+      unset AWS_SECRET_ACCESS_KEY
+      configuration_name="testlab-cs"
+      ami_prefix="${configuration_name}-${environment_name}-"
+
+      # Get a list of AMIs owned by the current AWS account that start with the given prefix
+      ami_ids=$(aws ec2 describe-images --owners self \
+          --filters "Name=name,Values=$ami_prefix*" \
+          --query "Images[*].ImageId" --output text)
+
+      # Check if any AMIs were found
+      if [ -z "$ami_ids" ]; then
+          printf '%s\n' "No AMIs found with prefix '$ami_prefix'."
+          exit 0
+      fi
+
+      # Loop through each AMI and delete it along with its associated snapshots
+      for ami_id in $ami_ids; do
+          printf '%s\n' "Processing AMI: $ami_id"
+
+          # Get snapshot IDs associated with the AMI
+          snapshot_ids=$(aws ec2 describe-images --image-ids "$ami_id" \
+              --query "Images[0].BlockDeviceMappings[*].Ebs.SnapshotId" --output text)
+
+          # Deregister the AMI
+          printf '%s\n' "Deregistering AMI: $ami_id"
+          aws ec2 deregister-image --image-id "$ami_id"
+
+          # Delete associated snapshots
+          for snapshot_id in $snapshot_ids; do
+              printf '%s\n' "Deleting Snapshot: $snapshot_id"
+              aws ec2 delete-snapshot --snapshot-id "$snapshot_id"
+          done
+      done
+
+      printf '%s\n' "All matching AMIs and their snapshots have been deleted successfully."
       ;;&
   esac
 }
