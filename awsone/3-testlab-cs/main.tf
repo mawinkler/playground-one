@@ -22,6 +22,10 @@ module "ec2" {
   create_apex_one_central  = var.create_apex_one_central
   windows_client_count     = var.windows_client_count
 
+  ami_apex_one_server  = try(var.ami_apex_one_server, "")
+  ami_apex_one_central = try(var.ami_apex_one_central, "")
+  ami_windows_client   = try(var.ami_windows_client, "")
+
   # PGO Active Directory
   active_directory         = var.active_directory
   windows_ad_domain_name   = try(data.terraform_remote_state.vpc.outputs.ad_domain_name, "")

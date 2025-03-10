@@ -24,7 +24,7 @@ pgo --apply network
 
 ## Development Status
 
-### Working, ready for Testing
+### Working, ready for Testing as of 03/07/2025
 
 - VPC including all required networking configurations.
   - Public, private, dababase, intranet subnets
@@ -67,6 +67,10 @@ Latest additions:
   - Who can contribute to the PoC for the implementation of the Trend products? In the beginning, I think it will probably be Apex One and Apex Server.
   - Who can potentially help with some Windows Domain stuff?
 
+## Current Limitations
+
+- Adaptions in the configuration for multiple Windows clients with different AMIs needed.
+ 
 ## Review the Active Directory
 
 After applying the network the Active Directory will build itself automatically. It consists out of two machines both based on Windows Server 2022:
@@ -105,14 +109,55 @@ pgo --apply testlab-cs
 
 ## Snapshot Testlab Instances
 
+Before snapshotting it is advised to create a new local administrator. Being authenticated as the domain administrator run the following in powershell:
+
+```ps
+$Username = "LocalAdmin"
+$Password = ConvertTo-SecureString "SecureP@ssw0rd!" -AsPlainText -Force
+
+# Create the local user account
+New-LocalUser -Name $Username -Password $Password -FullName "Local Administrator" -Description "Local Admin Account"
+
+# Add the user to the Administrators group
+Add-LocalGroupMember -Group "Administrators" -Member $Username
+
+Write-Output "Local administrator account '$Username' has been created successfully."
+```
+
+Then
+
 ```sh
 pgo -f testlab-cs
 ```
 
-Delete all snapshots:
+Name the Snapshot, e.g. `v1`.
+
+After the snapshot has been created you can destroy the Testlab with `--destroy testlab-cs`
+
+## Retrieve Testlab Snapshot
+
+```sh
+pgo -f testlab-cs-retrieve
+```
+
+Name the Snapshot, e.g. `v1`.
+
+Configure them accordingly in `3-testlab-cs/terraform.tfvars`.
+
+Then
+
+```sh
+pgo -a testlab-cs
+```
+
+When the instances are up either use the domain admin of local admin from above to connect.
+
+## Delete Snapshots:
 
 ```sh
 pgo -f testlab-cs-delete
 ```
+
+Name the Snapshot to delete, e.g. `v1`.
 
 🎉 Success 🎉

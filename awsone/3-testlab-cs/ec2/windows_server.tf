@@ -11,7 +11,7 @@ resource "aws_instance" "apex_one_server" {
 
   count = var.create_apex_one_server ? 1 : 0
 
-  ami                    = data.aws_ami.windows.id
+  ami                    = var.ami_apex_one_server != "" ? var.ami_apex_one_server : data.aws_ami.windows.id
   instance_type          = var.apex_instance_type
   subnet_id              = var.public_subnets[1]
   vpc_security_group_ids = [var.public_security_group_id]
@@ -19,7 +19,7 @@ resource "aws_instance" "apex_one_server" {
   source_dest_check      = false
   key_name               = var.key_name
   user_data              = local.userdata_apex_one_server
-  get_password_data      = true
+  get_password_data      = false
 
   root_block_device {
     volume_size           = var.apex_root_volume_size
@@ -52,7 +52,7 @@ resource "aws_instance" "apex_one_central" {
 
   count = var.create_apex_one_central ? 1 : 0
 
-  ami                    = data.aws_ami.windows.id
+  ami                    = var.ami_apex_one_central != "" ? var.ami_apex_one_central : data.aws_ami.windows.id
   instance_type          = var.apex_instance_type
   subnet_id              = var.public_subnets[1]
   vpc_security_group_ids = [var.public_security_group_id]
@@ -60,7 +60,7 @@ resource "aws_instance" "apex_one_central" {
   source_dest_check      = false
   key_name               = var.key_name
   user_data              = local.userdata_apex_one_central
-  get_password_data      = true
+  get_password_data      = false
 
   root_block_device {
     volume_size           = var.apex_root_volume_size
@@ -93,7 +93,7 @@ resource "aws_instance" "windows_client" {
 
   count = var.windows_client_count > 0 ? var.windows_client_count : 0
 
-  ami                    = data.aws_ami.windows.id
+  ami                    = var.ami_windows_client  != "" ? var.ami_windows_client : data.aws_ami.windows.id
   instance_type          = var.windows_instance_type
   subnet_id              = var.public_subnets[1]
   vpc_security_group_ids = [var.public_security_group_id]
@@ -101,7 +101,7 @@ resource "aws_instance" "windows_client" {
   source_dest_check      = false
   key_name               = var.key_name
   user_data              = local.userdata_windows_client
-  get_password_data      = true
+  get_password_data      = false
 
   root_block_device {
     volume_size           = var.windows_root_volume_size

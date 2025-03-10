@@ -1930,18 +1930,49 @@ function freeze() {
       printf '%s\n' "Not implemented yet"
       ;;&
     testlab-cs|all)
-      configuration_name="testlab-cs"
-      apex_one_central_id=$(terraform -chdir=${configs[${configuration_name}]} output -raw apex_one_central_id)
-      apex_one_server_id=$(terraform -chdir=${configs[${configuration_name}]} output -raw apex_one_server_id)
-      windows_client_id=$(terraform -chdir=${configs[${configuration_name}]} output -json windows_client_id | jq -r '. |= join(" ")')
-      printf '%s\n' "apex_one_central_id = ${apex_one_central_id}"
-      printf '%s\n' "apex_one_server_id = ${apex_one_server_id}"
-      printf '%s\n' "windows_client_id = ${windows_client_id}"
+      # 03/10/2025
+      # Workflow:
+      # - Create environment with pgo --apply
+      # - Deploy stuff
+      # - Run pgo -f testlab-cs
+      #   - Name the Snapshots, e.g. v1
+      #
+      # - Run pgo -f testlab-retrieve
+      #   Returns the list of amis. Configure them accordingly in 3-testlab-cs terraform.tfvars
+      #
+      # - Delete snapshots with pgo -f testlab-cs-delete
+      #   - Set Name the Snapshots, e.g. v1
+      #
+      # Open:
+      # - How to clean up active directory?
+      # - How to map different amis for windows clients for apply? Likely we need separate tf for each winows client?
+
+
+      key_desc="Snapshot Name"
       datestr=$(date '+%Y%m%d-%H%M')
+      snapshot_name=${datestr}
+      read -p "${key_desc} [${snapshot_name}]: " TEMP
+      if [[ ! -z "${TEMP}" ]]; then
+        snapshot_name=${TEMP}
+      fi
+      if [[ "${snapshot_name}" =~ ^[0-9a-z\-]+$ && ${#snapshot_name} -le 20 ]]; then
+        echo "Tagging AMIs with Snapshot Name=${snapshot_name}"
+      else
+        echo "Error: Invalid ${key_desc} input."
+        exit 0
+      fi
+
+      configuration_name="testlab-cs"
+      instance_ids=$(aws ec2 describe-instances \
+          --filters "Name=instance-state-name,Values=running,stopped" \
+                    "Name=tag:Configuration,Values=${configuration_name}" \
+                    "Name=tag:Environment,Values=${environment_name}" \
+          --query "Reservations[*].Instances[*].InstanceId" \
+          --output text)
 
       unset AWS_ACCESS_KEY_ID
       unset AWS_SECRET_ACCESS_KEY
-      for instance_id in ${apex_one_central_id} ${apex_one_server_id} ${windows_client_id}; do
+      for instance_id in ${instance_ids}; do
         aws ec2 stop-instances --instance-ids ${instance_id}
         i=1
         while [ $i -le 60 ]; do
@@ -1956,34 +1987,49 @@ function freeze() {
         aws ec2 create-image \
           --instance-id ${instance_id} \
           --name "${configuration_name}-${instance_name}-${datestr}" \
-          --tag-specifications "ResourceType=image,Tags=[{Key=Environment,Value=${environment_name}},{Key=Product,Value=playground-one},{Key=Configuration,Value=${configuration_name}}]"
+          --tag-specifications "ResourceType=image,Tags=[{Key=Environment,Value=${environment_name}},
+                                                         {Key=Product,Value=playground-one},
+                                                         {Key=Configuration,Value=${configuration_name}},
+                                                         {Key=Name,Value=${snapshot_name}},
+                                                         {Key=InstanceName,Value=${instance_name}}]"
       done
+      ;;&
+    testlab-cs-retrieve|all)
+      key_desc="Snapshot Name"
+      snapshot_name=""
+      read -p "${key_desc} [${snapshot_name}]: " TEMP
+      if [[ ! -z "${TEMP}" ]]; then
+        snapshot_name=${TEMP}
+      fi
+      if [[ "${snapshot_name}" =~ ^[0-9a-z\-]+$ && ${#snapshot_name} -le 20 ]]; then
+        echo "Retrieveing AMIs with Snapshot Name=${snapshot_name}"
+      else
+        echo "Error: Invalid ${key_desc} input."
+        exit 0
+      fi
 
-      # For automated instance re-creation we need:
-      # AMI ID
-      # .Reservations[0].Instances[0].InstanceType
-      # .Reservations[0].Instances[0].KeyName
-      # .Reservations[0].Instances[0].VpcId
-      # .Reservations[0].Instances[0].SubnetId
-      # .Reservations[0].Instances[0].NetworkInterfaces[0].Groups[0].GroupId
-      # .Reservations[0].Instances[0].IamInstanceProfile.Arn
-      #
-      # Re-create with
-      # aws ec2 run-instances \
-      #     --image-id ami-12345678 \  # Replace with your own AMI ID
-      #     --instance-type t3.micro \  # Specify the instance type
-      #     --key-name MyKeyPair \  # Replace with your SSH key pair name
-      #     --security-group-ids sg-0123456789abcdef0 \  # Replace with your security group ID
-      #     --subnet-id subnet-0abcdef1234567890 \  # Replace with your subnet ID
-      #     --count 1 \  # Number of instances to launch
-      #     --associate-public-ip-address \  # Automatically assigns a public IP
-      #     --iam-instance-profile Arn=string,Name=string \  # Instance Profile
-      #     --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=MyInstance}]' \
-      #     # --user-data file://userdata.sh \  # Optional: Custom startup script
-      #     # --region us-east-1  # Replace with your desired AWS region
+      configuration_name="testlab-cs"
+      aws ec2 describe-images \
+        --filters "Name=tag:Configuration,Values=${configuration_name}" \
+                  "Name=tag:Environment,Values=${environment_name}" \
+                  "Name=tag:Name,Values=${snapshot_name}" | \
+        jq -r '.Images[] | (.Tags[] | select(.Key=="InstanceName") | .Value) + "=\"" + .ImageId + "\""'
 
       ;;&
     testlab-cs-delete)
+      key_desc="Snapshot Name"
+      snapshot_name=""
+      read -p "${key_desc} [${snapshot_name}]: " TEMP
+      if [[ ! -z "${TEMP}" ]]; then
+        snapshot_name=${TEMP}
+      fi
+      if [[ "${snapshot_name}" =~ ^[0-9a-z\-]+$ && ${#snapshot_name} -le 20 ]]; then
+        echo "Deleting AMIs with Snapshot Name=${snapshot_name}"
+      else
+        echo "Error: Invalid ${key_desc} input."
+        exit 0
+      fi
+
       unset AWS_ACCESS_KEY_ID
       unset AWS_SECRET_ACCESS_KEY
       configuration_name="testlab-cs"
@@ -1992,6 +2038,7 @@ function freeze() {
       # Get a list of AMIs owned by the current AWS account that start with the given prefix
       ami_ids=$(aws ec2 describe-images --owners self \
           --filters "Name=name,Values=$ami_prefix*" \
+                    "Name=tag:Name,Values=${snapshot_name}" \
           --query "Images[*].ImageId" --output text)
 
       # Check if any AMIs were found
