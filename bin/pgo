@@ -1932,24 +1932,6 @@ function freeze() {
       printf '%s\n' "Not implemented yet"
       ;;&
     testlab-cs|all)
-      # 03/10/2025
-      # Workflow:
-      # - Create environment with pgo --apply
-      # - Deploy stuff
-      # - Run pgo -f testlab-cs
-      #   - Name the Snapshots, e.g. v1
-      #
-      # - Run pgo -f testlab-retrieve
-      #   Returns the list of amis. Configure them accordingly in 3-testlab-cs terraform.tfvars
-      #
-      # - Delete snapshots with pgo -f testlab-cs-delete
-      #   - Set Name the Snapshots, e.g. v1
-      #
-      # Open:
-      # - How to clean up active directory?
-      # - How to map different amis for windows clients for apply? Likely we need separate tf for each winows client?
-
-
       key_desc="Snapshot Name"
       datestr=$(date '+%Y%m%d-%H%M')
       snapshot_name=${datestr}
@@ -1958,9 +1940,9 @@ function freeze() {
         snapshot_name=${TEMP}
       fi
       if [[ "${snapshot_name}" =~ ^[0-9a-z\-]+$ && ${#snapshot_name} -le 20 ]]; then
-        echo "Tagging AMIs with Snapshot Name=${snapshot_name}"
+        printf '%s\n' "Tagging AMIs with Snapshot Name=${snapshot_name}"
       else
-        echo "Error: Invalid ${key_desc} input."
+        printf '%s\n' "Error: Invalid ${key_desc} input."
         exit 0
       fi
 
@@ -2005,18 +1987,42 @@ function freeze() {
         snapshot_name=${TEMP}
       fi
       if [[ "${snapshot_name}" =~ ^[0-9a-z\-]+$ && ${#snapshot_name} -le 20 ]]; then
-        echo "Retrieveing AMIs with Snapshot Name=${snapshot_name}"
+        printf '%s\n' "Retrieveing AMIs with Snapshot Name=${snapshot_name}"
       else
-        echo "Error: Invalid ${key_desc} input."
+        printf '%s\n' "Error: Invalid ${key_desc} input."
         exit 0
       fi
 
       configuration_name="testlab-cs"
-      aws ec2 describe-images \
+      ami_list=$(aws ec2 describe-images \
         --filters "Name=tag:Configuration,Values=${configuration_name}" \
                   "Name=tag:Environment,Values=${environment_name}" \
                   "Name=tag:Name,Values=${snapshot_name}" | \
-        jq -r '.Images[] | (.Tags[] | select(.Key=="InstanceName") | .Value) + "=\"" + .ImageId + "\""'
+        jq -r '.Images[] | (.Tags[] | select(.Key=="InstanceName") | .Value) + "=" + .ImageId' | \
+        sort)
+      
+      ami_apex_one_server=""
+      ami_apex_one_central=""
+      ami_windows_client="["
+      for ami in ${ami_list}; do
+        printf '%s\n' $ami
+        if [[ $ami =~ .*apex-one-central.* ]]; then
+          ami_apex_one_central=${ami#*=}
+        fi
+        if [[ $ami =~ .*apex-one-server.* ]]; then
+          ami_apex_one_server=${ami#*=}
+        fi
+        if [[ $ami =~ .*windows-client.* ]]; then
+          ami_windows_client+="\"${ami#*=}\","
+        fi
+      done
+      ami_windows_client="${ami_windows_client%,}]"
+
+      sed -i "/^ami_apex_one_server = .*/c  ami_apex_one_server = \"${ami_apex_one_server}\"" ${configs[testlab-cs]}/terraform.tfvars
+      sed -i "/^ami_apex_one_central = .*/c  ami_apex_one_central = \"${ami_apex_one_central}\"" ${configs[testlab-cs]}/terraform.tfvars
+      sed -i "/^ami_windows_client = .*/c  ami_windows_client = ${ami_windows_client}" ${configs[testlab-cs]}/terraform.tfvars
+
+      printf '%s\n' "${configs[testlab-cs]}/terraform.tfvars patched."
 
       ;;&
     testlab-cs-delete)
@@ -2027,9 +2033,9 @@ function freeze() {
         snapshot_name=${TEMP}
       fi
       if [[ "${snapshot_name}" =~ ^[0-9a-z\-]+$ && ${#snapshot_name} -le 20 ]]; then
-        echo "Deleting AMIs with Snapshot Name=${snapshot_name}"
+        printf '%s\n' "Deleting AMIs with Snapshot Name=${snapshot_name}"
       else
-        echo "Error: Invalid ${key_desc} input."
+        printf '%s\n' "Error: Invalid ${key_desc} input."
         exit 0
       fi
 

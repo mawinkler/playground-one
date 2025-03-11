@@ -29,7 +29,7 @@ resource "aws_instance" "apex_one_server" {
   }
 
   tags = {
-    Name          = "${var.environment}-apex-one-server-${count.index}"
+    Name          = "${var.environment}-apex-one-server"
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "testlab-cs"
@@ -70,7 +70,7 @@ resource "aws_instance" "apex_one_central" {
   }
 
   tags = {
-    Name          = "${var.environment}-apex-one-central-${count.index}"
+    Name          = "${var.environment}-apex-one-central"
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "testlab-cs"
