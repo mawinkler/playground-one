@@ -72,11 +72,13 @@ variable "ami_apex_one_server" {
   description = "AMI to use for instance creation."
   default     = ""
 }
+
 variable "ami_apex_one_central" {
   type        = string
   description = "AMI to use for instance creation."
   default     = ""
 }
+
 variable "ami_windows_client" {
   type        = list(any)
   description = "AMI to use for instance creation."

@@ -63,7 +63,11 @@ configs=(
   ["user"]=${ONEPATH}/awsone/1-pgo-user
   ["satellite"]=${ONEPATH}/awsone/1-pgo-satellite
   ["network"]=${ONEPATH}/awsone/2-network
+  ["network-retrieve"]=${ONEPATH}/awsone/2-network
+  ["network-delete"]=${ONEPATH}/awsone/2-network
   ["nw"]=${ONEPATH}/awsone/2-network
+  ["nw-retrieve"]=${ONEPATH}/awsone/2-network
+  ["nw-delete"]=${ONEPATH}/awsone/2-network
   ["ec2"]=${ONEPATH}/awsone/3-instances
   ["instances"]=${ONEPATH}/awsone/3-instances
   ["testlab-cs"]=${ONEPATH}/awsone/3-testlab-cs
@@ -1904,7 +1908,8 @@ function erase() {
 }
 
 #######################################
-# Freeze EC2 instances, create AMIs
+# Freeze EC2 instances, create AMIs,
+# and delete AMIs
 # Globals:
 #   None
 # Arguments:
@@ -1920,86 +1925,171 @@ function is_instance_stopped() {
   false
 }
 
+function freeze_configuration() {
+  key_desc="Snapshot Name"
+  datestr=$(date '+%Y%m%d-%H%M')
+  snapshot_name=${datestr}
+  read -p "${key_desc} [${snapshot_name}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    snapshot_name=${TEMP}
+  fi
+  if [[ "${snapshot_name}" =~ ^[0-9a-z\-]+$ && ${#snapshot_name} -le 20 ]]; then
+    printf '%s\n' "Tagging AMIs with Snapshot Name=${snapshot_name}"
+  else
+    printf '%s\n' "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  configuration_name=$1
+  instance_ids=$(aws ec2 describe-instances \
+      --filters "Name=instance-state-name,Values=running,stopped" \
+                "Name=tag:Configuration,Values=${configuration_name}" \
+                "Name=tag:Environment,Values=${environment_name}" \
+      --query "Reservations[*].Instances[*].InstanceId" \
+      --output text)
+
+  unset AWS_ACCESS_KEY_ID
+  unset AWS_SECRET_ACCESS_KEY
+  for instance_id in ${instance_ids}; do
+    aws ec2 stop-instances --instance-ids ${instance_id}
+    i=1
+    while [ $i -le 60 ]; do
+      if is_instance_stopped ${instance_id}; then
+        break
+      fi
+      printf '%s\n' "Waiting for instance ${instance_id} to be in stopped state"
+      sleep 5
+    done
+    instance_name=$(aws ec2 describe-instances --instance-ids ${instance_id} | jq -r '.Reservations[0].Instances[0].Tags[] | select(.Key=="Name") | .Value')
+    printf '%s\n' "Creating AMI of ${instance_id} with name ${instance_name}"
+    aws ec2 create-image \
+      --instance-id ${instance_id} \
+      --name "${configuration_name}-${instance_name}-${snapshot_name}" \
+      --tag-specifications "ResourceType=image,Tags=[{Key=Environment,Value=${environment_name}},
+                                                      {Key=Product,Value=playground-one},
+                                                      {Key=Configuration,Value=${configuration_name}},
+                                                      {Key=Name,Value=${configuration_name}-${snapshot_name}},
+                                                      {Key=Created,Value=${datestr}},
+                                                      {Key=InstanceName,Value=${instance_name}}]"
+  done
+}
+
+function freeze_retrieve() {
+  key_desc="Snapshot Name"
+  snapshot_name=""
+  read -p "${key_desc} [${snapshot_name}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    snapshot_name=${TEMP}
+  fi
+  if [[ "${snapshot_name}" =~ ^[0-9a-z\-]+$ && ${#snapshot_name} -le 20 ]]; then
+    printf '%s\n' "Retrieveing AMIs with Snapshot Name=${snapshot_name}"
+  else
+    printf '%s\n' "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  configuration_name=$1
+  ami_list=$(aws ec2 describe-images \
+    --filters "Name=tag:Configuration,Values=${configuration_name}" \
+              "Name=tag:Environment,Values=${environment_name}" \
+              "Name=tag:Name,Values=${configuration_name}-${snapshot_name}" | \
+    jq -r '.Images[] | (.Tags[] | select(.Key=="InstanceName") | .Value) + "=" + .ImageId' | \
+    sort)
+}
+
+function freeze_delete() {
+  key_desc="Snapshot Name"
+  snapshot_name=""
+  read -p "${key_desc} [${snapshot_name}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    snapshot_name=${TEMP}
+  fi
+  if [[ "${snapshot_name}" =~ ^[0-9a-z\-]+$ && ${#snapshot_name} -le 20 ]]; then
+    printf '%s\n' "Deleting AMIs with Snapshot Name=${snapshot_name}"
+  else
+    printf '%s\n' "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
+  unset AWS_ACCESS_KEY_ID
+  unset AWS_SECRET_ACCESS_KEY
+  configuration_name=$1
+  ami_prefix="${configuration_name}-${environment_name}-"
+
+  # Get a list of AMIs owned by the current AWS account that start with the given prefix
+  ami_ids=$(aws ec2 describe-images --owners self \
+      --filters "Name=name,Values=$ami_prefix*" \
+                "Name=tag:Name,Values=${configuration_name}-${snapshot_name}" \
+      --query "Images[*].ImageId" --output text)
+
+  # Check if any AMIs were found
+  if [ -z "$ami_ids" ]; then
+      printf '%s\n' "No AMIs found with prefix '$ami_prefix'."
+      exit 0
+  fi
+
+  # Loop through each AMI and delete it along with its associated snapshots
+  for ami_id in $ami_ids; do
+      printf '%s\n' "Processing AMI: $ami_id"
+
+      # Get snapshot IDs associated with the AMI
+      snapshot_ids=$(aws ec2 describe-images --image-ids "$ami_id" \
+          --query "Images[0].BlockDeviceMappings[*].Ebs.SnapshotId" --output text)
+
+      # Deregister the AMI
+      printf '%s\n' "Deregistering AMI: $ami_id"
+      aws ec2 deregister-image --image-id "$ami_id"
+
+      # Delete associated snapshots
+      for snapshot_id in $snapshot_ids; do
+          printf '%s\n' "Deleting Snapshot: $snapshot_id"
+          aws ec2 delete-snapshot --snapshot-id "$snapshot_id"
+      done
+  done
+
+  printf '%s\n' "All matching AMIs and their snapshots have been deleted successfully."
+}
+
 function freeze() {
 
   telemetry "cleanup" $1
 
   case $1 in
     nw|network|all)
-      printf '%s\n' "Not implemented yet"
+      freeze_configuration nw
+      ;;&
+    nw-retrieve|network-retrieve|all)
+      freeze_retrieve nw
+
+      ami_active_directory_dc=""
+      ami_active_directory_ca=""
+      for ami in ${ami_list}; do
+        printf '%s\n' $ami
+        if [[ $ami =~ .*-dc.* ]]; then
+          ami_active_directory_dc=${ami#*=}
+        fi
+        if [[ $ami =~ .*-ca.* ]]; then
+          ami_active_directory_ca=${ami#*=}
+        fi
+      done
+      ami_windows_client="${ami_windows_client%,}]"
+
+      sed -i "/^ami_active_directory_dc = .*/c  ami_active_directory_dc = \"${ami_active_directory_dc}\"" ${configs[network]}/terraform.tfvars
+      sed -i "/^ami_active_directory_ca = .*/c  ami_active_directory_ca = \"${ami_active_directory_ca}\"" ${configs[network]}/terraform.tfvars
+
+      printf '%s\n' "${configs[network]}/terraform.tfvars patched."
+      ;;&
+    nw-delete|network-delete|all)
+      freeze_delete nw
       ;;&
     ec2|instances|all)
       printf '%s\n' "Not implemented yet"
       ;;&
     testlab-cs|all)
-      key_desc="Snapshot Name"
-      datestr=$(date '+%Y%m%d-%H%M')
-      snapshot_name=${datestr}
-      read -p "${key_desc} [${snapshot_name}]: " TEMP
-      if [[ ! -z "${TEMP}" ]]; then
-        snapshot_name=${TEMP}
-      fi
-      if [[ "${snapshot_name}" =~ ^[0-9a-z\-]+$ && ${#snapshot_name} -le 20 ]]; then
-        printf '%s\n' "Tagging AMIs with Snapshot Name=${snapshot_name}"
-      else
-        printf '%s\n' "Error: Invalid ${key_desc} input."
-        exit 0
-      fi
-
-      configuration_name="testlab-cs"
-      instance_ids=$(aws ec2 describe-instances \
-          --filters "Name=instance-state-name,Values=running,stopped" \
-                    "Name=tag:Configuration,Values=${configuration_name}" \
-                    "Name=tag:Environment,Values=${environment_name}" \
-          --query "Reservations[*].Instances[*].InstanceId" \
-          --output text)
-
-      unset AWS_ACCESS_KEY_ID
-      unset AWS_SECRET_ACCESS_KEY
-      for instance_id in ${instance_ids}; do
-        aws ec2 stop-instances --instance-ids ${instance_id}
-        i=1
-        while [ $i -le 60 ]; do
-          if is_instance_stopped ${instance_id}; then
-            break
-          fi
-          printf '%s\n' "Waiting for instance ${instance_id} to be in stopped state"
-          sleep 5
-        done
-        instance_name=$(aws ec2 describe-instances --instance-ids ${instance_id} | jq -r '.Reservations[0].Instances[0].Tags[] | select(.Key=="Name") | .Value')
-        printf '%s\n' "Creating AMI of ${instance_id} with name ${instance_name}"
-        aws ec2 create-image \
-          --instance-id ${instance_id} \
-          --name "${configuration_name}-${instance_name}" \
-          --tag-specifications "ResourceType=image,Tags=[{Key=Environment,Value=${environment_name}},
-                                                         {Key=Product,Value=playground-one},
-                                                         {Key=Configuration,Value=${configuration_name}},
-                                                         {Key=Name,Value=${snapshot_name}},
-                                                         {Key=Created,Value=${datestr}},
-                                                         {Key=InstanceName,Value=${instance_name}}]"
-      done
+      freeze_configuration testlab-cs
       ;;&
     testlab-cs-retrieve|all)
-      key_desc="Snapshot Name"
-      snapshot_name=""
-      read -p "${key_desc} [${snapshot_name}]: " TEMP
-      if [[ ! -z "${TEMP}" ]]; then
-        snapshot_name=${TEMP}
-      fi
-      if [[ "${snapshot_name}" =~ ^[0-9a-z\-]+$ && ${#snapshot_name} -le 20 ]]; then
-        printf '%s\n' "Retrieveing AMIs with Snapshot Name=${snapshot_name}"
-      else
-        printf '%s\n' "Error: Invalid ${key_desc} input."
-        exit 0
-      fi
-
-      configuration_name="testlab-cs"
-      ami_list=$(aws ec2 describe-images \
-        --filters "Name=tag:Configuration,Values=${configuration_name}" \
-                  "Name=tag:Environment,Values=${environment_name}" \
-                  "Name=tag:Name,Values=${snapshot_name}" | \
-        jq -r '.Images[] | (.Tags[] | select(.Key=="InstanceName") | .Value) + "=" + .ImageId' | \
-        sort)
+      freeze_retrieve testlab-cs
       
       ami_apex_one_server=""
       ami_apex_one_central=""
@@ -2026,59 +2116,170 @@ function freeze() {
 
       ;;&
     testlab-cs-delete)
-      key_desc="Snapshot Name"
-      snapshot_name=""
-      read -p "${key_desc} [${snapshot_name}]: " TEMP
-      if [[ ! -z "${TEMP}" ]]; then
-        snapshot_name=${TEMP}
-      fi
-      if [[ "${snapshot_name}" =~ ^[0-9a-z\-]+$ && ${#snapshot_name} -le 20 ]]; then
-        printf '%s\n' "Deleting AMIs with Snapshot Name=${snapshot_name}"
-      else
-        printf '%s\n' "Error: Invalid ${key_desc} input."
-        exit 0
-      fi
-
-      unset AWS_ACCESS_KEY_ID
-      unset AWS_SECRET_ACCESS_KEY
-      configuration_name="testlab-cs"
-      ami_prefix="${configuration_name}-${environment_name}-"
-
-      # Get a list of AMIs owned by the current AWS account that start with the given prefix
-      ami_ids=$(aws ec2 describe-images --owners self \
-          --filters "Name=name,Values=$ami_prefix*" \
-                    "Name=tag:Name,Values=${snapshot_name}" \
-          --query "Images[*].ImageId" --output text)
-
-      # Check if any AMIs were found
-      if [ -z "$ami_ids" ]; then
-          printf '%s\n' "No AMIs found with prefix '$ami_prefix'."
-          exit 0
-      fi
-
-      # Loop through each AMI and delete it along with its associated snapshots
-      for ami_id in $ami_ids; do
-          printf '%s\n' "Processing AMI: $ami_id"
-
-          # Get snapshot IDs associated with the AMI
-          snapshot_ids=$(aws ec2 describe-images --image-ids "$ami_id" \
-              --query "Images[0].BlockDeviceMappings[*].Ebs.SnapshotId" --output text)
-
-          # Deregister the AMI
-          printf '%s\n' "Deregistering AMI: $ami_id"
-          aws ec2 deregister-image --image-id "$ami_id"
-
-          # Delete associated snapshots
-          for snapshot_id in $snapshot_ids; do
-              printf '%s\n' "Deleting Snapshot: $snapshot_id"
-              aws ec2 delete-snapshot --snapshot-id "$snapshot_id"
-          done
-      done
-
-      printf '%s\n' "All matching AMIs and their snapshots have been deleted successfully."
+      freeze_delete testlab-cs
       ;;&
   esac
 }
+
+# function freeze() {
+
+#   telemetry "cleanup" $1
+
+#   case $1 in
+#     nw|network|all)
+#       printf '%s\n' "Not implemented yet"
+#       ;;&
+#     ec2|instances|all)
+#       printf '%s\n' "Not implemented yet"
+#       ;;&
+#     testlab-cs|all)
+#       key_desc="Snapshot Name"
+#       datestr=$(date '+%Y%m%d-%H%M')
+#       snapshot_name=${datestr}
+#       read -p "${key_desc} [${snapshot_name}]: " TEMP
+#       if [[ ! -z "${TEMP}" ]]; then
+#         snapshot_name=${TEMP}
+#       fi
+#       if [[ "${snapshot_name}" =~ ^[0-9a-z\-]+$ && ${#snapshot_name} -le 20 ]]; then
+#         printf '%s\n' "Tagging AMIs with Snapshot Name=${snapshot_name}"
+#       else
+#         printf '%s\n' "Error: Invalid ${key_desc} input."
+#         exit 0
+#       fi
+
+#       configuration_name="testlab-cs"
+#       instance_ids=$(aws ec2 describe-instances \
+#           --filters "Name=instance-state-name,Values=running,stopped" \
+#                     "Name=tag:Configuration,Values=${configuration_name}" \
+#                     "Name=tag:Environment,Values=${environment_name}" \
+#           --query "Reservations[*].Instances[*].InstanceId" \
+#           --output text)
+
+#       unset AWS_ACCESS_KEY_ID
+#       unset AWS_SECRET_ACCESS_KEY
+#       for instance_id in ${instance_ids}; do
+#         aws ec2 stop-instances --instance-ids ${instance_id}
+#         i=1
+#         while [ $i -le 60 ]; do
+#           if is_instance_stopped ${instance_id}; then
+#             break
+#           fi
+#           printf '%s\n' "Waiting for instance ${instance_id} to be in stopped state"
+#           sleep 5
+#         done
+#         instance_name=$(aws ec2 describe-instances --instance-ids ${instance_id} | jq -r '.Reservations[0].Instances[0].Tags[] | select(.Key=="Name") | .Value')
+#         printf '%s\n' "Creating AMI of ${instance_id} with name ${instance_name}"
+#         aws ec2 create-image \
+#           --instance-id ${instance_id} \
+#           --name "${configuration_name}-${instance_name}-${snapshot_name}" \
+#           --tag-specifications "ResourceType=image,Tags=[{Key=Environment,Value=${environment_name}},
+#                                                          {Key=Product,Value=playground-one},
+#                                                          {Key=Configuration,Value=${configuration_name}},
+#                                                          {Key=Name,Value=${snapshot_name}},
+#                                                          {Key=Created,Value=${datestr}},
+#                                                          {Key=InstanceName,Value=${instance_name}}]"
+#       done
+#       ;;&
+#     testlab-cs-retrieve|all)
+#       key_desc="Snapshot Name"
+#       snapshot_name=""
+#       read -p "${key_desc} [${snapshot_name}]: " TEMP
+#       if [[ ! -z "${TEMP}" ]]; then
+#         snapshot_name=${TEMP}
+#       fi
+#       if [[ "${snapshot_name}" =~ ^[0-9a-z\-]+$ && ${#snapshot_name} -le 20 ]]; then
+#         printf '%s\n' "Retrieveing AMIs with Snapshot Name=${snapshot_name}"
+#       else
+#         printf '%s\n' "Error: Invalid ${key_desc} input."
+#         exit 0
+#       fi
+
+#       configuration_name="testlab-cs"
+#       ami_list=$(aws ec2 describe-images \
+#         --filters "Name=tag:Configuration,Values=${configuration_name}" \
+#                   "Name=tag:Environment,Values=${environment_name}" \
+#                   "Name=tag:Name,Values=${snapshot_name}" | \
+#         jq -r '.Images[] | (.Tags[] | select(.Key=="InstanceName") | .Value) + "=" + .ImageId' | \
+#         sort)
+      
+#       ami_apex_one_server=""
+#       ami_apex_one_central=""
+#       ami_windows_client="["
+#       for ami in ${ami_list}; do
+#         printf '%s\n' $ami
+#         if [[ $ami =~ .*apex-one-central.* ]]; then
+#           ami_apex_one_central=${ami#*=}
+#         fi
+#         if [[ $ami =~ .*apex-one-server.* ]]; then
+#           ami_apex_one_server=${ami#*=}
+#         fi
+#         if [[ $ami =~ .*windows-client.* ]]; then
+#           ami_windows_client+="\"${ami#*=}\","
+#         fi
+#       done
+#       ami_windows_client="${ami_windows_client%,}]"
+
+#       sed -i "/^ami_apex_one_server = .*/c  ami_apex_one_server = \"${ami_apex_one_server}\"" ${configs[testlab-cs]}/terraform.tfvars
+#       sed -i "/^ami_apex_one_central = .*/c  ami_apex_one_central = \"${ami_apex_one_central}\"" ${configs[testlab-cs]}/terraform.tfvars
+#       sed -i "/^ami_windows_client = .*/c  ami_windows_client = ${ami_windows_client}" ${configs[testlab-cs]}/terraform.tfvars
+
+#       printf '%s\n' "${configs[testlab-cs]}/terraform.tfvars patched."
+
+#       ;;&
+#     testlab-cs-delete)
+#       key_desc="Snapshot Name"
+#       snapshot_name=""
+#       read -p "${key_desc} [${snapshot_name}]: " TEMP
+#       if [[ ! -z "${TEMP}" ]]; then
+#         snapshot_name=${TEMP}
+#       fi
+#       if [[ "${snapshot_name}" =~ ^[0-9a-z\-]+$ && ${#snapshot_name} -le 20 ]]; then
+#         printf '%s\n' "Deleting AMIs with Snapshot Name=${snapshot_name}"
+#       else
+#         printf '%s\n' "Error: Invalid ${key_desc} input."
+#         exit 0
+#       fi
+
+#       unset AWS_ACCESS_KEY_ID
+#       unset AWS_SECRET_ACCESS_KEY
+#       configuration_name="testlab-cs"
+#       ami_prefix="${configuration_name}-${environment_name}-"
+
+#       # Get a list of AMIs owned by the current AWS account that start with the given prefix
+#       ami_ids=$(aws ec2 describe-images --owners self \
+#           --filters "Name=name,Values=$ami_prefix*" \
+#                     "Name=tag:Name,Values=${snapshot_name}" \
+#           --query "Images[*].ImageId" --output text)
+
+#       # Check if any AMIs were found
+#       if [ -z "$ami_ids" ]; then
+#           printf '%s\n' "No AMIs found with prefix '$ami_prefix'."
+#           exit 0
+#       fi
+
+#       # Loop through each AMI and delete it along with its associated snapshots
+#       for ami_id in $ami_ids; do
+#           printf '%s\n' "Processing AMI: $ami_id"
+
+#           # Get snapshot IDs associated with the AMI
+#           snapshot_ids=$(aws ec2 describe-images --image-ids "$ami_id" \
+#               --query "Images[0].BlockDeviceMappings[*].Ebs.SnapshotId" --output text)
+
+#           # Deregister the AMI
+#           printf '%s\n' "Deregistering AMI: $ami_id"
+#           aws ec2 deregister-image --image-id "$ami_id"
+
+#           # Delete associated snapshots
+#           for snapshot_id in $snapshot_ids; do
+#               printf '%s\n' "Deleting Snapshot: $snapshot_id"
+#               aws ec2 delete-snapshot --snapshot-id "$snapshot_id"
+#           done
+#       done
+
+#       printf '%s\n' "All matching AMIs and their snapshots have been deleted successfully."
+#       ;;&
+#   esac
+# }
 
 #######################################
 # Update Playground One and components

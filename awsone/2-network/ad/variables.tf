@@ -50,6 +50,19 @@ variable "windows_ad_user_name" {
   default     = "Administrator"
 }
 
+
+variable "ami_active_directory_dc" {
+  type        = string
+  description = "AMI to use for instance creation."
+  default     = ""
+}
+
+variable "ami_active_directory_ca" {
+  type        = string
+  description = "AMI to use for instance creation."
+  default     = ""
+}
+
 variable "virtual_network_sensor" {}
 variable "vns_va_traffic_mirror_filter_id" {}
 variable "vns_va_traffic_mirror_target_id" {}

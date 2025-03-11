@@ -16,11 +16,11 @@ environment = "${environment_name}"
 
 # AWS PGO Active Directory
 active_directory = ${active_directory}
+ami_apex_one_server = ""
+ami_apex_one_central = ""
+ami_windows_client = []
 
 create_apex_one_server = true
 create_apex_one_central = true
 windows_client_count = 2
 
-ami_apex_one_server = ""
-ami_apex_one_central = ""
-ami_windows_client = []

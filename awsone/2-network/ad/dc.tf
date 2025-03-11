@@ -1,6 +1,6 @@
 # Create EC2 Instance
 resource "aws_instance" "windows-server-dc" {
-  ami                    = data.aws_ami.windows-server.id
+  ami                    = var.ami_active_directory_dc != "" ? var.ami_active_directory_dc : data.aws_ami.windows-server.id
   instance_type          = var.windows_instance_type
   subnet_id              = var.public_subnets[0]
   vpc_security_group_ids = [var.public_security_group_id]
@@ -8,7 +8,7 @@ resource "aws_instance" "windows-server-dc" {
   source_dest_check      = false
   key_name               = var.key_name
   user_data              = local.userdata_dc
-  get_password_data      = true
+  get_password_data      = false
 
   # root disk
   root_block_device {

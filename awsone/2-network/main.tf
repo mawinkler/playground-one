@@ -54,6 +54,10 @@ module "ad" {
   windows_ad_nebios_name          = upper(var.environment)
   windows_ad_user_name            = var.ad_domain_admin
   windows_ad_safe_password        = var.ad_admin_password
+
+  ami_active_directory_dc = try(var.ami_active_directory_dc, "")
+  ami_active_directory_ca = try(var.ami_active_directory_ca, "")
+
   virtual_network_sensor          = var.virtual_network_sensor
   vns_va_traffic_mirror_filter_id = try(module.vns[0].vns_va_traffic_mirror_filter_id, "")
   vns_va_traffic_mirror_target_id = try(module.vns[0].vns_va_traffic_mirror_target_id, "")

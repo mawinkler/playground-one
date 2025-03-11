@@ -100,20 +100,32 @@ ad_admin_password = TrendMicro.1
 - `ad_domain_name`: Name of your Domain
 - `ad_domain_admin` and `ad_admin_password`: Name and password for the Domain Admin
 
-## Create Testlab-CS
+## Life-Cycle
+
+### Configure Instances
+
+In `terraform.tfvars`. Example:
+
+```tf
+create_apex_one_server = true
+create_apex_one_central = true
+windows_client_count = 2
+```
+
+### Create Testlab-CS
 
 ```sh
 # With SG and PGO AD enabled
 pgo --apply testlab-cs
 ```
 
-## Snapshot Testlab Instances
+### (Optional): Create Your own Local Administrator
 
 Before snapshotting it is advised to create a new local administrator. Being authenticated as the domain administrator run the following in powershell:
 
 ```ps
 $Username = "LocalAdmin"
-$Password = ConvertTo-SecureString "SecureP@ssw0rd!" -AsPlainText -Force
+$Password = ConvertTo-SecureString "TrendMicro.1" -AsPlainText -Force
 
 # Create the local user account
 New-LocalUser -Name $Username -Password $Password -FullName "Local Administrator" -Description "Local Admin Account"
@@ -124,40 +136,40 @@ Add-LocalGroupMember -Group "Administrators" -Member $Username
 Write-Output "Local administrator account '$Username' has been created successfully."
 ```
 
-Then
+### Snapshot Testlab Instances
 
 ```sh
-pgo -f testlab-cs
+pgo --freeze testlab-cs
 ```
 
 Name the Snapshot, e.g. `v1`.
 
-After the snapshot has been created you can destroy the Testlab with `--destroy testlab-cs`
+After the snapshot has been created ***and the AMIs are not in pending state anymore*** you can destroy the Testlab with `--destroy testlab-cs`.
 
-## Retrieve Testlab Snapshot
+### Retrieve Testlab Snapshot
 
 ```sh
-pgo -f testlab-cs-retrieve
+pgo --freeze testlab-cs-retrieve
 ```
 
-Name the Snapshot, e.g. `v1`.
+Enter the Snapshots Name, e.g. `v1`.
 
-Configure them accordingly in `3-testlab-cs/terraform.tfvars`.
+The `3-testlab-cs/terraform.tfvars` will be configured automatically. The `windows_count` variable is now ignored.
 
 Then
 
 ```sh
-pgo -a testlab-cs
+pgo --apply testlab-cs
 ```
 
 When the instances are up either use the domain admin of local admin from above to connect.
 
-## Delete Snapshots:
+### Delete Snapshots:
 
 ```sh
-pgo -f testlab-cs-delete
+pgo --freeze testlab-cs-delete
 ```
 
-Name the Snapshot to delete, e.g. `v1`.
+Enter the Snapshots Name, e.g. `v1`.
 
 🎉 Success 🎉

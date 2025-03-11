@@ -1,3 +1,6 @@
+# #############################################################################
+# Variables
+# #############################################################################
 variable "aws_region" {
   type = string
 }
@@ -27,12 +30,28 @@ variable "one_path" {
 #   type = bool
 # }
 
+#
 # AWS Managed Active Directory
+#
 variable "managed_active_directory" {
   type = bool
 }
 
+#
 # AWS PGO Active Directory
+#
+variable "ami_active_directory_dc" {
+  type        = string
+  description = "AMI to use for instance creation."
+  default     = ""
+}
+
+variable "ami_active_directory_ca" {
+  type        = string
+  description = "AMI to use for instance creation."
+  default     = ""
+}
+
 variable "active_directory" {
   type = bool
 }
@@ -53,12 +72,16 @@ variable "ad_admin_password" {
   default     = "TrendMicro.1"
 }
 
+#
 # Service Gateway
+#
 variable "service_gateway" {
   type = bool
 }
 
+#
 # Virtual Network Ssensor
+#
 variable "virtual_network_sensor" {
   type    = bool
   default = false
@@ -68,7 +91,9 @@ variable "vns_token" {
   type = string
 }
 
+#
 # Deep Discovery Inspector
+#
 variable "deep_discovery_inspector" {
   type    = bool
   default = false
