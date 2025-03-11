@@ -24,7 +24,7 @@ module "ec2" {
 
   ami_apex_one_server  = try(var.ami_apex_one_server, "")
   ami_apex_one_central = try(var.ami_apex_one_central, "")
-  ami_windows_client   = try(var.ami_windows_client, "")
+  ami_windows_client   = try(var.ami_windows_client, [])
 
   # PGO Active Directory
   active_directory         = var.active_directory

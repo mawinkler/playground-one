@@ -67,6 +67,8 @@ configs=(
   ["ec2"]=${ONEPATH}/awsone/3-instances
   ["instances"]=${ONEPATH}/awsone/3-instances
   ["testlab-cs"]=${ONEPATH}/awsone/3-testlab-cs
+  ["testlab-cs-retrieve"]=${ONEPATH}/awsone/3-testlab-cs
+  ["testlab-cs-delete"]=${ONEPATH}/awsone/3-testlab-cs
   ["eks"]=${ONEPATH}/awsone/4-cluster-eks-ec2
   ["eks-ec2"]=${ONEPATH}/awsone/4-cluster-eks-ec2
   ["eks-ec2-deployments"]=${ONEPATH}/awsone/8-cluster-eks-ec2-deployments
@@ -888,7 +890,7 @@ function update_ip() {
     exit 0
   fi
 
-  for config in network eks-ec2 eks-fg aks ecs-ec2 ecs-fg scenarios-ec2 scenarios-fg scenarios-aks dsm dsw wsw; do
+  for config in network testlab-cs eks-ec2 eks-fg aks ecs-ec2 ecs-fg scenarios-ec2 scenarios-fg scenarios-aks dsm dsw wsw; do
     init ${config}
     if checklock ${config} ; then
       apply ${config}
@@ -1986,11 +1988,12 @@ function freeze() {
         printf '%s\n' "Creating AMI of ${instance_id} with name ${instance_name}"
         aws ec2 create-image \
           --instance-id ${instance_id} \
-          --name "${configuration_name}-${instance_name}-${datestr}" \
+          --name "${configuration_name}-${instance_name}" \
           --tag-specifications "ResourceType=image,Tags=[{Key=Environment,Value=${environment_name}},
                                                          {Key=Product,Value=playground-one},
                                                          {Key=Configuration,Value=${configuration_name}},
                                                          {Key=Name,Value=${snapshot_name}},
+                                                         {Key=Created,Value=${datestr}},
                                                          {Key=InstanceName,Value=${instance_name}}]"
       done
       ;;&

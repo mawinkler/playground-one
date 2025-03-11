@@ -50,16 +50,15 @@ output "apex_one_server_ssh" {
 #
 output "windows_client_ip" {
   description = "Windows Client IP"
-  value       = length(aws_instance.windows_client) > 0 ? aws_instance.windows_client[*].public_ip : null
+  value       = length(local.ami_list) > 0 ? [for i in range(length(local.ami_list)) : aws_instance.windows_client[i].public_ip] : null
 }
 
 output "windows_client_id" {
   description = "Windows Client IDs"
-  value       = length(aws_instance.windows_client) > 0 ? aws_instance.windows_client[*].id : null
-  # value = length(aws_instance.windows_client) > 0 ? formatlist("name: %s, id: %s", aws_instance.windows_client[*].tags["Name"], aws_instance.windows_client[*].id) : null
+  value       = length(local.ami_list) > 0 ? [for i in range(length(local.ami_list)) : aws_instance.windows_client[i].id] : null
 }
 
 output "windows_client_ssh" {
   description = "Command to ssh to instance Windows Client"
-  value       = length(aws_instance.windows_client) > 0 ? formatlist("ssh -i ${var.private_key_path} -o StrictHostKeyChecking=no ${var.windows_username}@%s", aws_instance.windows_client[*].public_ip) : null
+  value       = length(local.ami_list) > 0 ? [for i in range(length(local.ami_list)) : format("ssh -i ${var.private_key_path} -o StrictHostKeyChecking=no ${var.windows_username}@%s", aws_instance.windows_client[i].public_ip)] : null
 }

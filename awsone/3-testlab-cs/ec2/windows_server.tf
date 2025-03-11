@@ -89,11 +89,17 @@ resource "aws_instance" "apex_one_central" {
   }
 }
 
+# # Compute the AMI list: use provided AMIs or fallback to default AMI
+locals {
+  ami_list = length(var.ami_windows_client) > 0 ? var.ami_windows_client : [
+    for i in range(var.windows_client_count) : data.aws_ami.windows.id
+  ]
+}
+
 resource "aws_instance" "windows_client" {
 
-  count = var.windows_client_count > 0 ? var.windows_client_count : 0
-
-  ami                    = var.ami_windows_client  != "" ? var.ami_windows_client : data.aws_ami.windows.id
+  for_each               = { for idx, ami in local.ami_list : idx => ami }
+  ami                    = each.value
   instance_type          = var.windows_instance_type
   subnet_id              = var.public_subnets[1]
   vpc_security_group_ids = [var.public_security_group_id]
@@ -111,7 +117,7 @@ resource "aws_instance" "windows_client" {
   }
 
   tags = {
-    Name          = "${var.environment}-windows-client-${count.index}"
+    Name          = "${var.environment}-windows-client-${each.key}"
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "testlab-cs"
@@ -129,6 +135,47 @@ resource "aws_instance" "windows_client" {
     timeout  = "13m"
   }
 }
+
+# resource "aws_instance" "windows_client" {
+
+#   count = var.windows_client_count > 0 ? var.windows_client_count : 0
+
+#   ami                    = var.ami_windows_client  != "" ? var.ami_windows_client : data.aws_ami.windows.id
+#   instance_type          = var.windows_instance_type
+#   subnet_id              = var.public_subnets[1]
+#   vpc_security_group_ids = [var.public_security_group_id]
+#   iam_instance_profile   = var.ec2_profile
+#   source_dest_check      = false
+#   key_name               = var.key_name
+#   user_data              = local.userdata_windows_client
+#   get_password_data      = false
+
+#   root_block_device {
+#     volume_size           = var.windows_root_volume_size
+#     volume_type           = var.windows_root_volume_type
+#     delete_on_termination = true
+#     encrypted             = true
+#   }
+
+#   tags = {
+#     Name          = "${var.environment}-windows-client-${count.index}"
+#     Environment   = "${var.environment}"
+#     Product       = "playground-one"
+#     Configuration = "testlab-cs"
+#     Type          = "${var.environment}-windows-server"
+#   }
+
+#   connection {
+#     host     = coalesce(self.public_ip, self.private_ip)
+#     type     = "winrm"
+#     port     = 5986
+#     user     = var.windows_username
+#     password = random_password.windows_password.result
+#     https    = true
+#     insecure = true
+#     timeout  = "13m"
+#   }
+# }
 
 # # AWS Systems Manager
 # resource "aws_ssm_association" "windows_server_agent" {
