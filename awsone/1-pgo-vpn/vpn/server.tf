@@ -15,7 +15,7 @@ resource "aws_instance" "wireguard" {
   ami                         = data.aws_ami.ubuntu.id
   instance_type               = "t4g.nano"
   subnet_id                   = data.aws_subnets.public.ids[0]
-  vpc_security_group_ids      = [aws_security_group.wireguard.id]
+  vpc_security_group_ids      = [aws_security_group.wireguard["public"].id]
   user_data                   = local.userdata
   user_data_replace_on_change = true
 

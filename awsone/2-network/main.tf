@@ -19,8 +19,8 @@ module "ec2" {
   private_route_tables = module.vpc.private_route_table_ids
 }
 
-# module "vpn" {
-#   source = "./vpn"
+# module "vpn-awsclient" {
+#   source = "./vpn-awsclient"
 
 #   environment     = var.environment
 #   vpc_id          = module.vpc.vpc_id
