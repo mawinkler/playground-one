@@ -24,3 +24,19 @@ create_apex_one_server = true
 create_apex_one_central = true
 windows_client_count = 2
 
+# Linux Username (Do not change)
+linux_username = "ec2-user"
+
+# Deep Security
+create_dsm = true
+ami_bastion = ""
+ami_dsm = ""
+
+# Deep Security Manager
+dsm_license = "${deep_security_license}"
+dsm_username = "${deep_security_username}"
+dsm_password = "${deep_security_password}"
+
+# Deep Security Database
+rds_name = "deepsecurity"
+rds_username = "dsm"

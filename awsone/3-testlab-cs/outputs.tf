@@ -97,3 +97,40 @@ output "userdata_windows_client" {
   value     = module.ec2.userdata_windows_client
   sensitive = true
 }
+
+#
+# Bastion
+#
+output "bastion_public_ip" {
+  value = length(module.bastion) > 0 ? module.bastion[0].bastion_public_ip : null
+}
+
+output "bastion_private_ip" {
+  value = length(module.bastion) > 0 ? module.bastion[0].bastion_private_ip : null
+}
+
+#
+# RDS
+#
+output "rds_address" {
+  value = length(module.rds) > 0 ? module.rds[0].rds_address : null
+}
+
+#
+# Deep Security Manager
+#
+output "ssh_instance_dsm" {
+  value = length(module.dsm) > 0 ? module.dsm[0].ssh_instance_dsm : null
+}
+
+output "dsm_url" {
+  value = length(module.dsm) > 0 ? module.dsm[0].dsm_url : null
+}
+
+output "ds_apikey" {
+  value = length(module.dsm) > 0 ? module.dsm[0].ds_apikey : null
+}
+
+output "dsm_private_ip" {
+  value = "10.0.0.${random_integer.dsm_ip_octet.result}"
+}

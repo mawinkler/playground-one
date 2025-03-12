@@ -73,3 +73,50 @@ variable "windows_client_count" {
 variable "windows_username" {
   type = string
 }
+
+#
+# Deep Security Instance
+#
+variable "create_dsm" {
+  type    = bool
+  default = true
+}
+
+variable "ami_bastion" {
+  type        = string
+  description = "AMI to use for instance creation."
+  default     = ""
+}
+
+variable "ami_dsm" {
+  type        = string
+  description = "AMI to use for instance creation."
+  default     = ""
+}
+
+variable "linux_username" {
+  type = string
+}
+
+variable "dsm_license" {
+  type = string
+}
+
+variable "dsm_username" {
+  type = string
+}
+
+variable "dsm_password" {
+  type = string
+}
+
+#
+# Deep Security Database
+#
+variable "rds_name" {
+  type = string
+}
+
+variable "rds_username" {
+  type = string
+}

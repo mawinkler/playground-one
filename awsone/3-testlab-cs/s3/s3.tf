@@ -15,7 +15,7 @@ resource "aws_s3_bucket" "playground_awsone" {
     Name          = "${var.environment}-s3-bucket"
     Environment   = "${var.environment}"
     Product       = "playground-one"
-    Configuration = "ec2"
+    Configuration = "testlab-cs"
   }
 }
 

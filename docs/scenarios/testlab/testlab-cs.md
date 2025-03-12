@@ -146,6 +146,12 @@ Name the Snapshot, e.g. `v1`.
 
 After the snapshot has been created ***and the AMIs are not in pending state anymore*** you can destroy the Testlab with `--destroy testlab-cs`.
 
+The same can be done for the Active Directory which is part of the `network` configuration.
+
+```sh
+pgo --freeze nw
+```
+
 ### Retrieve Testlab Snapshot
 
 ```sh
@@ -164,6 +170,12 @@ pgo --apply testlab-cs
 
 When the instances are up either use the domain admin of local admin from above to connect.
 
+Same for the Active Directory.
+
+```sh
+pgo --freeze nw-retrieve
+```
+
 ### Delete Snapshots:
 
 ```sh
@@ -171,5 +183,11 @@ pgo --freeze testlab-cs-delete
 ```
 
 Enter the Snapshots Name, e.g. `v1`.
+
+Same for the Active Directory.
+
+```sh
+pgo --freeze nw-delete
+```
 
 🎉 Success 🎉

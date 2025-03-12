@@ -2097,6 +2097,8 @@ function freeze() {
       ami_apex_one_server=""
       ami_apex_one_central=""
       ami_windows_client="["
+      ami_bastion=""
+      ami_dsm=""
       for ami in ${ami_list}; do
         printf '%s\n' $ami
         if [[ $ami =~ .*apex-one-central.* ]]; then
@@ -2108,12 +2110,20 @@ function freeze() {
         if [[ $ami =~ .*windows-client.* ]]; then
           ami_windows_client+="\"${ami#*=}\","
         fi
+        if [[ $ami =~ .*bastion.* ]]; then
+          ami_bastion=${ami#*=}
+        fi
+        if [[ $ami =~ .*dsm.* ]]; then
+          ami_dsm=${ami#*=}
+        fi
       done
       ami_windows_client="${ami_windows_client%,}]"
 
       sed -i "/^ami_apex_one_server = .*/c  ami_apex_one_server = \"${ami_apex_one_server}\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_apex_one_central = .*/c  ami_apex_one_central = \"${ami_apex_one_central}\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_windows_client = .*/c  ami_windows_client = ${ami_windows_client}" ${configs[testlab-cs]}/terraform.tfvars
+      sed -i "/^ami_bastion = .*/c  ami_bastion = \"${ami_bastion}\"" ${configs[testlab-cs]}/terraform.tfvars
+      sed -i "/^ami_dsm = .*/c  ami_dsm = \"${ami_dsm}\"" ${configs[testlab-cs]}/terraform.tfvars
 
       printf '%s\n' "${configs[testlab-cs]}/terraform.tfvars patched."
 
