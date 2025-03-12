@@ -70,6 +70,21 @@ locals {
           cidr_blocks = var.access_ip
           description = "Allow Access on port 7860"
         }
+
+        dsm = {
+          description = "Deep Security Manager"
+          from        = 4118
+          to          = 4122
+          protocol    = "tcp"
+          cidr_blocks = var.access_ip
+        }
+        dsm_private = {
+          description = "Deep Security Manager"
+          from        = 4118
+          to          = 4122
+          protocol    = "tcp"
+          cidr_blocks = var.private_subnets_cidr
+        }
       }
     }
 
@@ -100,6 +115,20 @@ locals {
           to          = 8080
           protocol    = "tcp"
           cidr_blocks = var.public_subnets_cidr
+        }
+
+        dsm = {
+          description = "Deep Security Manager"
+          from        = 4118
+          to          = 4122
+          protocol    = "tcp"
+          cidr_blocks = var.public_subnets_cidr
+        }
+        postgres = {
+          from        = 5432
+          to          = 5432
+          protocol    = "tcp"
+          cidr_blocks = var.private_subnets_cidr
         }
       }
     }

@@ -387,6 +387,9 @@ function init() {
       pgo_deep_discovery_inspector_enabled=${pgo_deep_discovery_inspector_enabled} \
       vision_one_endpoint_enabled=${vision_one_endpoint_enabled} \
       vision_one_endpoint_type=${vision_one_endpoint_type} \
+      deep_security_license=${deep_security_license} \
+      deep_security_username=${deep_security_username} \
+      deep_security_password=${deep_security_password} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-3-testlab-cs.tfvars >${configs[testlab-cs]}/terraform.tfvars
 
