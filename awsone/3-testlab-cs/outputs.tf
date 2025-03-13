@@ -51,6 +51,10 @@ output "apex_one_central_ip" {
   value = module.ec2.apex_one_central_ip
 }
 
+output "apex_one_central_pip" {
+  value = module.ec2.apex_one_central_pip
+}
+
 output "apex_one_central_id" {
   value = module.ec2.apex_one_central_id
 }
@@ -61,6 +65,10 @@ output "apex_one_central_ssh" {
 
 output "apex_one_server_ip" {
   value = module.ec2.apex_one_server_ip
+}
+
+output "apex_one_server_pip" {
+  value = module.ec2.apex_one_server_pip
 }
 
 output "apex_one_server_id" {
@@ -76,6 +84,10 @@ output "apex_one_server_ssh" {
 #
 output "windows_client_ip" {
   value = module.ec2.windows_client_ip
+}
+
+output "windows_client_pip" {
+  value = module.ec2.windows_client_pip
 }
 
 output "windows_client_id" {

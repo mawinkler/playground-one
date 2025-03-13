@@ -13,13 +13,15 @@ resource "aws_instance" "apex_one_server" {
 
   ami                    = var.ami_apex_one_server != "" ? var.ami_apex_one_server : data.aws_ami.windows.id
   instance_type          = var.apex_instance_type
-  subnet_id              = var.public_subnets[1]
-  vpc_security_group_ids = [var.public_security_group_id]
+  subnet_id              = var.private_subnets[0]
+  vpc_security_group_ids = [var.private_security_group_id]
   iam_instance_profile   = var.ec2_profile
   source_dest_check      = false
   key_name               = var.key_name
   user_data              = local.userdata_apex_one_server
   get_password_data      = false
+  # subnet_id              = var.public_subnets[1]
+  # vpc_security_group_ids = [var.public_security_group_id]
 
   root_block_device {
     volume_size           = var.apex_root_volume_size
@@ -54,13 +56,15 @@ resource "aws_instance" "apex_one_central" {
 
   ami                    = var.ami_apex_one_central != "" ? var.ami_apex_one_central : data.aws_ami.windows.id
   instance_type          = var.apex_instance_type
-  subnet_id              = var.public_subnets[1]
-  vpc_security_group_ids = [var.public_security_group_id]
+  subnet_id              = var.private_subnets[0]
+  vpc_security_group_ids = [var.private_security_group_id]
   iam_instance_profile   = var.ec2_profile
   source_dest_check      = false
   key_name               = var.key_name
   user_data              = local.userdata_apex_one_central
   get_password_data      = false
+  # subnet_id              = var.public_subnets[1]
+  # vpc_security_group_ids = [var.public_security_group_id]
 
   root_block_device {
     volume_size           = var.apex_root_volume_size
@@ -101,13 +105,15 @@ resource "aws_instance" "windows_client" {
   for_each               = { for idx, ami in local.ami_list : idx => ami }
   ami                    = each.value
   instance_type          = var.windows_instance_type
-  subnet_id              = var.public_subnets[1]
-  vpc_security_group_ids = [var.public_security_group_id]
+  subnet_id              = var.private_subnets[1]
+  vpc_security_group_ids = [var.private_security_group_id]
   iam_instance_profile   = var.ec2_profile
   source_dest_check      = false
   key_name               = var.key_name
   user_data              = local.userdata_windows_client
   get_password_data      = false
+  # subnet_id              = var.public_subnets[1]
+  # vpc_security_group_ids = [var.public_security_group_id]
 
   root_block_device {
     volume_size           = var.windows_root_volume_size
