@@ -214,6 +214,19 @@ function update_aws_config() {
     fi
   fi
 
+  key_desc="VPN - create PGO VPN Gateway?"
+  read -p "${key_desc} [${pgo_vpn_gateway}]: " TEMP
+  if [[ ! -z "${TEMP}" ]]; then
+    pgo_vpn_gateway=${TEMP}
+  fi
+  if [[ "${pgo_vpn_gateway}" =~ ^true|false$ ]]; then
+    target_val=${pgo_vpn_gateway} \
+      yq -i '.services.aws.vpn-gateway = env(target_val)' ${ONEPATH}/config.yaml
+  else
+    echo "Error: Invalid ${key_desc} input."
+    exit 0
+  fi
+
   key_desc="AD - create PGO Active Directory?"
   read -p "${key_desc} [${pgo_active_directory}]: " TEMP
   if [[ ! -z "${TEMP}" ]]; then

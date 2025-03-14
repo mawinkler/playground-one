@@ -415,6 +415,7 @@ function get_config() {
     pgo_access_ip="$(yq '.services.playground-one.access-ip' $ONEPATH/config.yaml)"
     pgo_px="$(yq '.services.playground-one.px' $ONEPATH/config.yaml)"
     pgo_managed_active_directory="$(yq '.services.aws.managed-active-directory' $ONEPATH/config.yaml)"
+    pgo_vpn_gateway="$(yq '.services.aws.vpn-gateway' $ONEPATH/config.yaml)"
     pgo_active_directory="$(yq '.services.aws.active-directory' $ONEPATH/config.yaml)"
     pgo_service_gateway="$(yq '.services.aws.service-gateway' $ONEPATH/config.yaml)"
     pgo_private_access_gateway="$(yq '.services.aws.private-access-gateway' $ONEPATH/config.yaml)"
@@ -426,6 +427,7 @@ function get_config() {
     [[ "${pgo_access_ip}" = "null" || "${pgo_access_ip}" = "" ]] && pgo_access_ip=[\"0.0.0.0/0\"]
     [[ "${pgo_px}" = "null" || "${pgo_px}" = "" ]] && pgo_px=false
     [[ "${pgo_managed_active_directory}" = "null" || "${pgo_managed_active_directory}" = "" ]] && pgo_managed_active_directory=false
+    [[ "${pgo_vpn_gateway}" = "null" || "${pgo_vpn_gateway}" = "" ]] && pgo_vpn_gateway=false
     [[ "${pgo_active_directory}" = "null" || "${pgo_active_directory}" = "" ]] && pgo_active_directory=false
     [[ "${pgo_service_gateway}" = "null" || "${pgo_service_gateway}" = "" ]] && pgo_service_gateway=false
     [[ "${pgo_private_access_gateway}" = "null" || "${pgo_private_access_gateway}" = "" ]] && pgo_private_access_gateway=false

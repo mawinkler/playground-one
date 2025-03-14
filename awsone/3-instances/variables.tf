@@ -1,18 +1,18 @@
 # CUSTOMIZE
 # Number of instances and Vision One Deployment here
 variable "linux_db_count" {
-  type = number
+  type    = number
   default = 0
 }
 
 variable "linux_web_count" {
-  type = number
-  default = 0
+  type    = number
+  default = 1
 }
 
 variable "windows_count" {
-  type = number
-  default = 1
+  type    = number
+  default = 0
 }
 # /CUSTOMIZE
 
@@ -47,12 +47,12 @@ variable "windows_username" {
 }
 
 variable "create_linux" {
-  type = bool
+  type    = bool
   default = true
 }
 
 variable "create_windows" {
-  type = bool
+  type    = bool
   default = true
 }
 
@@ -62,7 +62,7 @@ variable "environment" {
 
 # Deploy Vision One Endpoint Agent
 variable "agent_deploy" {
-  type = bool
+  type    = bool
   default = false
 }
 

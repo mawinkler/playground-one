@@ -31,6 +31,13 @@ variable "one_path" {
 # }
 
 #
+# PGO VPN Gateway
+#
+variable "vpn_gateway" {
+  type = bool
+}
+
+#
 # AWS Managed Active Directory
 #
 variable "managed_active_directory" {

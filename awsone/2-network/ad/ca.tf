@@ -2,8 +2,8 @@
 resource "aws_instance" "windows-server-ca" {
   ami                    = var.ami_active_directory_ca != "" ? var.ami_active_directory_ca : data.aws_ami.windows-server.id
   instance_type          = var.windows_instance_type
-  subnet_id              = var.public_subnets[0]
-  vpc_security_group_ids = [var.public_security_group_id]
+  subnet_id              = var.vpn_gateway ? var.private_subnets[0] : var.public_subnets[0]
+  vpc_security_group_ids = var.vpn_gateway ? [var.private_security_group_id] : [var.public_security_group_id]
   iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
   source_dest_check      = false
   key_name               = var.key_name
@@ -32,7 +32,7 @@ resource "aws_ec2_traffic_mirror_session" "vns_traffic_mirror_session_ca" {
 
   description              = "VNS Traffic mirror session - Windows Server CA"
   session_number           = 1
-  network_interface_id     = aws_instance.windows-server-ca.primary_network_interface_id #"eni-01b3fee96390b91bb" # aws_instance.test.primary_network_interface_id
+  network_interface_id     = aws_instance.windows-server-ca.primary_network_interface_id
   traffic_mirror_filter_id = var.vns_va_traffic_mirror_filter_id
   traffic_mirror_target_id = var.vns_va_traffic_mirror_target_id
 }

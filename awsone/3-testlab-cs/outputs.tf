@@ -24,15 +24,19 @@ output "ad_domain_name" {
 }
 
 output "ad_dc_ip" {
-  value = data.terraform_remote_state.vpc.outputs.ad_dc_ip
+  value = try(data.terraform_remote_state.vpc.outputs.ad_dc_ip, null)
 }
 
 output "ad_dc_pip" {
-  value = data.terraform_remote_state.vpc.outputs.ad_dc_pip
+  value = data.terraform_remote_state.vpc.outputs.ad_dc_pip != "" ? data.terraform_remote_state.vpc.outputs.ad_dc_pip : null
 }
 
 output "ad_ca_ip" {
-  value = data.terraform_remote_state.vpc.outputs.ad_ca_ip
+  value = try(data.terraform_remote_state.vpc.outputs.ad_ca_ip, null)
+}
+
+output "ad_ca_pip" {
+  value = data.terraform_remote_state.vpc.outputs.ad_ca_pip != "" ? data.terraform_remote_state.vpc.outputs.ad_ca_pip : null
 }
 
 output "ad_domain_admin" {

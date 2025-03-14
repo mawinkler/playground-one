@@ -19,12 +19,18 @@ terraform.tfvars
 .pluralith
 
 # Terraform Configurations
+awsone/2-network/pki
+awsone/3-testlab-cs/cookie.txt
+awsone/3-testlab-cs/dsm/apikey
 awsone/7-scenarios-cloudtrail/downloads/passwords.zip
 awsone/7-scenarios-cloudtrail/downloads/server.pem
 awsone/9-deep-security/cookie.txt
 awsone/9-deep-security/dsm/apikey
 awsone/sandbox
 azone/4-cluster-aks/kubeconfig
+awsone/1-pgo-vpn/generated
+awsone/2-network/generated
+vpn-secrets.yaml
 
 # Generic
 *.out
@@ -89,4 +95,3 @@ stacks/*/*/*.log
 
 # In development
 temp/
-awsone/2-network/pki

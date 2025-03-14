@@ -345,8 +345,9 @@ function init() {
       aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip} \
-      managed_active_directory=${pgo_managed_active_directory} \
+      vpn_gateway=${pgo_vpn_gateway} \
       active_directory=${pgo_active_directory} \
+      managed_active_directory=${pgo_managed_active_directory} \
       service_gateway=${pgo_service_gateway} \
       pgo_virtual_network_sensor_enabled=${pgo_virtual_network_sensor_enabled} \
       pgo_virtual_network_sensor_token=${pgo_virtual_network_sensor_token} \
@@ -754,6 +755,11 @@ function apply() {
       # check_network
       # AWS_ACCESS_KEY_ID="" \
       #   AWS_SECRET_ACCESS_KEY="" \
+      if [ "${pgo_vpn_gateway}" == 'true' ]; then
+        if [ ! -f ${ONEPATH}/vpn-secrets.yaml ]; then
+          $ONEPATH/bin/generate-secrets.sh
+        fi
+      fi
       tf network apply
       if [ "${pgo_active_directory}" == 'true' ]; then
         printf '%s\n' "ad_admin_password = \"$(terraform -chdir=${configs[network]} output -raw ad_admin_password)\""

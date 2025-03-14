@@ -19,6 +19,21 @@ module "ec2" {
   private_route_tables = module.vpc.private_route_table_ids
 }
 
+module "vpn" {
+  depends_on = [module.vpc.public_subnet_cidr_blocks, module.vpc.private_subnet_cidr_blocks]
+
+  count = var.vpn_gateway ? 1 : 0
+
+  source = "./vpn"
+
+  access_ip            = var.access_ip
+  environment          = var.environment
+  vpc_id               = module.vpc.vpc_id
+  public_subnets       = module.vpc.public_subnets.*
+  public_subnets_cidr  = module.vpc.public_subnet_cidr_blocks
+  private_subnets_cidr = module.vpc.private_subnet_cidr_blocks
+}
+
 # module "vpn-awsclient" {
 #   source = "./vpn-awsclient"
 
@@ -44,16 +59,18 @@ module "ad" {
 
   source = "./ad"
 
-  environment                     = var.environment
-  vpc_id                          = module.vpc.vpc_id
-  private_subnets                 = module.vpc.private_subnets
-  public_subnets                  = module.vpc.public_subnets
-  public_security_group_id        = module.ec2.public_security_group_id
-  key_name                        = module.ec2.key_name
-  windows_ad_domain_name          = var.ad_domain_name
-  windows_ad_nebios_name          = upper(var.environment)
-  windows_ad_user_name            = var.ad_domain_admin
-  windows_ad_safe_password        = var.ad_admin_password
+  environment               = var.environment
+  vpc_id                    = module.vpc.vpc_id
+  public_subnets            = module.vpc.public_subnets
+  private_subnets           = module.vpc.private_subnets
+  public_security_group_id  = module.ec2.public_security_group_id
+  private_security_group_id = module.ec2.private_security_group_id
+  key_name                  = module.ec2.key_name
+  vpn_gateway               = var.vpn_gateway
+  windows_ad_domain_name    = var.ad_domain_name
+  windows_ad_nebios_name    = upper(var.environment)
+  windows_ad_user_name      = var.ad_domain_admin
+  windows_ad_safe_password  = var.ad_admin_password
 
   ami_active_directory_dc = try(var.ami_active_directory_dc, "")
   ami_active_directory_ca = try(var.ami_active_directory_ca, "")

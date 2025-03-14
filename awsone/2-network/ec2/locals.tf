@@ -84,6 +84,13 @@ locals {
       name        = "${var.environment}-private-sg"
       description = "Security group for Private Access"
       ingress = {
+        vpc = {
+          from        = 0
+          to          = 0
+          protocol    = "all"
+          cidr_blocks = var.private_subnets_cidr
+          description = "Allow All Connections from within the private subnets"
+        }
         ssh = {
           from        = 22
           to          = 22
@@ -137,7 +144,7 @@ locals {
           from        = 7860
           to          = 7860
           protocol    = "tcp"
-          cidr_blocks = var.access_ip
+          cidr_blocks = var.public_subnets_cidr
           description = "Allow Access on port 7860"
         }
         dsm = {

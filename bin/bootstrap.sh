@@ -221,7 +221,9 @@ function ensure_essentials() {
     printf "${BLUE}${BOLD}%s${RESET}\n" "Installing/upgrading essential packages on linux"
     if [ "${PACKAGE_MANAGER}" == "apt" ]; then
       sudo apt-get update
-      sudo apt-get install -y jq apt-transport-https gnupg2 curl nginx apache2-utils pv unzip dialog software-properties-common gettext-base iputils-ping
+      sudo apt-get install -y \
+        jq apt-transport-https gnupg2 curl nginx apache2-utils pv unzip dialog \
+        software-properties-common gettext-base iputils-ping wireguard-tools
     fi
     if [ "${PACKAGE_MANAGER}" == "brew" ]; then
       if ! command -v brew &>/dev/null; then
