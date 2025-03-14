@@ -29,7 +29,7 @@ awsone/9-deep-security/dsm/apikey
 awsone/sandbox
 azone/4-cluster-aks/kubeconfig
 awsone/1-pgo-vpn/generated
-awsone/2-network/generated
+vpn-peers
 vpn-secrets.yaml
 
 # Generic

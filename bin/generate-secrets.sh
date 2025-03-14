@@ -13,7 +13,7 @@ cat <<-EOT >> $ONEPATH/vpn-secrets.yaml
 wg_peers:
 EOT
 
-peers=("admin" "user1" "user2" "user3")
+peers=("admin" "user1" "user2" "user3" "user4")
 start_ip=10
 for ((i=0; i<${#peers[@]}; i++)); do
   read privkey pubkey < <(bash -c 'priv=$(wg genkey); pub=$(echo $priv | wg pubkey); printf "$priv $pub\n"')

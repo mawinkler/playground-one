@@ -16,6 +16,11 @@ output "dsm_url" {
   value       = length(aws_instance.dsm) > 0 ? "https://${var.bastion_public_ip}:4119" : null
 }
 
+output "dsm_purl" {
+  description = "Deep Security Manager private url"
+  value       = length(aws_instance.dsm) > 0 ? "https://${var.bastion_private_ip}:4119" : null
+}
+
 output "ds_apikey" {
   value = length(aws_instance.dsm) > 0 ? data.local_file.apikey.content : null
 }

@@ -1287,7 +1287,8 @@ function destroy() {
         check_network
         # AWS_ACCESS_KEY_ID="" \
         #   AWS_SECRET_ACCESS_KEY="" \
-          tf network destroy
+        tf network destroy
+        rm -f $ONEPATH/vpn-secrets.yaml
       else
         printf '%s\n' "Configuration network is not applied"
       fi

@@ -2,8 +2,6 @@
 
 All resources in AWS work inside private VPC. Sometimes you may need to access these resources from local computer (e.g. to interact with database). Some resources, like RDS, have the option to enable public access to them — but this is unsecure. Of course you can configure Security Group to allow access to public resource only from allowed IPs to make this setup a bit better, but still in this case all your colleagues must to have static IPs, which is not always true.
 
-## Objective
-
 We need to provide a quick and easy solution to give access to internal AWS VPC resources for our team. In general, there are two ways to do this:
 
 - Bastion / Jump Host — EC2 instance with SSH access for each member
@@ -16,6 +14,10 @@ In both cases we need to to setup a custom EC2 instance, so second variant seems
 In addition to the traditional Terraform client, we will need WireGuard CLI tools to generate a key pair. You can install WireGuard tools on macOS via brew:
 
 ```sh
+# Linux
+sudo apt install wireguard-tools
+
+# MacOS
 brew install wireguard-tools
 ```
 
@@ -107,6 +109,12 @@ wg_peers:
 ```
 
 And run terraform apply again. Server will be re-created (!) with new configuration. Note that existing clients will be disconnected during deploy.
+
+## Generate Secrets in Playground
+
+```sg
+generate-secrets.sh
+```
 
 ## Download WireGuard Clients
 

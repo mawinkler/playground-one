@@ -14,7 +14,7 @@ locals {
 
 resource "local_file" "peer_conf" {
   for_each = { for index, p in local.secrets.wg_peers : p.name => p }
-  filename = "generated/${each.value.name}.conf"
+  filename = "../../vpn-peers/${each.value.name}.conf"
 
   content = templatefile("${path.module}/templates/client-conf.tftpl", {
     server_addr    = "${aws_eip.wireguard.public_ip}:${local.wg_port}",

@@ -47,6 +47,8 @@ variable "dsm_private_ip" {}
 #
 variable "bastion_public_ip" {}
 
+variable "bastion_private_ip" {}
+
 variable "bastion_private_key" {}
 
 #

@@ -113,5 +113,6 @@ module "dsm" {
   rds_password = module.rds[0].rds_password
 
   bastion_public_ip   = module.bastion[0].bastion_public_ip
+  bastion_private_ip  = module.bastion[0].bastion_private_ip
   bastion_private_key = data.terraform_remote_state.vpc.outputs.private_key
 }

@@ -92,18 +92,6 @@ output "vpn_client_conf_admin" {
   value = var.vpn_gateway ? module.vpn[0].vpn_client_conf_admin : null
 }
 
-output "vpn_client_conf_user1" {
-  value = var.vpn_gateway ? module.vpn[0].vpn_client_conf_user1 : null
-}
-
-output "vpn_client_conf_user2" {
-  value = var.vpn_gateway ? module.vpn[0].vpn_client_conf_user2 : null
-}
-
-output "vpn_client_conf_user3" {
-  value = var.vpn_gateway ? module.vpn[0].vpn_client_conf_user3 : null
-}
-
 output "vpn_server_ip" {
   value = var.vpn_gateway ? module.vpn[0].vpn_server_ip : null
 }
