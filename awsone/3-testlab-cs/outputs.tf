@@ -143,6 +143,10 @@ output "dsm_url" {
   value = length(module.dsm) > 0 ? module.dsm[0].dsm_url : null
 }
 
+output "dsm_purl" {
+  value = length(module.dsm) > 0 ? module.dsm[0].dsm_purl : null
+}
+
 output "ds_apikey" {
   value = length(module.dsm) > 0 ? module.dsm[0].ds_apikey : null
 }
