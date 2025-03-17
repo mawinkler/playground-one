@@ -17,6 +17,7 @@ for PACKAGE in $PACKAGES; do
         # Try to install the package
         if sudo apt-get install -y $PACKAGE; then
             echo "Package $PACKAGE installed successfully."
+            break
         else
             # Check if the error is related to the dpkg lock
             if grep -q "Unable to acquire the dpkg frontend lock" <(sudo apt-get install -y $PACKAGE 2>&1); then
@@ -36,6 +37,10 @@ unzip -q /tmp/awscliv2.zip -d /tmp
 /tmp/aws/install --update
 rm -Rf /tmp/aws /tmp/awscliv2.zip
 
-echo "include /etc/nginx/passthrough.conf;" | tee -a /etc/nginx/nginx.conf
+if grep -Fxq "include /etc/nginx/passthrough.conf;" /etc/nginx/nginx.conf; then
+    echo "passthrough line exists!"
+else
+    echo "include /etc/nginx/passthrough.conf;" | tee -a /etc/nginx/nginx.conf
+fi
 
 touch /tmp/finished-user-data
