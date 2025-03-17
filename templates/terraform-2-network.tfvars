@@ -23,8 +23,8 @@ vpn_gateway = ${vpn_gateway}
 # AWS PGO Active Directory
 active_directory = ${active_directory}
 ad_domain_name   = "${environment_name}.local"
-ami_active_directory_dc = ""
-ami_active_directory_ca = ""
+ami_active_directory_dc = "${ami_active_directory_dc}"
+ami_active_directory_ca = "${ami_active_directory_ca}"
 
 # AWS Managed Active Directory
 managed_active_directory = ${managed_active_directory}

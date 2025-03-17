@@ -1,6 +1,18 @@
 # #############################################################################
 # Outputs
 # #############################################################################
+output "vpc_id" {
+  value = data.terraform_remote_state.vpc.outputs.vpc_id
+}
+
+output "public_security_group_id" {
+  value = data.terraform_remote_state.vpc.outputs.public_security_group_id
+}
+
+output "private_security_group_id" {
+  value = data.terraform_remote_state.vpc.outputs.private_security_group_id
+}
+
 #
 # Windows
 #

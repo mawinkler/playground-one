@@ -16,9 +16,9 @@ environment = "${environment_name}"
 
 # AWS PGO Active Directory
 active_directory = ${active_directory}
-ami_apex_one_server = ""
-ami_apex_one_central = ""
-ami_windows_client = []
+ami_apex_one_server = "${ami_apex_one_server}"
+ami_apex_one_central = "${ami_apex_one_central}"
+ami_windows_client = ${ami_windows_client}
 
 create_apex_one_server = true
 create_apex_one_central = true
@@ -29,8 +29,8 @@ linux_username = "ec2-user"
 
 # Deep Security
 create_dsm = true
-ami_bastion = ""
-ami_dsm = ""
+ami_bastion = "${ami_bastion}"
+ami_dsm = "${ami_dsm}"
 
 # Deep Security Manager
 dsm_license = "${deep_security_license}"

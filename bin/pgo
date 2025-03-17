@@ -352,6 +352,8 @@ function init() {
       pgo_virtual_network_sensor_enabled=${pgo_virtual_network_sensor_enabled} \
       pgo_virtual_network_sensor_token=${pgo_virtual_network_sensor_token} \
       pgo_deep_discovery_inspector_enabled=${pgo_deep_discovery_inspector_enabled} \
+      ami_active_directory_dc=${ami_network_active_directory_dc} \
+      ami_active_directory_ca=${ami_network_active_directory_ca} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-2-network.tfvars >${configs[network]}/terraform.tfvars
       
@@ -391,6 +393,11 @@ function init() {
       deep_security_license=${deep_security_license} \
       deep_security_username=${deep_security_username} \
       deep_security_password=${deep_security_password} \
+      ami_apex_one_server=${ami_testlab_cs_apex_one_server} \
+      ami_apex_one_central=${ami_testlab_cs_apex_one_central} \
+      ami_windows_client=${ami_testlab_cs_windows_client} \
+      ami_bastion=${ami_testlab_cs_bastion} \
+      ami_dsm=${ami_testlab_cs_dsm} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-3-testlab-cs.tfvars >${configs[testlab-cs]}/terraform.tfvars
 
@@ -1955,6 +1962,7 @@ function freeze_configuration() {
       --filters "Name=instance-state-name,Values=running,stopped" \
                 "Name=tag:Configuration,Values=${configuration_name}" \
                 "Name=tag:Environment,Values=${environment_name}" \
+                "Name=tag:Type,Values=${environment_name}-windows-server" \
       --query "Reservations[*].Instances[*].InstanceId" \
       --output text)
 
@@ -2084,6 +2092,11 @@ function freeze() {
       done
       ami_windows_client="${ami_windows_client%,}]"
 
+      target_val=${ami_active_directory_dc} \
+        yq -i '.services.aws.configuration.network.ami-active-directory-dc = env(target_val)' ${ONEPATH}/config.yaml
+      target_val=${ami_active_directory_ca} \
+        yq -i '.services.aws.configuration.network.ami-active-directory-ca = env(target_val)' ${ONEPATH}/config.yaml
+
       sed -i "/^ami_active_directory_dc = .*/c  ami_active_directory_dc = \"${ami_active_directory_dc}\"" ${configs[network]}/terraform.tfvars
       sed -i "/^ami_active_directory_ca = .*/c  ami_active_directory_ca = \"${ami_active_directory_ca}\"" ${configs[network]}/terraform.tfvars
 
@@ -2125,6 +2138,17 @@ function freeze() {
         fi
       done
       ami_windows_client="${ami_windows_client%,}]"
+
+      target_val=${ami_apex_one_server} \
+        yq -i '.services.aws.configuration.testlab-cs.ami-apex-one-server = env(target_val)' ${ONEPATH}/config.yaml
+      target_val=${ami_apex_one_central} \
+        yq -i '.services.aws.configuration.testlab-cs.ami-apex-one-central = env(target_val)' ${ONEPATH}/config.yaml
+      target_val=${ami_windows_client} \
+        yq -i '.services.aws.configuration.testlab-cs.ami-windows-client = env(target_val)' ${ONEPATH}/config.yaml
+      target_val=${ami_bastion} \
+        yq -i '.services.aws.configuration.testlab-cs.ami-bastion = env(target_val)' ${ONEPATH}/config.yaml
+      target_val=${ami_dsm} \
+        yq -i '.services.aws.configuration.testlab-cs.ami-dsm = env(target_val)' ${ONEPATH}/config.yaml
 
       sed -i "/^ami_apex_one_server = .*/c  ami_apex_one_server = \"${ami_apex_one_server}\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_apex_one_central = .*/c  ami_apex_one_central = \"${ami_apex_one_central}\"" ${configs[testlab-cs]}/terraform.tfvars
