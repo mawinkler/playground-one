@@ -102,16 +102,17 @@ locals {
 
 resource "aws_instance" "windows_client" {
 
-  for_each               = { for idx, ami in local.ami_list : idx => ami }
-  ami                    = each.value
-  instance_type          = var.windows_instance_type
-  subnet_id              = var.private_subnets[1]
-  vpc_security_group_ids = [var.private_security_group_id]
-  iam_instance_profile   = var.ec2_profile
-  source_dest_check      = false
-  key_name               = var.key_name
-  user_data              = local.userdata_windows_client
-  get_password_data      = false
+  for_each                    = { for idx, ami in local.ami_list : idx => ami }
+  ami                         = each.value
+  instance_type               = var.windows_instance_type
+  subnet_id                   = var.private_subnets[1]
+  vpc_security_group_ids      = [var.private_security_group_id]
+  iam_instance_profile        = var.ec2_profile
+  source_dest_check           = false
+  key_name                    = var.key_name
+  user_data                   = local.userdata_windows_client
+  get_password_data           = false
+  user_data_replace_on_change = true
   # subnet_id              = var.public_subnets[1]
   # vpc_security_group_ids = [var.public_security_group_id]
 
