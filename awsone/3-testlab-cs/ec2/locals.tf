@@ -22,10 +22,11 @@ locals {
 
   # Windows Userdata
   userdata_apex_one_server = templatefile("${path.module}/userdata_apex_one_server.tftpl", {
-    s3_bucket              = var.s3_bucket
-    windows_username       = var.windows_username
-    windows_hostname       = "Apex-One-Server"
-    windows_password       = random_password.windows_password.result
+    s3_bucket                = var.s3_bucket
+    windows_ad_user_name     = var.windows_username
+    windows_ad_hostname       = "Apex-One-Server"
+    windows_ad_safe_password = var.windows_ad_safe_password
+    # windows_password       = random_password.windows_password.result
     windows_ad_domain_name = var.active_directory ? var.windows_ad_domain_name : ""
 
     userdata_windows_winrm   = local.userdata_function_windows_winrm
@@ -35,10 +36,11 @@ locals {
   })
 
   userdata_apex_one_central = templatefile("${path.module}/userdata_apex_one_central.tftpl", {
-    s3_bucket              = var.s3_bucket
-    windows_username       = var.windows_username
-    windows_hostname       = "Apex-One-Central"
-    windows_password       = random_password.windows_password.result
+    s3_bucket                = var.s3_bucket
+    windows_ad_user_name     = var.windows_username
+    windows_ad_hostname       = "Apex-One-Central"
+    windows_ad_safe_password = var.windows_ad_safe_password
+    # windows_password       = random_password.windows_password.result
     windows_ad_domain_name = var.active_directory ? var.windows_ad_domain_name : ""
 
     userdata_windows_winrm   = local.userdata_function_windows_winrm
@@ -52,7 +54,6 @@ locals {
     windows_ad_user_name     = var.windows_username
     windows_ad_hostname      = "Client"
     windows_ad_safe_password = var.windows_ad_safe_password
-
     # windows_password       = random_password.windows_password.result
     windows_ad_domain_name = var.active_directory ? var.windows_ad_domain_name : ""
 

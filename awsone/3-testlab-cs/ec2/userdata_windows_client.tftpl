@@ -43,7 +43,7 @@ net user Administrator "${windows_ad_safe_password}"
 # Create-LocalAdmin 
 
 # Define script path
-$taskPath = "C:\AWS\continue_userdata.ps1"
+$taskPath = "C:\continue_userdata.ps1"
 $taskName = "ContinueUserData"
 
 # Save only the "post-reboot" portion of the script
@@ -68,7 +68,7 @@ function Write-Log {
 Start-Sleep -Seconds 60
 
 # Example: Install a program after reboot
-Write-Output "Resuming User Data Execution..." | Out-File C:\AWS\userdata.log -Append
+Write-Log -message "Resuming User Data Execution..." -level "INFO"
 
 ${userdata_windows_winrm}
 
@@ -98,8 +98,17 @@ foreach ($obj in $objects) {
     }
 
     # Download the object
+    Write-Log -message "Downloading $obj.Key to $localPath" -level "INFO"
     Read-S3Object -BucketName ${s3_bucket} -Key $obj.Key -File $localPath
 }
+
+# Enable Firewall Rules
+# TODO: How to make this persistent with GPOs and AD?
+Set-NetFirewallRule -DisplayGroup 'Remote Event Log Management' -Enabled True -PassThru |
+  Select-Object -Property DisplayName, Enabled
+
+Set-NetFirewallRule -DisplayName 'COM+ Network Access (DCOM-In)' -Enabled True -PassThru |
+  Select-Object -Property DisplayName, Enabled
 
 ${userdata_windows_join_ad}
 
@@ -107,8 +116,7 @@ ${userdata_windows_join_ad}
 Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 '@
 
-# Ensure directory exists and save script
-New-Item -Path "C:\AWS" -ItemType Directory -Force
+# Save script
 $scriptContent | Set-Content -LiteralPath $taskPath -Force
 
 # Create a Scheduled Task to run after reboot

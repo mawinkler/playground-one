@@ -102,19 +102,33 @@ locals {
 
 resource "aws_instance" "windows_client" {
 
-  for_each                    = { for idx, ami in local.ami_list : idx => ami }
-  ami                         = each.value
-  instance_type               = var.windows_instance_type
-  subnet_id                   = var.private_subnets[1]
-  vpc_security_group_ids      = [var.private_security_group_id]
-  iam_instance_profile        = var.ec2_profile
-  source_dest_check           = false
-  key_name                    = var.key_name
-  user_data                   = local.userdata_windows_client
+  for_each               = { for idx, ami in local.ami_list : idx => ami }
+  ami                    = each.value
+  instance_type          = var.windows_instance_type
+  subnet_id              = var.private_subnets[1]
+  vpc_security_group_ids = [var.private_security_group_id]
+  iam_instance_profile   = var.ec2_profile
+  source_dest_check      = false
+  key_name               = var.key_name
+  # user_data                   = local.userdata_windows_client
   get_password_data           = false
   user_data_replace_on_change = true
   # subnet_id              = var.public_subnets[1]
   # vpc_security_group_ids = [var.public_security_group_id]
+
+  user_data = templatefile("${path.module}/userdata_windows_client.tftpl", {
+    s3_bucket                = var.s3_bucket
+    windows_ad_user_name     = var.windows_username
+    windows_ad_hostname      = "Client-${each.key}"
+    windows_ad_safe_password = var.windows_ad_safe_password
+    # windows_password       = random_password.windows_password.result
+    windows_ad_domain_name = var.active_directory ? var.windows_ad_domain_name : ""
+
+    userdata_windows_winrm   = local.userdata_function_windows_winrm
+    userdata_windows_ssh     = local.userdata_function_windows_ssh
+    userdata_windows_aws     = local.userdata_function_windows_aws
+    userdata_windows_join_ad = local.userdata_function_windows_join_ad
+  })
 
   root_block_device {
     volume_size           = var.windows_root_volume_size
