@@ -42,58 +42,19 @@ function Write-Log {
 
 net user Administrator "${windows_ad_safe_password}"
 
-# if ("${windows_ad_domain_name}" -ne "") {
-$hostname = hostname
-if ("$hostname" -ne "${windows_ad_hostname}") {
-    Write-Log -message "Changing Hostname to ${windows_ad_hostname}" -level "INFO"
-    Rename-Computer -NewName ${windows_ad_hostname} -Force -Restart
+if ("${windows_ad_domain_name}" -ne "") {
+    $hostname = hostname
+    if ("$hostname" -ne "${windows_ad_hostname}") {
+        Write-Log -message "Changing Hostname to ${windows_ad_hostname}" -level "INFO"
+        Rename-Computer -NewName ${windows_ad_hostname} -Force -Restart
+    } else {
+        Write-Log -message "Hostname: $hostname" -level "INFO"
+    }
 } else {
-    Write-Log -message "Hostname: $hostname" -level "INFO"
+    Write-Log -message "Not changing host name" -level "INFO"
 }
-# } else {
-#     Write-Log -message "Not changing host name" -level "INFO"
-# }
 
-# ${userdata_windows_winrm}
 
-# ${userdata_windows_ssh}
-
-# ${userdata_windows_aws}
-
-# # Enable Firewall Rules
-# # TODO: How to make this persistent with GPOs and AD?
-# Set-NetFirewallRule -DisplayGroup 'Remote Event Log Management' -Enabled True -PassThru |
-#   Select-Object -Property DisplayName, Enabled
-
-# Set-NetFirewallRule -DisplayName 'COM+ Network Access (DCOM-In)' -Enabled True -PassThru |
-#   Select-Object -Property DisplayName, Enabled
-
-# # ###########################
-# # Download from S3 bucket
-# # ###########################
-# $keyPrefix = "download"
-# $localFolder = "C:\Users\Administrator\Downloads"
-
-# # Get list of objects with the specified prefix
-# $objects = Get-S3Object -BucketName ${s3_bucket} -KeyPrefix $keyPrefix
-
-# # Iterate through each object and download it to the local folder
-# foreach ($obj in $objects) {
-#     # Remove the prefix from the object key to determine the local path
-#     $relativePath = $obj.Key.Substring($keyPrefix.Length)
-
-#     # Combine the local folder path with the relative object path
-#     $localPath = Join-Path $localFolder $relativePath
-
-#     # Ensure the directory structure exists
-#     $localDir = Split-Path $localPath -Parent
-#     if (-not (Test-Path $localDir)) {
-#         New-Item -ItemType Directory -Path $localDir
-#     }
-
-#     # Download the object
-#     Read-S3Object -BucketName ${s3_bucket} -Key $obj.Key -File $localPath
-# }
 
 ${userdata_windows_join_ad}
 
