@@ -102,15 +102,14 @@ locals {
 
 resource "aws_instance" "windows_client" {
 
-  for_each               = { for idx, ami in local.ami_list : idx => ami }
-  ami                    = each.value
-  instance_type          = var.windows_instance_type
-  subnet_id              = var.private_subnets[1]
-  vpc_security_group_ids = [var.private_security_group_id]
-  iam_instance_profile   = var.ec2_profile
-  source_dest_check      = false
-  key_name               = var.key_name
-  # user_data                   = local.userdata_windows_client
+  for_each                    = { for idx, ami in local.ami_list : idx => ami }
+  ami                         = each.value
+  instance_type               = var.windows_instance_type
+  subnet_id                   = var.private_subnets[1]
+  vpc_security_group_ids      = [var.private_security_group_id]
+  iam_instance_profile        = var.ec2_profile
+  source_dest_check           = false
+  key_name                    = var.key_name
   get_password_data           = false
   user_data_replace_on_change = true
   # subnet_id              = var.public_subnets[1]
@@ -121,8 +120,7 @@ resource "aws_instance" "windows_client" {
     windows_ad_user_name     = var.windows_username
     windows_ad_hostname      = "Client-${each.key}"
     windows_ad_safe_password = var.windows_ad_safe_password
-    # windows_password       = random_password.windows_password.result
-    windows_ad_domain_name = var.active_directory ? var.windows_ad_domain_name : ""
+    windows_ad_domain_name   = var.active_directory ? var.windows_ad_domain_name : ""
 
     userdata_windows_winrm   = local.userdata_function_windows_winrm
     userdata_windows_ssh     = local.userdata_function_windows_ssh
