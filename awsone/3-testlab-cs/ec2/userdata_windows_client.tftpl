@@ -40,13 +40,13 @@ function Write-Log {
 # # Create local admin user
 # Create-LocalAdmin 
 
-net user Administrator "${windows_ad_safe_password}"
-
 if ("${windows_ad_domain_name}" -ne "") {
     $hostname = hostname
     if ("$hostname" -ne "${windows_ad_hostname}") {
         Write-Log -message "Changing Hostname to ${windows_ad_hostname}" -level "INFO"
-        Rename-Computer -NewName ${windows_ad_hostname} -Force -Restart
+        Rename-Computer -NewName ${windows_ad_hostname} -Force
+        # Restart to apply hostname change
+        Restart-Computer -Force
     } else {
         Write-Log -message "Hostname: $hostname" -level "INFO"
     }
@@ -54,7 +54,8 @@ if ("${windows_ad_domain_name}" -ne "") {
     Write-Log -message "Not changing host name" -level "INFO"
 }
 
-
+# Wait for reboot before joining AD
+Start-Sleep -Seconds 60
 
 ${userdata_windows_join_ad}
 
