@@ -68,3 +68,16 @@ function Configure-WinRMService {
         cmd.exe /c winrm set "winrm/config/service/auth" '@{CredSSP="true"}'
     } catch  { Write-log -message "configure winrm service - "+ $_.Exception.message -level "ERROR"}
 }
+
+# Configure WinRM service
+Configure-WinRMService
+
+# Configure WinRM listener
+Configure-WinRMHttpsListener
+
+# Add Firewall rules
+Add-FirewallRule-WinRM
+
+# List the listeners
+Write-Verbose -Verbose "Listing the WinRM listeners:"
+winrm enumerate winrm/config/listener

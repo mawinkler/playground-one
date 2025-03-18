@@ -22,11 +22,6 @@ function Write-Log {
     Add-Content -Path $logfilepath -Value "$timestamp [$level] - $message"
 }
 
-${userdata_windows_winrm}
-${userdata_windows_ssh}
-${userdata_windows_aws}
-${userdata_windows_join_ad}
-
 # function Create-LocalAdmin {
 #     process {
 #         try {
@@ -59,69 +54,49 @@ if ("$hostname" -ne "${windows_ad_hostname}") {
 #     Write-Log -message "Not changing host name" -level "INFO"
 # }
 
-# Configure WinRM service
-Configure-WinRMService
+# ${userdata_windows_winrm}
 
-# Configure WinRM listener
-Configure-WinRMHttpsListener
+# ${userdata_windows_ssh}
 
-# Add Firewall rules
-Add-FirewallRule-WinRM
-Add-FirewallRule-SSH
+# ${userdata_windows_aws}
 
-# List the listeners
-Write-Verbose -Verbose "Listing the WinRM listeners:"
+# # Enable Firewall Rules
+# # TODO: How to make this persistent with GPOs and AD?
+# Set-NetFirewallRule -DisplayGroup 'Remote Event Log Management' -Enabled True -PassThru |
+#   Select-Object -Property DisplayName, Enabled
 
-Write-Verbose -Verbose "Querying WinRM listeners by running command: winrm enumerate winrm/config/listener"
-winrm enumerate winrm/config/listener
+# Set-NetFirewallRule -DisplayName 'COM+ Network Access (DCOM-In)' -Enabled True -PassThru |
+#   Select-Object -Property DisplayName, Enabled
 
-# Add OpenSSH.Server
-Configure-OpenSSHService
+# # ###########################
+# # Download from S3 bucket
+# # ###########################
+# $keyPrefix = "download"
+# $localFolder = "C:\Users\Administrator\Downloads"
 
-# Add AWS Tools
-Configure-AWS-Tools
+# # Get list of objects with the specified prefix
+# $objects = Get-S3Object -BucketName ${s3_bucket} -KeyPrefix $keyPrefix
 
-# Enable Firewall Rules
-# TODO: How to make this persistent with GPOs and AD?
-Set-NetFirewallRule -DisplayGroup 'Remote Event Log Management' -Enabled True -PassThru |
-  Select-Object -Property DisplayName, Enabled
+# # Iterate through each object and download it to the local folder
+# foreach ($obj in $objects) {
+#     # Remove the prefix from the object key to determine the local path
+#     $relativePath = $obj.Key.Substring($keyPrefix.Length)
 
-Set-NetFirewallRule -DisplayName 'COM+ Network Access (DCOM-In)' -Enabled True -PassThru |
-  Select-Object -Property DisplayName, Enabled
+#     # Combine the local folder path with the relative object path
+#     $localPath = Join-Path $localFolder $relativePath
 
-# ###########################
-# Download from S3 bucket
-# ###########################
-$keyPrefix = "download"
-$localFolder = "C:\Users\$username\Downloads"
+#     # Ensure the directory structure exists
+#     $localDir = Split-Path $localPath -Parent
+#     if (-not (Test-Path $localDir)) {
+#         New-Item -ItemType Directory -Path $localDir
+#     }
 
-# Get list of objects with the specified prefix
-$objects = Get-S3Object -BucketName ${s3_bucket} -KeyPrefix $keyPrefix
+#     # Download the object
+#     Read-S3Object -BucketName ${s3_bucket} -Key $obj.Key -File $localPath
+# }
 
-# Iterate through each object and download it to the local folder
-foreach ($obj in $objects) {
-    # Remove the prefix from the object key to determine the local path
-    $relativePath = $obj.Key.Substring($keyPrefix.Length)
+${userdata_windows_join_ad}
 
-    # Combine the local folder path with the relative object path
-    $localPath = Join-Path $localFolder $relativePath
-
-    # Ensure the directory structure exists
-    $localDir = Split-Path $localPath -Parent
-    if (-not (Test-Path $localDir)) {
-        New-Item -ItemType Directory -Path $localDir
-    }
-
-    # Download the object
-    Read-S3Object -BucketName ${s3_bucket} -Key $obj.Key -File $localPath
-}
-
-# Join AD
-if ("${windows_ad_domain_name}" -ne "") {
-    Join-AD
-} else {
-    Write-Log -message "Not joining an Active Directory" -level "INFO"
-}
 
 Stop-Transcript
 </powershell>
