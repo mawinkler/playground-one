@@ -104,6 +104,10 @@ output "vpn_up_admin" {
   value = var.vpn_gateway ? module.vpn[0].vpn_up_admin : null
 }
 
+output "vpn_conf_admin" {
+  value = var.vpn_gateway ? module.vpn[0].vpn_conf_admin : null
+}
+
 #
 # Active Directory
 #

@@ -62,7 +62,7 @@ variable "apex_instance_type" {
 variable "apex_root_volume_size" {
   type        = number
   description = "Volumen size of root volumen of Windows Server"
-  default     = "30"
+  default     = "40"
 }
 
 variable "apex_root_volume_type" {

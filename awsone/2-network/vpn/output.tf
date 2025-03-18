@@ -16,5 +16,9 @@ output "vpn_server_id" {
 output "vpn_up_admin" {
   description = "Command to establish VPN connection"
   value       = length(aws_instance.wireguard) > 0 ? format("wg-quick up $ONEPATH/%s", join("/", slice(split("/", local_file.peer_conf["admin"].filename), 2, 4))) : null
-  # value       = length(aws_instance.wireguard) > 0 ? format("wg-quick up $ONEPATH/%s", local_file.peer_conf["admin"].filename) : null
+}
+
+output "vpn_conf_admin" {
+  description = "Command to retrieve VPN configurations"
+  value       = length(aws_instance.wireguard) > 0 ? "for cnf in $ONEPATH/vpn-peers/*.conf; do echo; echo '+++'; echo $cnf; echo '==='; cat $cnf; echo '---'; done" : null
 }

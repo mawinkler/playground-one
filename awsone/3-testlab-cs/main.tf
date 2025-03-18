@@ -54,7 +54,8 @@ module "s3" {
 # Deep Security
 #
 module "rds" {
-  count = var.create_dsm ? 1 : 0
+  # count = var.create_dsm ? 1 : 0
+  count = var.create_dsm ? 0 : 0
 
   source = "./rds"
 
@@ -63,6 +64,28 @@ module "rds" {
   database_subnet_group     = data.terraform_remote_state.vpc.outputs.database_subnet_group
   rds_name                  = var.rds_name
   rds_username              = var.rds_username
+}
+
+module "psql" {
+  count = var.create_dsm ? 1 : 0
+
+  source = "./psql"
+
+  environment               = var.environment
+  key_name                  = data.terraform_remote_state.vpc.outputs.key_name
+  ec2_profile               = module.iam.ec2_profile
+  public_key                = data.terraform_remote_state.vpc.outputs.public_key
+  private_key_path          = data.terraform_remote_state.vpc.outputs.private_key_path
+  private_security_group_id = data.terraform_remote_state.vpc.outputs.private_security_group_id
+  private_subnets           = data.terraform_remote_state.vpc.outputs.private_subnets.*
+  linux_username            = "ubuntu"
+  psql_name                 = var.rds_name
+  psql_username             = var.rds_username
+  psql_password             = "TrendMicro.1"
+
+  bastion_public_ip   = module.bastion[0].bastion_public_ip
+  bastion_private_ip  = module.bastion[0].bastion_private_ip
+  bastion_private_key = data.terraform_remote_state.vpc.outputs.private_key
 }
 
 module "bastion" {
@@ -84,6 +107,7 @@ module "bastion" {
 
 module "dsm" {
   count = var.create_dsm ? 1 : 0
+  # count = var.create_dsm ? 0 : 0
 
   source = "./dsm"
 
@@ -107,10 +131,11 @@ module "dsm" {
   dsm_username = var.dsm_username
   dsm_password = var.dsm_password
 
-  rds_address  = module.rds[0].rds_address
+  rds_address  = try(module.psql[0].postgres_private_ip, module.rds[0].rds_address)
   rds_name     = var.rds_name
   rds_username = var.rds_username
-  rds_password = module.rds[0].rds_password
+  # rds_password = module.rds[0].rds_password
+  rds_password = try(module.psql[0].postgres_password, module.rds[0].rds_password)
 
   bastion_public_ip   = module.bastion[0].bastion_public_ip
   bastion_private_ip  = module.bastion[0].bastion_private_ip

@@ -145,6 +145,28 @@ output "rds_address" {
 }
 
 #
+# PostgreSQL
+#
+output "postgres_instance_id" {
+  value       = length(module.psql) > 0 ? module.psql[0].postgres_instance_id : null
+}
+
+# output "postgres_public_ip" {
+#   description = "Bastion public IP"
+#   value       = length(aws_instance.bastion) > 0 ? aws_instance.postgres.public_ip : null
+# }
+
+output "postgres_private_ip" {
+  description = "Bastion private IP"
+  value       = length(module.psql) > 0 ? module.psql[0].postgres_private_ip : null
+}
+
+output "ssh_instance_postgres" {
+  description = "Command to ssh to instance postgres"
+  value       = length(module.psql) > 0 ? module.psql[0].ssh_instance_postgres : null
+}
+
+#
 # Deep Security Manager
 #
 output "ssh_instance_dsm" {

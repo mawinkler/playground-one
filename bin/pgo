@@ -910,7 +910,7 @@ function update_ip() {
     exit 0
   fi
 
-  for config in network testlab-cs eks-ec2 eks-fg aks ecs-ec2 ecs-fg scenarios-ec2 scenarios-fg scenarios-aks dsm dsw wsw; do
+  for config in satellite network testlab-cs eks-ec2 eks-fg aks ecs-ec2 ecs-fg scenarios-ec2 scenarios-fg scenarios-aks dsm dsw wsw; do
     init ${config}
     if checklock ${config} ; then
       apply ${config}
