@@ -22,6 +22,8 @@ function Write-Log {
     Add-Content -Path $logfilepath -Value "$timestamp [$level] - $message"
 }
 
+net user Administrator "${windows_ad_safe_password}"
+
 # function Create-LocalAdmin {
 #     process {
 #         try {
