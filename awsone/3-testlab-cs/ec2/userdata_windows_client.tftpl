@@ -70,6 +70,37 @@ Start-Sleep -Seconds 60
 # Example: Install a program after reboot
 Write-Output "Resuming User Data Execution..." | Out-File C:\AWS\userdata.log -Append
 
+${userdata_windows_winrm}
+
+${userdata_windows_ssh}
+
+${userdata_windows_aws}
+
+# Download from S3 bucket
+$keyPrefix = "download"
+$localFolder = "C:\Users\Administrator\Downloads"
+
+# Get list of objects with the specified prefix
+$objects = Get-S3Object -BucketName ${s3_bucket} -KeyPrefix $keyPrefix
+
+# Iterate through each object and download it to the local folder
+foreach ($obj in $objects) {
+    # Remove the prefix from the object key to determine the local path
+    $relativePath = $obj.Key.Substring($keyPrefix.Length)
+
+    # Combine the local folder path with the relative object path
+    $localPath = Join-Path $localFolder $relativePath
+
+    # Ensure the directory structure exists
+    $localDir = Split-Path $localPath -Parent
+    if (-not (Test-Path $localDir)) {
+        New-Item -ItemType Directory -Path $localDir
+    }
+
+    # Download the object
+    Read-S3Object -BucketName ${s3_bucket} -Key $obj.Key -File $localPath
+}
+
 ${userdata_windows_join_ad}
 
 # Remove Scheduled Task after it runs once
