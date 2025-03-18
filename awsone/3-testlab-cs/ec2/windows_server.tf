@@ -11,15 +11,16 @@ resource "aws_instance" "apex_one_server" {
 
   count = var.create_apex_one_server ? 1 : 0
 
-  ami                    = var.ami_apex_one_server != "" ? var.ami_apex_one_server : data.aws_ami.windows.id
-  instance_type          = var.apex_instance_type
-  subnet_id              = var.private_subnets[0]
-  vpc_security_group_ids = [var.private_security_group_id]
-  iam_instance_profile   = var.ec2_profile
-  source_dest_check      = false
-  key_name               = var.key_name
-  user_data              = local.userdata_apex_one_server
-  get_password_data      = false
+  ami                         = var.ami_apex_one_server != "" ? var.ami_apex_one_server : data.aws_ami.windows.id
+  instance_type               = var.apex_instance_type
+  subnet_id                   = var.private_subnets[0]
+  vpc_security_group_ids      = [var.private_security_group_id]
+  iam_instance_profile        = var.ec2_profile
+  source_dest_check           = false
+  key_name                    = var.key_name
+  user_data                   = local.userdata_apex_one_server
+  get_password_data           = false
+  user_data_replace_on_change = true
   # subnet_id              = var.public_subnets[1]
   # vpc_security_group_ids = [var.public_security_group_id]
 
@@ -54,15 +55,16 @@ resource "aws_instance" "apex_one_central" {
 
   count = var.create_apex_one_central ? 1 : 0
 
-  ami                    = var.ami_apex_one_central != "" ? var.ami_apex_one_central : data.aws_ami.windows.id
-  instance_type          = var.apex_instance_type
-  subnet_id              = var.private_subnets[0]
-  vpc_security_group_ids = [var.private_security_group_id]
-  iam_instance_profile   = var.ec2_profile
-  source_dest_check      = false
-  key_name               = var.key_name
-  user_data              = local.userdata_apex_one_central
-  get_password_data      = false
+  ami                         = var.ami_apex_one_central != "" ? var.ami_apex_one_central : data.aws_ami.windows.id
+  instance_type               = var.apex_instance_type
+  subnet_id                   = var.private_subnets[0]
+  vpc_security_group_ids      = [var.private_security_group_id]
+  iam_instance_profile        = var.ec2_profile
+  source_dest_check           = false
+  key_name                    = var.key_name
+  user_data                   = local.userdata_apex_one_central
+  get_password_data           = false
+  user_data_replace_on_change = true
   # subnet_id              = var.public_subnets[1]
   # vpc_security_group_ids = [var.public_security_group_id]
 
@@ -154,47 +156,6 @@ resource "aws_instance" "windows_client" {
     timeout  = "13m"
   }
 }
-
-# resource "aws_instance" "windows_client" {
-
-#   count = var.windows_client_count > 0 ? var.windows_client_count : 0
-
-#   ami                    = var.ami_windows_client  != "" ? var.ami_windows_client : data.aws_ami.windows.id
-#   instance_type          = var.windows_instance_type
-#   subnet_id              = var.public_subnets[1]
-#   vpc_security_group_ids = [var.public_security_group_id]
-#   iam_instance_profile   = var.ec2_profile
-#   source_dest_check      = false
-#   key_name               = var.key_name
-#   user_data              = local.userdata_windows_client
-#   get_password_data      = false
-
-#   root_block_device {
-#     volume_size           = var.windows_root_volume_size
-#     volume_type           = var.windows_root_volume_type
-#     delete_on_termination = true
-#     encrypted             = true
-#   }
-
-#   tags = {
-#     Name          = "${var.environment}-windows-client-${count.index}"
-#     Environment   = "${var.environment}"
-#     Product       = "playground-one"
-#     Configuration = "testlab-cs"
-#     Type          = "${var.environment}-windows-server"
-#   }
-
-#   connection {
-#     host     = coalesce(self.public_ip, self.private_ip)
-#     type     = "winrm"
-#     port     = 5986
-#     user     = var.windows_username
-#     password = random_password.windows_password.result
-#     https    = true
-#     insecure = true
-#     timeout  = "13m"
-#   }
-# }
 
 # # AWS Systems Manager
 # resource "aws_ssm_association" "windows_server_agent" {
