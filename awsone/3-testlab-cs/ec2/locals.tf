@@ -49,9 +49,11 @@ locals {
 
   userdata_windows_client = templatefile("${path.module}/userdata_windows_client.tftpl", {
     s3_bucket              = var.s3_bucket
-    windows_username       = var.windows_username
-    windows_hostname       = "Client"
-    windows_password       = random_password.windows_password.result
+    windows_ad_user_name       = var.windows_username
+    windows_ad_hostname       = "Client"
+    windows_ad_safe_password = var.windows_ad_safe_password
+
+    # windows_password       = random_password.windows_password.result
     windows_ad_domain_name = var.active_directory ? var.windows_ad_domain_name : ""
 
     userdata_windows_winrm   = local.userdata_function_windows_winrm

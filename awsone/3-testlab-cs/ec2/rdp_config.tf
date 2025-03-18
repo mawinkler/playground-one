@@ -19,7 +19,7 @@ resource "local_file" "apex_one_central_rdp_config" {
 }
 
 resource "local_file" "windows_client_rdp_config" {
-  count = var.windows_client_count ? 1 : 0
+  count = var.windows_client_count
 
   filename = "../../vpn-rdps/windows-client-${count.index}.rdp"
   content  = templatefile("${path.module}/rdp_config.tftpl", {
