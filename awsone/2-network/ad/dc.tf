@@ -1,4 +1,6 @@
-# Create EC2 Instance
+# #############################################################################
+# Domain Controller
+# #############################################################################
 resource "aws_instance" "windows-server-dc" {
   ami                    = var.ami_active_directory_dc != "" ? var.ami_active_directory_dc : data.aws_ami.windows-server.id
   instance_type          = var.windows_instance_type

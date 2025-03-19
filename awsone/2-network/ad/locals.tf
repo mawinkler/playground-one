@@ -1,3 +1,6 @@
+# #############################################################################
+# Locals
+# #############################################################################
 locals {
   # Windows Userdata Functions
   userdata_function_windows_winrm = templatefile("${path.module}/userdata_function_windows_winrm.tftpl", {

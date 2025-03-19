@@ -1,4 +1,6 @@
-# Create EC2 Instance
+# #############################################################################
+# Certification Authority
+# #############################################################################
 resource "aws_instance" "windows-server-ca" {
   ami                    = var.ami_active_directory_ca != "" ? var.ami_active_directory_ca : data.aws_ami.windows-server.id
   instance_type          = var.windows_instance_type

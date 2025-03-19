@@ -1,3 +1,6 @@
+# #############################################################################
+# Outputs
+# #############################################################################
 output "ad_dc_ip" {
   value = aws_instance.windows-server-dc.public_ip != "" ? aws_instance.windows-server-dc.public_ip : null
 }

@@ -30,6 +30,7 @@ awsone/sandbox
 azone/4-cluster-aks/kubeconfig
 awsone/1-pgo-vpn/generated
 vpn-peers
+vpn-rdps
 vpn-secrets.yaml
 
 # Generic

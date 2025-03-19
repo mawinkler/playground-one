@@ -780,7 +780,7 @@ function apply() {
     testlab-cs|all)
       tf testlab-cs apply
       printf '%s\n' "win_password = \"$(terraform -chdir=${configs[testlab-cs]} output -raw win_password)\""
-      printf '%s\n' "win_local_admin_password = \"$(terraform -chdir=${configs[testlab-cs]} output -raw win_local_admin_password)\""
+      # printf '%s\n' "win_local_admin_password = \"$(terraform -chdir=${configs[testlab-cs]} output -raw win_local_admin_password)\""
       ;;&
     eks|eks-ec2|all)
       tf eks-ec2 apply
@@ -1431,7 +1431,7 @@ function output() {
     testlab-cs|all)
       tf testlab-cs output
       printf '%s\n' "win_password = \"$(terraform -chdir=${configs[testlab-cs]} output -raw win_password)\""
-      printf '%s\n' "win_local_admin_password = \"$(terraform -chdir=${configs[testlab-cs]} output -raw win_local_admin_password)\""
+      # printf '%s\n' "win_local_admin_password = \"$(terraform -chdir=${configs[testlab-cs]} output -raw win_local_admin_password)\""
       ;;&
     eks|eks-ec2|all)
       tf eks-ec2 output
@@ -1734,6 +1734,11 @@ function validate() {
       tf satellite validate
       ;;&
     nw|network|all)
+      if [ "${pgo_vpn_gateway}" == 'true' ]; then
+        if [ ! -f ${ONEPATH}/vpn-secrets.yaml ]; then
+          $ONEPATH/bin/generate-secrets.sh
+        fi
+      fi
       tf network validate
       ;;&
     ec2|instances|all)
@@ -2069,9 +2074,25 @@ function freeze_delete() {
   printf '%s\n' "All matching AMIs and their snapshots have been deleted successfully."
 }
 
-function freeze_snapshot() {
+function freeze_list_tags() {
 
-  telemetry "freeze_snapshot" $1
+  configuration_name=$1
+  ami_prefix="${configuration_name}-${environment_name}-"
+  tag_list=$(aws ec2 describe-images \
+    --owners self \
+    --filters "Name=name,Values=$ami_prefix*" \
+    | jq -r '.Images[].Tags[] | select(.Key=="Name") | .Value' | sort | uniq)
+  
+  if [ -z "${tag_list}" ]; then
+    printf '%s\n' "No available Tags for Configuration ${configuration_name}"
+  else
+    printf '%s\n%s\n' "Available Tags for Configuration ${configuration_name}:" "${tag_list}"
+  fi
+}
+
+function snapshot_freeze() {
+
+  telemetry "snapshot_freeze" $1
 
   case $1 in
     nw|network|all)
@@ -2086,9 +2107,9 @@ function freeze_snapshot() {
   esac
 }
 
-function retrieve_snapshot() {
+function snapshot_retrieve() {
 
-  telemetry "retrieve_snapshot" $1
+  telemetry "snapshot_retrieve" $1
 
   case $1 in
     nw|network|all)
@@ -2198,9 +2219,9 @@ function retrieve_snapshot() {
   esac
 }
 
-function delete_snapshot() {
+function snapshot_delete() {
 
-  telemetry "delete_snapshot" $1
+  telemetry "snapshot_delete" $1
 
   case $1 in
     nw|network|all)
@@ -2215,129 +2236,22 @@ function delete_snapshot() {
   esac
 }
 
-# function freeze() {
+function snapshot_list() {
 
-#   telemetry "freeze" $1
+  telemetry "snapshot_list" $1
 
-#   case $1 in
-#     nw|network|all)
-#       freeze_configuration nw
-#       ;;&
-#     nw-retrieve|network-retrieve|all)
-#       freeze_retrieve nw
-
-#       ami_active_directory_dc=""
-#       ami_active_directory_ca=""
-#       for ami in ${ami_list}; do
-#         printf '%s\n' $ami
-#         if [[ $ami =~ .*-dc.* ]]; then
-#           ami_active_directory_dc=${ami#*=}
-#         fi
-#         if [[ $ami =~ .*-ca.* ]]; then
-#           ami_active_directory_ca=${ami#*=}
-#         fi
-#       done
-
-#       if [ -z "${ami_active_directory_dc}" ]; then
-#         yq -i 'del(.services.aws.configuration.network.ami-active-directory-dc)' ${ONEPATH}/config.yaml
-#       else
-#         target_val=${ami_active_directory_dc} \
-#           yq -i '.services.aws.configuration.network.ami-active-directory-dc = env(target_val)' ${ONEPATH}/config.yaml
-#       fi
-#       if [ -z "${ami_active_directory_ca}" ]; then
-#         yq -i 'del(.services.aws.configuration.network.ami-active-directory-ca)' ${ONEPATH}/config.yaml
-#       else
-#         target_val=${ami_active_directory_ca} \
-#           yq -i '.services.aws.configuration.network.ami-active-directory-ca = env(target_val)' ${ONEPATH}/config.yaml
-#       fi
-
-#       sed -i "/^ami_active_directory_dc = .*/c  ami_active_directory_dc = \"${ami_active_directory_dc}\"" ${configs[network]}/terraform.tfvars
-#       sed -i "/^ami_active_directory_ca = .*/c  ami_active_directory_ca = \"${ami_active_directory_ca}\"" ${configs[network]}/terraform.tfvars
-
-#       printf '%s\n' "${configs[network]}/terraform.tfvars patched."
-#       ;;&
-#     nw-delete|network-delete|all)
-#       freeze_delete nw
-#       ;;&
-#     ec2|instances|all)
-#       printf '%s\n' "Not implemented yet"
-#       ;;&
-#     testlab-cs|all)
-#       freeze_configuration testlab-cs
-#       ;;&
-#     testlab-cs-retrieve|all)
-#       freeze_retrieve testlab-cs
-      
-#       ami_apex_one_server=""
-#       ami_apex_one_central=""
-#       ami_windows_client="["
-#       ami_bastion=""
-#       ami_dsm=""
-#       for ami in ${ami_list}; do
-#         printf '%s\n' $ami
-#         if [[ $ami =~ .*apex-one-central.* ]]; then
-#           ami_apex_one_central=${ami#*=}
-#         fi
-#         if [[ $ami =~ .*apex-one-server.* ]]; then
-#           ami_apex_one_server=${ami#*=}
-#         fi
-#         if [[ $ami =~ .*windows-client.* ]]; then
-#           ami_windows_client+="\"${ami#*=}\","
-#         fi
-#         if [[ $ami =~ .*bastion.* ]]; then
-#           ami_bastion=${ami#*=}
-#         fi
-#         if [[ $ami =~ .*dsm.* ]]; then
-#           ami_dsm=${ami#*=}
-#         fi
-#       done
-#       ami_windows_client="${ami_windows_client%,}]"
-
-#       if [ -z "${ami_apex_one_server}" ]; then
-#         yq -i 'del(.services.aws.configuration.testlab-cs.ami-apex-one-server)' ${ONEPATH}/config.yaml
-#       else
-#         target_val=${ami_apex_one_server} \
-#           yq -i '.services.aws.configuration.testlab-cs.ami-apex-one-server = env(target_val)' ${ONEPATH}/config.yaml
-#       fi
-#       if [ -z "${ami_apex_one_central}" ]; then
-#         yq -i 'del(.services.aws.configuration.testlab-cs.ami-apex-one-central)' ${ONEPATH}/config.yaml
-#       else
-#         target_val=${ami_apex_one_central} \
-#           yq -i '.services.aws.configuration.testlab-cs.ami-apex-one-central = env(target_val)' ${ONEPATH}/config.yaml
-#       fi
-#       if [ "${ami_windows_client}" == '[]' ]; then
-#         yq -i 'del(.services.aws.configuration.testlab-cs.ami-windows-client)' ${ONEPATH}/config.yaml
-#       else
-#         target_val=${ami_windows_client} \
-#           yq -i '.services.aws.configuration.testlab-cs.ami-windows-client = env(target_val)' ${ONEPATH}/config.yaml
-#       fi
-#       if [ -z "${ami_bastion}" ]; then
-#         yq -i 'del(.services.aws.configuration.testlab-cs.ami-bastion)' ${ONEPATH}/config.yaml
-#       else
-#         target_val=${ami_bastion} \
-#           yq -i '.services.aws.configuration.testlab-cs.ami-bastion = env(target_val)' ${ONEPATH}/config.yaml
-#       fi
-#       if [ -z "${ami_dsm}" ]; then
-#         yq -i 'del(.services.aws.configuration.testlab-cs.ami-dsm)' ${ONEPATH}/config.yaml
-#       else
-#         target_val=${ami_dsm} \
-#           yq -i '.services.aws.configuration.testlab-cs.ami-dsm = env(target_val)' ${ONEPATH}/config.yaml
-#       fi
-
-#       sed -i "/^ami_apex_one_server = .*/c  ami_apex_one_server = \"${ami_apex_one_server}\"" ${configs[testlab-cs]}/terraform.tfvars
-#       sed -i "/^ami_apex_one_central = .*/c  ami_apex_one_central = \"${ami_apex_one_central}\"" ${configs[testlab-cs]}/terraform.tfvars
-#       sed -i "/^ami_windows_client = .*/c  ami_windows_client = ${ami_windows_client}" ${configs[testlab-cs]}/terraform.tfvars
-#       sed -i "/^ami_bastion = .*/c  ami_bastion = \"${ami_bastion}\"" ${configs[testlab-cs]}/terraform.tfvars
-#       sed -i "/^ami_dsm = .*/c  ami_dsm = \"${ami_dsm}\"" ${configs[testlab-cs]}/terraform.tfvars
-
-#       printf '%s\n' "${configs[testlab-cs]}/terraform.tfvars patched."
-
-#       ;;&
-#     testlab-cs-delete)
-#       freeze_delete testlab-cs
-#       ;;&
-#   esac
-# }
+  case $1 in
+    nw|network|all)
+      freeze_list_tags nw
+      ;;&
+    ec2|instances|all)
+      printf '%s\n' "Not implemented yet"
+      ;;&
+    testlab-cs|all)
+      freeze_list_tags testlab-cs
+      ;;&
+  esac
+}
 
 #######################################
 # Update Playground One and components
@@ -2362,15 +2276,15 @@ function update() {
 # Outputs:
 #   None
 #######################################
-function update-v1cs() {
+# function update-v1cs() {
 
-  printf '%s\n' "Getting latest Vision One Container Security"
-  mkdir -p ${ONEPATH}/.packages
-  cd ${ONEPATH}/.packages
-  rm -rf cloudone-container-security-helm-master
-  curl -Ls https://github.com/trendmicro/cloudone-container-security-helm/archive/master.tar.gz -o master.tar.gz
-  tar xfz master.tar.gz
-}
+#   printf '%s\n' "Getting latest Vision One Container Security"
+#   mkdir -p ${ONEPATH}/.packages
+#   cd ${ONEPATH}/.packages
+#   rm -rf cloudone-container-security-helm-master
+#   curl -Ls https://github.com/trendmicro/cloudone-container-security-helm/archive/master.tar.gz -o master.tar.gz
+#   tar xfz master.tar.gz
+# }
 
 function helpcmd() {
 
@@ -2392,9 +2306,10 @@ function helpcmd() {
   printf '%s\n' "  -h --help      Show this help"
   printf '%s\n' ""
   printf '%s\n' "Snapshotting configuration commands:"
-  printf '%s\n' "  -f --freeze    Freeze configuration, create AMIs"
-  printf '%s\n' "  -r --retrieve  Retrieve configuration by Tag"
-  printf '%s\n' "  -D --delete    Delete frozen configuration by Tag"
+  printf '%s\n' "  -F --snapshot-freeze    Freeze and tag configuration, create AMIs"
+  printf '%s\n' "  -R --snapshot-retrieve  Retrieve configuration by Tag"
+  printf '%s\n' "  -D --snapshot-delete    Delete frozen configuration by Tag"
+  printf '%s\n' "  -L --snapshot-list-tags List Tags for configuration"
   printf '%s\n' ""
   printf '%s\n' "Other commands:"
   printf '%s\n' "  -S --show      Show advanced state"
@@ -2452,14 +2367,17 @@ else
   printf '%s\n' "Using System Access Key or Instance Role"
 fi
 
+opts_short=pci:t:a:ld:o:s:S:v:uhE:F:R:D:L:U
+opts_long=plan,config,init:,tfvars:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help,erase:,snapshot-freeze:,snapshot-retrieve:,snapshot-delete:,snapshot-list-tags:,update
+
 if is_darwin; then
-  TEMP=$(/opt/homebrew/opt/gnu-getopt/bin/getopt -o pci:t:a:ld:o:s:S:v:uhE:f:r:D:C:U --long plan,config,init:,tfvars:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help,erase:,freeze:,retrieve:,delete:,colima:,update -- "$@")
+  TEMP=$(/opt/homebrew/opt/gnu-getopt/bin/getopt -o ${opts_short}C: --long ${opts_long},colima: -- "$@")
 
   if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 
   eval set -- "$TEMP"
 else
-  TEMP=$(getopt -o pci:t:a:ld:o:s:S:v:uhE:f:r:D:UC --long plan,config,init:,tfvars:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help,erase:,freeze:,retrieve:,delete:,update,updatev1cs -- "$@")
+  TEMP=$(getopt -o ${opts_short} --long ${opts_long} -- "$@")
   if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 
   eval set -- "$TEMP"
@@ -2495,11 +2413,14 @@ while true; do
     -h | --help ) helpcmd; break ;;
     -C | --colima ) colima-service $2; shift 2 ;;
     -E | --erase ) erase $2; shift 2 ;;
-    -f | --freeze ) freeze_snapshot $2; shift 2 ;;
-    -r | --retrieve ) retrieve_snapshot $2; shift 2 ;;
-    -D | --delete ) delete_snapshot $2; shift 2 ;;
+
+    -F | --snapshot-freeze ) snapshot_freeze $2; shift 2 ;;
+    -R | --snapshot-retrieve ) snapshot_retrieve $2; shift 2 ;;
+    -D | --snapshot-delete ) snapshot_delete $2; shift 2 ;;
+    -L | --snapshot-list-tags ) snapshot_list $2; shift 2 ;;
+
     -U | --update ) update; break ;;
-    -C | --updatev1cs ) update-v1cs; break ;;
+    # -C | --updatev1cs ) update-v1cs; break ;;
     -- ) shift; break ;;
     * ) break ;;
   esac

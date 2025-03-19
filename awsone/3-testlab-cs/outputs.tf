@@ -25,10 +25,10 @@ output "win_password" {
   sensitive = true
 }
 
-output "win_local_admin_password" {
-  value     = module.ec2.win_local_admin_password
-  sensitive = true
-}
+# output "win_local_admin_password" {
+#   value     = module.ec2.win_local_admin_password
+#   sensitive = true
+# }
 
 # Active Directory
 output "ad_domain_name" {
