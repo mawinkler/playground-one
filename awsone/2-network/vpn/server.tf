@@ -2,7 +2,8 @@
 # Deploy Wireguard Server
 # #############################################################################
 resource "aws_network_interface" "wireguard_eni" {
-  subnet_id   = var.public_subnets[0]
+  subnet_id       = var.public_subnets[0]
+  private_ips     = ["10.0.4.10"]
   security_groups = [aws_security_group.wireguard["public"].id]
 }
 
@@ -17,18 +18,16 @@ resource "aws_eip" "wireguard" {
 }
 
 resource "aws_instance" "wireguard" {
-  count                       = 1
-  ami                         = data.aws_ami.ubuntu.id
-  instance_type               = "t4g.nano"
-  # subnet_id                   = var.public_subnets[0]
-  # vpc_security_group_ids      = [aws_security_group.wireguard["public"].id]
+  count         = 1
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = "t4g.nano"
   user_data                   = local.userdata
   user_data_replace_on_change = true
 
   # Attach the ENI to the instance
   network_interface {
     network_interface_id = aws_network_interface.wireguard_eni.id
-    device_index        = 0  # Primary network interface
+    device_index         = 0 # Primary network interface
   }
 
   tags = {

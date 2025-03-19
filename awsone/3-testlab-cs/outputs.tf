@@ -148,13 +148,8 @@ output "rds_address" {
 # PostgreSQL
 #
 output "postgres_instance_id" {
-  value       = length(module.psql) > 0 ? module.psql[0].postgres_instance_id : null
+  value = length(module.psql) > 0 ? module.psql[0].postgres_instance_id : null
 }
-
-# output "postgres_public_ip" {
-#   description = "Bastion public IP"
-#   value       = length(aws_instance.bastion) > 0 ? aws_instance.postgres.public_ip : null
-# }
 
 output "postgres_private_ip" {
   description = "Bastion private IP"
@@ -186,5 +181,5 @@ output "ds_apikey" {
 }
 
 output "dsm_private_ip" {
-  value = "10.0.0.${random_integer.dsm_ip_octet.result}"
+  value = "10.0.0.20"
 }

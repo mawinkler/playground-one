@@ -3,14 +3,23 @@
 #   SSH tunnel
 #   NGINX upstream proxy
 # #############################################################################
+resource "aws_network_interface" "bastion_eni" {
+  subnet_id       = var.public_subnets[0]
+  private_ips     = ["10.0.4.11"]
+  security_groups = [var.public_security_group_id]
+}
+
 resource "aws_instance" "bastion" {
 
   ami                    = var.ami_bastion != "" ? var.ami_bastion : data.aws_ami.ubuntu.id
   instance_type          = "t3.micro"
-  subnet_id              = var.public_subnets[0]
-  vpc_security_group_ids = [var.public_security_group_id]
   iam_instance_profile   = var.ec2_profile
   key_name               = var.key_name
+
+  network_interface {
+    network_interface_id = aws_network_interface.bastion_eni.id
+    device_index         = 0 # Primary network interface
+  }
 
   tags = {
     Name          = "${var.environment}-bastion"

@@ -1,18 +1,32 @@
 # #############################################################################
 # Certification Authority
 # #############################################################################
-resource "aws_instance" "windows-server-ca" {
-  ami                    = var.ami_active_directory_ca != "" ? var.ami_active_directory_ca : data.aws_ami.windows-server.id
-  instance_type          = var.windows_instance_type
-  subnet_id              = var.vpn_gateway ? var.private_subnets[0] : var.public_subnets[0]
-  vpc_security_group_ids = var.vpn_gateway ? [var.private_security_group_id] : [var.public_security_group_id]
-  iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
-  source_dest_check      = false
-  key_name               = var.key_name
-  user_data              = local.userdata_ca
-  get_password_data      = false
+resource "aws_network_interface" "windows-server-ca" {
+  subnet_id       = var.vpn_gateway ? var.private_subnets[0] : var.public_subnets[0]
+  security_groups = var.vpn_gateway ? [var.private_security_group_id] : [var.public_security_group_id]
+  private_ips     = ["10.0.0.11"]
 
-  # root disk
+  tags = {
+    Name          = "${var.environment}-pgo-ca-ni"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "nw"
+  }
+}
+
+resource "aws_instance" "windows-server-ca" {
+  ami                  = var.ami_active_directory_ca != "" ? var.ami_active_directory_ca : data.aws_ami.windows-server.id
+  instance_type        = var.windows_instance_type
+  iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
+  key_name             = var.key_name
+  user_data            = local.userdata_ca
+  get_password_data    = false
+
+  network_interface {
+    network_interface_id = aws_network_interface.windows-server-ca.id
+    device_index         = 0
+  }
+
   root_block_device {
     volume_size           = var.windows_root_volume_size
     volume_type           = var.windows_root_volume_type

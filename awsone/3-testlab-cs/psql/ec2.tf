@@ -6,13 +6,17 @@ resource "random_string" "psql_password" {
   special = false
 }
 
+resource "aws_network_interface" "postgres_eni" {
+  subnet_id       = var.private_subnets[0]
+  private_ips     = ["10.0.0.24"]
+  security_groups = [var.private_security_group_id]
+}
+
 resource "aws_instance" "postgres" {
   ami                  = data.aws_ami.ubuntu.id
-  subnet_id            = var.private_subnets[0]
   instance_type        = "t3.medium"
   iam_instance_profile = var.ec2_profile
   key_name             = var.key_name
-  security_groups      = [var.private_security_group_id]
 
   user_data = <<-EOF
               #!/bin/bash
@@ -22,6 +26,11 @@ resource "aws_instance" "postgres" {
               echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/14/main/pg_hba.conf
               systemctl restart postgresql
               EOF
+
+  network_interface {
+    network_interface_id = aws_network_interface.postgres_eni.id
+    device_index         = 0 # Primary network interface
+  }
 
   tags = {
     Name          = "${var.environment}-postgresql"

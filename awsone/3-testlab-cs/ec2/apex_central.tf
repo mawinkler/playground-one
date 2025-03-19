@@ -1,66 +1,39 @@
 # #############################################################################
-# Windows Member Servers / Clients
+# Apex Central
 # #############################################################################
-resource "random_password" "windows_password" {
-  length           = 16
-  special          = true
-  override_special = "!#$%&*()-_=+[]{}<>:?"
-}
-
-# Compute the AMI list: use provided AMIs or fallback to default AMI
-locals {
-  ami_list = length(var.ami_windows_client) > 0 ? var.ami_windows_client : [
-    for i in range(var.windows_client_count) : data.aws_ami.windows.id
-  ]
-
-  default_subnet1 = "10.0.1.0/24"
-  ip_addresses = [for i in range(10, 10 + var.windows_client_count) : cidrhost(local.default_subnet1, i)]
-}
-
-resource "aws_network_interface" "windows_client_eni" {
-  for_each   = { for idx, ip in local.ip_addresses : idx => ip }
-  subnet_id       = var.private_subnets[1]
-  private_ips     = [each.value]
+resource "aws_network_interface" "apex_one_central_eni" {
+  subnet_id       = var.private_subnets[0]
+  private_ips     = ["10.0.0.23"]
   security_groups = [var.private_security_group_id]
 }
 
-resource "aws_instance" "windows_client" {
+resource "aws_instance" "apex_one_central" {
 
-  for_each                    = { for idx, ami in local.ami_list : idx => ami }
-  ami                         = each.value
-  instance_type               = var.windows_instance_type
+  count = var.create_apex_one_central ? 1 : 0
+
+  ami                         = var.ami_apex_one_central != "" ? var.ami_apex_one_central : data.aws_ami.windows.id
+  instance_type               = var.apex_instance_type
   iam_instance_profile        = var.ec2_profile
   key_name                    = var.key_name
+  user_data                   = local.userdata_apex_one_central
   get_password_data           = false
   user_data_replace_on_change = true
 
   network_interface {
-    network_interface_id = aws_network_interface.windows_client_eni[each.key].id
+    network_interface_id = aws_network_interface.apex_one_central_eni.id
     device_index         = 0 # Primary network interface
   }
 
-  user_data = templatefile("${path.module}/userdata_windows_client.tftpl", {
-    s3_bucket                = var.s3_bucket
-    windows_ad_user_name     = var.windows_username
-    windows_ad_hostname      = "Client-${each.key}"
-    windows_ad_safe_password = var.windows_ad_safe_password
-    windows_ad_domain_name   = var.active_directory ? var.windows_ad_domain_name : ""
-
-    userdata_windows_winrm   = local.userdata_function_windows_winrm
-    userdata_windows_ssh     = local.userdata_function_windows_ssh
-    userdata_windows_aws     = local.userdata_function_windows_aws
-    userdata_windows_join_ad = local.userdata_function_windows_join_ad
-  })
 
   root_block_device {
-    volume_size           = var.windows_root_volume_size
-    volume_type           = var.windows_root_volume_type
+    volume_size           = var.apex_root_volume_size
+    volume_type           = var.apex_root_volume_type
     delete_on_termination = true
     encrypted             = true
   }
 
   tags = {
-    Name          = "${var.environment}-windows-client-${each.key}"
+    Name          = "${var.environment}-apex-one-central"
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "testlab-cs"

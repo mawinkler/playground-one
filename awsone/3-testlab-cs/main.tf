@@ -100,7 +100,7 @@ module "bastion" {
   private_key_path         = data.terraform_remote_state.vpc.outputs.private_key_path
   ec2_profile              = module.iam.ec2_profile
   linux_username           = "ubuntu"
-  dsm_private_ip           = "10.0.0.${random_integer.dsm_ip_octet.result}"
+  dsm_private_ip            = "10.0.0.20"
 
   ami_bastion = try(var.ami_bastion, "")
 }
@@ -121,7 +121,7 @@ module "dsm" {
   public_key                = data.terraform_remote_state.vpc.outputs.public_key
   private_key_path          = data.terraform_remote_state.vpc.outputs.private_key_path
   ec2_profile               = module.iam.ec2_profile
-  dsm_private_ip            = "10.0.0.${random_integer.dsm_ip_octet.result}"
+  dsm_private_ip            = "10.0.0.20"
   s3_bucket                 = module.s3.s3_bucket
   linux_username            = var.linux_username
 
