@@ -3,7 +3,7 @@
 # #############################################################################
 resource "aws_network_interface" "wireguard_eni" {
   subnet_id       = var.public_subnets[0]
-  private_ips     = ["10.0.4.10"]
+  private_ips     = [var.vpn_private_ip]
   security_groups = [aws_security_group.wireguard["public"].id]
 }
 
@@ -18,9 +18,9 @@ resource "aws_eip" "wireguard" {
 }
 
 resource "aws_instance" "wireguard" {
-  count         = 1
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = "t4g.nano"
+  count                       = 1
+  ami                         = data.aws_ami.ubuntu.id
+  instance_type               = "t4g.nano"
   user_data                   = local.userdata
   user_data_replace_on_change = true
 

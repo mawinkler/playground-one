@@ -32,6 +32,7 @@ module "vpn" {
   public_subnets       = module.vpc.public_subnets.*
   public_subnets_cidr  = module.vpc.public_subnet_cidr_blocks
   private_subnets_cidr = module.vpc.private_subnet_cidr_blocks
+  vpn_private_ip       = var.vpn_private_ip
 }
 
 # module "vpn-awsclient" {
@@ -71,6 +72,8 @@ module "ad" {
   windows_ad_nebios_name    = upper(var.environment)
   windows_ad_user_name      = var.ad_domain_admin
   windows_ad_safe_password  = var.ad_admin_password
+  pgo_dc_private_ip         = var.pgo_dc_private_ip
+  pgo_ca_private_ip         = var.pgo_ca_private_ip
 
   ami_active_directory_dc = try(var.ami_active_directory_dc, "")
   ami_active_directory_ca = try(var.ami_active_directory_ca, "")

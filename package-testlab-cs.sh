@@ -26,4 +26,7 @@ cp $(terraform -chdir=${ONEPATH}/awsone/2-network output -raw private_key_path) 
 
 ls -lR ${package_name}
 
+rm -f ${package_name}.tgz
 tar cfvz ${package_name}.tgz ${package_name}
+
+cp ${package_name}.tgz ${ONEPATH}

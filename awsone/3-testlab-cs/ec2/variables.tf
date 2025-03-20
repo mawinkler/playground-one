@@ -96,3 +96,9 @@ variable "create_apex_one_server" {}
 variable "create_apex_one_central" {}
 
 variable "windows_client_count" {}
+
+variable "apex_central_private_ip" {}
+
+variable "apex_one_private_ip" {}
+
+variable "windows_server_private_ip" {}

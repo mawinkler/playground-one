@@ -8,7 +8,7 @@ resource "random_string" "psql_password" {
 
 resource "aws_network_interface" "postgres_eni" {
   subnet_id       = var.private_subnets[0]
-  private_ips     = ["10.0.0.24"]
+  private_ips     = [var.postgresql_private_ip]
   security_groups = [var.private_security_group_id]
 }
 

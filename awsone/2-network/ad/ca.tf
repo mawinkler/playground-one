@@ -4,7 +4,7 @@
 resource "aws_network_interface" "windows-server-ca" {
   subnet_id       = var.vpn_gateway ? var.private_subnets[0] : var.public_subnets[0]
   security_groups = var.vpn_gateway ? [var.private_security_group_id] : [var.public_security_group_id]
-  private_ips     = ["10.0.0.11"]
+  private_ips     = [var.pgo_ca_private_ip]
 
   tags = {
     Name          = "${var.environment}-pgo-ca-ni"

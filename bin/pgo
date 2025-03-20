@@ -2179,7 +2179,7 @@ function snapshot_retrieve() {
         fi
       done
       ami_windows_client="${ami_windows_client%,}]"
-echo $ami_postgresql
+
       if [ -z "${ami_apex_one_server}" ]; then
         yq -i 'del(.services.aws.configuration.testlab-cs.ami-apex-one-server)' ${ONEPATH}/config.yaml
       else

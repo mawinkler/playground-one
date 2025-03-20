@@ -5,16 +5,16 @@
 # #############################################################################
 resource "aws_network_interface" "bastion_eni" {
   subnet_id       = var.public_subnets[0]
-  private_ips     = ["10.0.4.11"]
+  private_ips     = [var.bastion_private_ip]
   security_groups = [var.public_security_group_id]
 }
 
 resource "aws_instance" "bastion" {
 
-  ami                    = var.ami_bastion != "" ? var.ami_bastion : data.aws_ami.ubuntu.id
-  instance_type          = "t3.micro"
-  iam_instance_profile   = var.ec2_profile
-  key_name               = var.key_name
+  ami                  = var.ami_bastion != "" ? var.ami_bastion : data.aws_ami.ubuntu.id
+  instance_type        = "t3.micro"
+  iam_instance_profile = var.ec2_profile
+  key_name             = var.key_name
 
   network_interface {
     network_interface_id = aws_network_interface.bastion_eni.id

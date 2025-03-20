@@ -24,4 +24,6 @@ variable "ami_bastion" {
 
 variable "linux_username" {}
 
+variable "bastion_private_ip" {}
+
 variable "dsm_private_ip" {}

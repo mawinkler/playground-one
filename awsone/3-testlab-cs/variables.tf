@@ -126,3 +126,34 @@ variable "rds_name" {
 variable "rds_username" {
   type = string
 }
+
+#
+# Deep Security Database
+#
+
+#
+# Static IPs
+#
+variable "dsm_private_ip" {
+  type = string
+}
+
+variable "bastion_private_ip" {
+  type = string
+}
+
+variable "apex_central_private_ip" {
+  type = string
+}
+
+variable "apex_one_private_ip" {
+  type = string
+}
+
+variable "windows_server_private_ip" {
+  type = string
+}
+
+variable "postgresql_private_ip" {
+  type = string
+}

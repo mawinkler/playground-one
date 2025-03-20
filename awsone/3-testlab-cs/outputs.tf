@@ -164,7 +164,7 @@ output "ssh_instance_postgres" {
 #
 # Deep Security Manager
 #
-output "ssh_instance_dsm" {
+output "dsm_ssh" {
   value = length(module.dsm) > 0 ? module.dsm[0].ssh_instance_dsm : null
 }
 
@@ -181,5 +181,5 @@ output "ds_apikey" {
 }
 
 output "dsm_private_ip" {
-  value = "10.0.0.20"
+  value = var.dsm_private_ip
 }

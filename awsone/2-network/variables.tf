@@ -105,3 +105,18 @@ variable "deep_discovery_inspector" {
   type    = bool
   default = false
 }
+
+#
+# Static IPs
+#
+variable "pgo_dc_private_ip" {
+  type = string
+}
+
+variable "pgo_ca_private_ip" {
+  type = string
+}
+
+variable "vpn_private_ip" {
+  type = string
+}

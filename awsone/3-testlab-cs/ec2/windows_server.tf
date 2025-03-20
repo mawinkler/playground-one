@@ -13,12 +13,12 @@ locals {
     for i in range(var.windows_client_count) : data.aws_ami.windows.id
   ]
 
-  default_subnet1 = "10.0.1.0/24"
-  ip_addresses = [for i in range(10, 10 + var.windows_client_count) : cidrhost(local.default_subnet1, i)]
+  default_subnet1 = "${var.windows_server_private_ip}/24"
+  ip_addresses    = [for i in range(10, 10 + var.windows_client_count) : cidrhost(local.default_subnet1, i)]
 }
 
 resource "aws_network_interface" "windows_client_eni" {
-  for_each   = { for idx, ip in local.ip_addresses : idx => ip }
+  for_each        = { for idx, ip in local.ip_addresses : idx => ip }
   subnet_id       = var.private_subnets[1]
   private_ips     = [each.value]
   security_groups = [var.private_security_group_id]

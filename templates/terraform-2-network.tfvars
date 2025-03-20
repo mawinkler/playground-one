@@ -39,3 +39,8 @@ vns_token = "${pgo_virtual_network_sensor_token}"
 
 # Deep Discovery Inspector
 deep_discovery_inspector = ${pgo_deep_discovery_inspector_enabled}
+
+# Static IPs
+pgo_dc_private_ip = "10.0.0.10"
+pgo_ca_private_ip = "10.0.0.11"
+vpn_private_ip = "10.0.4.10"

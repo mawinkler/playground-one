@@ -23,6 +23,9 @@ module "ec2" {
   create_apex_one_server    = var.create_apex_one_server
   create_apex_one_central   = var.create_apex_one_central
   windows_client_count      = var.windows_client_count
+  apex_central_private_ip   = var.apex_central_private_ip
+  apex_one_private_ip       = var.apex_one_private_ip
+  windows_server_private_ip = var.windows_server_private_ip
 
   ami_apex_one_server  = try(var.ami_apex_one_server, "")
   ami_apex_one_central = try(var.ami_apex_one_central, "")
@@ -82,6 +85,7 @@ module "psql" {
   psql_name                 = var.rds_name
   psql_username             = var.rds_username
   psql_password             = "TrendMicro.1"
+  postgresql_private_ip     = var.postgresql_private_ip
 
   ami_postgresql = try(var.ami_postgresql, "")
 
@@ -102,7 +106,8 @@ module "bastion" {
   private_key_path         = data.terraform_remote_state.vpc.outputs.private_key_path
   ec2_profile              = module.iam.ec2_profile
   linux_username           = "ubuntu"
-  dsm_private_ip            = "10.0.0.20"
+  bastion_private_ip       = var.bastion_private_ip
+  dsm_private_ip           = var.dsm_private_ip
 
   ami_bastion = try(var.ami_bastion, "")
 }
@@ -123,7 +128,7 @@ module "dsm" {
   public_key                = data.terraform_remote_state.vpc.outputs.public_key
   private_key_path          = data.terraform_remote_state.vpc.outputs.private_key_path
   ec2_profile               = module.iam.ec2_profile
-  dsm_private_ip            = "10.0.0.20"
+  dsm_private_ip            = var.dsm_private_ip
   s3_bucket                 = module.s3.s3_bucket
   linux_username            = var.linux_username
 

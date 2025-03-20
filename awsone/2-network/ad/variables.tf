@@ -75,3 +75,7 @@ variable "virtual_network_sensor" {}
 variable "vns_va_traffic_mirror_filter_id" {}
 
 variable "vns_va_traffic_mirror_target_id" {}
+
+variable "pgo_dc_private_ip" {}
+
+variable "pgo_ca_private_ip" {}

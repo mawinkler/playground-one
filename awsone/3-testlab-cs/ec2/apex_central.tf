@@ -3,7 +3,7 @@
 # #############################################################################
 resource "aws_network_interface" "apex_one_central_eni" {
   subnet_id       = var.private_subnets[0]
-  private_ips     = ["10.0.0.23"]
+  private_ips     = [var.apex_central_private_ip]
   security_groups = [var.private_security_group_id]
 }
 

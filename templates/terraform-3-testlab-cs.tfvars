@@ -9,7 +9,7 @@ aws_secret_key = "${aws_pgo_user_secret_key}"
 access_ip = ${pgo_access_ip}
 
 # Windows Username
-windows_username = "admin"
+windows_username = "administrator"
 
 # Environment Name
 environment = "${environment_name}"
@@ -41,3 +41,11 @@ dsm_password = "${deep_security_password}"
 # Deep Security Database
 rds_name = "deepsecurity"
 rds_username = "dsm"
+
+# Static IPs
+dsm_private_ip = "10.0.0.20"
+bastion_private_ip = "10.0.4.11"
+apex_central_private_ip = "10.0.0.23"
+apex_one_private_ip = "10.0.0.22"
+windows_server_private_ip = "10.0.1.0"
+postgresql_private_ip = "10.0.0.24"
