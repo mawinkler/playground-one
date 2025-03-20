@@ -136,3 +136,19 @@ logout
 
 wg-quick down generated/admin.conf
 ```
+
+## Private IP Assignments
+
+Configuration | Instance     | Public Subnet | Private Subnet # | IP
+------------- | ------------ | ------------- | ---------------- | --
+Network       | wireguard    | 10.0.4.10     |                  |
+TestLab-CS    | Bastion      | 10.0.4.11     |                  |
+Network       | pgo-dc       |               | 10.0.0.10        |
+Network       | pgo-ca       |               | 10.0.0.11        |
+TestLab-CS    | DSM          |               | 10.0.0.20        |
+TestLab-CS    | Apex One     |               | 10.0.0.22        |
+TestLab-CS    | Apex Central |               | 10.0.0.23        |
+TestLab-CS    | PostgreSQL   |               | 10.0.0.24        |
+TestLab-CS    | Client 0     |               | 10.0.1.10        |
+TestLab-CS    | Client 1     |               | 10.0.1.11        |
+TestLab-CS    | Client x     |               | 10.0.1.xx        |

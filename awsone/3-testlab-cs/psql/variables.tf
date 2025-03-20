@@ -20,6 +20,12 @@ variable "ec2_profile" {}
 #
 variable "linux_username" {}
 
+variable "ami_postgresql" {
+  type        = string
+  description = "AMI to use for instance creation."
+  default     = ""
+}
+
 variable "psql_name" {}
 
 variable "psql_username" {}

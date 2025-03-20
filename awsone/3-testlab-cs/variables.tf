@@ -94,6 +94,12 @@ variable "ami_dsm" {
   default     = ""
 }
 
+variable "ami_postgresql" {
+  type        = string
+  description = "AMI to use for instance creation."
+  default     = ""
+}
+
 variable "linux_username" {
   type = string
 }

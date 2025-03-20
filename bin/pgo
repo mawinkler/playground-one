@@ -2156,6 +2156,7 @@ function snapshot_retrieve() {
       ami_windows_client="["
       ami_bastion=""
       ami_dsm=""
+      ami_postgresql=""
       for ami in ${ami_list}; do
         printf '%s\n' $ami
         if [[ $ami =~ .*apex-one-central.* ]]; then
@@ -2173,9 +2174,12 @@ function snapshot_retrieve() {
         if [[ $ami =~ .*dsm.* ]]; then
           ami_dsm=${ami#*=}
         fi
+        if [[ $ami =~ .*postgresql.* ]]; then
+          ami_postgresql=${ami#*=}
+        fi
       done
       ami_windows_client="${ami_windows_client%,}]"
-
+echo $ami_postgresql
       if [ -z "${ami_apex_one_server}" ]; then
         yq -i 'del(.services.aws.configuration.testlab-cs.ami-apex-one-server)' ${ONEPATH}/config.yaml
       else
@@ -2206,12 +2210,19 @@ function snapshot_retrieve() {
         target_val=${ami_dsm} \
           yq -i '.services.aws.configuration.testlab-cs.ami-dsm = env(target_val)' ${ONEPATH}/config.yaml
       fi
+      if [ -z "${ami_postgresql}" ]; then
+        yq -i 'del(.services.aws.configuration.testlab-cs.ami-postgresql)' ${ONEPATH}/config.yaml
+      else
+        target_val=${ami_postgresql} \
+          yq -i '.services.aws.configuration.testlab-cs.ami-postgresql = env(target_val)' ${ONEPATH}/config.yaml
+      fi
 
       sed -i "/^ami_apex_one_server = .*/c  ami_apex_one_server = \"${ami_apex_one_server}\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_apex_one_central = .*/c  ami_apex_one_central = \"${ami_apex_one_central}\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_windows_client = .*/c  ami_windows_client = ${ami_windows_client}" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_bastion = .*/c  ami_bastion = \"${ami_bastion}\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_dsm = .*/c  ami_dsm = \"${ami_dsm}\"" ${configs[testlab-cs]}/terraform.tfvars
+      sed -i "/^ami_postgresql = .*/c  ami_postgresql = \"${ami_postgresql}\"" ${configs[testlab-cs]}/terraform.tfvars
 
       printf '%s\n' "${configs[testlab-cs]}/terraform.tfvars patched."
 

@@ -28,9 +28,10 @@ windows_client_count = 2
 linux_username = "ec2-user"
 
 # Deep Security
-create_dsm = false
+create_dsm = true
 ami_bastion = "${ami_bastion}"
 ami_dsm = "${ami_dsm}"
+ami_postgresql = "${ami_postgresql}"
 
 # Deep Security Manager
 dsm_license = "${deep_security_license}"

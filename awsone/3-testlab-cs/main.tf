@@ -83,6 +83,8 @@ module "psql" {
   psql_username             = var.rds_username
   psql_password             = "TrendMicro.1"
 
+  ami_postgresql = try(var.ami_postgresql, "")
+
   bastion_public_ip   = module.bastion[0].bastion_public_ip
   bastion_private_ip  = module.bastion[0].bastion_private_ip
   bastion_private_key = data.terraform_remote_state.vpc.outputs.private_key
