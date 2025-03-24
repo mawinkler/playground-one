@@ -22,10 +22,16 @@ then
 fi
 
 # Check if sudo is installed.
-if ! command -v sudo &> /dev/null
-then
-    echo "sudo could not be found."
-    exit
+SUDO_CMD=""
+if [ "$EUID" -eq 0 ]; then
+    echo "Running as root"
+else
+    if ! command -v sudo &> /dev/null
+    then
+        echo "sudo could not be found."
+        exit
+    fi
+    SUDO_CMD=sudo
 fi
 
 BASE_METADATA_URL="https://cli.artifactscan.cloudone.trendmicro.com/tmas-cli/"
@@ -69,5 +75,5 @@ else
 fi
 
 echo Moving the binaries to /usr/local/bin/
-sudo mv tmfs /usr/local/bin/
-sudo mv tmas /usr/local/bin/
+$SUDO_CMD mv tmfs /usr/local/bin/
+$SUDO_CMD mv tmas /usr/local/bin/
