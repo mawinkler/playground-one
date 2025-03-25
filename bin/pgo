@@ -354,6 +354,8 @@ function init() {
       pgo_deep_discovery_inspector_enabled=${pgo_deep_discovery_inspector_enabled} \
       ami_active_directory_dc=${ami_network_active_directory_dc} \
       ami_active_directory_ca=${ami_network_active_directory_ca} \
+      ami_service_gateway=${ami_service_gateway} \
+      ami_deep_discovery_inspector=${ami_deep_discovery_inspector} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-2-network.tfvars >${configs[network]}/terraform.tfvars
       
@@ -2117,6 +2119,8 @@ function snapshot_retrieve() {
 
       ami_active_directory_dc=""
       ami_active_directory_ca=""
+      ami_service_gateway=""
+      ami_deep_discovery_inspector=""
       for ami in ${ami_list}; do
         printf '%s\n' $ami
         if [[ $ami =~ .*-dc.* ]]; then
@@ -2124,6 +2128,12 @@ function snapshot_retrieve() {
         fi
         if [[ $ami =~ .*-ca.* ]]; then
           ami_active_directory_ca=${ami#*=}
+        fi
+        if [[ $ami =~ .*-sg.* ]]; then
+          ami_service_gateway=${ami#*=}
+        fi
+        if [[ $ami =~ .*-ddi.* ]]; then
+          ami_deep_discovery_inspector=${ami#*=}
         fi
       done
 
@@ -2139,9 +2149,23 @@ function snapshot_retrieve() {
         target_val=${ami_active_directory_ca} \
           yq -i '.services.aws.configuration.network.ami-active-directory-ca = env(target_val)' ${ONEPATH}/config.yaml
       fi
+      if [ -z "${ami_service_gateway}" ]; then
+        yq -i 'del(.services.aws.configuration.network.ami-service-gateway)' ${ONEPATH}/config.yaml
+      else
+        target_val=${ami_service_gateway} \
+          yq -i '.services.aws.configuration.network.ami-service-gateway = env(target_val)' ${ONEPATH}/config.yaml
+      fi
+      if [ -z "${ami_deep_discovery_inspector}" ]; then
+        yq -i 'del(.services.aws.configuration.network.ami-deep-discovery-inspector)' ${ONEPATH}/config.yaml
+      else
+        target_val=${ami_deep_discovery_inspector} \
+          yq -i '.services.aws.configuration.network.ami-deep-discovery-inspector = env(target_val)' ${ONEPATH}/config.yaml
+      fi
 
       sed -i "/^ami_active_directory_dc = .*/c  ami_active_directory_dc = \"${ami_active_directory_dc}\"" ${configs[network]}/terraform.tfvars
       sed -i "/^ami_active_directory_ca = .*/c  ami_active_directory_ca = \"${ami_active_directory_ca}\"" ${configs[network]}/terraform.tfvars
+      sed -i "/^ami_service_gateway = .*/c  ami_service_gateway = \"${ami_service_gateway}\"" ${configs[network]}/terraform.tfvars
+      sed -i "/^ami_deep_discovery_inspector = .*/c  ami_deep_discovery_inspector = \"${ami_deep_discovery_inspector}\"" ${configs[network]}/terraform.tfvars
 
       printf '%s\n' "${configs[network]}/terraform.tfvars patched."
       ;;&

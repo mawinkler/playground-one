@@ -102,20 +102,118 @@ ad_admin_password = TrendMicro.1
 
 ## Life-Cycle
 
-### Configure Instances
-
-In `terraform.tfvars`. Example:
-
-```tf
-create_apex_one_server = true
-create_apex_one_central = true
-windows_client_count = 2
-```
-
-### Create Testlab-CS
+### Create Satellite
 
 ```sh
-# With SG and PGO AD enabled
+pgo --apply satellite
+```
+
+When instance is running connect via AWS EC2 Instance Connect.
+
+### Check PGO Configuration
+
+```sh
+cd playground-one
+mv ../config.yaml .
+
+pgo --config
+```
+
+```sh
+ __                 __   __   __             __      __        ___ 
+|__) |     /\  \ / / _` |__) /  \ |  | |\ | |  \    /  \ |\ | |__  
+|    |___ /~~\  |  \__> |  \ \__/ \__/ | \| |__/    \__/ | \| |___ 
+                                                                   
+Using PDO User Access Key ID: ...4DMF
+!!! Access IP mismatch !!!
+
+Section: Playground One
+Please set/update your Playground One configuration
+Initialize Terraform Configurations? [false]: true
+PGO Environment Name [pgo-cs]: 
+Access IPs/CIDRs [87.170.20.71/32]: 87.170.20.71/32
+Public IP of EC2 instance running PGO [87.170.20.71/32]: pub
+Public IP(s)/CIDR(s): ["87.170.20.71/32","18.194.28.201/32"]
+Running in Product Experience? [false]: 
+
+Section: AWS
+Please set/update your AWS configuration
+Account ID [634503960501]: 
+Region Name [eu-central-1]: 
+Use PGO User? [true]: 
+PGO User Access Key [AKIAZHO3CC62R6C64DMF]: 
+PGO User Secret Key [DM5kpOKsBl...]: 
+VPN - create PGO VPN Gateway? [true]: 
+AD - create PGO Active Directory? [true]: 
+MAD - create Managed Active Directory? [false]: 
+SG - create Service Gateway? [false]: 
+PAC - create Private Access Gateway? [false]: 
+VNS - create Virtual Network Sensor? [false]: 
+DDI - create Deep Discovery Inspector? [false]: 
+...
+
+Section: Vision One
+Please set/update your Vision One configuration
+API Key [eyJ0eXAiOi...]: 
+Region Name [us-east-1]: 
+ASRM - Create Predictive Attack Path(s)? [false]: 
+Enable Endpoint Security Automatic Deployment? [true]: 
+Endpoint Security Agent Type (TMServerAgent|TMSensorAgent) [TMServerAgent]: 
+...
+
+Section: Deep Security (on-prem)
+Please set/update your Deep Security configuration
+Enable Deep Security? [true]: 
+License [AP-3VP6-KV...]:
+Username [masteradmin]: 
+Password [playground]: 
+```
+
+### Retrieve Snapshot
+
+Currently, we use tag: `20250324-01`
+
+```sh
+pgo --snapshot-retrieve nw
+ __                 __   __   __             __      __        ___ 
+|__) |     /\  \ / / _` |__) /  \ |  | |\ | |  \    /  \ |\ | |__  
+|    |___ /~~\  |  \__> |  \ \__/ \__/ | \| |__/    \__/ | \| |___ 
+                                                                   
+Using PDO User Access Key ID: ...4DMF
+Configuration name: nw
+Snapshot Name []: 20250324-01
+Retrieveing AMIs with Snapshot Name=20250324-01
+pgo-cs-pgo-ca=ami-05a12f55ae7405bcd
+pgo-cs-pgo-dc=ami-0e61a9f4e07e7a6bf
+pgo-cs-wireguard=ami-05b9d82424f512bfe
+/home/ubuntu/playground-one/awsone/2-network/terraform.tfvars patched.
+```
+
+```sh
+pgo --snapshot-retrieve testlab-cs
+ __                 __   __   __             __      __        ___ 
+|__) |     /\  \ / / _` |__) /  \ |  | |\ | |  \    /  \ |\ | |__  
+|    |___ /~~\  |  \__> |  \ \__/ \__/ | \| |__/    \__/ | \| |___ 
+                                                                   
+Using PDO User Access Key ID: ...4DMF
+Configuration name: testlab-cs
+Snapshot Name []: 20250324-01
+Retrieveing AMIs with Snapshot Name=20250324-01
+pgo-cs-apex-one-central=ami-0ec4d20a387209e4c
+pgo-cs-apex-one-server=ami-0262e4fa611cede56
+pgo-cs-bastion=ami-0cee542f7127666ee
+pgo-cs-dsm=ami-05924c7d9d2b13b5b
+pgo-cs-postgresql=ami-072674ffa536a172b
+pgo-cs-windows-client-0=ami-0d52d610877fedd3b
+pgo-cs-windows-client-1=ami-020fc9b9b0428cecb
+/home/ubuntu/playground-one/awsone/3-testlab-cs/terraform.tfvars patched.
+```
+
+### Create Network and Testlab-CS
+
+```sh
+pgo --apply network
+
 pgo --apply testlab-cs
 ```
 
@@ -191,3 +289,21 @@ pgo --freeze nw-delete
 ```
 
 🎉 Success 🎉
+
+## Private IP Assignments
+
+Configuration | Instance     | Private IP
+------------- | ------------ | ----------
+Network       | Wireguard*   | 10.0.4.10 
+TestLab-CS    | Bastion*     | 10.0.4.11 
+Network       | pgo-dc       | 10.0.0.10 
+Network       | pgo-ca       | 10.0.0.11 
+Network       | sg           | 10.0.0.12
+TestLab-CS    | DSM          | 10.0.0.20 
+TestLab-CS    | Apex One     | 10.0.0.22 
+TestLab-CS    | Apex Central | 10.0.0.23 
+TestLab-CS    | PostgreSQL   | 10.0.0.24 
+Network       | ddi          | 10.0.1.2
+TestLab-CS    | Client 0     | 10.0.1.10 
+TestLab-CS    | Client 1     | 10.0.1.11 
+TestLab-CS    | Client x     | 10.0.1.xx 

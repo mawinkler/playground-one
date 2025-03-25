@@ -88,17 +88,23 @@ module "sg" {
 
   source = "./sg"
 
-  access_ip                = var.access_ip
-  environment              = var.environment
-  vpc_id                   = module.vpc.vpc_id
-  public_security_group_id = module.ec2.public_security_group_id
-  public_subnets           = module.vpc.public_subnets.*
-  public_subnets_cidr      = module.vpc.public_subnet_cidr_blocks
-  private_subnets_cidr     = module.vpc.private_subnet_cidr_blocks
-  key_name                 = module.ec2.key_name
-  public_key               = module.ec2.public_key
-  private_key_path         = module.ec2.private_key_path
-  instance_type            = "c5.2xlarge"
+  access_ip                 = var.access_ip
+  environment               = var.environment
+  vpc_id                    = module.vpc.vpc_id
+  public_security_group_id  = module.ec2.public_security_group_id
+  private_security_group_id = module.ec2.private_security_group_id
+  public_subnets            = module.vpc.public_subnets.*
+  private_subnets           = module.vpc.private_subnets.*
+  public_subnets_cidr       = module.vpc.public_subnet_cidr_blocks
+  private_subnets_cidr      = module.vpc.private_subnet_cidr_blocks
+  key_name                  = module.ec2.key_name
+  vpn_gateway               = var.vpn_gateway
+  public_key                = module.ec2.public_key
+  private_key_path          = module.ec2.private_key_path
+  instance_type             = "c5.2xlarge"
+  pgo_sg_private_ip         = var.pgo_sg_private_ip
+
+  ami_service_gateway = try(var.ami_service_gateway, "")
 }
 
 module "vns" {
@@ -130,7 +136,12 @@ module "ddi" {
   public_subnets_cidr      = module.vpc.public_subnet_cidr_blocks
   private_subnets_cidr     = module.vpc.private_subnet_cidr_blocks
   key_name                 = module.ec2.key_name
+  vpn_gateway              = var.vpn_gateway
   public_key               = module.ec2.public_key
   private_key_path         = module.ec2.private_key_path
   instance_type            = "m5a.2xlarge"
+  pgo_ddi_private_ip       = var.pgo_ddi_private_ip
+  pgo_ddi_subnet_no        = 1
+
+  ami_deep_discovery_inspector = try(var.ami_deep_discovery_inspector, "")
 }

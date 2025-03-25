@@ -86,6 +86,12 @@ variable "service_gateway" {
   type = bool
 }
 
+variable "ami_service_gateway" {
+  type        = string
+  description = "AMI to use for instance creation."
+  default     = ""
+}
+
 #
 # Virtual Network Ssensor
 #
@@ -106,6 +112,12 @@ variable "deep_discovery_inspector" {
   default = false
 }
 
+variable "ami_deep_discovery_inspector" {
+  type        = string
+  description = "AMI to use for instance creation."
+  default     = ""
+}
+
 #
 # Static IPs
 #
@@ -114,6 +126,14 @@ variable "pgo_dc_private_ip" {
 }
 
 variable "pgo_ca_private_ip" {
+  type = string
+}
+
+variable "pgo_sg_private_ip" {
+  type = string
+}
+
+variable "pgo_ddi_private_ip" {
   type = string
 }
 

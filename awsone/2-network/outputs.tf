@@ -167,8 +167,8 @@ output "mad_admin_password" {
 #
 # Service Gateway
 #
-output "sg_va_ip" {
-  value = var.service_gateway ? module.sg[0].public_instance_ip_sg_va : null
+output "sg_va_pip" {
+  value = var.service_gateway ? module.sg[0].instance_sg_va_pip : null
 }
 
 output "sg_va_ssh" {
@@ -207,13 +207,13 @@ output "vns_va_traffic_mirror_target_id" {
 #
 # Deep Discovery Inspector
 #
-output "ddi_va_ip" {
-  value = var.deep_discovery_inspector ? module.ddi[0].ddi_va_ip : null
+output "ddi_va_pip" {
+  value = var.deep_discovery_inspector ? module.ddi[0].ddi_va_pip : null
 }
 
-output "ddi_va_pip_dataport" {
-  value = var.deep_discovery_inspector ? module.ddi[0].ddi_va_pip_dataport_public : null
-}
+# output "ddi_va_pip_dataport" {
+#   value = var.deep_discovery_inspector ? module.ddi[0].ddi_va_pip_dataport_public : null
+# }
 
 # output "ddi_va_pip_dataport_private_subnet" {
 #   value = var.deep_discovery_inspector ? module.ddi[0].ddi_va_pip_dataport_private : null
@@ -231,6 +231,6 @@ output "ddi_va_traffic_mirror_filter_id" {
   value = var.deep_discovery_inspector ? module.ddi[0].ddi_va_traffic_mirror_filter_id : null
 }
 
-output "ddi_va_traffic_mirror_target_id" {
-  value = var.deep_discovery_inspector ? module.ddi[0].ddi_va_traffic_mirror_target_id : null
-}
+# output "ddi_va_traffic_mirror_target_id" {
+#   value = var.deep_discovery_inspector ? module.ddi[0].ddi_va_traffic_mirror_target_id : null
+# }

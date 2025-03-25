@@ -31,6 +31,7 @@ managed_active_directory = ${managed_active_directory}
 
 # Vision One Security Gateway
 service_gateway = ${service_gateway}
+ami_service_gateway = "${ami_service_gateway}"
 
 # Virtual Network Sensor
 virtual_network_sensor = ${pgo_virtual_network_sensor_enabled}
@@ -39,8 +40,11 @@ vns_token = "${pgo_virtual_network_sensor_token}"
 
 # Deep Discovery Inspector
 deep_discovery_inspector = ${pgo_deep_discovery_inspector_enabled}
+ami_deep_discovery_inspector = "${ami_deep_discovery_inspector}"
 
 # Static IPs
 pgo_dc_private_ip = "10.0.0.10"
 pgo_ca_private_ip = "10.0.0.11"
+pgo_sg_private_ip = "10.0.0.12"
+pgo_ddi_private_ip = "10.0.1.9"
 vpn_private_ip = "10.0.4.10"

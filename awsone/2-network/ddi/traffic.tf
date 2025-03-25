@@ -28,10 +28,17 @@ resource "aws_ec2_traffic_mirror_filter_rule" "ddi_traffic_filter_out" {
   traffic_direction        = "egress"
 }
 
-resource "aws_ec2_traffic_mirror_target" "ddi_traffic_filter_target" {
-  depends_on           = [ aws_network_interface.ddi_va_ni_data_public, aws_instance.ddi_va ]
+resource "aws_ec2_traffic_mirror_target" "ddi_traffic_filter_target_private" {
+  depends_on = [aws_network_interface.ddi_va_ni_data_private, aws_instance.ddi_va]
 
-  description          = "Data Port Target"
+  description          = "Data Port Target Private"
+  network_interface_id = aws_network_interface.ddi_va_ni_data_private.id
+}
+
+resource "aws_ec2_traffic_mirror_target" "ddi_traffic_filter_target_public" {
+  depends_on = [aws_network_interface.ddi_va_ni_data_public, aws_instance.ddi_va]
+
+  description          = "Data Port Target Public"
   network_interface_id = aws_network_interface.ddi_va_ni_data_public.id
 }
 
