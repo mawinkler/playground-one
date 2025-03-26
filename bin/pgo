@@ -1977,26 +1977,34 @@ function freeze_configuration() {
   unset AWS_ACCESS_KEY_ID
   unset AWS_SECRET_ACCESS_KEY
   for instance_id in ${instance_ids}; do
-    aws ec2 stop-instances --instance-ids ${instance_id}
-    i=1
-    while [ $i -le 60 ]; do
-      if is_instance_stopped ${instance_id}; then
-        break
-      fi
-      printf '%s\n' "Waiting for instance ${instance_id} to be in stopped state"
-      sleep 5
-    done
+    # Get Instance IDs to snapshot
     instance_name=$(aws ec2 describe-instances --instance-ids ${instance_id} | jq -r '.Reservations[0].Instances[0].Tags[] | select(.Key=="Name") | .Value')
-    printf '%s\n' "Creating AMI of ${instance_id} with name ${instance_name}"
-    aws ec2 create-image \
-      --instance-id ${instance_id} \
-      --name "${configuration_name}-${instance_name}-${snapshot_name}" \
-      --tag-specifications "ResourceType=image,Tags=[{Key=Environment,Value=${environment_name}},
-                                                      {Key=Product,Value=playground-one},
-                                                      {Key=Configuration,Value=${configuration_name}},
-                                                      {Key=Name,Value=${configuration_name}-${snapshot_name}},
-                                                      {Key=Created,Value=${datestr}},
-                                                      {Key=InstanceName,Value=${instance_name}}]"
+
+    # Filter out DDI, SG
+    if [[ ! "$instance_name" == *"ddi-va"* && ! "$instance_name" == *"sg-va"* ]]; then
+      aws ec2 stop-instances --instance-ids ${instance_id}
+      i=1
+      while [ $i -le 60 ]; do
+        if is_instance_stopped ${instance_id}; then
+          break
+        fi
+        printf '%s\n' "Waiting for instance ${instance_id} to be in stopped state"
+        sleep 5
+      done
+
+      printf '%s\n' "Creating AMI of ${instance_id} with name ${instance_name}"
+      aws ec2 create-image \
+        --instance-id ${instance_id} \
+        --name "${configuration_name}-${instance_name}-${snapshot_name}" \
+        --tag-specifications "ResourceType=image,Tags=[{Key=Environment,Value=${environment_name}},
+                                                        {Key=Product,Value=playground-one},
+                                                        {Key=Configuration,Value=${configuration_name}},
+                                                        {Key=Name,Value=${configuration_name}-${snapshot_name}},
+                                                        {Key=Created,Value=${datestr}},
+                                                        {Key=InstanceName,Value=${instance_name}}]"
+    else
+      printf '%s\n' "Skipping instance ${instance_id}"
+    fi
   done
 }
 
@@ -2054,26 +2062,36 @@ function freeze_delete() {
       exit 0
   fi
 
-  # Loop through each AMI and delete it along with its associated snapshots
-  for ami_id in $ami_ids; do
-      printf '%s\n' "Processing AMI: $ami_id"
+  printf '\n%s\n' "Following AMIs found with prefix '$ami_prefix'."
+  printf '%s\n' $ami_ids
+  printf '\n%s\n' "${bold}Do you really want to delete?${normal}"
+  printf '%s\n' "  Only 'yes' will be accepted to approve."
+  read -p "${bold}Enter a value: ${normal}" TEMP
 
-      # Get snapshot IDs associated with the AMI
-      snapshot_ids=$(aws ec2 describe-images --image-ids "$ami_id" \
-          --query "Images[0].BlockDeviceMappings[*].Ebs.SnapshotId" --output text)
+  if [[ "${TEMP}" == "yes" ]]; then
+    # Loop through each AMI and delete it along with its associated snapshots
+    for ami_id in $ami_ids; do
+        printf '%s\n' "Processing AMI: $ami_id"
 
-      # Deregister the AMI
-      printf '%s\n' "Deregistering AMI: $ami_id"
-      aws ec2 deregister-image --image-id "$ami_id"
+        # Get snapshot IDs associated with the AMI
+        snapshot_ids=$(aws ec2 describe-images --image-ids "$ami_id" \
+            --query "Images[0].BlockDeviceMappings[*].Ebs.SnapshotId" --output text)
 
-      # Delete associated snapshots
-      for snapshot_id in $snapshot_ids; do
-          printf '%s\n' "Deleting Snapshot: $snapshot_id"
-          aws ec2 delete-snapshot --snapshot-id "$snapshot_id"
-      done
-  done
+        # Deregister the AMI
+        printf '%s\n' "Deregistering AMI: $ami_id"
+        aws ec2 deregister-image --image-id "$ami_id"
 
-  printf '%s\n' "All matching AMIs and their snapshots have been deleted successfully."
+        # Delete associated snapshots
+        for snapshot_id in $snapshot_ids; do
+            printf '%s\n' "Deleting Snapshot: $snapshot_id"
+            aws ec2 delete-snapshot --snapshot-id "$snapshot_id"
+        done
+    done
+
+    printf '%s\n' "All matching AMIs and their snapshots have been deleted successfully."
+  else
+    printf '\n%s\n' "${bold}Error:${normal} error asking for approval: interrupted"
+  fi
 }
 
 function freeze_list_tags() {
