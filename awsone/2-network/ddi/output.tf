@@ -18,7 +18,7 @@ output "ddi_va_pip_managementport" {
 }
 
 output "ddi_ami" {
-  value = data.aws_ami.ddi_va.id
+  value = aws_instance.ddi_va.ami
 }
 
 output "ddi_va_traffic_mirror_filter_id" {

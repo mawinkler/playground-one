@@ -6,14 +6,14 @@ output "instance_sg_va_id" {
 }
 
 output "instance_sg_va_pip" {
-  value = aws_instance.sg_va.private_ip
+  value = var.pgo_sg_private_ip
 }
 
 output "ssh_instance_sg_va" {
   description = "Command to ssh to instance sg_va"
-  value       = "ssh -i ${var.private_key_path} -o StrictHostKeyChecking=no admin@${aws_instance.sg_va.private_ip}"
+  value       = "ssh -i ${var.private_key_path} -o StrictHostKeyChecking=no admin@${var.pgo_sg_private_ip}"
 }
 
 output "sg_ami" {
-  value = data.aws_ami.sg_va.id
+  value = aws_instance.sg_va.ami
 }
