@@ -2,7 +2,8 @@
 Start-Transcript -Path 'C:/userdata.log'
 
 $logfilepath="C:\agent.log"
-$fqdn="$env:computername"
+
+Set-ExecutionPolicy unrestricted -Force
 
 function Write-Log {
     param(
@@ -17,10 +18,12 @@ function Write-Log {
     Add-Content -Path $logfilepath -Value "$timestamp [$level] - $message"
 }
 
-${userdata_windows_winrm}
-${userdata_windows_aws}
+net user Administrator "${windows_ad_safe_password}"
 
 function Create-Domain-Forest {
+
+    $Password = ConvertTo-SecureString "${windows_ad_safe_password}" -AsPlainText -Force;
+
     Add-WindowsFeature AD-Domain-Services -IncludeManagementTools
     Install-ADDSForest -CreateDnsDelegation:$false -DatabasePath C:\Windows\NTDS -DomainMode WinThreshold -DomainName ${windows_ad_domain_name} -DomainNetbiosName ${windows_ad_nebios_name} -ForestMode WinThreshold -InstallDns:$true -LogPath C:\Windows\NTDS -NoRebootOnCompletion:$true -SafeModeAdministratorPassword $Password -SysvolPath C:\Windows\SYSVOL -Force:$true;
     Write-Log -message "Domain Forest created"
@@ -29,40 +32,39 @@ function Create-Domain-Forest {
 }
 
 
-net user Administrator "${windows_ad_safe_password}"
-$Password = ConvertTo-SecureString "${windows_ad_safe_password}" -AsPlainText -Force;
-
-# Configure WinRM service
-Configure-WinRMService
-
-# Configure WinRM listener
-Configure-WinRMHttpsListener
-
-# Add Firewall rules
-Add-FirewallRule-WinRM
-
-# List the listeners
-Write-Verbose -Verbose "Listing the WinRM listeners:"
-
-Write-Verbose -Verbose "Querying WinRM listeners by running command: winrm enumerate winrm/config/listener"
-winrm enumerate winrm/config/listener
-
-# Add AWS Tools
-Configure-AWS-Tools
-
 # Define script path
-$taskPath = "C:\AWS\continue_userdata.ps1"
+$taskPath = "C:\continue_userdata.ps1"
 $taskName = "ContinueUserData"
 
 # Save only the "post-reboot" portion of the script
 $scriptContent = @'
+$logfilepath="C:\agent.log"
+Set-ExecutionPolicy unrestricted -Force
+
+function Write-Log {
+    param(
+        [Parameter(Mandatory = $true)][string] $message,
+        [Parameter(Mandatory = $false)]
+        [ValidateSet("INFO","WARN","ERROR")]
+        [string] $level = "INFO"
+    )
+    # Create timestamp
+    $timestamp = (Get-Date).toString("yyyy/MM/dd HH:mm:ss")
+    # Append content to log file
+    Add-Content -Path $logfilepath -Value "$timestamp [$level] - $message"
+}
+
 # Wait for network and domain services to start
 Start-Sleep -Seconds 60
 
 # Example: Install a program after reboot
-Write-Output "Resuming User Data Execution..." | Out-File C:\AWS\userdata.log -Append
+Write-Log -message "Resuming User Data Execution..." -level "INFO"
 
-Write-Output "Creating GPO" | Out-File C:\AWS\userdata.log -Append
+${userdata_windows_winrm}
+
+${userdata_windows_ssh}
+
+${userdata_windows_aws}
 
 # GPO
 $GpoName = "Enable Remote Management Firewall Rules"
@@ -71,9 +73,9 @@ $dn = ("${windows_ad_domain_name}" -split "\.") -join ",DC="
 $dn = "DC=" + $dn
 try {
     New-GPO -Name $GpoName | New-GPLink -Target "$dn"
-} catch { Write-Output "Create GPO - "+ $_.Exception.message | Out-File C:\AWS\userdata.log -Append}
+} catch { Write-Log -message "Create GPO - "+ $_.Exception.message -level "ERROR"}
 
-Write-Output "GPO created" | Out-File C:\AWS\userdata.log -Append
+Write-Log -message "GPO created" -level "INFO"
 
 $GpoName = "Enable Remote Management Firewall Rules"
 
@@ -81,9 +83,9 @@ $GpoName = "Enable Remote Management Firewall Rules"
 try {
     Set-GPRegistryValue -Name $GpoName -Key "HKLM\SOFTWARE\Policies\Microsoft\Windows\WinRM\Service" -ValueName "AllowAutoConfig" -Type DWord -Value 1
     Set-GPRegistryValue -Name $GpoName -Key "HKLM\SOFTWARE\Policies\Microsoft\Windows\WinRM\Service" -ValueName "AllowUnencryptedTraffic" -Type DWord -Value 1
-} catch { Write-Output "Create GPO WinRM - "+ $_.Exception.message | Out-File C:\AWS\userdata.log -Append}
+} catch { Write-Log -message "Create GPO WinRM - "+ $_.Exception.message -level "ERROR"}
 
-Write-Output "GPO WinRM enabled" | Out-File C:\AWS\userdata.log -Append
+Write-Log -message "GPO WinRM enabled" -level "INFO"
 
 try {
     # Enable necessary firewall rules
@@ -99,16 +101,18 @@ try {
         "RemoteService-NP-In-TCP",
         "WinRM-HTTP-In-TCP",
         "WinRM-HTTPS-In-TCP",
-        "COM+ Remote Administration (DCOM-In)"
+        "COM+ Remote Administration (DCOM-In)",
+        "ADDS-LDAPSEC-TCP-In",
+        "ADDS-LDAPGCSEC-TCP-In"
     )
 
     foreach ($rule in $FirewallRules) {
         Set-GPRegistryValue -Name $GpoName -Key "HKLM\SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\FirewallRules" -ValueName $rule -Type String -Value "v2.31|Action=Allow|Active=TRUE"
-        Write-Output "GPO Firewall " + $rule + " configured" | Out-File C:\AWS\userdata.log -Append
+        Write-Log -message "GPO Firewall " + $rule + " configured" -level "INFO"
     }
-} catch { Write-Output "Create GPO Firewall - "+ $_.Exception.message | Out-File C:\AWS\userdata.log -Append}
+} catch { Write-Log -message "Create GPO Firewall - "+ $_.Exception.message -level "ERROR"}
 
-Write-Output "GPO Firewall configured" | Out-File C:\AWS\userdata.log -Append
+Write-Log -message "GPO Firewall configured" -level "INFO"
 
 # Define GPO Name
 $GPOName = "Default Domain Policy"
@@ -118,26 +122,25 @@ $PolicyPath = "HKLM\SOFTWARE\Policies\Microsoft\WindowsFirewall\DomainProfile"
 
 # Ensure the GPO exists
 if (-not (Get-GPO -Name $GPOName -ErrorAction SilentlyContinue)) {
-    Write-Error "GPO '$GPOName' not found!"
+    Write-Log -message "GPO '$GPOName' not found!" -level "ERROR"
     exit
 }
 
 # Enable Remote Administration Exception (Allow inbound remote admin)
 Set-GPRegistryValue -Name $GPOName -Key "$PolicyPath" -ValueName "AllowRemoteAdmin" -Type DWord -Value 1
 
-Write-Output "Windows Firewall: Allow inbound remote administration exception enabled in Default Domain Policy"  | Out-File C:\AWS\userdata.log -Append
+Write-Log -message "Windows Firewall: Allow inbound remote administration exception enabled in Default Domain Policy"  -level "INFO"
 
 # Force GPO update
 gpupdate /force
 
-Write-Output "GPO update forced"  | Out-File C:\AWS\userdata.log -Append
+Write-Log -message "GPO update forced" -level "INFO"
 
 # Remove Scheduled Task after it runs once
 Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 '@
 
 # Ensure directory exists and save script
-New-Item -Path "C:\AWS" -ItemType Directory -Force
 $scriptContent | Set-Content -LiteralPath $taskPath -Force
 
 # Create a Scheduled Task to run after reboot

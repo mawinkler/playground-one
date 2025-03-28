@@ -20,48 +20,51 @@ function Write-Log {
 
 net user Administrator "${windows_ad_safe_password}"
 
-$hostname = hostname
-if ("$hostname" -ne "${windows_ad_hostname}") {
-   Write-Log -message "Changing Hostname" -level "INFO"
-   Rename-Computer -NewName ${windows_ad_hostname} -Force -Restart
-} else {
-   Write-Log -message "Hostname: $hostname" -level "INFO"
+# Define script path
+$taskPath = "C:\continue_userdata.ps1"
+$taskName = "ContinueUserData"
+
+# Save only the "post-reboot" portion of the script
+$scriptContent = @'
+$logfilepath="C:\agent.log"
+Set-ExecutionPolicy unrestricted -Force
+
+function Write-Log {
+    param(
+        [Parameter(Mandatory = $true)][string] $message,
+        [Parameter(Mandatory = $false)]
+        [ValidateSet("INFO","WARN","ERROR")]
+        [string] $level = "INFO"
+    )
+    # Create timestamp
+    $timestamp = (Get-Date).toString("yyyy/MM/dd HH:mm:ss")
+    # Append content to log file
+    Add-Content -Path $logfilepath -Value "$timestamp [$level] - $message"
 }
 
-$domain = (Get-WmiObject win32_computersystem).Domain
-$hostname = hostname
-$domain_username = "${windows_ad_domain_name}\${windows_ad_user_name}"
-$domain_password = ConvertTo-SecureString "${windows_ad_safe_password}" -AsPlainText -Force
-$credential = New-Object System.Management.Automation.PSCredential($domain_username,$domain_password)
+# Wait for network and domain services to start
+Start-Sleep -Seconds 60
 
-if ($domain -ne '${windows_ad_domain_name}'){
-  Write-Log -message "Joining domain in 300 seconds" -level "INFO"
-  Start-Sleep -Seconds 300
+# Example: Install a program after reboot
+Write-Log -message "Resuming User Data Execution..." -level "INFO"
 
-  # Comment
-  $Stoploop = $false
-  [int]$Retrycount = "0"
-    
-  do {
-    try {
-      Add-Computer -DomainName ${windows_ad_domain_name} -Credential $credential -Passthru -Verbose -Force 
-      # -Restart
-      Write-Log -message "Domain join successful" -level "INFO"
-      $Stoploop = $true
-      Restart-Computer -Force;
-    } catch {
-      Write-log -message $_.Exception.message -level "ERROR"
-      if ($Retrycount -gt 20) {
-        Write-Log -message "Domain join failed after 20 retrys" -level "ERROR"
-        $Stoploop = $true
-      } else {
-        Write-Log -message "Could not join domain, retrying in 60 seconds..." -level "WARN"
-        Start-Sleep -Seconds 60
-        $Retrycount = $Retrycount + 1
-      }
-    }
-  } While ($Stoploop -eq $false)
-}
+${userdata_windows_winrm}
+
+${userdata_windows_ssh}
+
+${userdata_windows_aws}
+
+# Enable Firewall Rules
+# TODO: How to make this persistent with GPOs and AD?
+Set-NetFirewallRule -DisplayGroup 'Remote Event Log Management' -Enabled True -PassThru |
+  Select-Object -Property DisplayName, Enabled
+
+Set-NetFirewallRule -DisplayName 'COM+ Network Access (DCOM-In)' -Enabled True -PassThru |
+  Select-Object -Property DisplayName, Enabled
+
+Write-Log -message "Local Firewall configured" -level "INFO"
+
+${userdata_windows_join_ad}
 
 Install-WindowsFeature ADCS-Cert-Authority -IncludeManagementTools
 Write-Log -message "Certification Authority installed" -level "INFO"
@@ -73,12 +76,33 @@ Install-ADcsCertificationAuthority -Credential $credential -CAType EnterpriseRoo
 Install-AdcsWebEnrollment -Credential $credential -Force
 Write-Log -message "Certification Authority set as root CA" -level "INFO"
 
-#[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-#Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
-#Install-Module -Name PSPKI -Force
-#Get-CertificateTemplate -Name WebServer | Get-CertificateTemplate | Add-CertificateTemplateAcl -Identity "Authenticated Users" -AccessType Allow -AccessMask Read, Enroll | Set-CertificateTemplateAcl
+# Remove Scheduled Task after it runs once
+Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
+'@
 
-Start-Sleep -Seconds 5
+# Save script
+$scriptContent | Set-Content -LiteralPath $taskPath -Force
+
+# Create a Scheduled Task to run after reboot
+$Action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-ExecutionPolicy Bypass -File $taskPath"
+$Trigger = New-ScheduledTaskTrigger -AtStartup
+$Settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -DontStopOnIdleEnd
+Register-ScheduledTask -TaskName $taskName -Action $Action -Trigger $Trigger -Settings $Settings -User "SYSTEM" -RunLevel Highest
+
+
+if ("${windows_ad_domain_name}" -ne "") {
+    $hostname = hostname
+    if ("$hostname" -ne "${windows_ad_hostname}") {
+        Write-Log -message "Changing Hostname to ${windows_ad_hostname}" -level "INFO"
+        Rename-Computer -NewName ${windows_ad_hostname} -Force
+        # Restart to apply hostname change
+        Restart-Computer -Force
+    } else {
+        Write-Log -message "Hostname: $hostname" -level "INFO"
+    }
+} else {
+    Write-Log -message "Not changing host name" -level "INFO"
+}
 
 Stop-Transcript
 </powershell>

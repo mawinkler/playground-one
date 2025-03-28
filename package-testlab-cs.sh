@@ -22,7 +22,9 @@ echo "${bold}Creating Testlab Information${normal}"
 pgo --output testlab-cs > ${package_name}/testlab-cs.txt
 
 echo "${bold}Copy Instance Private Key${normal}"
-cp $(terraform -chdir=${ONEPATH}/awsone/2-network output -raw private_key_path) ${package_name}
+keyfile=$(terraform -chdir=${ONEPATH}/awsone/2-network output -raw private_key_path)
+cp ${keyfile} ${package_name}
+puttygen ${keyfile} -O private -o ${package_name}/$(basename ${keyfile}).ppk
 
 ls -lR ${package_name}
 

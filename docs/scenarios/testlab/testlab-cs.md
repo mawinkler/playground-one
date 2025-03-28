@@ -307,3 +307,252 @@ Network       | ddi          | 10.0.1.2
 TestLab-CS    | Client 0     | 10.0.1.10 
 TestLab-CS    | Client 1     | 10.0.1.11 
 TestLab-CS    | Client x     | 10.0.1.xx 
+
+## From ISO to AMI
+
+Get QEMU
+
+```sh
+brew install qemu
+```
+
+### Service Role
+
+trust-policy.json
+
+```json
+{
+   "Version": "2012-10-17",
+   "Statement": [
+      {
+         "Effect": "Allow",
+         "Principal": { "Service": "vmie.amazonaws.com" },
+         "Action": "sts:AssumeRole",
+         "Condition": {
+            "StringEquals":{
+               "sts:Externalid": "vmimport"
+            }
+         }
+      }
+   ]
+}
+```
+
+```sh
+aws iam create-role --role-name vmimport --assume-role-policy-document "file://trust-policy.json"
+```
+
+role-policy.json
+
+```json
+{
+   "Version":"2012-10-17",
+   "Statement":[
+      {
+         "Effect": "Allow",
+         "Action": [
+            "s3:GetBucketLocation",
+            "s3:GetObject",
+            "s3:ListBucket" 
+         ],
+         "Resource": [
+            "arn:aws:s3:::pgo-iso",
+            "arn:aws:s3:::pgo-iso/*"
+         ]
+      },
+      {
+         "Effect": "Allow",
+         "Action": [
+            "s3:GetBucketLocation",
+            "s3:GetObject",
+            "s3:ListBucket",
+            "s3:PutObject",
+            "s3:GetBucketAcl"
+         ],
+         "Resource": [
+            "arn:aws:s3:::pgo-iso",
+            "arn:aws:s3:::pgo-iso/*"
+         ]
+      },
+      {
+         "Effect": "Allow",
+         "Action": [
+            "ec2:ModifySnapshotAttribute",
+            "ec2:CopySnapshot",
+            "ec2:RegisterImage",
+            "ec2:Describe*"
+         ],
+         "Resource": "*"
+      }
+   ]
+}
+```
+
+```sh
+aws iam put-role-policy --role-name vmimport --policy-name vmimport --policy-document "file://role-policy.json"
+```
+
+container.json
+
+```json
+{
+    "Description": "DDAN-7.6.0-1069-x86_64",
+    "Format": "RAW",
+    "UserBucket": {
+        "S3Bucket": "pgo-iso",
+        "S3Key": "DDAN-7.6.0-1069-x86_64.raw"
+    }
+}
+```
+
+```sh
+aws ec2 import-snapshot --description "DDAN-7.6.0-1069-x86_64" --disk-container "file://container.json"
+
+aws ec2 describe-import-snapshot-tasks
+```
+
+```json
+{
+    "ImportSnapshotTasks": [
+        {
+            "Description": "DDAN-7.6.0-1069-x86_64",
+            "ImportTaskId": "import-snap-2b608c5f4fbcc276t",
+            "SnapshotTaskDetail": {
+                "DiskImageSize": 4702863360.0,
+                "Format": "RAW",
+                "Progress": "19",
+                "SnapshotId": "",
+                "Status": "active",
+                "StatusMessage": "downloading/converting",
+                "UserBucket": {
+                    "S3Bucket": "pgo-iso",
+                    "S3Key": "DDAN-7.6.0-1069-x86_64.raw"
+                }
+            },
+            "Tags": []
+        }
+    ]
+}
+```
+
+```json
+{
+    "ImportSnapshotTasks": [
+        {
+            "Description": "DDAN-7.6.0-1069-x86_64",
+            "ImportTaskId": "import-snap-2b608c5f4fbcc276t",
+            "SnapshotTaskDetail": {
+                "DiskImageSize": 4702863360.0,
+                "Format": "RAW",
+                "SnapshotId": "snap-08cb42c1c642c77e3",
+                "Status": "completed",
+                "UserBucket": {
+                    "S3Bucket": "pgo-iso",
+                    "S3Key": "DDAN-7.6.0-1069-x86_64.raw"
+                }
+            },
+            "Tags": []
+        }
+    ]
+}
+```
+
+```sh
+aws ec2 register-image --name "DDAN-7.6.0-1069-x86_64" \
+  --root-device-name /dev/sda1 \
+  --block-device-mappings DeviceName=/dev/sda1,Ebs={SnapshotId=snap-08cb42c1c642c77e3}
+```
+
+```json
+{
+    "ImageId": "ami-08791c849d6057341"
+}
+```
+
+
+
+
+
+
+
+Run through
+
+
+
+```sh
+qemu-img convert -f raw -O raw DDAN-7.6.0-1069-x86_64.iso DDAN-7.6.0-1069-x86_64.raw
+
+aws s3 cp DDAN-7.6.0-1069-x86_64.raw s3://pgo-iso/
+
+aws ec2 import-snapshot --description "DDAN-7.6.0-1069-x86_64" --disk-container "file://container.json"
+
+aws ec2 import-snapshot --description "DDAN-7.6.0-1069-x86_64" \
+  --disk-container Format=RAW,UserBucket={'S3Bucket="pgo-iso",S3Key="DDAN-7.6.0-1069-x86_64.raw"'}
+
+aws ec2 describe-import-snapshot-tasks
+
+aws ec2 register-image --name "DDAN-7.6.0-1069-x86_64" \
+  --root-device-name /dev/sda1 \
+  --block-device-mappings DeviceName=/dev/sda1,Ebs={SnapshotId=snap-xxxxxxxx}
+
+aws ec2 run-instances --image-id ami-xxxxxxxx --instance-type m5a.2xlarge
+```
+
+Set environment:
+
+```sh
+export IMAGE_NAME="DDAN-7.6.0-1069-x86_64"
+export BUCKET="pgo-iso"
+```
+
+### Use qemu-img to Convert ISO to RAW Format
+
+```sh
+qemu-img convert -f raw -O raw ${IMAGE_NAME}.iso ${IMAGE_NAME}.raw
+```
+
+- -f raw → Input format (ISO)
+- -O raw → Output format (RAW)
+- ${IMAGE_NAME}.raw → Output file (needed for AWS)
+
+### Upload the Image to AWS S3
+
+Before importing the image, upload it to an S3 bucket:
+
+```sh
+aws s3 cp ${IMAGE_NAME}.raw s3://${BUCKET}/
+```
+
+### Import the RAW Image as an EBS Snapshot
+Use AWS EC2 VM Import to import the disk image:
+
+```sh
+aws ec2 import-snapshot --description "My ISO-based AMI" \
+  --disk-container Format=RAW,UserBucket={S3Bucket="${BUCKET}",S3Key="${IMAGE_NAME}.raw"}
+```
+
+This process may take some time. You can check the progress:
+
+```sh
+aws ec2 describe-import-snapshot-tasks
+```
+
+Once completed, it will generate a snapshot ID.
+
+### Create an AMI from the Snapshot
+
+Now, use the snapshot ID to create an AMI:
+
+```sh
+aws ec2 register-image --name "MyCustomAMI" \
+  --root-device-name /dev/sda1 \
+  --block-device-mappings DeviceName=/dev/sda1,Ebs={SnapshotId=snap-xxxxxxxx}
+```
+
+### Launch an EC2 Instance from the AMI
+
+Once the AMI is ready, you can launch an EC2 instance:
+
+```sh
+aws ec2 run-instances --image-id ami-xxxxxxxx --instance-type m5a.2xlarge
+```

@@ -79,6 +79,11 @@ variable "ad_admin_password" {
   default     = "TrendMicro.1"
 }
 
+variable "windows_username" {
+  type    = string
+  default = "administrator"
+}
+
 #
 # Service Gateway
 #

@@ -15,7 +15,11 @@ variable "private_security_group_id" {}
 
 variable "key_name" {}
 
+variable "public_key" {}
+
 variable "vpn_gateway" {}
+
+variable "windows_username" {}
 
 variable "windows_instance_type" {
   type        = string

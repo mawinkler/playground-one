@@ -67,6 +67,8 @@ module "ad" {
   public_security_group_id  = module.ec2.public_security_group_id
   private_security_group_id = module.ec2.private_security_group_id
   key_name                  = module.ec2.key_name
+  public_key                = module.ec2.public_key
+  windows_username          = var.windows_username
   vpn_gateway               = var.vpn_gateway
   windows_ad_domain_name    = var.ad_domain_name
   windows_ad_nebios_name    = upper(var.environment)

@@ -543,8 +543,7 @@ function telemetry() {
   unix_date=$(date -u +"%Y-%m-%d %T")
   account_id_hash=$(echo -n ${aws_account_id} | md5sum | cut -d " " -f1)
   operating_system="$(uname -s -r -v -m)"
-  # echo ${operating_system}
-  curl -X POST "${api_url}/telemetry" \
+  curl -s "${api_url}/telemetry" \
     -H 'Content-Type: application/json' \
     -d "
   {
