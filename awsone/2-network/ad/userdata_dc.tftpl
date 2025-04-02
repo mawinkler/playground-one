@@ -66,6 +66,9 @@ ${userdata_windows_ssh}
 
 ${userdata_windows_aws}
 
+New-NetFirewallRule -DisplayName "Allow LDAPS" -Direction Inbound -Protocol TCP -LocalPort 636 -Action Allow
+Write-Log -message "Firewall opened for LDAPS on port 636" -level "INFO"
+
 # GPO
 $GpoName = "Enable Remote Management Firewall Rules"
 $dn = ("${windows_ad_domain_name}" -split "\.") -join ",DC="

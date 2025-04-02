@@ -72,6 +72,10 @@ Write-Log -message "Certification Authority installed" -level "INFO"
 Add-WindowsFeature Adcs-Web-Enrollment
 Write-Log -message "Certification Authority Web Enrollment installed" -level "INFO"
 
+$domain_username = "${windows_ad_domain_name}\${windows_ad_user_name}"
+$domain_password = ConvertTo-SecureString "${windows_ad_safe_password}" -AsPlainText -Force
+$credential = New-Object System.Management.Automation.PSCredential($domain_username, $domain_password)
+
 Install-ADcsCertificationAuthority -Credential $credential -CAType EnterpriseRootCa -Force
 Install-AdcsWebEnrollment -Credential $credential -Force
 Write-Log -message "Certification Authority set as root CA" -level "INFO"

@@ -1,26 +1,26 @@
 # Active Directory
 output "ad_domain_name" {
-  value = data.terraform_remote_state.vpc.outputs.ad_domain_name
+  value = var.active_directory ? data.terraform_remote_state.vpc.outputs.ad_domain_name : null
 }
 
 output "ad_dc_ip" {
-  value = data.terraform_remote_state.vpc.outputs.ad_dc_ip
+  value = var.active_directory ? data.terraform_remote_state.vpc.outputs.ad_dc_ip : null
 }
 
 output "ad_dc_pip" {
-  value = data.terraform_remote_state.vpc.outputs.ad_dc_pip
+  value = var.active_directory ? data.terraform_remote_state.vpc.outputs.ad_dc_pip : null
 }
 
 output "ad_ca_ip" {
-  value = data.terraform_remote_state.vpc.outputs.ad_ca_ip
+  value = var.active_directory ? data.terraform_remote_state.vpc.outputs.ad_ca_ip : null
 }
 
 output "ad_domain_admin" {
-  value = data.terraform_remote_state.vpc.outputs.ad_domain_admin
+  value = var.active_directory ? data.terraform_remote_state.vpc.outputs.ad_domain_admin : null
 }
 
 output "ad_admin_password" {
-  value     = data.terraform_remote_state.vpc.outputs.ad_admin_password
+  value     = var.active_directory ? data.terraform_remote_state.vpc.outputs.ad_admin_password : null
   sensitive = true
 }
 
