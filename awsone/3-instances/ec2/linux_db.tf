@@ -10,7 +10,7 @@ resource "aws_instance" "linux-db" {
 
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.linux_instance_type
-  subnet_id              = var.public_subnets[0]
+  subnet_id              = var.vpn_gateway ? var.private_subnets[1] : var.public_subnets[0]
   vpc_security_group_ids = [var.public_security_group_id]
   iam_instance_profile   = var.ec2_profile
   key_name               = var.key_name
@@ -25,24 +25,24 @@ resource "aws_instance" "linux-db" {
 
   user_data = local.userdata_linux_db
 
-  connection {
-    user        = var.linux_username
-    host        = self.public_ip
-    private_key = file("${var.private_key_path}")
-  }
+  # connection {
+  #   user        = var.linux_username
+  #   host        = self.public_ip
+  #   private_key = file("${var.private_key_path}")
+  # }
 
-  # mysql installation
-  provisioner "file" {
-    source      = "../1-scripts/mysql.sh"
-    destination = "/tmp/mysql.sh"
-  }
+  # # mysql installation
+  # provisioner "file" {
+  #   source      = "../1-scripts/mysql.sh"
+  #   destination = "/tmp/mysql.sh"
+  # }
 
-  provisioner "remote-exec" {
-    inline = [
-      "chmod +x /tmp/mysql.sh",
-      "sudo /tmp/mysql.sh"
-    ]
-  }
+  # provisioner "remote-exec" {
+  #   inline = [
+  #     "chmod +x /tmp/mysql.sh",
+  #     "sudo /tmp/mysql.sh"
+  #   ]
+  # }
 }
 
 # AWS Systems Manager
@@ -69,8 +69,9 @@ resource "aws_ssm_association" "linux_db_sensor_agent" {
 }
 
 # Traffic Mirror
+# TODO: Support multiple instances, not only one
 resource "aws_ec2_traffic_mirror_session" "vns_traffic_mirror_session_linux_db" {
-  count = var.virtual_network_sensor && var.create_linux ? 1 : 0
+  count = var.virtual_network_sensor ? var.create_linux ? var.linux_db_count > 0 ? 1 : 0 : 0 : 0
 
   description              = "VNS Traffic mirror session - Linux DB"
   session_number           = 1
@@ -80,7 +81,7 @@ resource "aws_ec2_traffic_mirror_session" "vns_traffic_mirror_session_linux_db" 
 }
 
 resource "aws_ec2_traffic_mirror_session" "ddi_traffic_mirror_session_linux_db" {
-  count = var.deep_discovery_inspector && var.create_linux ? 1 : 0
+  count = var.deep_discovery_inspector ? var.create_linux ? var.linux_db_count > 0 ? 1 : 0 : 0 : 0
 
   description              = "DDI Traffic mirror session - Linux DB"
   session_number           = 1

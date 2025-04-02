@@ -2,11 +2,19 @@
 # Outputs
 # #############################################################################
 output "linux_ip_web" {
-  value = length(aws_instance.linux-web) > 0 ? aws_instance.linux-web[0].public_ip : null
+  value = length(aws_instance.linux-web) > 0 ? aws_instance.linux-web[0].public_ip != "" ? aws_instance.linux-web[0].public_ip : null : null
+}
+
+output "linux_pip_web" {
+  value = length(aws_instance.linux-web) > 0 ? aws_instance.linux-web[0].private_ip : null
 }
 
 output "linux_ip_db" {
-  value = length(aws_instance.linux-db) > 0 ? aws_instance.linux-db[0].public_ip : null
+  value = length(aws_instance.linux-db) > 0 ? aws_instance.linux-db[0].public_ip != "" ? aws_instance.linux-db[0].public_ip : null : null
+}
+
+output "linux_pip_db" {
+  value = length(aws_instance.linux-db) > 0 ? aws_instance.linux-db[0].private_ip : null
 }
 
 output "linux_username" {
@@ -15,13 +23,12 @@ output "linux_username" {
 
 output "linux_ssh_db" {
   description = "Command to ssh to instance linux-db"
-  value       = length(aws_instance.linux-db) > 0 ? formatlist("ssh -i ${var.private_key_path} -o StrictHostKeyChecking=no ${var.linux_username}@%s", aws_instance.linux-db[*].public_ip) : null
-
+  value       = length(aws_instance.linux-db) > 0 ? formatlist("ssh -i ${var.private_key_path} -o StrictHostKeyChecking=no ${var.linux_username}@%s", aws_instance.linux-db[*].public_ip != "" ? aws_instance.linux-db[*].public_ip : aws_instance.linux-db[*].private_ip) : null
 }
 
 output "linux_ssh_web" {
   description = "Command to ssh to instance linux-web"
-  value       = length(aws_instance.linux-web) > 0 ? formatlist("ssh -i ${var.private_key_path} -o StrictHostKeyChecking=no ${var.linux_username}@%s", aws_instance.linux-web[*].public_ip) : null
+  value       = length(aws_instance.linux-web) > 0 ? formatlist("ssh -i ${var.private_key_path} -o StrictHostKeyChecking=no ${var.linux_username}@%s", aws_instance.linux-web[*].public_ip != "" ? aws_instance.linux-web[*].public_ip : aws_instance.linux-web[*].private_ip) : null
 }
 
 # Windows

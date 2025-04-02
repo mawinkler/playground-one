@@ -367,6 +367,7 @@ function init() {
       aws_pgo_user_access_key=${aws_pgo_user_access_key} \
       aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
       pgo_access_ip=${pgo_access_ip} \
+      vpn_gateway=${pgo_vpn_gateway} \
       environment_name=${environment_name} \
       vision_one_asrm_create_attackpath=${vision_one_asrm_create_attackpath} \
       active_directory=${pgo_active_directory} \

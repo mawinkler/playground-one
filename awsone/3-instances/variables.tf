@@ -2,7 +2,7 @@
 # Number of instances and Vision One Deployment here
 variable "linux_db_count" {
   type    = number
-  default = 0
+  default = 1
 }
 
 variable "linux_web_count" {
@@ -90,6 +90,13 @@ variable "rds_username" {
 # Create Attack Path
 #
 variable "create_attackpath" {
+  type = bool
+}
+
+#
+# PGO VPN Gateway
+#
+variable "vpn_gateway" {
   type = bool
 }
 

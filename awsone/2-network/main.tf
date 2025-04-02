@@ -118,10 +118,14 @@ module "vns" {
   environment          = var.environment
   vpc_id               = module.vpc.vpc_id
   public_subnets       = module.vpc.public_subnets.*
+  private_subnets      = module.vpc.private_subnets.*
   public_subnets_cidr  = module.vpc.public_subnet_cidr_blocks
   private_subnets_cidr = module.vpc.private_subnet_cidr_blocks
   instance_type        = "t3.large"
   vns_token            = var.vns_token
+  vpn_gateway          = var.vpn_gateway
+  pgo_vns_private_ip   = var.pgo_ddi_private_ip
+  pgo_vns_subnet_no    = 1
 }
 
 module "ddi" {

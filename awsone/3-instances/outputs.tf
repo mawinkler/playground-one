@@ -29,8 +29,16 @@ output "linux_ip_web" {
   value = module.ec2.linux_ip_web
 }
 
+output "linux_pip_web" {
+  value = module.ec2.linux_pip_web
+}
+
 output "linux_ip_db" {
   value = module.ec2.linux_ip_db
+}
+
+output "linux_pip_db" {
+  value = module.ec2.linux_pip_db
 }
 
 output "linux_username" {

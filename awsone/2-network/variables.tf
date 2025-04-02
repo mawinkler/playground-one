@@ -142,6 +142,10 @@ variable "pgo_ddi_private_ip" {
   type = string
 }
 
+variable "pgo_vns_private_ip" {
+  type = string
+}
+
 variable "vpn_private_ip" {
   type = string
 }

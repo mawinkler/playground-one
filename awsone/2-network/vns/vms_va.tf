@@ -26,7 +26,7 @@ resource "aws_instance" "vns_va" {
 }
 
 resource "aws_network_interface" "vns_va_ni_data" {
-  subnet_id       = var.public_subnets[0]
+  subnet_id       = var.vpn_gateway ? var.private_subnets[var.pgo_vns_subnet_no] : var.public_subnets[0]
   security_groups = [aws_security_group.sg_sg_va["data_port"].id]
   description     = "Virtual Network Sensor Data Port"
 
@@ -39,9 +39,10 @@ resource "aws_network_interface" "vns_va_ni_data" {
 }
 
 resource "aws_network_interface" "vns_va_ni_management" {
-  subnet_id       = var.public_subnets[0]
+  subnet_id       = var.vpn_gateway ? var.private_subnets[var.pgo_vns_subnet_no] : var.public_subnets[0]
   security_groups = [aws_security_group.sg_sg_va["management_port"].id]
   description     = "Virtual Network Sensor Management Port"
+  private_ips     = [var.pgo_vns_private_ip]
 
   tags = {
     Name          = "${var.environment}-vns-ni-management"
@@ -51,7 +52,7 @@ resource "aws_network_interface" "vns_va_ni_management" {
   }
 }
 
-resource "aws_eip" "vns_va_public_ip" {
-  network_interface = aws_network_interface.vns_va_ni_management.id
-  domain            = "vpc"
-}
+# resource "aws_eip" "vns_va_public_ip" {
+#   network_interface = aws_network_interface.vns_va_ni_management.id
+#   domain            = "vpc"
+# }
