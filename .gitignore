@@ -96,3 +96,5 @@ stacks/*/*/*.log
 
 # In development
 temp/
+bin/lambda.py
+bin/telemetry.md
