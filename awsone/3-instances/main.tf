@@ -23,11 +23,10 @@ module "ec2" {
   windows_username         = var.windows_username
   windows_hostname         = "Windows-Server"
   create_linux             = var.create_linux
-  linux_db_hostname        = "linuxdb"
+  linux_hostname           = "linuxdb"
   linux_web_hostname       = "linuxweb"
   create_windows           = var.create_windows
-  linux_db_count           = var.linux_db_count
-  linux_web_count          = var.linux_web_count
+  linux_count              = var.linux_count
   windows_count            = var.windows_count
   agent_deploy             = var.agent_deploy
   agent_variant            = var.agent_variant

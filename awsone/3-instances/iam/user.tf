@@ -33,6 +33,6 @@
 #     Name          = "${var.environment}-ec2-instance-actions-policy"
 #     Environment   = "${var.environment}"
 #     Product       = "playground-one"
-#     Configuration = "ec2"
+#     Configuration = "instances"
 #   }
 # }

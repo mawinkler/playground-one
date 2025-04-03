@@ -7,7 +7,6 @@ hostname -b ${linux_hostname}
 apt-get update
 # apt-get install -y unzip
 
-
 PACKAGE="unzip"  # Package to install, passed as a script argument
 RETRY_COUNT=10  # Number of retries
 WAIT_TIME=10  # Wait time (seconds) between retries
@@ -40,9 +39,3 @@ rm -Rf /tmp/aws /tmp/awscliv2.zip
 mkdir -p /home/ubuntu/download
 aws s3 cp s3://${s3_bucket}/download /home/ubuntu/download --recursive
 chown ubuntu.ubuntu -R /home/ubuntu/download
-
-# Moved to SSM Document
-# # agent
-# cd /home/ubuntu/download
-# chmod +x ./${tm_agent}_Linux_deploy.sh
-# HOME=/home/ubuntu ./${tm_agent}_Linux_deploy.sh

@@ -37,7 +37,7 @@ DOC
     Name          = "${var.environment}-ssm-document"
     Environment   = "${var.environment}"
     Product       = "playground-one"
-    Configuration = "ec2"
+    Configuration = "instances"
   }
 }
 
@@ -73,7 +73,7 @@ DOC
     Name          = "${var.environment}-ssm-document"
     Environment   = "${var.environment}"
     Product       = "playground-one"
-    Configuration = "ec2"
+    Configuration = "instances"
   }
 }
 
@@ -116,7 +116,7 @@ DOC
     Name          = "${var.environment}-ssm-document"
     Environment   = "${var.environment}"
     Product       = "playground-one"
-    Configuration = "ec2"
+    Configuration = "instances"
   }
 }
 
@@ -152,6 +152,6 @@ DOC
     Name          = "${var.environment}-ssm-document"
     Environment   = "${var.environment}"
     Product       = "playground-one"
-    Configuration = "ec2"
+    Configuration = "instances"
   }
 }

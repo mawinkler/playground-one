@@ -23,13 +23,11 @@ variable "vpn_gateway" {}
 
 variable "linux_username" {}
 
-variable "linux_db_hostname" {}
+variable "linux_hostname" {}
 
 variable "linux_web_hostname" {}
 
-variable "linux_db_count" {}
-
-variable "linux_web_count" {}
+variable "linux_count" {}
 
 variable "windows_count" {}
 

@@ -1,18 +1,13 @@
 # CUSTOMIZE
 # Number of instances and Vision One Deployment here
-variable "linux_db_count" {
+variable "linux_count" {
   type    = number
-  default = 1
-}
-
-variable "linux_web_count" {
-  type    = number
-  default = 1
+  default = 2
 }
 
 variable "windows_count" {
   type    = number
-  default = 0
+  default = 2
 }
 # /CUSTOMIZE
 

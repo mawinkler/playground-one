@@ -1,10 +1,15 @@
+# #############################################################################
+# Outputs
+# #############################################################################
+#
 # Active Directory
+#
 output "ad_domain_name" {
   value = var.active_directory ? data.terraform_remote_state.vpc.outputs.ad_domain_name : null
 }
 
 output "ad_dc_ip" {
-  value = var.active_directory ? data.terraform_remote_state.vpc.outputs.ad_dc_ip : null
+  value = try(data.terraform_remote_state.vpc.outputs.ad_dc_ip, null)
 }
 
 output "ad_dc_pip" {
@@ -12,7 +17,7 @@ output "ad_dc_pip" {
 }
 
 output "ad_ca_ip" {
-  value = var.active_directory ? data.terraform_remote_state.vpc.outputs.ad_ca_ip : null
+  value = data.terraform_remote_state.vpc.outputs.ad_ca_pip != "" ? data.terraform_remote_state.vpc.outputs.ad_ca_pip : null
 }
 
 output "ad_domain_admin" {
@@ -24,69 +29,59 @@ output "ad_admin_password" {
   sensitive = true
 }
 
+#
 # Linux
-output "linux_ip_web" {
-  value = module.ec2.linux_ip_web
+#
+output "linux_ip" {
+  value = module.ec2.linux_ip
 }
 
-output "linux_pip_web" {
-  value = module.ec2.linux_pip_web
-}
-
-output "linux_ip_db" {
-  value = module.ec2.linux_ip_db
-}
-
-output "linux_pip_db" {
-  value = module.ec2.linux_pip_db
+output "linux_pip" {
+  value = module.ec2.linux_pip
 }
 
 output "linux_username" {
   value = module.ec2.linux_username
 }
 
-output "linux_ssh_db" {
-  value = module.ec2.linux_ssh_db
+output "linux_ssh" {
+  value = module.ec2.linux_ssh
 }
 
-output "linux_ssh_web" {
-  value = module.ec2.linux_ssh_web
-}
-
+#
 # Windows
-output "win_ip" {
-  value = module.ec2.win_ip
+#
+output "windows_ip" {
+  value = module.ec2.windows_ip
 }
 
-output "win_pip" {
-  value = module.ec2.win_pip
+output "windows_pip" {
+  value = module.ec2.windows_pip
 }
 
-output "win_username" {
-  value = module.ec2.win_username
+output "windows_username" {
+  value = module.ec2.windows_username
 }
 
-output "win_password" {
-  value     = module.ec2.win_password
+output "windows_password" {
+  value     = module.ec2.windows_password
   sensitive = true
 }
 
-output "win_local_admin_password" {
-  value     = module.ec2.win_local_admin_password
-  sensitive = true
+output "windows_ssh" {
+  value = module.ec2.windows_ssh
 }
 
-output "win_ssh" {
-  value = module.ec2.win_ssh
-}
-
-
+#
 # S3
+#
 output "s3_bucket" {
   value = module.s3.s3_bucket
 }
 
+#
 # Attack Path
+#
 output "linux_ip_pap" {
   value = var.create_attackpath ? module.pap[0].linux_ip_pap : null
 }

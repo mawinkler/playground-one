@@ -17,7 +17,7 @@ resource "aws_instance" "linux-pap" {
     Name          = "${var.environment}-linux-pap"
     Environment   = "${var.environment}"
     Product       = "playground-one"
-    Configuration = "ec2"
+    Configuration = "instances"
   }
 
   user_data = local.userdata_linux_pap

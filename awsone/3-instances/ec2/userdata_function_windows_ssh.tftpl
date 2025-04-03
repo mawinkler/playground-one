@@ -57,3 +57,9 @@ function Configure-OpenSSHService {
         Write-Log -message "OpenSSH.Server running"
     } catch  { Write-log -message "configure openssh service - "+ $_.Exception.message -level "ERROR"}
 }
+
+# Add Firewall rules
+Add-FirewallRule-SSH
+
+# Add OpenSSH.Server
+Configure-OpenSSHService

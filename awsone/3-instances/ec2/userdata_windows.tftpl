@@ -2,15 +2,8 @@
 Start-Transcript -Path 'C:/userdata.log'
 
 $logfilepath="C:\agent.log"
-$fqdn="$env:computername"
-$port_winrm=5986 
-$port_ssh=22
-$username = '${windows_username}'
-$password = ConvertTo-SecureString '${windows_password}' -AsPlainText -Force 
 
-Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser -Force -ErrorAction Ignore
-$ErrorActionPreference = "stop"
-
+Set-ExecutionPolicy unrestricted -Force
 
 function Write-Log {
     param(
@@ -25,69 +18,45 @@ function Write-Log {
     Add-Content -Path $logfilepath -Value "$timestamp [$level] - $message"
 }
 
+net user Administrator "${windows_ad_safe_password}"
+
+# Define script path
+$taskPath = "C:\continue_userdata.ps1"
+$taskName = "ContinueUserData"
+
+# Save only the "post-reboot" portion of the script
+$scriptContent = @'
+$logfilepath="C:\agent.log"
+Set-ExecutionPolicy unrestricted -Force
+
+function Write-Log {
+    param(
+        [Parameter(Mandatory = $true)][string] $message,
+        [Parameter(Mandatory = $false)]
+        [ValidateSet("INFO","WARN","ERROR")]
+        [string] $level = "INFO"
+    )
+    # Create timestamp
+    $timestamp = (Get-Date).toString("yyyy/MM/dd HH:mm:ss")
+    # Append content to log file
+    Add-Content -Path $logfilepath -Value "$timestamp [$level] - $message"
+}
+
+# Wait for network and domain services to start
+Start-Sleep -Seconds 60
+
+# Example: Install a program after reboot
+Write-Log -message "Resuming User Data Execution..." -level "INFO"
+
 ${userdata_windows_winrm}
+
 ${userdata_windows_ssh}
+
 ${userdata_windows_aws}
-${userdata_windows_join_ad}
 
-function Create-LocalAdmin {
-    process {
-        try {
-            # Create new local user
-            New-LocalUser "$username" -Password $password -FullName "$username" -Description "local admin" -ErrorAction stop
-            Write-Log -message "$username local user created"
-
-            # Add user to administrator group
-            Add-LocalGroupMember -Group "Administrators" -Member "$username" -ErrorAction stop
-            Write-Log -message "$username added to the Administrators group"
-
-        } catch{ Write-log -message $_.Exception.message -level "ERROR"}
-    }    
-}
-
-
-# Create local admin user
-Create-LocalAdmin 
-
-if ("${windows_ad_domain_name}" -ne "") {
-    $hostname = hostname
-    if ("$hostname" -ne "${windows_hostname}") {
-        Write-Log -message "Changing Hostname to ${windows_hostname}" -level "INFO"
-        Rename-Computer -NewName ${windows_hostname} -Force -Restart
-    } else {
-        Write-Log -message "Hostname: $hostname" -level "INFO"
-    }
-} else {
-    Write-Log -message "Not chaning host name" -level "INFO"
-}
-
-# Configure WinRM service
-Configure-WinRMService
-
-# Configure WinRM listener
-Configure-WinRMHttpsListener
-
-# Add Firewall rules
-Add-FirewallRule-WinRM
-Add-FirewallRule-SSH
-
-# List the listeners
-Write-Verbose -Verbose "Listing the WinRM listeners:"
-
-Write-Verbose -Verbose "Querying WinRM listeners by running command: winrm enumerate winrm/config/listener"
-winrm enumerate winrm/config/listener
-
-# Add OpenSSH.Server
-Configure-OpenSSHService
-
-# Add AWS Tools
-Configure-AWS-Tools
-
-# ###########################
 # Download from S3 bucket
-# ###########################
 $keyPrefix = "download"
-$localFolder = "C:\Users\$username\Downloads"
+$localFolder = "C:\Users\Administrator\Downloads"
 
 # Get list of objects with the specified prefix
 $objects = Get-S3Object -BucketName ${s3_bucket} -KeyPrefix $keyPrefix
@@ -107,50 +76,46 @@ foreach ($obj in $objects) {
     }
 
     # Download the object
+    Write-Log -message "Downloading $obj.Key to $localPath" -level "INFO"
     Read-S3Object -BucketName ${s3_bucket} -Key $obj.Key -File $localPath
 }
 
-# ###########################
-# Basecamp agent
-# ###########################
-# Moved to SSM Document
-# Set-Location "$localFolder"
+# Enable Firewall Rules
+# TODO: How to make this persistent with GPOs and AD?
+Set-NetFirewallRule -DisplayGroup 'Remote Event Log Management' -Enabled True -PassThru |
+  Select-Object -Property DisplayName, Enabled
 
-# if (!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-#     Write-Warning "You are not running as an Administrator. Please try again with admin privileges."
-#     exit 1
-# }
+Set-NetFirewallRule -DisplayName 'COM+ Network Access (DCOM-In)' -Enabled True -PassThru |
+  Select-Object -Property DisplayName, Enabled
 
-# $archive="${tm_agent}_Windows.zip"
+${userdata_windows_join_ad}
 
-# if (Test-Path $archive) {
+# Remove Scheduled Task after it runs once
+Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
+'@
 
-#     Write-Host "Extracting XBC/Basecamp Package" -ForegroundColor Green
+# Save script
+$scriptContent | Set-Content -LiteralPath $taskPath -Force
 
-#     Expand-Archive -LiteralPath $localFolder/$archive -DestinationPath $localFolder -Force
+# Create a Scheduled Task to run after reboot
+$Action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-ExecutionPolicy Bypass -File $taskPath"
+$Trigger = New-ScheduledTaskTrigger -AtStartup
+$Settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -DontStopOnIdleEnd
+Register-ScheduledTask -TaskName $taskName -Action $Action -Trigger $Trigger -Settings $Settings -User "SYSTEM" -RunLevel Highest
 
-#     try {
-#         Write-Host "Starting XBC/Basecamp Install Process" -ForegroundColor Green
 
-#         Start-Process -FilePath $localFolder/EndpointBasecamp.exe -WorkingDirectory $localFolder -NoNewWindow
-
-#         Write-Host "Install Process Completed" -ForegroundColor Green
-#     }
-#     catch {
-#         # Catch errors if they exist.
-#         throw $_.Exception.Message
-
-#         Write-Host "The installer ran into an issue. Try running the installer manually to determine the casue." -ForegroundColor Red
-
-#         exit 3
-#     }
-# }
-
-# Join AD
 if ("${windows_ad_domain_name}" -ne "") {
-    Join-AD
+    $hostname = hostname
+    if ("$hostname" -ne "${windows_ad_hostname}") {
+        Write-Log -message "Changing Hostname to ${windows_ad_hostname}" -level "INFO"
+        Rename-Computer -NewName ${windows_ad_hostname} -Force
+        # Restart to apply hostname change
+        Restart-Computer -Force
+    } else {
+        Write-Log -message "Hostname: $hostname" -level "INFO"
+    }
 } else {
-    Write-Log -message "Not joining an Active Directory" -level "INFO"
+    Write-Log -message "Not changing host name" -level "INFO"
 }
 
 Stop-Transcript

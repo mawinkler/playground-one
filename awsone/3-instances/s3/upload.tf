@@ -11,6 +11,6 @@ resource "aws_s3_object" "object" {
     Name          = "${var.environment}-s3-object"
     Environment   = "${var.environment}"
     Product       = "playground-one"
-    Configuration = "ec2"
+    Configuration = "instances"
   }
 }

@@ -80,7 +80,7 @@ resource "aws_iam_policy" "ec2_policy_db" {
     Name          = "${var.environment}-ec2-policy-db"
     Environment   = "${var.environment}"
     Product       = "playground-one"
-    Configuration = "ec2"
+    Configuration = "instances"
   }
 }
 
@@ -107,7 +107,7 @@ resource "aws_iam_role" "ec2_role_db" {
     Name          = "${var.environment}-ec2-role-db"
     Environment   = "${var.environment}"
     Product       = "playground-one"
-    Configuration = "ec2"
+    Configuration = "instances"
   }
 }
 
@@ -127,6 +127,6 @@ resource "aws_iam_instance_profile" "ec2_profile_db" {
     Name          = "${var.environment}-ec2-profile-db"
     Environment   = "${var.environment}"
     Product       = "playground-one"
-    Configuration = "ec2"
+    Configuration = "instances"
   }
 }
