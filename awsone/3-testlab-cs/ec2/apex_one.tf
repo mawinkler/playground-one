@@ -44,7 +44,7 @@ resource "aws_instance" "apex_one_server" {
     type     = "winrm"
     port     = 5986
     user     = var.windows_username
-    password = random_password.windows_password.result
+    password = var.windows_ad_safe_password
     https    = true
     insecure = true
     timeout  = "13m"

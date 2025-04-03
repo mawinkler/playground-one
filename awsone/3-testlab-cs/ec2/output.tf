@@ -12,10 +12,6 @@ output "win_password" {
   value = var.active_directory ? var.windows_ad_safe_password : random_password.windows_password.result
 }
 
-output "win_local_admin_password" {
-  value = random_password.windows_password.result
-}
-
 #
 # Apex One
 #

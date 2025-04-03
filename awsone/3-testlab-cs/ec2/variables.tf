@@ -44,7 +44,7 @@ variable "windows_instance_type" {
 variable "windows_root_volume_size" {
   type        = number
   description = "Volumen size of root volumen of Windows Server"
-  default     = "30"
+  default     = "40"
 }
 
 variable "windows_root_volume_type" {

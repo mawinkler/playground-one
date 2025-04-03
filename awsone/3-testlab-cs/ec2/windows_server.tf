@@ -1,12 +1,6 @@
 # #############################################################################
 # Windows Member Servers / Clients
 # #############################################################################
-resource "random_password" "windows_password" {
-  length           = 16
-  special          = true
-  override_special = "!#$%&*()-_=+[]{}<>:?"
-}
-
 # Compute the AMI list: use provided AMIs or fallback to default AMI
 locals {
   ami_list = length(var.ami_windows_client) > 0 ? var.ami_windows_client : [
@@ -72,7 +66,7 @@ resource "aws_instance" "windows_client" {
     type     = "winrm"
     port     = 5986
     user     = var.windows_username
-    password = random_password.windows_password.result
+    password = var.windows_ad_safe_password
     https    = true
     insecure = true
     timeout  = "13m"
