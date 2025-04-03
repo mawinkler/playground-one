@@ -9,7 +9,7 @@ output "win_username" {
 }
 
 output "win_password" {
-  value = var.active_directory ? var.windows_ad_safe_password : random_password.windows_password.result
+  value = var.active_directory ? var.windows_ad_safe_password : null
 }
 
 #
