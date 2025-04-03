@@ -7,6 +7,8 @@ variable "public_security_group_id" {}
 
 variable "public_subnets" {}
 
+variable "private_security_group_id" {}
+
 variable "private_subnets" {}
 
 variable "key_name" {}
@@ -24,8 +26,6 @@ variable "vpn_gateway" {}
 variable "linux_username" {}
 
 variable "linux_hostname" {}
-
-variable "linux_web_hostname" {}
 
 variable "linux_count" {}
 
@@ -50,10 +50,6 @@ variable "linux_instance_type" {
 variable "windows_username" {}
 
 variable "windows_hostname" {}
-
-variable "create_linux" {}
-
-variable "create_windows" {}
 
 variable "active_directory" {}
 

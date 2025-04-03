@@ -3,12 +3,12 @@
 # #############################################################################
 resource "aws_instance" "linux-server" {
 
-  count = var.create_linux ? var.linux_count : 0
+  count = var.linux_count
 
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.linux_instance_type
   subnet_id              = var.vpn_gateway ? var.private_subnets[1] : var.public_subnets[0]
-  vpc_security_group_ids = [var.public_security_group_id]
+  vpc_security_group_ids = var.vpn_gateway ? [var.private_security_group_id] : [var.public_security_group_id]
   iam_instance_profile   = var.ec2_profile
   key_name               = var.key_name
 
@@ -24,7 +24,7 @@ resource "aws_instance" "linux-server" {
 
   connection {
     user        = var.linux_username
-    host        = self.public_ip
+    host        = coalesce(self.public_ip, self.private_ip)
     private_key = file("${var.private_key_path}")
   }
 }
@@ -87,7 +87,7 @@ resource "aws_ec2_traffic_mirror_session" "vns_traffic_mirror_session_linux" {
   }
 }
 
-resource "aws_ec2_traffic_mirror_session" "ddi_traffic_mirror_session_linux_db" {
+resource "aws_ec2_traffic_mirror_session" "ddi_traffic_mirror_session_linux" {
   count = var.deep_discovery_inspector ? length(aws_instance.linux-server) : 0
 
   description              = "DDI Traffic mirror session - linux Server"

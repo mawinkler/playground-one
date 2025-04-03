@@ -777,7 +777,7 @@ function apply() {
       ;;&
     ec2|instances|all)
       tf instances apply
-      printf '%s\n' "windows_password = \"$(terraform -chdir=${configs[instances]} output -raw windows_password)\""
+      printf '%s\n' "windows_password = \"$(terraform -chdir=${configs[instances]} output -raw windows_password 2>/dev/null || true)\""
       # printf '%s\n' "win_local_admin_password = \"$(terraform -chdir=${configs[instances]} output -raw win_local_admin_password)\""
       ;;&
     testlab-cs|all)
@@ -1428,7 +1428,7 @@ function output() {
       ;;&
     ec2|instances|all)
       tf instances output
-      printf '%s\n' "windows_password = \"$(terraform -chdir=${configs[instances]} output -raw windows_password)\""
+      printf '%s\n' "windows_password = \"$(terraform -chdir=${configs[instances]} output -raw windows_password 2>/dev/null || true)\""
       # printf '%s\n' "win_local_admin_password = \"$(terraform -chdir=${configs[instances]} output -raw win_local_admin_password)\""
       ;;&
     testlab-cs|all)

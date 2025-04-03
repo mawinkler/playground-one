@@ -3,12 +3,12 @@
 # #############################################################################
 resource "aws_instance" "windows-server" {
 
-  count = var.create_windows ? var.windows_count : 0
+  count = var.windows_count
 
   ami                    = data.aws_ami.windows.id
   instance_type          = var.windows_instance_type
   subnet_id              = var.vpn_gateway ? var.private_subnets[1] : var.public_subnets[0]
-  vpc_security_group_ids = [var.public_security_group_id]
+  vpc_security_group_ids = var.vpn_gateway ? [var.private_security_group_id] : [var.public_security_group_id]
   iam_instance_profile   = var.ec2_profile
   key_name               = var.key_name
 

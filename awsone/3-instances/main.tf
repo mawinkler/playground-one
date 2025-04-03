@@ -9,27 +9,25 @@ data "terraform_remote_state" "vpc" {
 module "ec2" {
   source = "./ec2"
 
-  environment              = var.environment
-  public_security_group_id = data.terraform_remote_state.vpc.outputs.public_security_group_id
-  public_subnets           = data.terraform_remote_state.vpc.outputs.public_subnets.*
-  private_subnets          = data.terraform_remote_state.vpc.outputs.private_subnets.*
-  key_name                 = data.terraform_remote_state.vpc.outputs.key_name
-  public_key               = data.terraform_remote_state.vpc.outputs.public_key
-  private_key_path         = data.terraform_remote_state.vpc.outputs.private_key_path
-  ec2_profile              = module.iam.ec2_profile
-  s3_bucket                = module.s3.s3_bucket
-  vpn_gateway              = var.vpn_gateway
-  linux_username           = var.linux_username
-  windows_username         = var.windows_username
-  windows_hostname         = "Windows-Server"
-  create_linux             = var.create_linux
-  linux_hostname           = "linuxdb"
-  linux_web_hostname       = "linuxweb"
-  create_windows           = var.create_windows
-  linux_count              = var.linux_count
-  windows_count            = var.windows_count
-  agent_deploy             = var.agent_deploy
-  agent_variant            = var.agent_variant
+  environment               = var.environment
+  public_security_group_id  = data.terraform_remote_state.vpc.outputs.public_security_group_id
+  public_subnets            = data.terraform_remote_state.vpc.outputs.public_subnets.*
+  private_security_group_id = data.terraform_remote_state.vpc.outputs.private_security_group_id
+  private_subnets           = data.terraform_remote_state.vpc.outputs.private_subnets.*
+  key_name                  = data.terraform_remote_state.vpc.outputs.key_name
+  public_key                = data.terraform_remote_state.vpc.outputs.public_key
+  private_key_path          = data.terraform_remote_state.vpc.outputs.private_key_path
+  ec2_profile               = module.iam.ec2_profile
+  s3_bucket                 = module.s3.s3_bucket
+  vpn_gateway               = var.vpn_gateway
+  linux_username            = var.linux_username
+  windows_username          = var.windows_username
+  windows_hostname          = "Windows-Server"
+  linux_hostname            = "linuxsrv"
+  linux_count               = var.linux_count
+  windows_count             = var.windows_count
+  agent_deploy              = var.agent_deploy
+  agent_variant             = var.agent_variant
 
   # PGO Active Directory
   active_directory         = var.active_directory
