@@ -4,7 +4,7 @@
 locals {
   security_groups = {
     data_port = {
-      name        = "${var.environment}-sg-vms-dataport"
+      name        = "${var.environment}-sg-vns-dataport"
       description = "Security group for Virtual Network Sensor Data Port"
       ingress = {
         inspection_traffic = {
@@ -17,20 +17,20 @@ locals {
     }
 
     management_port = {
-      name        = "${var.environment}-sg-vms-managementport"
+      name        = "${var.environment}-sg-vns-managementport"
       description = "Security group for Virtual Network Sensor Management Port"
       ingress = {
         ssh = {
           from        = 22
           to          = 22
           protocol    = "tcp"
-          cidr_blocks = var.access_ip
+          cidr_blocks = setunion(var.public_subnets_cidr, var.private_subnets_cidr)
         }
         http = {
           from        = 80
           to          = 80
           protocol    = "tcp"
-          cidr_blocks = var.access_ip
+          cidr_blocks = setunion(var.public_subnets_cidr, var.private_subnets_cidr)
         }
         vxlan = {
           from        = 4789

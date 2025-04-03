@@ -5,6 +5,8 @@ resource "aws_instance" "vns_va" {
   ami           = data.aws_ami.vns_va.id
   instance_type = var.instance_type
 
+  user_data = var.vns_token
+
   network_interface {
     network_interface_id = aws_network_interface.vns_va_ni_data.id
     device_index         = 0
@@ -21,8 +23,6 @@ resource "aws_instance" "vns_va" {
     Product       = "playground-one"
     Configuration = "nw"
   }
-
-  user_data = var.vns_token
 }
 
 resource "aws_network_interface" "vns_va_ni_data" {
@@ -51,8 +51,3 @@ resource "aws_network_interface" "vns_va_ni_management" {
     Configuration = "nw"
   }
 }
-
-# resource "aws_eip" "vns_va_public_ip" {
-#   network_interface = aws_network_interface.vns_va_ni_management.id
-#   domain            = "vpc"
-# }

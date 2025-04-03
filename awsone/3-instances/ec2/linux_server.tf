@@ -1,6 +1,5 @@
 # #############################################################################
-# Linux Instance
-#   Vision One Server & Workload Protection
+# Linux Instances
 # #############################################################################
 resource "aws_instance" "linux-server" {
 
@@ -70,9 +69,8 @@ resource "aws_ssm_association" "linux_sensor_agent" {
 }
 
 # Traffic Mirror
-# TODO: Support multiple instances, not only one
-resource "aws_ec2_traffic_mirror_session" "vns_traffic_mirror_session_linux_db" {
-  count = var.virtual_network_sensor ? var.create_linux ? var.linux_count > 0 ? var.linux_count : 0 : 0 : 0
+resource "aws_ec2_traffic_mirror_session" "vns_traffic_mirror_session_linux" {
+  count = var.virtual_network_sensor ? length(aws_instance.linux-server) : 0
 
   description              = "VNS Traffic mirror session - linux Server"
   session_number           = 1
@@ -90,7 +88,7 @@ resource "aws_ec2_traffic_mirror_session" "vns_traffic_mirror_session_linux_db" 
 }
 
 resource "aws_ec2_traffic_mirror_session" "ddi_traffic_mirror_session_linux_db" {
-  count = var.deep_discovery_inspector ? var.create_linux ? var.linux_count > 0 ? var.linux_count : 0 : 0 : 0
+  count = var.deep_discovery_inspector ? length(aws_instance.linux-server) : 0
 
   description              = "DDI Traffic mirror session - linux Server"
   session_number           = 1

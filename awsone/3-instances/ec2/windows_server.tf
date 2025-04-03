@@ -1,7 +1,5 @@
 # #############################################################################
-# Windows Instance
-#   Vision One Server & Workload Protection
-#   Atomic Launcher
+# Windows Instances
 # #############################################################################
 resource "aws_instance" "windows-server" {
 
@@ -88,9 +86,8 @@ resource "aws_ssm_association" "windows_sensor_agent" {
 }
 
 # Traffic Mirror
-# TODO: Support multiple instances, not only one
-resource "aws_ec2_traffic_mirror_session" "vns_traffic_mirror_session_win" {
-  count = var.virtual_network_sensor ? var.create_windows ? var.windows_count > 0 ? var.windows_count : 0 : 0 : 0
+resource "aws_ec2_traffic_mirror_session" "vns_traffic_mirror_session_windows" {
+  count = var.virtual_network_sensor ? length(aws_instance.windows-server) : 0
 
   description              = "VNS Traffic mirror session - Windows Server"
   session_number           = 1
@@ -107,8 +104,8 @@ resource "aws_ec2_traffic_mirror_session" "vns_traffic_mirror_session_win" {
   }
 }
 
-resource "aws_ec2_traffic_mirror_session" "ddi_traffic_mirror_session_win" {
-  count = var.deep_discovery_inspector ? var.create_windows ? var.windows_count > 0 ? var.windows_count : 0 : 0 : 0
+resource "aws_ec2_traffic_mirror_session" "ddi_traffic_mirror_session_windows" {
+  count = var.deep_discovery_inspector ? length(aws_instance.windows-server) : 0
 
   description              = "DDI Traffic mirror session - Windows Server"
   session_number           = 1
