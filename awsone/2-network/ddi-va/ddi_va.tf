@@ -36,7 +36,8 @@ resource "aws_instance" "ddi_va" {
 }
 
 resource "aws_network_interface" "ddi_va_ni_management" {
-  subnet_id       = var.vpn_gateway ? var.private_subnets[var.pgo_ddi_subnet_no] : var.public_subnets[var.pgo_ddi_subnet_no]
+  # subnet_id       = var.vpn_gateway ? var.private_subnets[var.pgo_ddi_subnet_no] : var.public_subnets[var.pgo_ddi_subnet_no]
+  subnet_id       = var.private_subnets[var.pgo_ddi_subnet_no]
   security_groups = [aws_security_group.sg["management_port"].id]
   description     = "Deep Discovery Inspector Management Port"
   private_ips     = [var.pgo_ddi_private_ip]

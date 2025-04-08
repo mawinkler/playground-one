@@ -168,69 +168,61 @@ output "mad_admin_password" {
 # Service Gateway
 #
 output "sg_va_pip" {
-  value = var.service_gateway ? module.sg[0].instance_sg_va_pip : null
+  value = var.service_gateway ? module.sg-va[0].instance_sg_va_pip : null
 }
 
 output "sg_va_ssh" {
   description = "Command to ssh to instance sg_va"
-  value       = var.service_gateway ? module.sg[0].ssh_instance_sg_va : null
+  value       = var.service_gateway ? module.sg-va[0].ssh_instance_sg_va : null
 }
 
-output "sg_ami" {
-  value = var.service_gateway ? module.sg[0].sg_ami : null
+output "sg_va_ami" {
+  value = var.service_gateway ? module.sg-va[0].sg_ami : null
 }
 
 #
 # Virtual Network Sensor
 #
-output "vns_va_ip" {
-  value = var.virtual_network_sensor ? module.vns[0].public_instance_ip_vns_va : null
+output "vns_va_pip" {
+  value = var.virtual_network_sensor ? module.vns-va[0].vns_va_pip : null
 }
 
 output "vns_va_ssh" {
   description = "Command to ssh to instance vns_va"
-  value       = var.virtual_network_sensor ? module.vns[0].ssh_instance_vns_va : null
+  value       = var.virtual_network_sensor ? module.vns-va[0].vns_va_ssh : null
 }
 
 output "vns_va_ami" {
-  value = var.virtual_network_sensor ? module.vns[0].vns_va_ami : null
+  value = var.virtual_network_sensor ? module.vns-va[0].vns_va_ami : null
 }
 
 output "vns_va_traffic_mirror_filter_id" {
-  value = var.virtual_network_sensor ? module.vns[0].vns_va_traffic_mirror_filter_id : null
+  value = var.virtual_network_sensor ? module.vns-va[0].vns_va_traffic_mirror_filter_id : null
 }
 
 output "vns_va_traffic_mirror_target_id" {
-  value = var.virtual_network_sensor ? module.vns[0].vns_va_traffic_mirror_target_id : null
+  value = var.virtual_network_sensor ? module.vns-va[0].vns_va_traffic_mirror_target_id : null
 }
 
 #
 # Deep Discovery Inspector
 #
 output "ddi_va_pip" {
-  value = var.deep_discovery_inspector ? module.ddi[0].ddi_va_pip : null
+  value = var.deep_discovery_inspector ? module.ddi-va[0].ddi_va_pip : null
 }
-
-# output "ddi_va_pip_dataport" {
-#   value = var.deep_discovery_inspector ? module.ddi[0].ddi_va_pip_dataport_public : null
-# }
-
-# output "ddi_va_pip_dataport_private_subnet" {
-#   value = var.deep_discovery_inspector ? module.ddi[0].ddi_va_pip_dataport_private : null
-# }
 
 output "ddi_va_pip_managementport" {
-  value = var.deep_discovery_inspector ? module.ddi[0].ddi_va_pip_managementport : null
+  value = var.deep_discovery_inspector ? module.ddi-va[0].ddi_va_pip_managementport : null
 }
 
-output "ddi_ami" {
-  value = var.deep_discovery_inspector ? module.ddi[0].ddi_ami : null
+output "ddi_va_ami" {
+  value = var.deep_discovery_inspector ? module.ddi-va[0].ddi_ami : null
 }
 
 output "ddi_va_traffic_mirror_filter_id" {
-  value = var.deep_discovery_inspector ? module.ddi[0].ddi_va_traffic_mirror_filter_id : null
+  value = var.deep_discovery_inspector ? module.ddi-va[0].ddi_va_traffic_mirror_filter_id : null
 }
 
-# output "ddi_va_traffic_mirror_target_id" {
-#   value = var.deep_discovery_inspector ? module.ddi[0].ddi_va_traffic_mirror_target_id : null
-# }
+output "ddi_va_traffic_mirror_target_id" {
+  value = var.deep_discovery_inspector ? module.ddi-va[0].ddi_va_traffic_mirror_target_id : null
+}

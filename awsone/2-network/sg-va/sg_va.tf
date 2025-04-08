@@ -1,19 +1,6 @@
 # #############################################################################
 # Linux Instance for Service Gateway
 # #############################################################################
-resource "aws_network_interface" "sg_va" {
-  subnet_id       = var.vpn_gateway ? var.private_subnets[0] : var.public_subnets[0]
-  security_groups = var.vpn_gateway ? [var.private_security_group_id] : [var.public_security_group_id]
-  private_ips     = [var.pgo_sg_private_ip]
-
-  tags = {
-    Name          = "${var.environment}-pgo-ca-ni"
-    Environment   = "${var.environment}"
-    Product       = "playground-one"
-    Configuration = "nw"
-  }
-}
-
 resource "aws_instance" "sg_va" {
   ami           = var.ami_service_gateway != "" ? var.ami_service_gateway : data.aws_ami.sg_va.id
   instance_type = var.instance_type
@@ -36,4 +23,19 @@ resource "aws_instance" "sg_va" {
   }
 
   user_data = local.userdata_sg_va
+}
+
+resource "aws_network_interface" "sg_va" {
+  # subnet_id       = var.vpn_gateway ? var.private_subnets[0] : var.public_subnets[0]
+  # security_groups = var.vpn_gateway ? [var.private_security_group_id] : [var.public_security_group_id]
+  subnet_id       = var.private_subnets[0]
+  security_groups = [var.private_security_group_id]
+  private_ips     = [var.pgo_sg_private_ip]
+
+  tags = {
+    Name          = "${var.environment}-pgo-ca-ni"
+    Environment   = "${var.environment}"
+    Product       = "playground-one"
+    Configuration = "nw"
+  }
 }

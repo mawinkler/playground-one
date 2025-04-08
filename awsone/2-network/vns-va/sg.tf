@@ -1,8 +1,7 @@
 # #############################################################################
-# Create
-#   Security Group
+# Security Groups
 # #############################################################################
-resource "aws_security_group" "sg_sg_va" {
+resource "aws_security_group" "sg_va" {
   for_each    = local.security_groups
   name        = each.value.name
   description = each.value.description
@@ -27,7 +26,7 @@ resource "aws_security_group" "sg_sg_va" {
   }
 
   tags = {
-    Name          = "${var.environment}-public-vns-va"
+    Name          = "${var.environment}-vns-va"
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "nw"

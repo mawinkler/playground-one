@@ -1,6 +1,7 @@
 # #############################################################################
 # Traffic Mirror
 # #############################################################################
+# https://docs.trendmicro.com/en-us/documentation/article/trend-vision-one-network-sensor-traffic-mirror
 resource "aws_ec2_traffic_mirror_filter" "vns_traffic_filter" {
   description      = "VirtualNetworkSensor-TrafficMirrorFilter"
   network_services = ["amazon-dns"]

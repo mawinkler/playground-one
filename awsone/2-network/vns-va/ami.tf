@@ -1,5 +1,5 @@
 # #############################################################################
-# Look up the latest Ubuntu Focal 20.04 AMI
+# Look up the latest Virtual Network Sensor AMI
 # #############################################################################
 data "aws_ami" "vns_va" {
   most_recent = true

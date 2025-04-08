@@ -81,14 +81,14 @@ module "ad" {
   ami_active_directory_ca = try(var.ami_active_directory_ca, "")
 
   virtual_network_sensor          = var.virtual_network_sensor
-  vns_va_traffic_mirror_filter_id = try(module.vns[0].vns_va_traffic_mirror_filter_id, "")
-  vns_va_traffic_mirror_target_id = try(module.vns[0].vns_va_traffic_mirror_target_id, "")
+  vns_va_traffic_mirror_filter_id = try(module.vns-va[0].vns_va_traffic_mirror_filter_id, "")
+  vns_va_traffic_mirror_target_id = try(module.vns-va[0].vns_va_traffic_mirror_target_id, "")
 }
 
-module "sg" {
+module "sg-va" {
   count = var.service_gateway ? 1 : 0
 
-  source = "./sg"
+  source = "./sg-va"
 
   access_ip                 = var.access_ip
   environment               = var.environment
@@ -100,19 +100,19 @@ module "sg" {
   public_subnets_cidr       = module.vpc.public_subnet_cidr_blocks
   private_subnets_cidr      = module.vpc.private_subnet_cidr_blocks
   key_name                  = module.ec2.key_name
-  vpn_gateway               = var.vpn_gateway
   public_key                = module.ec2.public_key
   private_key_path          = module.ec2.private_key_path
   instance_type             = "c5.2xlarge"
   pgo_sg_private_ip         = var.pgo_sg_private_ip
+  # vpn_gateway               = var.vpn_gateway
 
   ami_service_gateway = try(var.ami_service_gateway, "")
 }
 
-module "vns" {
+module "vns-va" {
   count = var.virtual_network_sensor ? 1 : 0
 
-  source = "./vns"
+  source = "./vns-va"
 
   access_ip            = var.access_ip
   environment          = var.environment
@@ -123,15 +123,15 @@ module "vns" {
   private_subnets_cidr = module.vpc.private_subnet_cidr_blocks
   instance_type        = "t3.large"
   vns_token            = var.vns_token
-  vpn_gateway          = var.vpn_gateway
-  pgo_vns_private_ip   = var.pgo_ddi_private_ip
+  pgo_vns_private_ip   = var.pgo_vns_private_ip
   pgo_vns_subnet_no    = 1
+  # vpn_gateway          = var.vpn_gateway
 }
 
-module "ddi" {
+module "ddi-va" {
   count = var.deep_discovery_inspector ? 1 : 0
 
-  source = "./ddi"
+  source = "./ddi-va"
 
   access_ip                = var.access_ip
   environment              = var.environment
@@ -142,12 +142,12 @@ module "ddi" {
   public_subnets_cidr      = module.vpc.public_subnet_cidr_blocks
   private_subnets_cidr     = module.vpc.private_subnet_cidr_blocks
   key_name                 = module.ec2.key_name
-  vpn_gateway              = var.vpn_gateway
   public_key               = module.ec2.public_key
   private_key_path         = module.ec2.private_key_path
   instance_type            = "m5a.2xlarge"
   pgo_ddi_private_ip       = var.pgo_ddi_private_ip
   pgo_ddi_subnet_no        = 1
+  # vpn_gateway              = var.vpn_gateway
 
   ami_deep_discovery_inspector = try(var.ami_deep_discovery_inspector, "")
 }

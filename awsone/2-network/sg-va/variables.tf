@@ -11,11 +11,13 @@ variable "public_security_group_id" {}
 
 variable "public_subnets" {}
 
+variable "private_security_group_id" {}
+
 variable "private_subnets" {}
 
 variable "key_name" {}
 
-variable "vpn_gateway" {}
+# variable "vpn_gateway" {}
 
 variable "public_key" {}
 
@@ -27,11 +29,9 @@ variable "private_subnets_cidr" {}
 
 variable "instance_type" {}
 
-variable "pgo_ddi_private_ip" {}
+variable "pgo_sg_private_ip" {}
 
-variable "pgo_ddi_subnet_no" {}
-
-variable "ami_deep_discovery_inspector" {
+variable "ami_service_gateway" {
   type        = string
   description = "AMI to use for instance creation."
   default     = ""

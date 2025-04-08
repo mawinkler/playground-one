@@ -18,7 +18,7 @@ resource "aws_instance" "vns_va" {
   }
 
   tags = {
-    Name          = "${var.environment}-vns"
+    Name          = "${var.environment}-vns-va"
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "nw"
@@ -26,8 +26,9 @@ resource "aws_instance" "vns_va" {
 }
 
 resource "aws_network_interface" "vns_va_ni_data" {
-  subnet_id       = var.vpn_gateway ? var.private_subnets[var.pgo_vns_subnet_no] : var.public_subnets[0]
-  security_groups = [aws_security_group.sg_sg_va["data_port"].id]
+  # subnet_id       = var.vpn_gateway ? var.private_subnets[var.pgo_vns_subnet_no] : var.public_subnets[0]
+  subnet_id       = var.private_subnets[var.pgo_vns_subnet_no]
+  security_groups = [aws_security_group.sg_va["data_port"].id]
   description     = "Virtual Network Sensor Data Port"
 
   tags = {
@@ -39,8 +40,9 @@ resource "aws_network_interface" "vns_va_ni_data" {
 }
 
 resource "aws_network_interface" "vns_va_ni_management" {
-  subnet_id       = var.vpn_gateway ? var.private_subnets[var.pgo_vns_subnet_no] : var.public_subnets[0]
-  security_groups = [aws_security_group.sg_sg_va["management_port"].id]
+  # subnet_id       = var.vpn_gateway ? var.private_subnets[var.pgo_vns_subnet_no] : var.public_subnets[0]
+  subnet_id       = var.private_subnets[var.pgo_vns_subnet_no]
+  security_groups = [aws_security_group.sg_va["management_port"].id]
   description     = "Virtual Network Sensor Management Port"
   private_ips     = [var.pgo_vns_private_ip]
 
