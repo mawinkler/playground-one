@@ -7,13 +7,13 @@ resource "aws_instance" "ddi_va" {
   key_name      = var.key_name
 
   network_interface {
-    network_interface_id = aws_network_interface.ddi_va_ni_management.id
-    device_index         = 1
+    network_interface_id = aws_network_interface.ddi_va_ni_data_private.id
+    device_index         = 0
   }
 
   network_interface {
-    network_interface_id = aws_network_interface.ddi_va_ni_data_private.id
-    device_index         = 0
+    network_interface_id = aws_network_interface.ddi_va_ni_management.id
+    device_index         = 1
   }
 
   network_interface {

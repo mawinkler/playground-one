@@ -38,12 +38,12 @@ module "ec2" {
   # VNS
   virtual_network_sensor          = var.virtual_network_sensor
   vns_va_traffic_mirror_filter_id = try(data.terraform_remote_state.vpc.outputs.vns_va_traffic_mirror_filter_id, "")
-  vns_va_traffic_mirror_target_id = try(data.terraform_remote_state.vpc.outputs.vns_va_traffic_mirror_target_id, "")
+  vns_va_traffic_mirror_target_id = var.vpn_gateway ? try(data.terraform_remote_state.vpc.outputs.vns_va_traffic_mirror_target_private_id, "") : try(data.terraform_remote_state.vpc.outputs.vns_va_traffic_mirror_target_public_id, "")
 
   # DDI
   deep_discovery_inspector        = var.deep_discovery_inspector
   ddi_va_traffic_mirror_filter_id = try(data.terraform_remote_state.vpc.outputs.ddi_va_traffic_mirror_filter_id, "")
-  ddi_va_traffic_mirror_target_id = try(data.terraform_remote_state.vpc.outputs.ddi_va_traffic_mirror_target_id, "")
+  ddi_va_traffic_mirror_target_id = var.vpn_gateway ? try(data.terraform_remote_state.vpc.outputs.ddi_va_traffic_mirror_target_private_id, "") : try(data.terraform_remote_state.vpc.outputs.ddi_va_traffic_mirror_target_public_id, "")
 }
 
 module "iam" {

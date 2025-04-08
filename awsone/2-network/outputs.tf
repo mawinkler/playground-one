@@ -200,8 +200,12 @@ output "vns_va_traffic_mirror_filter_id" {
   value = var.virtual_network_sensor ? module.vns-va[0].vns_va_traffic_mirror_filter_id : null
 }
 
-output "vns_va_traffic_mirror_target_id" {
-  value = var.virtual_network_sensor ? module.vns-va[0].vns_va_traffic_mirror_target_id : null
+output "vns_va_traffic_mirror_target_private_id" {
+  value = var.virtual_network_sensor ? module.vns-va[0].vns_va_traffic_mirror_target_private_id : null
+}
+
+output "vns_va_traffic_mirror_target_public_id" {
+  value = var.virtual_network_sensor ? module.vns-va[0].vns_va_traffic_mirror_target_public_id : null
 }
 
 #
@@ -223,6 +227,10 @@ output "ddi_va_traffic_mirror_filter_id" {
   value = var.deep_discovery_inspector ? module.ddi-va[0].ddi_va_traffic_mirror_filter_id : null
 }
 
-output "ddi_va_traffic_mirror_target_id" {
-  value = var.deep_discovery_inspector ? module.ddi-va[0].ddi_va_traffic_mirror_target_id : null
+output "ddi_va_traffic_mirror_target_private_id" {
+  value = var.deep_discovery_inspector ? module.ddi-va[0].ddi_va_traffic_mirror_target_private_id : null
+}
+
+output "ddi_va_traffic_mirror_target_public_id" {
+  value = var.deep_discovery_inspector ? module.ddi-va[0].ddi_va_traffic_mirror_target_public_id : null
 }

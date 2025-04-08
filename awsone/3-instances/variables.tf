@@ -2,12 +2,12 @@
 # Number of instances and Vision One Deployment here
 variable "linux_count" {
   type    = number
-  default = 2
+  default = 1
 }
 
 variable "windows_count" {
   type    = number
-  default = 2
+  default = 1
 }
 # /CUSTOMIZE
 

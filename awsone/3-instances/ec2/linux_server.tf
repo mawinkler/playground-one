@@ -91,7 +91,7 @@ resource "aws_ec2_traffic_mirror_session" "ddi_traffic_mirror_session_linux" {
   count = var.deep_discovery_inspector ? length(aws_instance.linux-server) : 0
 
   description              = "DDI Traffic mirror session - linux Server"
-  session_number           = 1
+  session_number           = 2
   network_interface_id     = aws_instance.linux-server[count.index].primary_network_interface_id
   traffic_mirror_filter_id = var.ddi_va_traffic_mirror_filter_id
   traffic_mirror_target_id = var.ddi_va_traffic_mirror_target_id
