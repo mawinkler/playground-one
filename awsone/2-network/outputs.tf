@@ -144,7 +144,7 @@ output "ad_domain_admin" {
 }
 
 output "ad_admin_password" {
-  value     = var.active_directory ? module.ad[0].ad_admin_password : null
+  value     = var.ad_admin_password
   sensitive = true
 }
 

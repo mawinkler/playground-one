@@ -8,6 +8,9 @@ aws_secret_key = "${aws_pgo_user_secret_key}"
 # Allow access to the environment from any location or restrict it to your public ip
 access_ip = ${pgo_access_ip}
 
+# PGO VPN Gateway
+vpn_gateway = ${vpn_gateway}
+
 # Linux Username (Do not change)
 linux_username = "ubuntu"
 

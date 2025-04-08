@@ -7,7 +7,7 @@ variable "linux_count" {
 
 variable "windows_count" {
   type    = number
-  default = 0
+  default = 2
 }
 # /CUSTOMIZE
 

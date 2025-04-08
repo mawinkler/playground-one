@@ -104,18 +104,27 @@ $Settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoi
 Register-ScheduledTask -TaskName $taskName -Action $Action -Trigger $Trigger -Settings $Settings -User "SYSTEM" -RunLevel Highest
 
 
-if ("${windows_ad_domain_name}" -ne "") {
-    $hostname = hostname
-    if ("$hostname" -ne "${windows_ad_hostname}") {
-        Write-Log -message "Changing Hostname to ${windows_ad_hostname}" -level "INFO"
-        Rename-Computer -NewName ${windows_ad_hostname} -Force
-        # Restart to apply hostname change
-        Restart-Computer -Force
-    } else {
-        Write-Log -message "Hostname: $hostname" -level "INFO"
-    }
+# if ("${windows_ad_domain_name}" -ne "") {
+#     $hostname = hostname
+#     if ("$hostname" -ne "${windows_ad_hostname}") {
+#         Write-Log -message "Changing Hostname to ${windows_ad_hostname}" -level "INFO"
+#         Rename-Computer -NewName ${windows_ad_hostname} -Force
+#         # Restart to apply hostname change
+#         Restart-Computer -Force
+#     } else {
+#         Write-Log -message "Hostname: $hostname" -level "INFO"
+#     }
+# } else {
+#     Write-Log -message "Not changing host name" -level "INFO"
+# }
+
+if ("$hostname" -ne "${windows_ad_hostname}") {
+    Write-Log -message "Changing Hostname to ${windows_ad_hostname}" -level "INFO"
+    Rename-Computer -NewName ${windows_ad_hostname} -Force
+    # Restart to apply hostname change
+    Restart-Computer -Force
 } else {
-    Write-Log -message "Not changing host name" -level "INFO"
+    Write-Log -message "Hostname: $hostname" -level "INFO"
 }
 
 Stop-Transcript
