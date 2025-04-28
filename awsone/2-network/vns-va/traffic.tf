@@ -39,6 +39,6 @@ resource "aws_ec2_traffic_mirror_target" "vns_traffic_filter_target_private" {
 resource "aws_ec2_traffic_mirror_target" "vns_traffic_filter_target_public" {
   depends_on           = [ aws_network_interface.vns_va_ni_data_public, aws_instance.vns_va ]
 
-  description          = "Data Port Target Private"
+  description          = "Data Port Target Public"
   network_interface_id = aws_network_interface.vns_va_ni_data_public.id
 }
