@@ -1,0 +1,189 @@
+#!/usr/bin/env bash
+
+bold=$(tput bold)
+normal=$(tput sgr0)
+yellow=$(tput setaf 3)
+blue=$(tput setaf 4)
+red=$(tput setaf 1)
+green=$(tput setaf 2)
+
+# Test internet connectivity
+ping -c 1 -w 3 8.8.8.8 &> /dev/null
+if [[ $? > 0 ]] ; then
+  printf '%s\n' "${bold}${red}!!! No network connection !!!${normal}"
+  sleep 3
+  exit 0
+fi
+
+set -e
+
+export DEBIAN_FRONTEND=noninteractive
+
+[ -f $ONEPATH/banner.txt ] && cat $ONEPATH/banner.txt
+
+# Source helpers
+if [ -f $ONEPATH/bin/playground-helpers.sh ]; then
+  .  $ONEPATH/bin/playground-helpers.sh
+else
+  curl -fsSL https://raw.githubusercontent.com/mawinkler/playground-one/main/bin/playground-helpers.sh -o /tmp/playground-helpers.sh
+  . /tmp/playground-helpers.sh
+fi
+
+#######################################
+# Configuration Map
+# Globals:
+#   ONEPATH
+# Arguments:
+#   None
+# Outputs:
+#   configs
+#######################################
+# declare -A configs=$(< ${ONEPATH}/bin/.configs)  # problematic with pgoc and px since we'd need the file there
+declare -A configs
+configs=(
+  ["all"]=${ONEPATH}
+  ["user"]=${ONEPATH}/awsone/1-pgo-user
+  ["satellite"]=${ONEPATH}/awsone/1-pgo-satellite
+  ["network"]=${ONEPATH}/awsone/2-network
+  ["network-retrieve"]=${ONEPATH}/awsone/2-network
+  ["network-delete"]=${ONEPATH}/awsone/2-network
+  ["nw"]=${ONEPATH}/awsone/2-network
+  ["nw-retrieve"]=${ONEPATH}/awsone/2-network
+  ["nw-delete"]=${ONEPATH}/awsone/2-network
+  ["ec2"]=${ONEPATH}/awsone/3-instances
+  ["instances"]=${ONEPATH}/awsone/3-instances
+  ["testlab-cs"]=${ONEPATH}/awsone/3-testlab-cs
+  ["testlab-cs-retrieve"]=${ONEPATH}/awsone/3-testlab-cs
+  ["testlab-cs-delete"]=${ONEPATH}/awsone/3-testlab-cs
+  ["eks"]=${ONEPATH}/awsone/4-cluster-eks-ec2
+  ["eks-ec2"]=${ONEPATH}/awsone/4-cluster-eks-ec2
+  ["eks-ec2-deployments"]=${ONEPATH}/awsone/8-cluster-eks-ec2-deployments
+  ["eks-fg"]=${ONEPATH}/awsone/4-cluster-eks-fargate
+  ["eks-fg-deployments"]=${ONEPATH}/awsone/8-cluster-eks-fargate-deployments
+  ["aks"]=${ONEPATH}/azone/4-cluster-aks
+  ["aks-deployments"]=${ONEPATH}/azone/8-cluster-aks-deployments
+  ["ecs-ec2"]=${ONEPATH}/awsone/5-cluster-ecs-ec2
+  ["ecs-fg"]=${ONEPATH}/awsone/5-cluster-ecs-fargate
+  ["bucketscanner"]=${ONEPATH}/awsone/6-bucket-scanner
+  ["scenarios-cloudtrail"]=${ONEPATH}/awsone/7-scenarios-cloudtrail
+  ["scenarios-cspm"]=${ONEPATH}/awsone/7-scenarios-cspm
+  ["scenarios-data"]=${ONEPATH}/awsone/7-scenarios-data
+  ["scenarios"]=${ONEPATH}/awsone/7-scenarios-ec2
+  ["scenarios-ec2"]=${ONEPATH}/awsone/7-scenarios-ec2
+  ["scenarios-fg"]=${ONEPATH}/awsone/7-scenarios-fargate
+  ["scenarios-identity"]=${ONEPATH}/awsone/7-scenarios-identity
+  ["scenarios-zerotrust"]=${ONEPATH}/awsone/7-scenarios-zerotrust
+  ["scenarios-aks"]=${ONEPATH}/azone/7-scenarios-aks
+  ["goat"]=${ONEPATH}/awsone/7-goat
+  ["deepsecurity"]=${ONEPATH}/awsone/9-deep-security
+  ["dsm"]=${ONEPATH}/awsone/9-deep-security
+  ["dsw"]=${ONEPATH}/awsone/9-deep-security-workload
+  ["wsw"]=${ONEPATH}/awsone/9-workload-security-workload
+  ["kind"]=${ONEPATH}/kindone/4-cluster-kind
+  ["scenarios-kind"]=${ONEPATH}/kindone/7-scenarios-kind
+  ["kind-deployments"]=${ONEPATH}/kindone/8-cluster-kind-deployments
+)
+
+
+function checklock() {
+  config=$1
+
+  if [[ -f ${ONEPATH}/.pgo.$config.lock ]] ; then
+    return
+  fi
+  false
+}
+
+if checklock testlab-cs; then
+  s3_bucket=$(terraform -chdir=${configs[testlab-cs]} output -raw s3_bucket)
+  printf '%s\n' "S3 Bucket: ${s3_bucket}"
+fi
+
+function s3put() {
+  if [[ -d $1 ]]; then
+    printf '%s\n' "$1 is a directory"
+    aws s3 cp $1 s3://${s3_bucket}/$1 --recursive
+  elif [[ -f $1 ]]; then
+    printf '%s\n' "$1 is a file"
+    aws s3 cp $1 s3://${s3_bucket}/
+  else
+    printf '%s\n' "$1 does not exist"
+  fi
+}
+
+function s3get() {
+  not_exist=$(aws s3api head-object --bucket ${s3_bucket} --key $1 >/dev/null 2>/dev/null; echo $?)
+  if [ ${not_exist} == 254 ]; then
+    printf '%s\n' "$1 is a directory"
+    aws s3 cp s3://${s3_bucket}/$1 . --recursive
+  else
+    printf '%s\n' "$1 is a file"
+    aws s3 cp s3://${s3_bucket}/$1 .
+  fi
+}
+
+function helpcmd() {
+
+  printf '%s\n' "Usage: s3cp -<command> <configuration> ..."
+  printf '%s\n' ""
+  printf '%s\n' "The available commands for execution are listed below."
+  printf '%s\n' ""
+  printf '%s\n' "Main commands:"
+  printf '%s\n' "  -p --put       Set/update Playground One main configuration"
+  printf '%s\n' "  -g --get       Prepare a configuration for other commands"
+  printf '%s\n' ""
+  printf '%s\n' "Examples:"
+  printf '%s\n' "  pgo --put <file/directory>"
+  printf '%s\n' "  pgo --get <file/directory>"
+}
+
+#######################################
+# Main:
+#######################################
+[ -z "$1" ] && helpcmd
+
+if [ -f ${ONEPATH}/config.yaml ]; then
+  get_config
+fi
+
+# Check if we're using a PGO user
+export AWS_ACCESS_KEY_ID=${aws_pgo_user_access_key}
+export AWS_SECRET_ACCESS_KEY=${aws_pgo_user_secret_key}
+if ${aws_pgo_user_enabled} ; then
+  printf '%s\n' "Using PDO User Access Key ID: ...${aws_pgo_user_access_key:(-4)}"
+else
+  printf '%s\n' "Using System Access Key or Instance Role"
+fi
+
+opts_short=p:g:
+opts_long=put:,get:
+
+if is_darwin; then
+  TEMP=$(/opt/homebrew/opt/gnu-getopt/bin/getopt -o ${opts_short}C: --long ${opts_long},colima: -- "$@")
+
+  if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+
+  eval set -- "$TEMP"
+else
+  TEMP=$(getopt -o ${opts_short} --long ${opts_long} -- "$@")
+  if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+
+  eval set -- "$TEMP"
+fi
+
+# Check if IP address changed
+configured_cidr=${pgo_access_ip//[\[\]\"]/}
+current_cidr=$(curl -s ifconfig.me && echo)'/32'
+if [[ ${configured_cidr} != *"$current_cidr"* ]] ; then
+  printf '%s\n' "${bold}${red}!!! Access IP mismatch !!!${normal}"
+  sleep 3
+fi
+
+while true; do
+  case "$1" in
+    -p | --put ) s3put $2; shift 2 ;;
+    -g | --get ) s3get $2; shift 2 ;;
+    -- ) shift; break ;;
+    * ) break ;;
+  esac
+done
