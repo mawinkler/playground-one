@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+
+.  $ONEPATH/bin/playground-helpers.sh
+
+if [ -f ${ONEPATH}/config.yaml ]; then
+  get_config
+fi
+
+# export AWS_ACCESS_KEY_ID=${aws_pgo_user_access_key}
+# export AWS_SECRET_ACCESS_KEY=${aws_pgo_user_secret_key}
+
+cd ${ONEPATH}
+
+user=$(whoami)
+
+function create_pgo_runner() {
+
+  cat <<EOF >${ONEPATH}/bin/pgo-run
+#!/bin/bash
+
+export TERM=xterm-256color
+export ONEPATH=${ONEPATH}
+export PATH=${PATH}
+
+pgo \$@
+EOF
+  chmod +x ${ONEPATH}/bin/pgo-run
+}
+
+function create_config() {
+
+  cat <<EOF >${ONEPATH}/.olivetin.yaml
+# Listen on all addresses available, port 1337
+listenAddressSingleHTTPFrontend: 0.0.0.0:1337
+
+# Choose from INFO (default), WARN and DEBUG
+logLevel: "INFO"
+checkForUpdates: false
+pageTitle: Playground One Testlab-CS
+showFooter: false
+# showNavigation: false
+
+# Docs: https://docs.olivetin.app/action_execution/create_your_first.html
+actions:
+  - title: Playground Status
+    shell: /home/${user}/playground-one/bin/pgo-run -l
+    icon: <iconify-icon icon="f7:status"></iconify-icon>
+    popupOnStart: execution-dialog-stdout-only
+
+  - title: Snapshots
+    icon: <iconify-icon icon="material-symbols:heap-snapshot-multiple-outline"></iconify-icon>
+    shell: /home/${user}/playground-one/bin/pgo-run {{ action }} {{ configuration }}
+    popupOnStart: execution-dialog-stdout-only
+    timeout: 10
+    arguments:
+      - name: action
+        title: Action
+        choices:
+          - value: --snapshot-freeze
+          - value: --snapshot-retrieve
+          - value: --snapshot-delete
+          - value: --snapshot-list-tags
+      - name: configuration
+        title: Configuration
+        choices:
+          - value: network
+          - value: testlab-cs
+
+  - title: Playground Kind
+    shell: /home/${user}/playground-one/bin/pgo-run {{ action }} kind
+    icon: <iconify-icon icon="devicon:kubernetes"></iconify-icon>
+    popupOnStart: execution-dialog-stdout-only
+    timeout: 900
+    arguments:
+      - name: action
+        title: Action
+        choices:
+          - value: --apply
+          - value: --output
+          - value: --destroy
+
+  - title: Ping the Internet
+    shell: ping -c 3 1.1.1.1
+    icon: ping
+    popupOnStart: execution-dialog-stdout-only
+
+# Docs: https://docs.olivetin.app/entities/intro.html
+entities:
+
+# Docs: https://docs.olivetin.app/dashboards/intro.html
+dashboards:
+EOF
+  sudo mv .olivetin.yaml /etc/OliveTin/config.yaml
+}
+
+case "$1" in
+  install)
+    printf '%s\n' "Installing OliveTin"
+    wget https://github.com/OliveTin/OliveTin/releases/latest/download/OliveTin_linux_amd64.deb
+    sudo dpkg -i OliveTin_linux_amd64.deb
+    create_pgo_runner
+    create_config
+    sudo systemctl enable --now OliveTin
+    ;;
+  remove)
+    ;;
+  start)
+    sudo systemctl start OliveTin
+    ;;
+  stop)
+    sudo systemctl stop OliveTin
+    ;;
+  restart)
+    sudo systemctl restart OliveTin
+    ;;
+  *)
+    printf 'Parameter start or stop required.\n'
+    ;;
+esac
+

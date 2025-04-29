@@ -21,6 +21,13 @@ locals {
           cidr_blocks = var.access_ip
           description = "Allow SSH Access"
         }
+        olivetin = {
+          from        = 1337
+          to          = 1337
+          protocol    = "tcp"
+          cidr_blocks = var.access_ip
+          description = "Allow OliveTin Access"
+        }
         instance_connect = {
           from        = 22
           to          = 22
