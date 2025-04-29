@@ -94,8 +94,8 @@ function checklock() {
   false
 }
 
-if checklock testlab-cs; then
-  s3_bucket=$(terraform -chdir=${configs[testlab-cs]} output -raw s3_bucket)
+if checklock network; then
+  s3_bucket=$(terraform -chdir=${configs[network]} output -raw s3_bucket)
   printf '%s\n' "S3 Bucket: ${s3_bucket}"
 fi
 
