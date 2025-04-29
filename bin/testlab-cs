@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+.  $ONEPATH/bin/playground-helpers.sh
+
+if [ -f ${ONEPATH}/config.yaml ]; then
+  get_config
+fi
+
+cd ${ONEPATH}/awsone/3-testlab-cs
+
+environment=${2:-pgo-cs}
+
+instances=$(aws ec2 describe-instances --filters Name=tag:Configuration,Values=testlab-cs --filters Name=tag:Environment,Values=${environment} | \
+  jq -r '.Reservations[].Instances[].Tags[] | select(.Key == "Name") | .Value')
+
+printf '\n%s\n' "These instances will be started or stopped:"
+printf '%s\n' $instances
+printf '\n%s\n' "${bold}Do you really want to proceed?${normal}"
+printf '%s\n' "  Only 'yes' will be accepted to approve."
+read -p "${bold}Enter a value: ${normal}" TEMP
+
+if [[ "${TEMP}" == "yes" ]]; then
+  case "$1" in
+    start)
+      for instance in $(aws ec2 describe-instances --filters Name=tag:Configuration,Values=testlab-cs --filters Name=tag:Environment,Values=${environment} --region ${aws_region} | \
+        jq -r '.Reservations[].Instances[].InstanceId ') ; do
+        printf 'State %s: %s\n' ${instance} "$(aws ec2 start-instances --instance-ids ${instance} --region ${aws_region} | \
+          jq -r '.StartingInstances[0].CurrentState.Name')"
+      done
+      ;;
+    stop)
+      for instance in $(aws ec2 describe-instances --filters Name=tag:Configuration,Values=testlab-cs --filters Name=tag:Environment,Values=${environment} --region ${aws_region} | \
+        jq -r '.Reservations[].Instances[].InstanceId ') ; do
+        printf 'State %s: %s\n' ${instance} "$(aws ec2 stop-instances --instance-ids ${instance} --region ${aws_region} | \
+          jq -r '.StoppingInstances[0].CurrentState.Name')"
+      done
+      ;;
+    *)
+      printf 'Parameter start or stop required.\n'
+      ;;
+  esac
+fi
