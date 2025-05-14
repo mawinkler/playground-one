@@ -1,5 +1,5 @@
 # #############################################################################
-# Look up the latest Service Gateway AMI
+# Marketplace AMI for Service Gateway
 # #############################################################################
 data "aws_ami" "sg_va" {
   most_recent = true

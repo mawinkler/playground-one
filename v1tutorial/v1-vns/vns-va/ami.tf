@@ -1,5 +1,5 @@
 # #############################################################################
-# Look up the latest Virtual Network Sensor AMI
+# Marketplace AMI for Virtual Network Sensor
 # #############################################################################
 data "aws_ami" "vns_va" {
   most_recent = true

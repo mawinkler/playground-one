@@ -32,7 +32,7 @@ awsone/1-pgo-vpn/generated
 vpn-peers
 vpn-rdps
 vpn-secrets.yaml
-awsone-demo
+1-pgo-satellite-20250429
 
 # Generic
 *.out
@@ -99,3 +99,4 @@ stacks/*/*/*.log
 temp/
 bin/lambda.py
 bin/telemetry.md
+awsone/9-deep-security-public-subnet/dsm/apikey

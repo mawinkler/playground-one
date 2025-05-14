@@ -20,7 +20,7 @@ resource "aws_instance" "windows-server" {
     Type          = "${var.environment}-windows-server"
   }
 
-  user_data = templatefile("${path.module}/userdata_windows.tftpl", {
+  user_data = templatefile("${path.module}/templates/userdata_windows.tftpl", {
     windows_ad_user_name     = var.windows_username
     windows_ad_hostname      = "Member-${count.index}"
     windows_ad_safe_password = var.windows_ad_safe_password

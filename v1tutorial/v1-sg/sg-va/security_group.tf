@@ -1,6 +1,5 @@
 # #############################################################################
-# Create
-#   Security Group
+# Security Group
 # #############################################################################
 resource "aws_security_group" "sg_va" {
   name        = "service-gateway-va-sg"
@@ -10,11 +9,10 @@ resource "aws_security_group" "sg_va" {
   tags = {
     Name          = "${var.environment}-sg-sg-va"
     Environment   = "${var.environment}"
-    Product       = "playground-one"
-    Configuration = "nw"
   }
 }
 
+# https://docs.trendmicro.com/en-us/documentation/article/trend-vision-one-sg-ports-used
 resource "aws_vpc_security_group_ingress_rule" "allow_ssh" {
   security_group_id = aws_security_group.sg_va.id
   cidr_ipv4         = "10.0.0.0/16"
@@ -48,7 +46,7 @@ resource "aws_vpc_security_group_ingress_rule" "allow_wrs1" {
   from_port         = 5274
   to_port           = 5274
   ip_protocol       = "tcp"
-  description       = "Web Reputation Services or Web Inspection Service queries"
+  description       = "Web Reputation Services or Web Inspection Service queries (HTTP traffic)"
 }
 
 resource "aws_vpc_security_group_ingress_rule" "allow_wrs2" {
@@ -57,7 +55,7 @@ resource "aws_vpc_security_group_ingress_rule" "allow_wrs2" {
   from_port         = 5275
   to_port           = 5275
   ip_protocol       = "tcp"
-  description       = "Web Reputation Services or Web Inspection Service queries"
+  description       = "Web Reputation Services or Web Inspection Service queries (HTTPS traffic)"
 }
 
 resource "aws_vpc_security_group_ingress_rule" "allow_forward_proxy" {
@@ -69,11 +67,38 @@ resource "aws_vpc_security_group_ingress_rule" "allow_forward_proxy" {
   description       = "Forward Proxy Service listening port for connection"
 }
 
-resource "aws_vpc_security_group_ingress_rule" "allow_ztsa" {
+resource "aws_vpc_security_group_ingress_rule" "allow_ztsa_connection" {
   security_group_id = aws_security_group.sg_va.id
   cidr_ipv4         = "10.0.0.0/16"
   from_port         = 8088
   to_port           = 8088
   ip_protocol       = "tcp"
   description       = "Zero Trust Secure Access On-Premises Gateway listening port for connection"
+}
+
+resource "aws_vpc_security_group_ingress_rule" "allow_ztsa_user_auth" {
+  security_group_id = aws_security_group.sg_va.id
+  cidr_ipv4         = "10.0.0.0/16"
+  from_port         = 8088
+  to_port           = 8088
+  ip_protocol       = "tcp"
+  description       = "Zero Trust Secure Access On-Premises Gateway user authentication listening port for connection"
+}
+
+resource "aws_vpc_security_group_ingress_rule" "allow_ztsa_icap" {
+  security_group_id = aws_security_group.sg_va.id
+  cidr_ipv4         = "10.0.0.0/16"
+  from_port         = 8088
+  to_port           = 8088
+  ip_protocol       = "tcp"
+  description       = "Zero Trust Secure Access On-Premises Gateway ICAP listening port for connection"
+}
+
+resource "aws_vpc_security_group_ingress_rule" "allow_ztsa_icaps" {
+  security_group_id = aws_security_group.sg_va.id
+  cidr_ipv4         = "10.0.0.0/16"
+  from_port         = 8088
+  to_port           = 8088
+  ip_protocol       = "tcp"
+  description       = "Zero Trust Secure Access On-Premises Gateway ICAPS listening port for connection"
 }
