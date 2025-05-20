@@ -28,7 +28,5 @@ resource "aws_security_group" "wireguard" {
   tags = {
     Name          = "${each.value.name}"
     Environment   = "${var.environment}"
-    Product       = "playground-one"
-    Configuration = "nw"
   }
 }

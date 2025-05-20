@@ -20,6 +20,20 @@ resource "aws_iam_policy" "ec2_policy" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
+      # PGO S3 Bucket
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "s3:GetObject",
+          "s3:GetObjectVersion",
+          "s3:List*"
+        ],
+        "Resource" : [
+          "arn:aws:s3:::${var.s3_bucket}",
+          "arn:aws:s3:::${var.s3_bucket}/*"
+        ]
+      },
+      # Systems Manager
       {
         "Effect" : "Allow",
         "Action" : [

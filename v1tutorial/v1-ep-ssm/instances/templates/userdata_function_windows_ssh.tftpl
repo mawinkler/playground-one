@@ -1,0 +1,65 @@
+$port_ssh=22
+
+function Add-FirewallRule-SSH {
+    
+    try {
+        # Delete an exisitng rule
+        Write-Log -message "Deleting the existing firewall rule for port $port_ssh"
+        netsh advfirewall firewall delete rule name="SSH Daemon (SSH-In)" dir=in protocol=TCP localport=$port_ssh | Out-Null
+
+        # Add a new firewall rule
+        Write-Log -message "Adding the firewall rule for port $port_ssh"
+        netsh advfirewall firewall add rule name="SSH Daemon (SSH-In)" dir=in action=allow protocol=TCP localport=$port_ssh | Out-Null
+    } catch { Write-log -message "Add/Remove firewall rule - "+ $_.Exception.message -level "ERROR"}
+    
+}
+
+
+function Configure-OpenSSHService {
+
+    try {
+        Write-Log -message "Adding OpenSSH.Server"
+        Add-WindowsCapability -Online -Name OpenSSH.Server
+        Add-WindowsCapability -Online -Name OpenSSH.Client
+
+        Write-Log -message "Enabling automatic startup for OpenSSH.Server"
+        Get-Service sshd | Set-Service -StartupType Automatic
+
+        Write-Log -message "Starting OpenSSH.Server"
+        Start-Service sshd
+
+        # Write-Log -message "Setting default shell for OpenSSH.Server"
+        New-ItemProperty -Path "HKLM:\SOFTWARE\OpenSSH" -Name DefaultShell -Value (Get-Command powershell.exe).Path -PropertyType String -Force
+
+        # Get the public key 
+        $authorizedKey = "${public_key}"
+        # New-Item -Force -ItemType Directory -Path $env:USERPROFILE\.ssh; Add-Content -Force -Path $env:USERPROFILE\.ssh\authorized_keys -Value $authorizedKey
+        # New-Item -Force -ItemType Directory -Path C:\Users\${windows_username}\.ssh; Add-Content -Force -Path C:\Users\${windows_username}\.ssh\authorized_keys -Value $authorizedKey
+        New-Item -Force -ItemType File -Path C:\ProgramData\ssh\administrators_authorized_keys
+        Add-Content -Force -Path C:\ProgramData\ssh\administrators_authorized_keys -Value $authorizedKey
+
+        # Set the config to allow the pubkey auth
+        $sshd_config="C:\ProgramData\ssh\sshd_config"
+        (Get-Content $sshd_config) -replace '#PubkeyAuthentication', 'PubkeyAuthentication' | Out-File -encoding ASCII $sshd_config
+        (Get-Content $sshd_config) -replace 'AuthorizedKeysFile	.ssh/authorized_keys', '#AuthorizedKeysFile	.ssh/authorized_keys' | Out-File -encoding ASCII $sshd_config
+        # (Get-Content $sshd_config) -replace 'AuthorizedKeysFile __PROGRAMDATA__', 'AuthorizedKeysFile __PROGRAMDATA__' | Out-File -encoding ASCII $sshd_config
+        # (Get-Content $sshd_config) -replace 'Match Group administrators', '#Match Group administrators' | Out-File -encoding ASCII $sshd_config
+
+        # Set proper permissions on administrators_authorized_keys
+        icacls.exe "C:\ProgramData\ssh\administrators_authorized_keys" /inheritance:r /grant "Administrators:F" /grant "SYSTEM:F"
+
+        Get-Content C:\ProgramData\ssh\sshd_config
+
+        # Reload the config
+        Write-Log -message "Reload the config"
+        Restart-Service sshd
+
+        Write-Log -message "OpenSSH.Server running"
+    } catch  { Write-log -message "configure openssh service - "+ $_.Exception.message -level "ERROR"}
+}
+
+# Add Firewall rules
+Add-FirewallRule-SSH
+
+# Add OpenSSH.Server
+Configure-OpenSSHService

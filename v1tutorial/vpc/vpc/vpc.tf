@@ -39,8 +39,6 @@ module "vpc" {
   tags = {
     Name          = "${var.environment}-vpc"
     Environment   = "${var.environment}"
-    Product       = "playground-one"
-    Configuration = "nw"
   }
 
   intra_subnet_tags = {

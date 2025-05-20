@@ -19,9 +19,12 @@ resource "aws_instance" "windows-server" {
   }
 
   user_data = templatefile("${path.module}/templates/userdata_windows.tftpl", {
+    s3_bucket                = var.s3_bucket
     windows_ad_user_name     = var.windows_username
     windows_ad_hostname      = "Member-${count.index}"
     windows_ad_safe_password = var.windows_ad_safe_password
+    windows_ad_domain_name   = ""
+    tm_agent                 = var.agent_variant
 
     userdata_windows_winrm   = local.userdata_function_windows_winrm
     userdata_windows_ssh     = local.userdata_function_windows_ssh
@@ -29,17 +32,36 @@ resource "aws_instance" "windows-server" {
   })
 }
 
-# Traffic Mirror
-resource "aws_ec2_traffic_mirror_session" "vns_traffic_mirror_session_windows" {
-  count = length(aws_instance.windows-server)
+# AWS Systems Manager
+resource "aws_ssm_association" "windows_server_agent" {
+  count = var.agent_deploy ? var.agent_variant == "TMServerAgent" ? var.windows_count : 0 : 0
 
-  description              = "VNS Traffic mirror session - Windows Server"
-  session_number           = 1  # Session numbers must be unique per ENI, not globally.
-  network_interface_id     = aws_instance.windows-server[count.index].primary_network_interface_id
-  traffic_mirror_filter_id = var.vns_va_traffic_mirror_filter_id
-  traffic_mirror_target_id = var.vns_va_traffic_mirror_target_id
+  name = aws_ssm_document.server-agent-windows.name
+
+  targets {
+    key    = "InstanceIds"
+    values = [aws_instance.windows-server[count.index].id]
+  }
+
   tags = {
-    Name          = "${var.environment}-windows-server-${count.index}-traffic-mirror-session"
+    Name          = "${var.environment}-windows-server-${count.index}-ssm-association"
+    Environment   = "${var.environment}"
+    Type          = "${var.environment}-windows-server"
+  }
+}
+
+resource "aws_ssm_association" "windows_sensor_agent" {
+  count = var.agent_deploy ? var.agent_variant == "TMSensorAgent" ? var.windows_count : 0 : 0
+
+  name = aws_ssm_document.sensor-agent-windows.name
+
+  targets {
+    key    = "InstanceIds"
+    values = [aws_instance.windows-server[count.index].id]
+  }
+
+  tags = {
+    Name          = "${var.environment}-windows-server-${count.index}-ssm-association"
     Environment   = "${var.environment}"
     Type          = "${var.environment}-windows-server"
   }

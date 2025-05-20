@@ -15,8 +15,6 @@ resource "aws_instance" "linux-server" {
   tags = {
     Name          = "${var.environment}-linux-server-${count.index}"
     Environment   = "${var.environment}"
-    Product       = "playground-one"
-    Configuration = "instances"
     Type          = "${var.environment}-linux-server"
   }
 
@@ -40,8 +38,6 @@ resource "aws_ec2_traffic_mirror_session" "vns_traffic_mirror_session_linux" {
   tags = {
     Name          = "${var.environment}-linux-server-${count.index}-traffic-mirror-session"
     Environment   = "${var.environment}"
-    Product       = "playground-one"
-    Configuration = "instances"
     Type          = "${var.environment}-linux-server"
   }
 }

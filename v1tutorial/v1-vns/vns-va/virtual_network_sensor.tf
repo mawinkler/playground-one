@@ -27,8 +27,6 @@ resource "aws_instance" "vns_va" {
   tags = {
     Name          = "${var.environment}-vns-va"
     Environment   = "${var.environment}"
-    Product       = "playground-one"
-    Configuration = "nw"
   }
 }
 
@@ -40,8 +38,6 @@ resource "aws_network_interface" "vns_va_ni_data_private" {
   tags = {
     Name          = "${var.environment}-vns-ni-data"
     Environment   = "${var.environment}"
-    Product       = "playground-one"
-    Configuration = "nw"
   }
 }
 
@@ -53,8 +49,6 @@ resource "aws_network_interface" "vns_va_ni_data_public" {
   tags = {
     Name          = "${var.environment}-vns-ni-data"
     Environment   = "${var.environment}"
-    Product       = "playground-one"
-    Configuration = "nw"
   }
 }
 
@@ -67,8 +61,6 @@ resource "aws_network_interface" "vns_va_ni_management" {
   tags = {
     Name          = "${var.environment}-vns-ni-management"
     Environment   = "${var.environment}"
-    Product       = "playground-one"
-    Configuration = "nw"
   }
 }
 

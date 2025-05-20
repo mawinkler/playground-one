@@ -33,7 +33,5 @@ resource "aws_instance" "wireguard" {
   tags = {
     Name          = "${var.environment}-wireguard"
     Environment   = "${var.environment}"
-    Product       = "playground-one"
-    Configuration = "nw"
   }
 }

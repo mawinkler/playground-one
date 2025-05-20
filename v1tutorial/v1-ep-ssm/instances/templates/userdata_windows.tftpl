@@ -1,0 +1,129 @@
+<powershell>
+Start-Transcript -Path 'C:/userdata.log'
+
+$logfilepath="C:\agent.log"
+
+Set-ExecutionPolicy unrestricted -Force
+
+function Write-Log {
+    param(
+        [Parameter(Mandatory = $true)][string] $message,
+        [Parameter(Mandatory = $false)]
+        [ValidateSet("INFO","WARN","ERROR")]
+        [string] $level = "INFO"
+    )
+    # Create timestamp
+    $timestamp = (Get-Date).toString("yyyy/MM/dd HH:mm:ss")
+    # Append content to log file
+    Add-Content -Path $logfilepath -Value "$timestamp [$level] - $message"
+}
+
+net user Administrator "${windows_ad_safe_password}"
+
+# Define script path
+$taskPath = "C:\continue_userdata.ps1"
+$taskName = "ContinueUserData"
+
+# Save only the "post-reboot" portion of the script
+$scriptContent = @'
+$logfilepath="C:\agent.log"
+Set-ExecutionPolicy unrestricted -Force
+
+function Write-Log {
+    param(
+        [Parameter(Mandatory = $true)][string] $message,
+        [Parameter(Mandatory = $false)]
+        [ValidateSet("INFO","WARN","ERROR")]
+        [string] $level = "INFO"
+    )
+    # Create timestamp
+    $timestamp = (Get-Date).toString("yyyy/MM/dd HH:mm:ss")
+    # Append content to log file
+    Add-Content -Path $logfilepath -Value "$timestamp [$level] - $message"
+}
+
+# Wait for network and domain services to start
+Start-Sleep -Seconds 60
+
+# Example: Install a program after reboot
+Write-Log -message "Resuming User Data Execution..." -level "INFO"
+
+${userdata_windows_winrm}
+
+${userdata_windows_ssh}
+
+${userdata_windows_aws}
+
+# Download from S3 bucket
+$keyPrefix = "download"
+$localFolder = "C:\Users\Administrator\Downloads"
+
+# Get list of objects with the specified prefix
+$objects = Get-S3Object -BucketName ${s3_bucket} -KeyPrefix $keyPrefix
+
+# Iterate through each object and download it to the local folder
+foreach ($obj in $objects) {
+    # Remove the prefix from the object key to determine the local path
+    $relativePath = $obj.Key.Substring($keyPrefix.Length)
+
+    # Combine the local folder path with the relative object path
+    $localPath = Join-Path $localFolder $relativePath
+
+    # Ensure the directory structure exists
+    $localDir = Split-Path $localPath -Parent
+    if (-not (Test-Path $localDir)) {
+        New-Item -ItemType Directory -Path $localDir
+    }
+
+    # Download the object
+    Write-Log -message "Downloading $obj.Key to $localPath" -level "INFO"
+    Read-S3Object -BucketName ${s3_bucket} -Key $obj.Key -File $localPath
+}
+
+# Enable Firewall Rules
+# TODO: How to make this persistent with GPOs and AD?
+Set-NetFirewallRule -DisplayGroup 'Remote Event Log Management' -Enabled True -PassThru |
+  Select-Object -Property DisplayName, Enabled
+
+Set-NetFirewallRule -DisplayName 'COM+ Network Access (DCOM-In)' -Enabled True -PassThru |
+  Select-Object -Property DisplayName, Enabled
+
+# Remove Scheduled Task after it runs once
+Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
+'@
+
+# Save script
+$scriptContent | Set-Content -LiteralPath $taskPath -Force
+
+# Create a Scheduled Task to run after reboot
+$Action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-ExecutionPolicy Bypass -File $taskPath"
+$Trigger = New-ScheduledTaskTrigger -AtStartup
+$Settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -DontStopOnIdleEnd
+Register-ScheduledTask -TaskName $taskName -Action $Action -Trigger $Trigger -Settings $Settings -User "SYSTEM" -RunLevel Highest
+
+
+# if ("${windows_ad_domain_name}" -ne "") {
+#     $hostname = hostname
+#     if ("$hostname" -ne "${windows_ad_hostname}") {
+#         Write-Log -message "Changing Hostname to ${windows_ad_hostname}" -level "INFO"
+#         Rename-Computer -NewName ${windows_ad_hostname} -Force
+#         # Restart to apply hostname change
+#         Restart-Computer -Force
+#     } else {
+#         Write-Log -message "Hostname: $hostname" -level "INFO"
+#     }
+# } else {
+#     Write-Log -message "Not changing host name" -level "INFO"
+# }
+
+if ("$hostname" -ne "${windows_ad_hostname}") {
+    Write-Log -message "Changing Hostname to ${windows_ad_hostname}" -level "INFO"
+    Rename-Computer -NewName ${windows_ad_hostname} -Force
+    # Restart to apply hostname change
+    Restart-Computer -Force
+} else {
+    Write-Log -message "Hostname: $hostname" -level "INFO"
+}
+
+Stop-Transcript
+</powershell>

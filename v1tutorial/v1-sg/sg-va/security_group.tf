@@ -13,6 +13,8 @@ resource "aws_security_group" "sg_va" {
 }
 
 # https://docs.trendmicro.com/en-us/documentation/article/trend-vision-one-sg-ports-used
+# These ports are strictly for internal network traffic and the Service Gateway
+# does not require any external inbound ports to be opened.
 resource "aws_vpc_security_group_ingress_rule" "allow_ssh" {
   security_group_id = aws_security_group.sg_va.id
   cidr_ipv4         = "10.0.0.0/16"
@@ -79,8 +81,8 @@ resource "aws_vpc_security_group_ingress_rule" "allow_ztsa_connection" {
 resource "aws_vpc_security_group_ingress_rule" "allow_ztsa_user_auth" {
   security_group_id = aws_security_group.sg_va.id
   cidr_ipv4         = "10.0.0.0/16"
-  from_port         = 8088
-  to_port           = 8088
+  from_port         = 8089
+  to_port           = 8089
   ip_protocol       = "tcp"
   description       = "Zero Trust Secure Access On-Premises Gateway user authentication listening port for connection"
 }
@@ -88,8 +90,8 @@ resource "aws_vpc_security_group_ingress_rule" "allow_ztsa_user_auth" {
 resource "aws_vpc_security_group_ingress_rule" "allow_ztsa_icap" {
   security_group_id = aws_security_group.sg_va.id
   cidr_ipv4         = "10.0.0.0/16"
-  from_port         = 8088
-  to_port           = 8088
+  from_port         = 1344
+  to_port           = 1344
   ip_protocol       = "tcp"
   description       = "Zero Trust Secure Access On-Premises Gateway ICAP listening port for connection"
 }
@@ -97,8 +99,26 @@ resource "aws_vpc_security_group_ingress_rule" "allow_ztsa_icap" {
 resource "aws_vpc_security_group_ingress_rule" "allow_ztsa_icaps" {
   security_group_id = aws_security_group.sg_va.id
   cidr_ipv4         = "10.0.0.0/16"
-  from_port         = 8088
-  to_port           = 8088
+  from_port         = 11344
+  to_port           = 11344
   ip_protocol       = "tcp"
   description       = "Zero Trust Secure Access On-Premises Gateway ICAPS listening port for connection"
+}
+
+# Firewall requirements for Service Gateway virtual appliance outbound traffic
+# differ depending on your Trend Vision One environment. Refer to Firewall
+# exception requirements for Trend Vision One to ensure you configure the 
+# correct "Allow" rules.
+# https://docs.trendmicro.com/en-us/documentation/article/trend-vision-one-firewall-exception-requirements-for#GUID-778BDEF9-D1F1-4FB1-BF6E-BFBC46D00FEF
+#
+# Note:
+# Port 443 (HTTPS) is the only outbound port required for the Service Gateway
+# exceptions listed in Firewall exception requirements for Trend Vision One.
+resource "aws_vpc_security_group_egress_rule" "allow_outgoing" {
+  security_group_id = aws_security_group.sg_va.id
+
+  cidr_ipv4   = "0.0.0.0/0"
+  from_port   = 443
+  to_port     = 443
+  ip_protocol = "tcp"
 }

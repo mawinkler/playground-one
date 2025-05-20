@@ -23,8 +23,6 @@ resource "aws_key_pair" "key_pair" {
   tags = {
     Name          = "${var.environment}-key-pair-${random_string.suffix.result}"
     Environment   = "${var.environment}"
-    Product       = "playground-one"
-    Configuration = "nw"
   }
 }
 
