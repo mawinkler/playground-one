@@ -32,13 +32,4 @@ variable "psql_username" {}
 
 variable "psql_password" {}
 
-#
-# Bastion
-#
-variable "bastion_public_ip" {}
-
-variable "bastion_private_ip" {}
-
-variable "bastion_private_key" {}
-
 variable "postgresql_private_ip" {}

@@ -803,7 +803,9 @@ function apply() {
       fi
 
       if [ "${pgo_vpn_gateway}" == 'true' ]; then
-        wg-quick up $ONEPATH/vpn-peers/pgo_admin.conf
+        if [ -f ${ONEPATH}/vpn-peers/pgo_admin.conf ]; then
+          wg-quick up ${ONEPATH}/vpn-peers/pgo_admin.conf
+        fi
       fi
       ;;&
     ec2|instances|all)
@@ -1338,7 +1340,9 @@ function destroy() {
         # AWS_ACCESS_KEY_ID="" \
         #   AWS_SECRET_ACCESS_KEY="" \
         if [ "${pgo_vpn_gateway}" == 'true' ]; then
-          wg-quick down $ONEPATH/vpn-peers/pgo_admin.conf
+          if [ -f ${ONEPATH}/vpn-peers/pgo_admin.conf ]; then
+            wg-quick down ${ONEPATH}/vpn-peers/pgo_admin.conf
+          fi
         fi
 
         tf network destroy

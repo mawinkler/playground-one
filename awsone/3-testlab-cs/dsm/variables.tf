@@ -43,15 +43,6 @@ variable "dsm_password" {}
 variable "dsm_private_ip" {}
 
 #
-# Bastion
-#
-variable "bastion_public_ip" {}
-
-variable "bastion_private_ip" {}
-
-variable "bastion_private_key" {}
-
-#
 # Database
 #
 variable "rds_address" {}

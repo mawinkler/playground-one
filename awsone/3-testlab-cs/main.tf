@@ -18,7 +18,7 @@ module "ec2" {
   public_key                = data.terraform_remote_state.vpc.outputs.public_key
   private_key_path          = data.terraform_remote_state.vpc.outputs.private_key_path
   ec2_profile               = module.iam.ec2_profile
-  s3_bucket                 = module.s3.s3_bucket
+  s3_bucket                 = data.terraform_remote_state.vpc.outputs.s3_bucket  # module.s3.s3_bucket
   windows_username          = var.windows_username
   create_apex_one_server    = var.create_apex_one_server
   create_apex_one_central   = var.create_apex_one_central
@@ -43,14 +43,7 @@ module "iam" {
 
   environment = var.environment
   aws_region  = var.aws_region
-  s3_bucket   = module.s3.s3_bucket
-  # ssm_key     = data.terraform_remote_state.vpc.outputs.ssm_key
-}
-
-module "s3" {
-  source = "./s3"
-
-  environment = var.environment
+  s3_bucket   = data.terraform_remote_state.vpc.outputs.s3_bucket
 }
 
 #
@@ -88,28 +81,6 @@ module "psql" {
   postgresql_private_ip     = var.postgresql_private_ip
 
   ami_postgresql = try(var.ami_postgresql, "")
-
-  bastion_public_ip   = module.bastion[0].bastion_public_ip
-  bastion_private_ip  = module.bastion[0].bastion_private_ip
-  bastion_private_key = data.terraform_remote_state.vpc.outputs.private_key
-}
-
-module "bastion" {
-  count = var.create_dsm ? 1 : 0
-
-  source = "./bastion"
-
-  environment              = var.environment
-  public_security_group_id = data.terraform_remote_state.vpc.outputs.public_security_group_id
-  public_subnets           = data.terraform_remote_state.vpc.outputs.public_subnets.*
-  key_name                 = data.terraform_remote_state.vpc.outputs.key_name
-  private_key_path         = data.terraform_remote_state.vpc.outputs.private_key_path
-  ec2_profile              = module.iam.ec2_profile
-  linux_username           = "ubuntu"
-  bastion_private_ip       = var.bastion_private_ip
-  dsm_private_ip           = var.dsm_private_ip
-
-  ami_bastion = try(var.ami_bastion, "")
 }
 
 module "dsm" {
@@ -129,7 +100,7 @@ module "dsm" {
   private_key_path          = data.terraform_remote_state.vpc.outputs.private_key_path
   ec2_profile               = module.iam.ec2_profile
   dsm_private_ip            = var.dsm_private_ip
-  s3_bucket                 = module.s3.s3_bucket
+  s3_bucket                 = data.terraform_remote_state.vpc.outputs.s3_bucket
   linux_username            = var.linux_username
 
   ami_dsm = try(var.ami_dsm, "")
@@ -143,8 +114,4 @@ module "dsm" {
   rds_username = var.rds_username
   # rds_password = module.rds[0].rds_password
   rds_password = try(module.psql[0].postgres_password, module.rds[0].rds_password)
-
-  bastion_public_ip   = module.bastion[0].bastion_public_ip
-  bastion_private_ip  = module.bastion[0].bastion_private_ip
-  bastion_private_key = data.terraform_remote_state.vpc.outputs.private_key
 }

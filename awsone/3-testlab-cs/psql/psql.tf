@@ -49,9 +49,6 @@ resource "aws_instance" "postgres" {
     user             = "ubuntu"
     host             = self.private_ip
     private_key      = file("${var.private_key_path}")
-    bastion_host     = var.bastion_public_ip
-    bastion_user     = "ubuntu"
-    bastion_host_key = var.public_key
   }
 
   provisioner "remote-exec" {

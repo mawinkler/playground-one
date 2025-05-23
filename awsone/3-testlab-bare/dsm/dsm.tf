@@ -34,7 +34,7 @@ resource "aws_instance" "dsm" {
   }
 
   tags = {
-    Name          = "${var.environment}-dsm"
+    Name          = "${var.environment}-dsm-bare"
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "testlab-bare"

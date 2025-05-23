@@ -134,7 +134,7 @@ resource "aws_iam_instance_profile" "ec2_profile" {
     Name          = "${var.environment}-ec2-profile"
     Environment   = "${var.environment}"
     Product       = "playground-one"
-    Configuration = "etestlab-cs2"
+    Configuration = "testlab-cs"
   }
 }
 

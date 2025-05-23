@@ -46,9 +46,6 @@ resource "aws_instance" "dsm" {
     user             = var.linux_username
     host             = self.private_ip
     private_key      = file("${var.private_key_path}")
-    bastion_host     = var.bastion_public_ip
-    bastion_user     = "ubuntu"
-    bastion_host_key = var.public_key
   }
 
   # DSM properties file
@@ -82,14 +79,14 @@ resource "random_string" "apikey_suffix" {
 resource "null_resource" "create_apikey" {
   provisioner "local-exec" {
     command = <<-EOT
-      rid=$(curl --insecure -X POST https://${var.bastion_public_ip}:4119/api/sessions \
+      rid=$(curl --insecure -X POST https://${aws_instance.dsm.private_ip}:4119/api/sessions \
         -H 'Cache-Control: no-cache' \
         -H 'Content-Type: application/json' \
         -H 'api-version: v1' \
         -c cookie.txt -d '{"userName": "${var.dsm_username}", "password": "${var.dsm_password}"}' | \
         jq -r '.RID')
       
-      curl --insecure -X POST https://${var.bastion_public_ip}:4119/api/apikeys \
+      curl --insecure -X POST https://${aws_instance.dsm.private_ip}:4119/api/apikeys \
         -H 'Content-Type: application/json' \
         -H 'api-version: v1' \
         -H 'rID: '$rid \

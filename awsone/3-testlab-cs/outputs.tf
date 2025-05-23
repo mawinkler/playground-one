@@ -118,23 +118,12 @@ output "windows_client_ssh" {
 # S3
 #
 output "s3_bucket" {
-  value = module.s3.s3_bucket
+  value = data.terraform_remote_state.vpc.outputs.s3_bucket
 }
 
 output "userdata_windows_client" {
   value     = module.ec2.userdata_windows_client
   sensitive = true
-}
-
-#
-# Bastion
-#
-output "bastion_public_ip" {
-  value = length(module.bastion) > 0 ? module.bastion[0].bastion_public_ip : null
-}
-
-output "bastion_private_ip" {
-  value = length(module.bastion) > 0 ? module.bastion[0].bastion_private_ip : null
 }
 
 #
@@ -169,10 +158,6 @@ output "dsm_ssh" {
 }
 
 output "dsm_url" {
-  value = length(module.dsm) > 0 ? module.dsm[0].dsm_url : null
-}
-
-output "dsm_purl" {
   value = length(module.dsm) > 0 ? module.dsm[0].dsm_purl : null
 }
 

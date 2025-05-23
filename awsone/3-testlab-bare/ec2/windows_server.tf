@@ -36,7 +36,7 @@ resource "aws_instance" "windows_client" {
   user_data = templatefile("${path.module}/userdata_windows_client.tftpl", {
     s3_bucket                = var.s3_bucket
     windows_ad_user_name     = var.windows_username
-    windows_ad_hostname      = "Client-${each.key}"
+    windows_ad_hostname      = "Bare-${each.key}"
     windows_ad_safe_password = var.windows_ad_safe_password
     windows_ad_domain_name   = var.active_directory ? var.windows_ad_domain_name : ""
 
@@ -54,7 +54,7 @@ resource "aws_instance" "windows_client" {
   }
 
   tags = {
-    Name          = "${var.environment}-windows-client-${each.key}"
+    Name          = "${var.environment}-windows-bare-${each.key}"
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "testlab-bare"

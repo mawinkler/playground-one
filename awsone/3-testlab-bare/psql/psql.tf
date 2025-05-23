@@ -39,7 +39,7 @@ resource "aws_instance" "postgres" {
   }
 
   tags = {
-    Name          = "${var.environment}-postgresql"
+    Name          = "${var.environment}-postgresql-bare"
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "testlab-bare"

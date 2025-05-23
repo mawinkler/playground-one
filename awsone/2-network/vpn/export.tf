@@ -24,4 +24,6 @@ resource "local_file" "peer_conf" {
     client_dns     = join(",", local.client_dns),
     client_routes  = join(",", local.client_routes),
   })
+
+  file_permission = 600
 }
