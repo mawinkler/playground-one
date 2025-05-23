@@ -17,6 +17,7 @@ module "ec2" {
   private_subnets_cidr = module.vpc.private_subnet_cidr_blocks
   private_subnets      = module.vpc.private_subnets.*
   private_route_tables = module.vpc.private_route_table_ids
+  s3_bucket            = module.s3.s3_bucket
 }
 
 module "vpn" {
@@ -43,6 +44,12 @@ module "vpn" {
 #   private_subnets = module.vpc.private_subnets
 #   public_subnets  = module.vpc.public_subnets
 # }
+
+module "s3" {
+  source = "./s3"
+
+  environment = var.environment
+}
 
 module "mad" {
   count = var.managed_active_directory ? 1 : 0

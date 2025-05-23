@@ -1,9 +1,9 @@
 # #############################################################################
 # Look up the latest Ubuntu Focal 20.04 AMI
 # #############################################################################
-data "aws_ami" "ubuntu" {
-  most_recent = true
-  owners      = ["099720109477"] # Canonical
+data "aws_ami" "rhel" {
+  most_recent = false
+  owners      = ["309956199498"] # RHEL
 
   filter {
     name   = "virtualization-type"
@@ -22,6 +22,6 @@ data "aws_ami" "ubuntu" {
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+    values = ["RHEL-9.2.0_HVM-20230905-x86_64-38-Hourly2-GP2"]
   }
 }

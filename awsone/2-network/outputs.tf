@@ -109,6 +109,32 @@ output "vpn_conf_admin" {
 }
 
 #
+# S3
+#
+output "s3_bucket" {
+  value = module.s3.s3_bucket
+}
+
+#
+# SSM
+#
+output "ssm_document_sensor_agent_linux" {
+  value = module.ec2.ssm_document_sensor_agent_linux.name
+}
+
+output "ssm_document_server_agent_linux" {
+  value = module.ec2.ssm_document_server_agent_linux.name
+}
+
+output "ssm_document_sensor_agent_windows" {
+  value = module.ec2.ssm_document_sensor_agent_windows.name
+}
+
+output "ssm_document_server_agent_windows" {
+  value = module.ec2.ssm_document_server_agent_windows.name
+}
+
+#
 # Active Directory
 #
 output "ad_domain_name" {

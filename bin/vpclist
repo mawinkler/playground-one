@@ -1,0 +1,25 @@
+#!/bin/bash
+
+VPC_ID=$1
+
+echo "Instances:"
+aws ec2 describe-instances --filters Name=vpc-id,Values=$VPC_ID | jq '.Reservations[]'
+
+echo "Subnets:"
+aws ec2 describe-subnets --filters Name=vpc-id,Values=$VPC_ID | jq '.Subnets[] | .SubnetId'
+
+echo "Security Groups:"
+aws ec2 describe-security-groups --filters Name=vpc-id,Values=$VPC_ID | jq '.SecurityGroups[] | .GroupName'
+
+echo "Network Interfaces:"
+aws ec2 describe-network-interfaces \
+  --filters Name=vpc-id,Values=$VPC_ID | jq '.NetworkInterfaces[] | .PrivateIpAddress + ":" + .InterfaceType'
+
+# aws ec2 describe-route-tables \
+#   --filters "Name=vpc-id,Values=$VPC_ID"
+# aws ec2 describe-network-acls \
+#   --filters "Name=vpc-id,Values=$VPC_ID"
+
+echo "Load Balancers:"
+aws elbv2 describe-load-balancers \
+  --query "LoadBalancers[?VpcId=='$VPC_ID']"

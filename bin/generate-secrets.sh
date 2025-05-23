@@ -28,7 +28,7 @@ EOT
 # done
 
 peers=("admin" "user1" "user2" "user3")
-tech_bu=("bnl" "cee" "dach" "france" "italy" "nordics" "spain" "uk" "other")
+tech_bu=("bnl" "cee" "dach" "france" "italy" "nordics" "spain" "uk" "other" "pgo")
 start_ip=10
 
 for ((i=0; i<${#tech_bu[@]}; i++)); do

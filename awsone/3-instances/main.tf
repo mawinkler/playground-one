@@ -9,25 +9,29 @@ data "terraform_remote_state" "vpc" {
 module "ec2" {
   source = "./ec2"
 
-  environment               = var.environment
-  public_security_group_id  = data.terraform_remote_state.vpc.outputs.public_security_group_id
-  public_subnets            = data.terraform_remote_state.vpc.outputs.public_subnets.*
-  private_security_group_id = data.terraform_remote_state.vpc.outputs.private_security_group_id
-  private_subnets           = data.terraform_remote_state.vpc.outputs.private_subnets.*
-  key_name                  = data.terraform_remote_state.vpc.outputs.key_name
-  public_key                = data.terraform_remote_state.vpc.outputs.public_key
-  private_key_path          = data.terraform_remote_state.vpc.outputs.private_key_path
-  ec2_profile               = module.iam.ec2_profile
-  s3_bucket                 = module.s3.s3_bucket
-  vpn_gateway               = var.vpn_gateway
-  linux_username            = var.linux_username
-  windows_username          = var.windows_username
-  windows_hostname          = "Windows-Server"
-  linux_hostname            = "linuxsrv"
-  linux_count               = var.linux_count
-  windows_count             = var.windows_count
-  agent_deploy              = var.agent_deploy
-  agent_variant             = var.agent_variant
+  environment                       = var.environment
+  public_security_group_id          = data.terraform_remote_state.vpc.outputs.public_security_group_id
+  public_subnets                    = data.terraform_remote_state.vpc.outputs.public_subnets.*
+  private_security_group_id         = data.terraform_remote_state.vpc.outputs.private_security_group_id
+  private_subnets                   = data.terraform_remote_state.vpc.outputs.private_subnets.*
+  key_name                          = data.terraform_remote_state.vpc.outputs.key_name
+  public_key                        = data.terraform_remote_state.vpc.outputs.public_key
+  private_key_path                  = data.terraform_remote_state.vpc.outputs.private_key_path
+  ec2_profile                       = module.iam.ec2_profile
+  s3_bucket                         = data.terraform_remote_state.vpc.outputs.s3_bucket
+  vpn_gateway                       = var.vpn_gateway
+  linux_username                    = var.linux_username
+  windows_username                  = var.windows_username
+  windows_hostname                  = "Windows-Server"
+  linux_hostname                    = "linuxsrv"
+  linux_count                       = var.linux_count
+  windows_count                     = var.windows_count
+  agent_deploy                      = var.agent_deploy
+  agent_variant                     = var.agent_variant
+  ssm_document_sensor_agent_linux   = data.terraform_remote_state.vpc.outputs.ssm_document_sensor_agent_linux
+  ssm_document_server_agent_linux   = data.terraform_remote_state.vpc.outputs.ssm_document_server_agent_linux
+  ssm_document_sensor_agent_windows = data.terraform_remote_state.vpc.outputs.ssm_document_sensor_agent_windows
+  ssm_document_server_agent_windows = data.terraform_remote_state.vpc.outputs.ssm_document_server_agent_windows
 
   # PGO Active Directory
   active_directory         = var.active_directory
@@ -51,15 +55,15 @@ module "iam" {
 
   environment = var.environment
   aws_region  = var.aws_region
-  s3_bucket   = module.s3.s3_bucket
+  s3_bucket   = data.terraform_remote_state.vpc.outputs.s3_bucket
   # ssm_key     = data.terraform_remote_state.vpc.outputs.ssm_key
 }
 
-module "s3" {
-  source = "./s3"
+# module "s3" {
+#   source = "./s3"
 
-  environment = var.environment
-}
+#   environment = var.environment
+# }
 
 # ASRM Predictive Attack Path Analysis
 module "pap" {
@@ -77,7 +81,7 @@ module "pap" {
   private_subnets_cidr      = data.terraform_remote_state.vpc.outputs.private_subnet_cidr_blocks
   private_security_group_id = data.terraform_remote_state.vpc.outputs.private_security_group_id
   database_subnet_group     = data.terraform_remote_state.vpc.outputs.database_subnet_group
-  s3_bucket                 = module.s3.s3_bucket
+  s3_bucket                 = data.terraform_remote_state.vpc.outputs.s3_bucket
   linux_username            = var.linux_username
   linux_pap_hostname        = "linuxpap"
   rds_name                  = var.rds_name

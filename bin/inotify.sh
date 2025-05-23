@@ -15,6 +15,6 @@ total_weight=$(($default_max_user_watches + $default_max_user_watches + $default
 memory_per_unit=$(($available_memory_kb / $total_weight))
 
 # Allocate memory based on the original ratio
-echo sudo sysctl -w fs.inotify.max_user_watches=$(($memory_per_unit * $default_max_user_watches))
-echo sudo sysctl -w fs.inotify.max_user_instances=$(($memory_per_unit * $default_max_user_instances))
-echo sudo sysctl -w fs.inotify.max_queued_events=$(($memory_per_unit * $default_max_queued_events))
+sudo sysctl -w fs.inotify.max_user_watches=$(($memory_per_unit * $default_max_user_watches))
+sudo sysctl -w fs.inotify.max_user_instances=$(($memory_per_unit * $default_max_user_instances))
+sudo sysctl -w fs.inotify.max_queued_events=$(($memory_per_unit * $default_max_queued_events))

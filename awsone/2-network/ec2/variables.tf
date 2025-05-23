@@ -21,3 +21,5 @@ variable "private_subnet" {
 }
 
 variable "private_route_tables" {}
+
+variable "s3_bucket" {}

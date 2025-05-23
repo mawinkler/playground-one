@@ -70,7 +70,7 @@ locals {
     sudo /home/ec2-user/dsm_install.sh -q -varfile /home/ec2-user/dsm.properties
   EOT
 
-  userdata_linux = templatefile("${path.module}/userdata_linux.tftpl", {
+  userdata_linux = templatefile("${path.module}/../../0-templates/userdata_linux_rh.tftpl", {
     s3_bucket = var.s3_bucket
   })
 }

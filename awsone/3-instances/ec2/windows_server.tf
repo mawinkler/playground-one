@@ -20,7 +20,7 @@ resource "aws_instance" "windows-server" {
     Type          = "${var.environment}-windows-server"
   }
 
-  user_data = templatefile("${path.module}/userdata_windows.tftpl", {
+  user_data = templatefile("${path.module}/../../0-templates/userdata_windows.tftpl", {
     s3_bucket                = var.s3_bucket
     windows_ad_user_name     = var.windows_username
     windows_ad_hostname      = "Member-${count.index}"
@@ -50,7 +50,7 @@ resource "aws_instance" "windows-server" {
 resource "aws_ssm_association" "windows_server_agent" {
   count = var.agent_deploy ? var.agent_variant == "TMServerAgent" ? var.windows_count : 0 : 0
 
-  name = aws_ssm_document.server-agent-windows.name
+  name = var.ssm_document_server_agent_windows
 
   targets {
     key    = "InstanceIds"
@@ -69,7 +69,7 @@ resource "aws_ssm_association" "windows_server_agent" {
 resource "aws_ssm_association" "windows_sensor_agent" {
   count = var.agent_deploy ? var.agent_variant == "TMSensorAgent" ? var.windows_count : 0 : 0
 
-  name = aws_ssm_document.sensor-agent-windows.name
+  name = var.ssm_document_sensor_agent_windows
 
   targets {
     key    = "InstanceIds"

@@ -70,6 +70,7 @@ configs=(
   ["nw-delete"]=${ONEPATH}/awsone/2-network
   ["ec2"]=${ONEPATH}/awsone/3-instances
   ["instances"]=${ONEPATH}/awsone/3-instances
+  ["testlab-bare"]=${ONEPATH}/awsone/3-testlab-bare
   ["testlab-cs"]=${ONEPATH}/awsone/3-testlab-cs
   ["testlab-cs-retrieve"]=${ONEPATH}/awsone/3-testlab-cs
   ["testlab-cs-delete"]=${ONEPATH}/awsone/3-testlab-cs
@@ -287,7 +288,7 @@ function check_network() {
   #   envsubst <$ONEPATH/templates/terraform-2-network.tfvars >${configs[network]}/terraform.tfvars
 
   # Check locks
-  for config in instances testlab-cs eks-ec2 eks-fg ecs-ec2 ecs-fg scenarios-identity scenarios-zerotrust; do
+  for config in instances testlab-cs testlab-bare eks-ec2 eks-fg ecs-ec2 ecs-fg scenarios-identity scenarios-zerotrust; do
     # init ${config}
     if checklock ${config} ; then
       printf 'Destroy %s configuration first\n' "${config}"
@@ -405,6 +406,32 @@ function init() {
         envsubst <$ONEPATH/templates/terraform-3-testlab-cs.tfvars >${configs[testlab-cs]}/terraform.tfvars
 
       [ "$2" = "" ] && tf testlab-cs init
+      ;;&
+    testlab-bare|all)
+      printf '%s\n' "Create terraform.tfvars for testlab-bare"
+      aws_region=${aws_region} \
+      aws_pgo_user_access_key=${aws_pgo_user_access_key} \
+      aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
+      pgo_access_ip=${pgo_access_ip} \
+      environment_name=${environment_name} \
+      vision_one_asrm_create_attackpath=${vision_one_asrm_create_attackpath} \
+      active_directory=${pgo_active_directory} \
+      pgo_virtual_network_sensor_enabled=${pgo_virtual_network_sensor_enabled} \
+      pgo_deep_discovery_inspector_enabled=${pgo_deep_discovery_inspector_enabled} \
+      vision_one_endpoint_enabled=${vision_one_endpoint_enabled} \
+      vision_one_endpoint_type=${vision_one_endpoint_type} \
+      deep_security_license=${deep_security_license} \
+      deep_security_username=${deep_security_username} \
+      deep_security_password=${deep_security_password} \
+      ami_apex_one_server=${ami_apex_one_server} \
+      ami_apex_one_central=${ami_apex_one_central} \
+      ami_windows_client=${ami_windows_client} \
+      ami_bastion=${ami_bastion} \
+      ami_dsm=${ami_dsm} \
+      ONEPATH=${ONEPATH} \
+        envsubst <$ONEPATH/templates/terraform-3-testlab-bare.tfvars >${configs[testlab-bare]}/terraform.tfvars
+
+      [ "$2" = "" ] && tf testlab-bare init
       ;;&
     eks|eks-ec2|all)
       printf '%s\n' "Create terraform.tfvars for cluster-eks-ec2"
@@ -774,16 +801,22 @@ function apply() {
       if [ "${pgo_active_directory}" == 'true' ]; then
         printf '%s\n' "ad_admin_password = \"$(terraform -chdir=${configs[network]} output -raw ad_admin_password)\""
       fi
+
+      if [ "${pgo_vpn_gateway}" == 'true' ]; then
+        wg-quick up $ONEPATH/vpn-peers/pgo_admin.conf
+      fi
       ;;&
     ec2|instances|all)
       tf instances apply
       printf '%s\n' "windows_password = \"$(terraform -chdir=${configs[instances]} output -raw windows_password 2>/dev/null || true)\""
-      # printf '%s\n' "win_local_admin_password = \"$(terraform -chdir=${configs[instances]} output -raw win_local_admin_password)\""
       ;;&
     testlab-cs|all)
       tf testlab-cs apply
       printf '%s\n' "win_password = \"$(terraform -chdir=${configs[testlab-cs]} output -raw win_password)\""
-      # printf '%s\n' "win_local_admin_password = \"$(terraform -chdir=${configs[testlab-cs]} output -raw win_local_admin_password)\""
+      ;;&
+    testlab-bare|all)
+      tf testlab-bare apply
+      printf '%s\n' "win_password = \"$(terraform -chdir=${configs[testlab-bare]} output -raw win_password)\""
       ;;&
     eks|eks-ec2|all)
       tf eks-ec2 apply
@@ -913,7 +946,7 @@ function update_ip() {
     exit 0
   fi
 
-  for config in satellite network testlab-cs eks-ec2 eks-fg aks ecs-ec2 ecs-fg scenarios-ec2 scenarios-fg scenarios-aks dsm dsw wsw; do
+  for config in satellite network testlab-cs testlab-bare eks-ec2 eks-fg aks ecs-ec2 ecs-fg scenarios-ec2 scenarios-fg scenarios-aks dsm dsw wsw; do
     init ${config}
     if checklock ${config} ; then
       apply ${config}
@@ -1084,6 +1117,13 @@ function destroy() {
         tf instances destroy
       else
         printf '%s\n' "Configuration instances is not applied"
+      fi
+      ;;&
+    testlab-bare|all)
+      if checklock testlab-bare ; then
+        tf testlab-bare destroy
+      else
+        printf '%s\n' "Configuration testlab-bare is not applied"
       fi
       ;;&
     testlab-cs|all)
@@ -1297,6 +1337,10 @@ function destroy() {
         check_network
         # AWS_ACCESS_KEY_ID="" \
         #   AWS_SECRET_ACCESS_KEY="" \
+        if [ "${pgo_vpn_gateway}" == 'true' ]; then
+          wg-quick down $ONEPATH/vpn-peers/pgo_admin.conf
+        fi
+
         tf network destroy
         rm -f $ONEPATH/vpn-secrets.yaml
       else
@@ -1429,12 +1473,14 @@ function output() {
     ec2|instances|all)
       tf instances output
       printf '%s\n' "windows_password = \"$(terraform -chdir=${configs[instances]} output -raw windows_password 2>/dev/null || true)\""
-      # printf '%s\n' "win_local_admin_password = \"$(terraform -chdir=${configs[instances]} output -raw win_local_admin_password)\""
+      ;;&
+    testlab-bare|all)
+      tf testlab-bare output
+      printf '%s\n' "win_password = \"$(terraform -chdir=${configs[testlab-bare]} output -raw win_password)\""
       ;;&
     testlab-cs|all)
       tf testlab-cs output
       printf '%s\n' "win_password = \"$(terraform -chdir=${configs[testlab-cs]} output -raw win_password)\""
-      # printf '%s\n' "win_local_admin_password = \"$(terraform -chdir=${configs[testlab-cs]} output -raw win_local_admin_password)\""
       ;;&
     eks|eks-ec2|all)
       tf eks-ec2 output
@@ -1555,6 +1601,9 @@ function state() {
     ec2|instances|all)
       tf instances state
       ;;&
+    testlab-bare|all)
+      tf testlab-bare state
+      ;;&
     testlab-cs|all)
       tf testlab-cs state
       ;;&
@@ -1648,6 +1697,9 @@ function show() {
       ;;&
     ec2|instances|all)
       tf instances show
+      ;;&
+    testlab-bare|all)
+      tf testlab-bare show
       ;;&
     testlab-cs|all)
       tf testlab-cs show
@@ -1746,6 +1798,9 @@ function validate() {
       ;;&
     ec2|instances|all)
       tf instances validate
+      ;;&
+    testlab-bare|all)
+      tf testlab-bare validate
       ;;&
     testlab-cs|all)
       tf testlab-cs validate
@@ -1864,6 +1919,9 @@ function erase() {
       ;;&
     ec2|instances|all)
       tf instances erase
+      ;;&
+    testlab-bare|all)
+      tf testlab-bare erase
       ;;&
     testlab-cs|all)
       tf testlab-cs erase
@@ -2378,6 +2436,7 @@ function helpcmd() {
   printf '%s\n' "  network              Network configuration"
   printf '%s\n' "  instances            EC2 configuration"
   printf '%s\n' "  testlab-cs           Testlab-CS configuration"
+  printf '%s\n' "  testlab-bare         Testlab-CS configuration (bare servers)"
   printf '%s\n' "  eks-ec2              EKS configuration"
   printf '%s\n' "  eks-fg               EKS configuration"
   printf '%s\n' "  ecs-ec2              ECS configuration"
@@ -2416,7 +2475,7 @@ fi
 export AWS_ACCESS_KEY_ID=${aws_pgo_user_access_key}
 export AWS_SECRET_ACCESS_KEY=${aws_pgo_user_secret_key}
 if ${aws_pgo_user_enabled} ; then
-  printf '%s\n' "Using PDO User Access Key ID: ...${aws_pgo_user_access_key:(-4)}"
+  printf '%s\n' "Using PGO User Access Key ID: ...${aws_pgo_user_access_key:(-4)}"
 else
   printf '%s\n' "Using System Access Key or Instance Role"
 fi

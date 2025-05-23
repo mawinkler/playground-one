@@ -33,7 +33,7 @@ resource "aws_instance" "linux-server" {
 resource "aws_ssm_association" "linux_server_agent" {
   count = var.agent_deploy ? var.agent_variant == "TMServerAgent" ? var.linux_count : 0 : 0
 
-  name = aws_ssm_document.server-agent-linux.name
+  name = var.ssm_document_server_agent_linux
 
   targets {
     key    = "InstanceIds"
@@ -52,7 +52,7 @@ resource "aws_ssm_association" "linux_server_agent" {
 resource "aws_ssm_association" "linux_sensor_agent" {
   count = var.agent_deploy ? var.agent_variant == "TMSensorAgent" ? var.linux_count : 0 : 0
 
-  name = aws_ssm_document.sensor-agent-linux.name
+  name = var.ssm_document_sensor_agent_linux
 
   targets {
     key    = "InstanceIds"

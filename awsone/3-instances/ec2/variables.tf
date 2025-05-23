@@ -59,6 +59,11 @@ variable "windows_ad_user_name" {}
 
 variable "windows_ad_safe_password" {}
 
+variable "ssm_document_sensor_agent_linux" {}
+variable "ssm_document_server_agent_linux" {}
+variable "ssm_document_sensor_agent_windows" {}
+variable "ssm_document_server_agent_windows" {}
+
 variable "virtual_network_sensor" {}
 variable "vns_va_traffic_mirror_filter_id" {}
 variable "vns_va_traffic_mirror_target_id" {}
