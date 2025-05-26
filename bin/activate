@@ -9,3 +9,7 @@ export PATH=${ONEPATH}/bin:$PATH
 printf '%s\n' "ONEPATH: $ONEPATH"
 printf '%s\n' "PATH: $PATH"
 printf '%s\n' "pgo: $(which pgo)"
+
+# Call hash to forget past commands. Without forgetting
+# past commands the $PATH changes we made may not be respected
+hash -r 2> /dev/null
