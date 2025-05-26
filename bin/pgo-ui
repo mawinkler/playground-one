@@ -65,6 +65,8 @@ actions:
         choices:
           - value: --apply
           - value: --output
+          - value: --start
+          - value: --stop
           - value: --destroy
 
   - title: Testlab CS
