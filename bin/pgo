@@ -2377,7 +2377,7 @@ function configuration_start() {
   case $1 in
     testlab-cs|all)
       if checklock testlab-cs ; then
-        for instance in $(aws ec2 describe-instances --filters Name=tag:Configuration,Values=testlab-cs --filters Name=tag:Environment,Values=${environment_name} --region ${aws_region} | \
+        for instance in $(aws ec2 describe-instances --filters Name=tag:Configuration,Values=testlab-cs Name=tag:Environment,Values=${environment_name} --region ${aws_region} | \
           jq -r '.Reservations[].Instances[].InstanceId ') ; do
           printf 'State %s: %s\n' ${instance} "$(aws ec2 start-instances --instance-ids ${instance} --region ${aws_region} | \
             jq -r '.StartingInstances[0].CurrentState.Name')"
@@ -2386,7 +2386,7 @@ function configuration_start() {
       ;;&
     testlab-bare|all)
       if checklock testlab-bare ; then
-        for instance in $(aws ec2 describe-instances --filters Name=tag:Configuration,Values=testlab-bare --filters Name=tag:Environment,Values=${environment_name} --region ${aws_region} | \
+        for instance in $(aws ec2 describe-instances --filters Name=tag:Configuration,Values=testlab-bare Name=tag:Environment,Values=${environment_name} --region ${aws_region} | \
           jq -r '.Reservations[].Instances[].InstanceId ') ; do
           printf 'State %s: %s\n' ${instance} "$(aws ec2 start-instances --instance-ids ${instance} --region ${aws_region} | \
             jq -r '.StartingInstances[0].CurrentState.Name')"
@@ -2403,7 +2403,7 @@ function configuration_stop() {
   case $1 in
     testlab-cs|all)
       if checklock testlab-cs ; then
-        for instance in $(aws ec2 describe-instances --filters Name=tag:Configuration,Values=testlab-cs --filters Name=tag:Environment,Values=${environment_name} --region ${aws_region} | \
+        for instance in $(aws ec2 describe-instances --filters Name=tag:Configuration,Values=testlab-cs Name=tag:Environment,Values=${environment_name} --region ${aws_region} | \
           jq -r '.Reservations[].Instances[].InstanceId ') ; do
           printf 'State %s: %s\n' ${instance} "$(aws ec2 stop-instances --instance-ids ${instance} --region ${aws_region} | \
             jq -r '.StartingInstances[0].CurrentState.Name')"
@@ -2412,7 +2412,7 @@ function configuration_stop() {
       ;;&
     testlab-bare|all)
       if checklock testlab-bare ; then
-        for instance in $(aws ec2 describe-instances --filters Name=tag:Configuration,Values=testlab-bare --filters Name=tag:Environment,Values=${environment_name} --region ${aws_region} | \
+        for instance in $(aws ec2 describe-instances --filters Name=tag:Configuration,Values=testlab-bare Name=tag:Environment,Values=${environment_name} --region ${aws_region} | \
           jq -r '.Reservations[].Instances[].InstanceId ') ; do
           printf 'State %s: %s\n' ${instance} "$(aws ec2 stop-instances --instance-ids ${instance} --region ${aws_region} | \
             jq -r '.StartingInstances[0].CurrentState.Name')"
