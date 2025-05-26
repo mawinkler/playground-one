@@ -1,0 +1,11 @@
+# Define the substring to match
+substring="playground-one"
+
+export ONEPATH=$(pwd | grep -oE "^.*/playground-one[^/]*")
+
+PATH=$(printf "%s" "$PATH" | tr ':' '\n' | grep -v "$substring" | paste -sd ':' -)
+export PATH=${ONEPATH}/bin:$PATH
+
+printf '%s\n' "ONEPATH: $ONEPATH"
+printf '%s\n' "PATH: $PATH"
+printf '%s\n' "pgo: $(which pgo)"
