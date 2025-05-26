@@ -2370,6 +2370,58 @@ function snapshot_list() {
   esac
 }
 
+function configuration_start() {
+
+  telemetry "configuration_start" $1
+
+  case $1 in
+    testlab-cs|all)
+      if checklock testlab-cs ; then
+        for instance in $(aws ec2 describe-instances --filters Name=tag:Configuration,Values=testlab-cs --filters Name=tag:Environment,Values=${environment} --region ${aws_region} | \
+          jq -r '.Reservations[].Instances[].InstanceId ') ; do
+          printf 'State %s: %s\n' ${instance} "$(aws ec2 start-instances --instance-ids ${instance} --region ${aws_region} | \
+            jq -r '.StartingInstances[0].CurrentState.Name')"
+        done
+      fi
+      ;;&
+    testlab-bare|all)
+      if checklock testlab-bare ; then
+        for instance in $(aws ec2 describe-instances --filters Name=tag:Configuration,Values=testlab-bare --filters Name=tag:Environment,Values=${environment} --region ${aws_region} | \
+          jq -r '.Reservations[].Instances[].InstanceId ') ; do
+          printf 'State %s: %s\n' ${instance} "$(aws ec2 start-instances --instance-ids ${instance} --region ${aws_region} | \
+            jq -r '.StartingInstances[0].CurrentState.Name')"
+        done
+      fi
+      ;;&
+  esac
+}
+
+function configuration_stop() {
+
+  telemetry "configuration_start" $1
+
+  case $1 in
+    testlab-cs|all)
+      if checklock testlab-cs ; then
+        for instance in $(aws ec2 describe-instances --filters Name=tag:Configuration,Values=testlab-cs --filters Name=tag:Environment,Values=${environment} --region ${aws_region} | \
+          jq -r '.Reservations[].Instances[].InstanceId ') ; do
+          printf 'State %s: %s\n' ${instance} "$(aws ec2 start-instances --instance-ids ${instance} --region ${aws_region} | \
+            jq -r '.StartingInstances[0].CurrentState.Name')"
+        done
+      fi
+      ;;&
+    testlab-bare|all)
+      if checklock testlab-bare ; then
+        for instance in $(aws ec2 describe-instances --filters Name=tag:Configuration,Values=testlab-bare --filters Name=tag:Environment,Values=${environment} --region ${aws_region} | \
+          jq -r '.Reservations[].Instances[].InstanceId ') ; do
+          printf 'State %s: %s\n' ${instance} "$(aws ec2 start-instances --instance-ids ${instance} --region ${aws_region} | \
+            jq -r '.StartingInstances[0].CurrentState.Name')"
+        done
+      fi
+      ;;&
+  esac
+}
+
 #######################################
 # Update Playground One and components
 # Globals:
@@ -2417,6 +2469,8 @@ function helpcmd() {
   printf '%s\n' "  -a --apply     Create or update a configuration"
   printf '%s\n' "  -l --list      List applied configurations"
   printf '%s\n' "  -d --destroy   Destroy previously-created configuration"
+  printf '%s\n' "  -start         Start EC2 instances of a configuration"
+  printf '%s\n' "  -stop          Stop EC2 instances of a configuration"
   printf '%s\n' "  -o --output    Show output values"
   printf '%s\n' "  -s --state     Show the current state"
   printf '%s\n' "  -E --erase     Cleanup Terraform state"
@@ -2486,7 +2540,7 @@ else
 fi
 
 opts_short=pci:t:a:ld:o:s:S:v:uhE:F:R:D:L:U
-opts_long=plan,config,init:,tfvars:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help,erase:,snapshot-freeze:,snapshot-retrieve:,snapshot-delete:,snapshot-list-tags:,update
+opts_long=plan,config,init:,tfvars:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help,erase:,snapshot-freeze:,snapshot-retrieve:,snapshot-delete:,snapshot-list-tags:,update,start:,stop:
 
 if is_darwin; then
   TEMP=$(/opt/homebrew/opt/gnu-getopt/bin/getopt -o ${opts_short}C: --long ${opts_long},colima: -- "$@")
@@ -2536,6 +2590,9 @@ while true; do
     -R | --snapshot-retrieve ) snapshot_retrieve $2; shift 2 ;;
     -D | --snapshot-delete ) snapshot_delete $2; shift 2 ;;
     -L | --snapshot-list-tags ) snapshot_list $2; shift 2 ;;
+
+    --start ) configuration_start $2; shift 2 ;;
+    --stop ) configuration_stop $2; shift 2 ;;
 
     -U | --update ) update; break ;;
     # -C | --updatev1cs ) update-v1cs; break ;;

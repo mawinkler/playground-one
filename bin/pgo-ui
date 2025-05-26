@@ -78,6 +78,8 @@ actions:
         choices:
           - value: --apply
           - value: --output
+          - value: --start
+          - value: --stop
           - value: --destroy
 
   - title: Testlab Bare
@@ -91,6 +93,8 @@ actions:
         choices:
           - value: --apply
           - value: --output
+          - value: --start
+          - value: --stop
           - value: --destroy
 
   - title: Snapshots
