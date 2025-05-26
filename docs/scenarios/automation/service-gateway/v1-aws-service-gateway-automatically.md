@@ -56,7 +56,6 @@ pgo --output network
 ...
 sg_va_ssh = "ssh -i /home/markus/projects/opensource/playground/playground-one/pgo-key-pair-oaxuizlr.pem -o StrictHostKeyChecking=no admin@18.194.239.58"
 ...
-mad_admin_password = XrJ*5VPDZGmhhL70
 ```
 
 The interesting value here is `sg_va_ssh`. Run the given command to connect to the Service Gateway.

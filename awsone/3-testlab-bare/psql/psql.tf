@@ -13,7 +13,7 @@ resource "aws_network_interface" "postgres_eni" {
 }
 
 resource "aws_instance" "postgres" {
-  ami                  = var.ami_postgresql != "" ? var.ami_postgresql : data.aws_ami.ubuntu.id
+  ami                  = data.aws_ami.ubuntu.id  # var.ami_postgresql != "" ? var.ami_postgresql : data.aws_ami.ubuntu.id
   instance_type        = "t3.medium"
   iam_instance_profile = var.ec2_profile
   key_name             = var.key_name

@@ -19,7 +19,7 @@ resource "aws_network_interface" "dsm" {
 
 resource "aws_instance" "dsm" {
 
-  ami                  = var.ami_dsm != "" ? var.ami_dsm : data.aws_ami.rhel.id
+  ami                  = data.aws_ami.rhel.id  # var.ami_dsm != "" ? var.ami_dsm : data.aws_ami.rhel.id
   instance_type        = "t3.xlarge"
   iam_instance_profile = var.ec2_profile
   key_name             = var.key_name

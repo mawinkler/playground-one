@@ -1,5 +1,5 @@
 resource "aws_ssm_document" "server-agent-linux" {
-  name            = "TrendMicroServerAgentSatelliteDeploy"
+  name            = "TrendMicroServerAgentSatelliteDeploySatellite"
   document_format = "YAML"
   document_type   = "Command"
   target_type     = "/AWS::EC2::Instance"
@@ -42,7 +42,7 @@ DOC
 }
 
 resource "aws_ssm_document" "sensor-agent-linux" {
-  name            = "TrendMicroSensorAgentSatelliteDeploy"
+  name            = "TrendMicroSensorAgentSatelliteDeploySatellite"
   document_format = "YAML"
   document_type   = "Command"
   target_type     = "/AWS::EC2::Instance"
