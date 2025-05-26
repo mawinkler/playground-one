@@ -15,6 +15,8 @@ user=$(whoami)
 
 function create_pgo_runner() {
 
+  printf '%s\n' "creating ${ONEPATH}/bin/pgo-run"
+
   cat <<EOF >${ONEPATH}/bin/pgo-run
 #!/bin/bash
 
@@ -29,6 +31,8 @@ EOF
 
 function create_config() {
 
+  printf '%s\n' "creating ${ONEPATH}/.olivetin.yaml"
+
   cat <<EOF >${ONEPATH}/.olivetin.yaml
 # Listen on all addresses available, port 1337
 listenAddressSingleHTTPFrontend: 0.0.0.0:1337
@@ -38,14 +42,56 @@ logLevel: "INFO"
 checkForUpdates: false
 pageTitle: Playground One Testlab-CS
 showFooter: false
-# showNavigation: false
+showNavigation: true
 
-# Docs: https://docs.olivetin.app/action_execution/create_your_first.html
+# Docs:
+# https://docs.olivetin.app/action_execution/create_your_first.html
+# Icons:
+# https://icon-sets.iconify.design/
 actions:
   - title: Playground Status
     shell: /home/${user}/playground-one/bin/pgo-run -l
     icon: <iconify-icon icon="f7:status"></iconify-icon>
     popupOnStart: execution-dialog-stdout-only
+
+  - title: Base Environment
+    shell: /home/${user}/playground-one/bin/pgo-run {{ action }} network
+    icon: <iconify-icon icon="carbon:infrastructure-classic"></iconify-icon>
+    popupOnStart: execution-dialog-stdout-only
+    timeout: 900
+    arguments:
+      - name: action
+        title: Action
+        choices:
+          - value: --apply
+          - value: --output
+          - value: --destroy
+
+  - title: Testlab CS
+    shell: /home/${user}/playground-one/bin/pgo-run {{ action }} testlab-cs
+    icon: <iconify-icon icon="fluent-mdl2:test-case"></iconify-icon>
+    popupOnStart: execution-dialog-stdout-only
+    timeout: 900
+    arguments:
+      - name: action
+        title: Action
+        choices:
+          - value: --apply
+          - value: --output
+          - value: --destroy
+
+  - title: Testlab Bare
+    shell: /home/${user}/playground-one/bin/pgo-run {{ action }} testlab-bare
+    icon: <iconify-icon icon="material-symbols:barefoot-outline"></iconify-icon>
+    popupOnStart: execution-dialog-stdout-only
+    timeout: 900
+    arguments:
+      - name: action
+        title: Action
+        choices:
+          - value: --apply
+          - value: --output
+          - value: --destroy
 
   - title: Snapshots
     icon: <iconify-icon icon="material-symbols:heap-snapshot-multiple-outline"></iconify-icon>
@@ -66,22 +112,14 @@ actions:
           - value: network
           - value: testlab-cs
 
-  - title: Playground Kind
-    shell: /home/${user}/playground-one/bin/pgo-run {{ action }} kind
-    icon: <iconify-icon icon="devicon:kubernetes"></iconify-icon>
+  - title: Playground Peers
+    shell: for cnf in $ONEPATH/vpn-peers/*.conf; do echo \$cnf; echo '---'; cat \$cnf; echo; echo; done
+    icon: <iconify-icon icon="fluent:key-20-regular"></iconify-icon>
     popupOnStart: execution-dialog-stdout-only
-    timeout: 900
-    arguments:
-      - name: action
-        title: Action
-        choices:
-          - value: --apply
-          - value: --output
-          - value: --destroy
 
-  - title: Ping the Internet
-    shell: ping -c 3 1.1.1.1
-    icon: ping
+  - title: Playground Admin Peer
+    shell: cat $ONEPATH/vpn-peers/other_admin.conf
+    icon: <iconify-icon icon="fluent:key-20-filled"></iconify-icon>
     popupOnStart: execution-dialog-stdout-only
 
 # Docs: https://docs.olivetin.app/entities/intro.html
@@ -93,6 +131,31 @@ EOF
   sudo mv .olivetin.yaml /etc/OliveTin/config.yaml
 }
 
+
+  # - title: Ping the Internet
+  #   shell: ping -c 3 1.1.1.1
+  #   icon: ping
+  #   popupOnStart: execution-dialog-stdout-only
+
+  # - title: check log directory
+  #   hidden: true
+  #   shell: |
+  #     function addDirectory {
+  #       conf=$(cat \$1)
+  #       echo "- peer: \$1" >> /etc/OliveTin/entities/directories.yaml
+  #       echo "  config: \$conf" >> /etc/OliveTin/entities/directories.yaml
+  #     }
+
+  #     truncate -s 0 /etc/OliveTin/entities/directories.yaml
+  #     for cnf in $ONEPATH/vpn-peers/*.conf; do
+  #       addDirectory \$cnf
+  #     done
+  #   execOnStartup: true
+  #   execOnCron: "* * * * *"
+
+  # - name: VPN Peers
+  #   file: /etc/OliveTin/entities/directories.yaml
+
 case "$1" in
   install)
     printf '%s\n' "Installing OliveTin"
@@ -101,6 +164,11 @@ case "$1" in
     create_pgo_runner
     create_config
     sudo systemctl enable --now OliveTin
+    ;;
+  update)
+    create_pgo_runner
+    create_config
+    sudo systemctl restart OliveTin
     ;;
   remove)
     ;;
