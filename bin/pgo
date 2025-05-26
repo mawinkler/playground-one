@@ -402,6 +402,7 @@ function init() {
       ami_windows_client=${ami_windows_client} \
       ami_bastion=${ami_bastion} \
       ami_dsm=${ami_dsm} \
+      ami_postgresql=${ami_postgresql} \
       ONEPATH=${ONEPATH} \
         envsubst <$ONEPATH/templates/terraform-3-testlab-cs.tfvars >${configs[testlab-cs]}/terraform.tfvars
 

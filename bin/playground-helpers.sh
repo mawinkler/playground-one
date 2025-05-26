@@ -446,6 +446,7 @@ function get_config() {
     ami_windows_client="$(yq '.services.aws.configuration.testlab-cs.ami-windows-client' $ONEPATH/config.yaml)"
     ami_bastion="$(yq '.services.aws.configuration.testlab-cs.ami-bastion' $ONEPATH/config.yaml)"
     ami_dsm="$(yq '.services.aws.configuration.testlab-cs.ami-dsm' $ONEPATH/config.yaml)"
+    ami_postgresql="$(yq '.services.aws.configuration.testlab-cs.ami-postgresql' $ONEPATH/config.yaml)"
     [[ "${ami_active_directory_dc}" = "null" || "${ami_active_directory_dc}" = "" ]] && ami_active_directory_dc=""
     [[ "${ami_active_directory_ca}" = "null" || "${ami_active_directory_ca}" = "" ]] && ami_active_directory_ca=""
     [[ "${ami_service_gateway}" = "null" || "${ami_service_gateway}" = "" ]] && ami_service_gateway=""
@@ -455,6 +456,7 @@ function get_config() {
     [[ "${ami_windows_client}" = "null" || "${ami_windows_client}" = "" ]] && ami_windows_client=[]
     [[ "${ami_bastion}" = "null" || "${ami_bastion}" = "" ]] && ami_bastion=""
     [[ "${ami_dsm}" = "null" || "${ami_dsm}" = "" ]] && ami_dsm=""
+    [[ "${ami_postgresql}" = "null" || "${ami_postgresql}" = "" ]] && ami_postgresql=""
 
     # Vision One
     vision_one_cs_enabled="$(yq '.services.vision-one.container-security.enabled' $ONEPATH/config.yaml)"

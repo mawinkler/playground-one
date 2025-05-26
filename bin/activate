@@ -1,4 +1,6 @@
 # Define the substring to match
+source ~/.bashrc
+
 substring="playground-one"
 
 export ONEPATH=$(pwd | grep -oE "^.*/playground-one[^/]*")
@@ -6,8 +8,14 @@ export ONEPATH=$(pwd | grep -oE "^.*/playground-one[^/]*")
 PATH=$(printf "%s" "$PATH" | tr ':' '\n' | grep -v "$substring" | paste -sd ':' -)
 export PATH=${ONEPATH}/bin:$PATH
 
-printf '%s\n' "ONEPATH: $ONEPATH"
-printf '%s\n' "PATH: $PATH"
+environment_name="$(yq '.services.environment_name' $ONEPATH/config.yaml)"
+[[ "${environment_name}" = "null" || "${environment_name}" = "" ]] && environment_name="pgo"
+
+PS1="(${environment_name}) ${PS1:-}"
+export PS1
+
+# printf '%s\n' "ONEPATH: $ONEPATH"
+# printf '%s\n' "PATH: $PATH"
 printf '%s\n' "pgo: $(which pgo)"
 
 # Call hash to forget past commands. Without forgetting

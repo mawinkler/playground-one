@@ -1,0 +1,4 @@
+# Define the substring to match
+source ~/.bashrc
+
+hash -r 2> /dev/null
