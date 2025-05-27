@@ -805,7 +805,7 @@ function apply() {
 
       if [ "${pgo_vpn_gateway}" == 'true' ]; then
         if [ -f ${ONEPATH}/vpn-peers/pgo_admin.conf ]; then
-          wg-quick up ${ONEPATH}/vpn-peers/pgo_admin.conf
+          wg-quick up ${ONEPATH}/vpn-peers/pgo_admin.conf || true
         fi
       fi
       ;;&
@@ -1581,7 +1581,8 @@ function list() {
 
   printf '\n%s\n' "EC2 instances status:"
   aws ec2 describe-instances --filters Name=tag:Environment,Values=${environment_name} --region ${aws_region} | \
-    jq -r '.Reservations[].Instances[] | "name:" + (.Tags[] | select(.Key=="Name") | .Value) + ", id:" + .InstanceId + " - "+ .State.Name'
+    jq -r '.Reservations[].Instances[] | "name:" + (.Tags[] | select(.Key=="Name") | .Value) + ", id:" + .InstanceId + " - "+ .State.Name' | \
+    sort
 }
 
 #######################################
@@ -2387,6 +2388,12 @@ function configuration_start() {
             jq -r '.StartingInstances[0].CurrentState.Name')"
         done
       fi
+
+      if [ "${pgo_vpn_gateway}" == 'true' ]; then
+        if [ -f ${ONEPATH}/vpn-peers/pgo_admin.conf ]; then
+          wg-quick up ${ONEPATH}/vpn-peers/pgo_admin.conf || true
+        fi
+      fi
       ;;&
     testlab-cs|all)
       if checklock testlab-cs ; then
@@ -2416,6 +2423,12 @@ function configuration_stop() {
   case $1 in
     nw|network|all)
       if checklock network ; then
+        if [ "${pgo_vpn_gateway}" == 'true' ]; then
+          if [ -f ${ONEPATH}/vpn-peers/pgo_admin.conf ]; then
+            wg-quick down ${ONEPATH}/vpn-peers/pgo_admin.conf || true
+          fi
+        fi
+
         for instance in $(aws ec2 describe-instances --filters Name=tag:Configuration,Values=nw Name=tag:Environment,Values=${environment_name} --region ${aws_region} | \
           jq -r '.Reservations[].Instances[].InstanceId ') ; do
           printf 'State %s: %s\n' ${instance} "$(aws ec2 stop-instances --instance-ids ${instance} --region ${aws_region} | \
