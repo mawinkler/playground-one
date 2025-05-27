@@ -1,25 +1,14 @@
 # Scenario: Playground One Testlab for Customer Success<!-- omit in toc -->
 
-- [Setup from Scratch](#setup-from-scratch)
-- [Playground One Web UI](#playground-one-web-ui)
-- [Life-Cycle](#life-cycle)
-  - [Private IP Assignments](#private-ip-assignments)
-  - [Retrieve Snapshot](#retrieve-snapshot)
-  - [Create Network and Testlab-CS](#create-network-and-testlab-cs)
-  - [(Optional): Create Your own Local Administrator](#optional-create-your-own-local-administrator)
-  - [Snapshot Testlab Instances](#snapshot-testlab-instances)
-  - [Retrieve Testlab Snapshot](#retrieve-testlab-snapshot)
-  - [Delete Snapshots:](#delete-snapshots)
-- [Knowledge Base](#knowledge-base)
-  - [Disaster Recovery](#disaster-recovery)
-  - [Transfer a custom Amazon Machine Image (AMI)](#transfer-a-custom-amazon-machine-image-ami)
-  - [From ISO to AMI](#from-iso-to-ami)
-    - [Service Role](#service-role)
-    - [Import Snapshot](#import-snapshot)
-    - [Register Image](#register-image)
-    - [Run through](#run-through)
+ToDos:
+
+- Rename Apex Servers
+- Add t3.xlarge to testlab (Exchange)
+- PGO to remove amis from config
 
 ## Setup from Scratch
+
+### Locally
 
 ```sh
 git clone git@github.com-mawinkler:mawinkler/playground-one.git
@@ -118,9 +107,11 @@ pgo --apply user
 pgo --apply satellite
 ```
 
+### AWS Console - Satellite Instance
+
 Go to AWS Console EC2 in region `eu-central-1` and direct connect to the satellite instance.
 
-Wait for initialization of playground-one has finished.
+Wait for initialization of Playground One has finished.
 
 For this run some of this commands: `kubectl`, `yq`, and `pgo`.
 
@@ -132,15 +123,15 @@ All seetings should already be correct since the `config.yaml` has been copied i
 
 ```sh
 pgo --init network
-pgo --init testlab-bare
 pgo --init testlab-cs
+pgo --init testlab-bare
 
-pgo --apply network
+# pgo --apply network
 ```
 
-The above created the VPC including other typically enabled services like Active Directory, Service Gateway, VPN, and the Deep Discovery Inspector.
+> Note: The above created the VPC including other typically enabled services like Active Directory, Service Gateway, VPN, and the Deep Discovery Inspector.
 
-Next, get the VPN Peers and RDP configurations:
+Optionally, get the VPN Peers and RDP configurations:
 
 ```
 cd playground-one
@@ -191,15 +182,15 @@ Config File: `/etc/OliveTin/config.yaml`
 
 To access the UI from outside AWS you need three things:
 
-- The Satellite SSH Key (ask me :blush:)
-- The Satellite public IP (ask me, again :stuck_out_tongue_winking_eye:)
-- Establish an SSH Tunnel: ssh -i <SSH KEY FILE>> -L 1337:localhost:1337 ubuntu@<SATELLITE PUBLIC IP>
+- The Satellite SSH Key (ask me 😇)
+- The Satellite public IP (ask me, again 😛)
+- Establish an SSH Tunnel: `ssh -i <SSH KEY FILE>> -L 1337:localhost:1337 ubuntu@<SATELLITE PUBLIC IP>`
  
 Example: `ssh -i pgo-satellite-pgo-cs-key-pair-y73bwukz.pem -L 1337:localhost:1337 ubuntu@3.68.166.174`
 
 Then use your browser to connect to `http://localhost:1337`.
 
-## Life-Cycle
+## Things to Know
 
 ### Private IP Assignments
 
@@ -218,9 +209,11 @@ TestLab-CS    | Client 0     | 10.0.1.10
 TestLab-CS    | Client 1     | 10.0.1.11 
 TestLab-CS    | Client x     | 10.0.1.xx 
 
-### Retrieve Snapshot
+### Snapshots
 
-Currently, we use tag: `20250324-01`
+***Retrieve***
+
+Example using tag: `20250324-01`
 
 ```sh
 pgo --snapshot-retrieve nw
@@ -258,13 +251,6 @@ pgo-cs-windows-client-1=ami-020fc9b9b0428cecb
 /home/ubuntu/playground-one/awsone/3-testlab-cs/terraform.tfvars patched.
 ```
 
-### Create Network and Testlab-CS
-
-```sh
-pgo --apply network
-
-pgo --apply testlab-cs
-```
 
 ### (Optional): Create Your own Local Administrator
 
@@ -272,7 +258,7 @@ Before snapshotting it is advised to create a new local administrator. Being aut
 
 ```ps
 $Username = "LocalAdmin"
-$Password = ConvertTo-SecureString "TrendMicro.1" -AsPlainText -Force
+$Password = ConvertTo-SecureString "SECURE PASSWORD" -AsPlainText -Force
 
 # Create the local user account
 New-LocalUser -Name $Username -Password $Password -FullName "Local Administrator" -Description "Local Admin Account"
@@ -281,60 +267,6 @@ New-LocalUser -Name $Username -Password $Password -FullName "Local Administrator
 Add-LocalGroupMember -Group "Administrators" -Member $Username
 
 Write-Output "Local administrator account '$Username' has been created successfully."
-```
-
-### Snapshot Testlab Instances
-
-```sh
-pgo --freeze testlab-cs
-```
-
-Name the Snapshot, e.g. `v1`.
-
-After the snapshot has been created ***and the AMIs are not in pending state anymore*** you can destroy the Testlab with `--destroy testlab-cs`.
-
-The same can be done for the Active Directory which is part of the `network` configuration.
-
-```sh
-pgo --freeze nw
-```
-
-### Retrieve Testlab Snapshot
-
-```sh
-pgo --freeze testlab-cs-retrieve
-```
-
-Enter the Snapshots Name, e.g. `v1`.
-
-The `3-testlab-cs/terraform.tfvars` will be configured automatically. The `windows_count` variable is now ignored.
-
-Then
-
-```sh
-pgo --apply testlab-cs
-```
-
-When the instances are up either use the domain admin of local admin from above to connect.
-
-Same for the Active Directory.
-
-```sh
-pgo --freeze nw-retrieve
-```
-
-### Delete Snapshots:
-
-```sh
-pgo --freeze testlab-cs-delete
-```
-
-Enter the Snapshots Name, e.g. `v1`.
-
-Same for the Active Directory.
-
-```sh
-pgo --freeze nw-delete
 ```
 
 ## Knowledge Base

@@ -127,8 +127,9 @@ actions:
         choices:
           - value: --snapshot-freeze
           - value: --snapshot-retrieve
-          - value: --snapshot-delete
+          # - value: --snapshot-delete
           - value: --snapshot-list-tags
+          - value: --snapshot-clear
       - name: configuration
         title: Configuration
         choices:

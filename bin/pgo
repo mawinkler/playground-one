@@ -2013,7 +2013,7 @@ function erase() {
 #   None
 #######################################
 function is_instance_stopped() {
-  instance_state=$(aws ec2 describe-instances --instance-ids $1 | jq -r '.Reservations[0].Instances[0].State.Name')
+  instance_state=$(aws ec2 describe-instances --instance-ids $1 --region ${aws_region} | jq -r '.Reservations[0].Instances[0].State.Name')
   if [ "${instance_state}" == "stopped" ]; then
     return
   fi
@@ -2022,18 +2022,18 @@ function is_instance_stopped() {
 
 function freeze_configuration() {
   key_desc="Snapshot Name"
-  datestr=$(date '+%Y%m%d')
+  datestr=$(date '+%Y%m%d-%H%M')
   snapshot_name=${datestr}
-  read -p "${key_desc} [${snapshot_name}]: " TEMP
-  if [[ ! -z "${TEMP}" ]]; then
-    snapshot_name=${TEMP}
-  fi
-  if [[ "${snapshot_name}" =~ ^[0-9a-z\-]+$ && ${#snapshot_name} -le 20 ]]; then
-    printf '%s\n' "Tagging AMIs with Snapshot Name=${snapshot_name}"
-  else
-    printf '%s\n' "Error: Invalid ${key_desc} input."
-    exit 0
-  fi
+  # read -p "${key_desc} [${snapshot_name}]: " TEMP
+  # if [[ ! -z "${TEMP}" ]]; then
+  #   snapshot_name=${TEMP}
+  # fi
+  # if [[ "${snapshot_name}" =~ ^[0-9a-z\-]+$ && ${#snapshot_name} -le 20 ]]; then
+  #   printf '%s\n' "Tagging AMIs with Snapshot Name=${snapshot_name}"
+  # else
+  #   printf '%s\n' "Error: Invalid ${key_desc} input."
+  #   exit 0
+  # fi
 
   configuration_name=$1
   instance_ids=$(aws ec2 describe-instances \
@@ -2041,17 +2041,18 @@ function freeze_configuration() {
                 "Name=tag:Configuration,Values=${configuration_name}" \
                 "Name=tag:Environment,Values=${environment_name}" \
       --query "Reservations[*].Instances[*].InstanceId" \
+      --region ${aws_region} \
       --output text)
 
   unset AWS_ACCESS_KEY_ID
   unset AWS_SECRET_ACCESS_KEY
   for instance_id in ${instance_ids}; do
     # Get Instance IDs to snapshot
-    instance_name=$(aws ec2 describe-instances --instance-ids ${instance_id} | jq -r '.Reservations[0].Instances[0].Tags[] | select(.Key=="Name") | .Value')
+    instance_name=$(aws ec2 describe-instances --instance-ids ${instance_id} --region ${aws_region} | jq -r '.Reservations[0].Instances[0].Tags[] | select(.Key=="Name") | .Value')
 
     # Filter out DDI, SG
     if [[ ! "$instance_name" == *"ddi-va"* && ! "$instance_name" == *"sg-va"* ]]; then
-      aws ec2 stop-instances --instance-ids ${instance_id}
+      aws ec2 stop-instances --instance-ids ${instance_id} --region ${aws_region}
       i=1
       while [ $i -le 60 ]; do
         if is_instance_stopped ${instance_id}; then
@@ -2070,7 +2071,8 @@ function freeze_configuration() {
                                                         {Key=Configuration,Value=${configuration_name}},
                                                         {Key=Name,Value=${configuration_name}-${snapshot_name}},
                                                         {Key=Created,Value=${datestr}},
-                                                        {Key=InstanceName,Value=${instance_name}}]"
+                                                        {Key=InstanceName,Value=${instance_name}}]" \
+        --region ${aws_region}
     else
       printf '%s\n' "Skipping instance ${instance_id}"
     fi
@@ -2078,24 +2080,26 @@ function freeze_configuration() {
 }
 
 function freeze_retrieve() {
-  key_desc="Snapshot Name"
-  snapshot_name=""
-  read -p "${key_desc} [${snapshot_name}]: " TEMP
-  if [[ ! -z "${TEMP}" ]]; then
-    snapshot_name=${TEMP}
-  fi
-  if [[ "${snapshot_name}" =~ ^[0-9a-z\-]+$ && ${#snapshot_name} -le 20 ]]; then
-    printf '%s\n' "Retrieveing AMIs with Snapshot Name=${snapshot_name}"
-  else
-    printf '%s\n' "Error: Invalid ${key_desc} input."
-    exit 0
-  fi
 
   configuration_name=$1
+  snapshot_id=$2
+
+  ami_prefix="${configuration_name}-"
+  tag_list=$(aws ec2 describe-images \
+    --owners self \
+    --filters "Name=name,Values=$ami_prefix*" \
+    --region ${aws_region} | \
+    jq -r '.Images[].Tags[] | select(.Key=="Name") | .Value' | sort | uniq)
+
+  snapshot_name=${tag_list[$snapshot_id]}
+
+  printf '%s\n' "Retrieve snapshot ${snapshot_name} for configuration ${configuration_name}"
+
   ami_list=$(aws ec2 describe-images \
     --filters "Name=tag:Configuration,Values=${configuration_name}" \
               "Name=tag:Environment,Values=${environment_name}" \
-              "Name=tag:Name,Values=${configuration_name}-${snapshot_name}" | \
+              "Name=tag:Name,Values=${snapshot_name}" \
+    --region ${aws_region} | \
     jq -r '.Images[] | (.Tags[] | select(.Key=="InstanceName") | .Value) + "=" + .ImageId' | \
     sort)
 }
@@ -2123,7 +2127,9 @@ function freeze_delete() {
   ami_ids=$(aws ec2 describe-images --owners self \
       --filters "Name=name,Values=$ami_prefix*" \
                 "Name=tag:Name,Values=${configuration_name}-${snapshot_name}" \
-      --query "Images[*].ImageId" --output text)
+      --query "Images[*].ImageId" \
+      --region ${aws_region} \
+      --output text)
 
   # Check if any AMIs were found
   if [ -z "$ami_ids" ]; then
@@ -2144,16 +2150,18 @@ function freeze_delete() {
 
         # Get snapshot IDs associated with the AMI
         snapshot_ids=$(aws ec2 describe-images --image-ids "$ami_id" \
-            --query "Images[0].BlockDeviceMappings[*].Ebs.SnapshotId" --output text)
+            --query "Images[0].BlockDeviceMappings[*].Ebs.SnapshotId" \
+            --region ${aws_region} \
+            --output text)
 
         # Deregister the AMI
         printf '%s\n' "Deregistering AMI: $ami_id"
-        aws ec2 deregister-image --image-id "$ami_id"
+        aws ec2 deregister-image --image-id "$ami_id" --region ${aws_region}
 
         # Delete associated snapshots
         for snapshot_id in $snapshot_ids; do
             printf '%s\n' "Deleting Snapshot: $snapshot_id"
-            aws ec2 delete-snapshot --snapshot-id "$snapshot_id"
+            aws ec2 delete-snapshot --snapshot-id "$snapshot_id" --region ${aws_region}
         done
     done
 
@@ -2170,12 +2178,16 @@ function freeze_list_tags() {
   tag_list=$(aws ec2 describe-images \
     --owners self \
     --filters "Name=name,Values=$ami_prefix*" \
-    | jq -r '.Images[].Tags[] | select(.Key=="Name") | .Value' | sort | uniq)
+    --region ${aws_region} | \
+    jq -r '.Images[].Tags[] | select(.Key=="Name") | .Value' | sort | uniq)
   
   if [ -z "${tag_list}" ]; then
     printf '%s\n' "No available Tags for Configuration ${configuration_name}"
   else
-    printf '%s\n%s\n' "Available Tags for Configuration ${configuration_name}:" "${tag_list}"
+    printf '%s\n' "Available Tags for Configuration ${configuration_name}:"
+    for i in "${!tag_list[@]}"; do
+      echo "$i: ${tag_list[$i]}"
+    done
   fi
 }
 
@@ -2199,10 +2211,11 @@ function snapshot_freeze() {
 function snapshot_retrieve() {
 
   telemetry "snapshot_retrieve" $1
+  snapshot_id=$2
 
   case $1 in
     nw|network|all)
-      freeze_retrieve nw
+      freeze_retrieve nw $snapshot_id
 
       ami_active_directory_dc=""
       ami_active_directory_ca=""
@@ -2260,7 +2273,7 @@ function snapshot_retrieve() {
       printf '%s\n' "Not implemented yet"
       ;;&
     testlab-cs|all)
-      freeze_retrieve testlab-cs
+      freeze_retrieve testlab-cs $snapshot_id
       
       ami_apex_one_server=""
       ami_apex_one_central=""
@@ -2341,6 +2354,48 @@ function snapshot_retrieve() {
   esac
 }
 
+function snapshot_clear() {
+
+  telemetry "snapshot_clear" $1
+
+  case $1 in
+    nw|network|all)
+      yq -i 'del(.services.aws.configuration.network.ami-active-directory-dc)' ${ONEPATH}/config.yaml
+      yq -i 'del(.services.aws.configuration.network.ami-active-directory-ca)' ${ONEPATH}/config.yaml
+      yq -i 'del(.services.aws.configuration.network.ami-service-gateway)' ${ONEPATH}/config.yaml
+      yq -i 'del(.services.aws.configuration.network.ami-deep-discovery-inspector)' ${ONEPATH}/config.yaml
+
+      sed -i "/^ami_active_directory_dc = .*/c  ami_active_directory_dc = \"\"" ${configs[network]}/terraform.tfvars
+      sed -i "/^ami_active_directory_ca = .*/c  ami_active_directory_ca = \"\"" ${configs[network]}/terraform.tfvars
+      sed -i "/^ami_service_gateway = .*/c  ami_service_gateway = \"\"" ${configs[network]}/terraform.tfvars
+      sed -i "/^ami_deep_discovery_inspector = .*/c  ami_deep_discovery_inspector = \"\"" ${configs[network]}/terraform.tfvars
+
+      printf '%s\n' "${configs[network]}/terraform.tfvars patched."
+      ;;&
+    ec2|instances|all)
+      printf '%s\n' "Not implemented yet"
+      ;;&
+    testlab-cs|all)
+      yq -i 'del(.services.aws.configuration.testlab-cs.ami-apex-one-server)' ${ONEPATH}/config.yaml
+      yq -i 'del(.services.aws.configuration.testlab-cs.ami-apex-one-central)' ${ONEPATH}/config.yaml
+      yq -i 'del(.services.aws.configuration.testlab-cs.ami-windows-client)' ${ONEPATH}/config.yaml
+      yq -i 'del(.services.aws.configuration.testlab-cs.ami-bastion)' ${ONEPATH}/config.yaml
+      yq -i 'del(.services.aws.configuration.testlab-cs.ami-dsm)' ${ONEPATH}/config.yaml
+      yq -i 'del(.services.aws.configuration.testlab-cs.ami-postgresql)' ${ONEPATH}/config.yaml
+
+      sed -i "/^ami_apex_one_server = .*/c  ami_apex_one_server = \"\"" ${configs[testlab-cs]}/terraform.tfvars
+      sed -i "/^ami_apex_one_central = .*/c  ami_apex_one_central = \"\"" ${configs[testlab-cs]}/terraform.tfvars
+      sed -i "/^ami_windows_client = .*/c  ami_windows_client = \"\"" ${configs[testlab-cs]}/terraform.tfvars
+      sed -i "/^ami_bastion = .*/c  ami_bastion = \"\"" ${configs[testlab-cs]}/terraform.tfvars
+      sed -i "/^ami_dsm = .*/c  ami_dsm = \"\"" ${configs[testlab-cs]}/terraform.tfvars
+      sed -i "/^ami_postgresql = .*/c  ami_postgresql = \"\"" ${configs[testlab-cs]}/terraform.tfvars
+
+      printf '%s\n' "${configs[testlab-cs]}/terraform.tfvars patched."
+
+      ;;&
+  esac
+}
+
 function snapshot_delete() {
 
   telemetry "snapshot_delete" $1
@@ -2375,6 +2430,15 @@ function snapshot_list() {
   esac
 }
 
+#######################################
+# Start/stop configuration instances
+# Globals:
+#   None
+# Arguments:
+#   Configuration name or all
+# Outputs:
+#   None
+#######################################
 function configuration_start() {
 
   telemetry "configuration_start" $1
@@ -2382,9 +2446,12 @@ function configuration_start() {
   case $1 in
     nw|network|all)
       if checklock network ; then
-        for instance in $(aws ec2 describe-instances --filters Name=tag:Configuration,Values=nw Name=tag:Environment,Values=${environment_name} --region ${aws_region} | \
+        for instance in $(aws ec2 describe-instances \
+          --filters Name=tag:Configuration,Values=nw Name=tag:Environment,Values=${environment_name} \
+          --region ${aws_region} | \
           jq -r '.Reservations[].Instances[].InstanceId ') ; do
-          printf 'State %s: %s\n' ${instance} "$(aws ec2 start-instances --instance-ids ${instance} --region ${aws_region} | \
+          printf 'State %s: %s\n' ${instance} "$(aws ec2 start-instances \
+            --instance-ids ${instance} --region ${aws_region} | \
             jq -r '.StartingInstances[0].CurrentState.Name')"
         done
       fi
@@ -2397,18 +2464,24 @@ function configuration_start() {
       ;;&
     testlab-cs|all)
       if checklock testlab-cs ; then
-        for instance in $(aws ec2 describe-instances --filters Name=tag:Configuration,Values=testlab-cs Name=tag:Environment,Values=${environment_name} --region ${aws_region} | \
+        for instance in $(aws ec2 describe-instances \
+          --filters Name=tag:Configuration,Values=testlab-cs Name=tag:Environment,Values=${environment_name} \
+          --region ${aws_region} | \
           jq -r '.Reservations[].Instances[].InstanceId ') ; do
-          printf 'State %s: %s\n' ${instance} "$(aws ec2 start-instances --instance-ids ${instance} --region ${aws_region} | \
+          printf 'State %s: %s\n' ${instance} "$(aws ec2 start-instances \
+            --instance-ids ${instance} --region ${aws_region} | \
             jq -r '.StartingInstances[0].CurrentState.Name')"
         done
       fi
       ;;&
     testlab-bare|all)
       if checklock testlab-bare ; then
-        for instance in $(aws ec2 describe-instances --filters Name=tag:Configuration,Values=testlab-bare Name=tag:Environment,Values=${environment_name} --region ${aws_region} | \
+        for instance in $(aws ec2 describe-instances \
+          --filters Name=tag:Configuration,Values=testlab-bare Name=tag:Environment,Values=${environment_name} \
+          --region ${aws_region} | \
           jq -r '.Reservations[].Instances[].InstanceId ') ; do
-          printf 'State %s: %s\n' ${instance} "$(aws ec2 start-instances --instance-ids ${instance} --region ${aws_region} | \
+          printf 'State %s: %s\n' ${instance} "$(aws ec2 start-instances \
+            --instance-ids ${instance} --region ${aws_region} | \
             jq -r '.StartingInstances[0].CurrentState.Name')"
         done
       fi
@@ -2429,27 +2502,36 @@ function configuration_stop() {
           fi
         fi
 
-        for instance in $(aws ec2 describe-instances --filters Name=tag:Configuration,Values=nw Name=tag:Environment,Values=${environment_name} --region ${aws_region} | \
+        for instance in $(aws ec2 describe-instances \
+          --filters Name=tag:Configuration,Values=nw Name=tag:Environment,Values=${environment_name} \
+          --region ${aws_region} | \
           jq -r '.Reservations[].Instances[].InstanceId ') ; do
-          printf 'State %s: %s\n' ${instance} "$(aws ec2 stop-instances --instance-ids ${instance} --region ${aws_region} | \
+          printf 'State %s: %s\n' ${instance} "$(aws ec2 stop-instances \
+            --instance-ids ${instance} --region ${aws_region} | \
             jq -r '.StoppingInstances[0].CurrentState.Name')"
         done
       fi
       ;;&
     testlab-cs|all)
       if checklock testlab-cs ; then
-        for instance in $(aws ec2 describe-instances --filters Name=tag:Configuration,Values=testlab-cs Name=tag:Environment,Values=${environment_name} --region ${aws_region} | \
+        for instance in $(aws ec2 describe-instances \
+          --filters Name=tag:Configuration,Values=testlab-cs Name=tag:Environment,Values=${environment_name} \
+          --region ${aws_region} | \
           jq -r '.Reservations[].Instances[].InstanceId ') ; do
-          printf 'State %s: %s\n' ${instance} "$(aws ec2 stop-instances --instance-ids ${instance} --region ${aws_region} | \
+          printf 'State %s: %s\n' ${instance} "$(aws ec2 stop-instances \
+            --instance-ids ${instance} --region ${aws_region} | \
             jq -r '.StoppingInstances[0].CurrentState.Name')"
         done
       fi
       ;;&
     testlab-bare|all)
       if checklock testlab-bare ; then
-        for instance in $(aws ec2 describe-instances --filters Name=tag:Configuration,Values=testlab-bare Name=tag:Environment,Values=${environment_name} --region ${aws_region} | \
+        for instance in $(aws ec2 describe-instances \
+          --filters Name=tag:Configuration,Values=testlab-bare Name=tag:Environment,Values=${environment_name} \
+          --region ${aws_region} | \
           jq -r '.Reservations[].Instances[].InstanceId ') ; do
-          printf 'State %s: %s\n' ${instance} "$(aws ec2 stop-instances --instance-ids ${instance} --region ${aws_region} | \
+          printf 'State %s: %s\n' ${instance} "$(aws ec2 stop-instances \
+            --instance-ids ${instance} --region ${aws_region} | \
             jq -r '.StoppingInstances[0].CurrentState.Name')"
         done
       fi
@@ -2516,6 +2598,7 @@ function helpcmd() {
   printf '%s\n' "  -R --snapshot-retrieve  Retrieve configuration by Tag"
   printf '%s\n' "  -D --snapshot-delete    Delete frozen configuration by Tag"
   printf '%s\n' "  -L --snapshot-list-tags List Tags for configuration"
+  printf '%s\n' "  -C --snapshot-clear     Clear configuration"
   printf '%s\n' ""
   printf '%s\n' "Other commands:"
   printf '%s\n' "  -S --show      Show advanced state"
@@ -2574,11 +2657,11 @@ else
   printf '%s\n' "Using System Access Key or Instance Role"
 fi
 
-opts_short=pci:t:a:ld:o:s:S:v:uhE:F:R:D:L:U
-opts_long=plan,config,init:,tfvars:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help,erase:,snapshot-freeze:,snapshot-retrieve:,snapshot-delete:,snapshot-list-tags:,update,start:,stop:
+opts_short=pci:t:a:ld:o:s:S:v:uhE:F:R:D:L:C:U
+opts_long=plan,config,init:,tfvars:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help,erase:,snapshot-freeze:,snapshot-retrieve:,snapshot-delete:,snapshot-list-tags:,snapshot-clear,update,start:,stop:
 
 if is_darwin; then
-  TEMP=$(/opt/homebrew/opt/gnu-getopt/bin/getopt -o ${opts_short}C: --long ${opts_long},colima: -- "$@")
+  TEMP=$(/opt/homebrew/opt/gnu-getopt/bin/getopt -o ${opts_short} --long ${opts_long},colima: -- "$@")
 
   if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 
@@ -2604,6 +2687,10 @@ if [ "$2" != "--" ] && [ "$2" != "" ]; then
 fi
 
 while true; do
+  # echo "1: $1"
+  # echo "2: $2"
+  # echo "3: $3"
+  # echo "4: $4"
   case "$1" in
     -p | --plan ) dryrun=True; shift 1 ;;
     -c | --config ) pgo-configure; break ;;
@@ -2618,14 +2705,15 @@ while true; do
     -v | --validate ) validate $2; shift 2 ;;
     -u | --updateip ) update_ip; break ;;
     -h | --help ) helpcmd; break ;;
-    -C | --colima ) colima-service $2; shift 2 ;;
     -E | --erase ) erase $2; shift 2 ;;
 
     -F | --snapshot-freeze ) snapshot_freeze $2; shift 2 ;;
-    -R | --snapshot-retrieve ) snapshot_retrieve $2; shift 2 ;;
+    -R | --snapshot-retrieve ) snapshot_retrieve $2 $4; break ;;
     -D | --snapshot-delete ) snapshot_delete $2; shift 2 ;;
     -L | --snapshot-list-tags ) snapshot_list $2; shift 2 ;;
+    -C | --snapshot-clear ) snapshot_clear $2; shift 2 ;;
 
+    --colima ) colima-service $2; shift 2 ;;
     --start ) configuration_start $2; shift 2 ;;
     --stop ) configuration_stop $2; shift 2 ;;
 
