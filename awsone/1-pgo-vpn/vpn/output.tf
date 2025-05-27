@@ -21,6 +21,10 @@ output "vpn_server_ip" {
   value = length(aws_instance.wireguard) > 0 ? aws_instance.wireguard[0].public_ip : null
 }
 
+output "vpn_server_pip" {
+  value = length(aws_instance.wireguard) > 0 ? aws_instance.wireguard[0].private_ip : null
+}
+
 output "vpn_server_id" {
   value = length(aws_instance.wireguard) > 0 ? aws_instance.wireguard[0].id : null
 }

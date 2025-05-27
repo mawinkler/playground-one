@@ -1,173 +1,222 @@
-# Scenario: File Crunching with PGOWeb
+# Scenario: Playground One Testlab for Customer Success<!-- omit in toc -->
 
+- [Setup from Scratch](#setup-from-scratch)
+- [Playground One Web UI](#playground-one-web-ui)
+- [Life-Cycle](#life-cycle)
+  - [Private IP Assignments](#private-ip-assignments)
+  - [Retrieve Snapshot](#retrieve-snapshot)
+  - [Create Network and Testlab-CS](#create-network-and-testlab-cs)
+  - [(Optional): Create Your own Local Administrator](#optional-create-your-own-local-administrator)
+  - [Snapshot Testlab Instances](#snapshot-testlab-instances)
+  - [Retrieve Testlab Snapshot](#retrieve-testlab-snapshot)
+  - [Delete Snapshots:](#delete-snapshots)
+- [Knowledge Base](#knowledge-base)
+  - [Disaster Recovery](#disaster-recovery)
+  - [Transfer a custom Amazon Machine Image (AMI)](#transfer-a-custom-amazon-machine-image-ami)
+  - [From ISO to AMI](#from-iso-to-ami)
+    - [Service Role](#service-role)
+    - [Import Snapshot](#import-snapshot)
+    - [Register Image](#register-image)
+    - [Run through](#run-through)
 
-## Prerequisites
+## Setup from Scratch
 
-- Playground One Active Directory
+```sh
+git clone git@github.com-mawinkler:mawinkler/playground-one.git
+mv playground-one playground-one-cs
 
-Verify, that you have `AWS AD - create PGO Active Directory` enabled in your configuration.
+cd playground-one-cs
+source bin/activate
+```
+
+Eventually copy some upload files from `playground-one/awsone/0-files` to the `playground-one-cs/awsone/0-files` directory.
+
+Then, run
 
 ```sh
 pgo --config
 ```
 
-```sh
-...
-AWS AD - create PGO Active Directory [true]: 
-...
+Settings:
+
+```yaml
+services:
+  environment_name: pgo-cs
+  initialize: false
+  aws:
+    account-id: <AWS ACCOUNT ID>
+    region: eu-central-1
+    service-gateway: true
+    managed-active-directory: false
+    active-directory: true
+    pgo_user_enabled: true
+    virtual-network-sensor:
+      enabled: false
+    private-access-gateway: false
+    deep-discovery-inspector:
+      enabled: true
+    pgo_user_access_key: <ACCESS KEY GENERATEY BY pgo -a user>
+    pgo_user_secret_key: <SECRET ACCESS KEY GENERATEY BY pgo -a user>
+    vpn-gateway: true
+    configuration:
+      network:
+        ami-active-directory-dc: ami-036eb8f316bfead70
+        ami-active-directory-ca: ami-0b7a3ea4c0aa0cf56
+      testlab-cs:
+        ami-apex-one-server: ami-02e2b667941d221d4
+        ami-apex-one-central: ami-0db3d88ff90e312b3
+        ami-windows-client: ["ami-0ac8520632672372e", "ami-02d7d816af0ab6646"]
+        ami-bastion: ami-0c6bf4e74f840b978
+        ami-dsm: ami-071d66264a53ff5f9
+        ami-postgresql: ami-0d2a3ca2006496dad
+  azure:
+    enabled: false
+  playground-one:
+    access-ip: ["87.170.13.77/32"]
+    ec2:
+      create-database: true
+    px: false
+    azvm:
+      create-linux: false
+  integrations:
+    prometheus:
+      enabled: false
+    trivy:
+      enabled: false
+    calico:
+      enabled: false
+    metallb:
+      enabled: false
+    istio:
+      enabled: false
+    pgoweb:
+      enabled: false
+    argocd:
+      enabled: false
+  deep-security:
+    enabled: true
+    license: <DS ACTIVATION KEY>
+    username: masteradmin
+    password: playground
+  vision-one:
+    container-security:
+      enabled: false
+    api-key: <V1 API-KEY>
+    region: us-east-1
+    endpoint-security:
+      enabled: true
+      type: TMServerAgent
+  workload-security:
+    enabled: false
 ```
 
 ```sh
-# With PGO AD enabled
-pgo --apply network
-```
+pgo --init user
+pgo --init satellite
 
-## Development Status
-
-### Working, ready for Testing as of 03/07/2025
-
-- VPC including all required networking configurations.
-  - Public, private, dababase, intranet subnets
-  - Security groups
-  - Internet & NAT gateway
-  - etc.
-- Within the VPC an (optional) Active Directory based on Windows Server 2022 is available.
-  - SSL is supported.
-  - It can easily be prepulated with users and groups, etc.
-- Management Server within AWS aka Playground Satellite.
-  - The Satellite is accessible via Instance Connect (from within the AWS Console) for users with the required permissions :-)
-- AWS User creation with Playground's required permissions only.
-- Trend Solutions
-  - Deep Security Manager. Selected servers can automatically activate against the DSM.
-  - Deep Discovery Inspector
-  - Service Gateway
-- Creation of Windows, Linux servers according to specification (to be defined)
-
-All of the above are terraformed and controlled using the Playground CLI tool pgo.
-
-Latest additions:
-
-- Converting manually installed solutions/products into reusable AMIs
-  - To the best of my knowledge, most of the Trend products which are currently discussed do not support a programmatic way for the implementation and configuration. This means, that someone has to implement the products including a required base configuration. The instances are created by the Playground (according to the requirements) and can then be snapshotted including the creation of the AMIs.
-  - These AMIs can be reused later on if the evironment was somehow broken.
-  - If a new product version is required, setup and configuration is again performed manually, followed by the creation of an AMI.
-  - *Attention: I didn't do any testing with Apex etc. yet. I only tested with freshly built Windows Servers.*
-
-### ToDo or to Decide
-
-- Secure Access via VPN
-  - I started the implementation based on Wireguard since we're not allowed to implement AWS Client VPN.
-  - It's a little unclear to me how much we're violating the guidelines, but I don't see any other viable approach.
-  - The 'custom' VPN should do the job when finished, the user management may be a little manual, but it should do the trick.
-- Active Directory will probably complicate things, and I don't know how important it is for the test lab. This is where the requirements need to be specified.
-- I am still having some problems with creating GPOs using Powershell. Anyone out there?
-- Creating snapshots of the testlab is automated and seems to be fuctional, same as cleaning up everything. Using the AMIs to rebuild everything is not automated yet but will come. Manual testing was successful.
-- Will it be necessary to have several test labs at the same time? This is technically possible, but will create some management issues later. I suggest a PoC with only one environment.
-- Staffing:
-  - Who can contribute to the PoC for the implementation of the Trend products? In the beginning, I think it will probably be Apex One and Apex Server.
-  - Who can potentially help with some Windows Domain stuff?
-
-## Current Limitations
-
-- Adaptions in the configuration for multiple Windows clients with different AMIs needed.
- 
-## Review the Active Directory
-
-After applying the network the Active Directory will build itself automatically. It consists out of two machines both based on Windows Server 2022:
-
-- Windows Domain Controller 
-- Windows Certification Authority
-
-After instantiation of the virtual machines the domain is created and the servers are rebooted as required in Windows 😜.
-
-This process takes a couple of minutes.
-
-The output of `pgo --output network` lists some relevant info for this scenario:
-
-```sh
-...
-ad_ca_ip = "3.71.6.173"
-ad_dc_ip = "18.196.75.194"
-ad_dc_pip = "10.0.4.107"
-ad_domain_admin = "Administrator"
-ad_domain_name = "pgo-id.local"
-...
-ad_admin_password = TrendMicro.1
-```
-
-- `ad_ca_ip`: Public IP address of your Certification Authority
-- `ad_dc_ip` and `ad_dc_pip`: Public and private IP address of your Domain Controller
-- `ad_domain_name`: Name of your Domain
-- `ad_domain_admin` and `ad_admin_password`: Name and password for the Domain Admin
-
-## Life-Cycle
-
-### Create Satellite
-
-```sh
+pgo --apply user
 pgo --apply satellite
 ```
 
-When instance is running connect via AWS EC2 Instance Connect.
+Go to AWS Console EC2 in region `eu-central-1` and direct connect to the satellite instance.
 
-### Check PGO Configuration
+Wait for initialization of playground-one has finished.
+
+For this run some of this commands: `kubectl`, `yq`, and `pgo`.
 
 ```sh
-cd playground-one
-mv ../config.yaml .
-
 pgo --config
 ```
 
+All seetings should already be correct since the `config.yaml` has been copied into the `satellite`. Just update the Access IP to match with the `satellite` IP.
+
 ```sh
- __                 __   __   __             __      __        ___ 
-|__) |     /\  \ / / _` |__) /  \ |  | |\ | |  \    /  \ |\ | |__  
-|    |___ /~~\  |  \__> |  \ \__/ \__/ | \| |__/    \__/ | \| |___ 
-                                                                   
-Using PDO User Access Key ID: ...4DMF
-!!! Access IP mismatch !!!
+pgo --init network
+pgo --init testlab-bare
+pgo --init testlab-cs
 
-Section: Playground One
-Please set/update your Playground One configuration
-Initialize Terraform Configurations? [false]: true
-PGO Environment Name [pgo-cs]: 
-Access IPs/CIDRs [87.170.20.71/32]: 87.170.20.71/32
-Public IP of EC2 instance running PGO [87.170.20.71/32]: pub
-Public IP(s)/CIDR(s): ["87.170.20.71/32","18.194.28.201/32"]
-Running in Product Experience? [false]: 
-
-Section: AWS
-Please set/update your AWS configuration
-Account ID [634503960501]: 
-Region Name [eu-central-1]: 
-Use PGO User? [true]: 
-PGO User Access Key [AKIAZHO3CC62R6C64DMF]: 
-PGO User Secret Key [DM5kpOKsBl...]: 
-VPN - create PGO VPN Gateway? [true]: 
-AD - create PGO Active Directory? [true]: 
-MAD - create Managed Active Directory? [false]: 
-SG - create Service Gateway? [false]: 
-PAC - create Private Access Gateway? [false]: 
-VNS - create Virtual Network Sensor? [false]: 
-DDI - create Deep Discovery Inspector? [false]: 
-...
-
-Section: Vision One
-Please set/update your Vision One configuration
-API Key [eyJ0eXAiOi...]: 
-Region Name [us-east-1]: 
-ASRM - Create Predictive Attack Path(s)? [false]: 
-Enable Endpoint Security Automatic Deployment? [true]: 
-Endpoint Security Agent Type (TMServerAgent|TMSensorAgent) [TMServerAgent]: 
-...
-
-Section: Deep Security (on-prem)
-Please set/update your Deep Security configuration
-Enable Deep Security? [true]: 
-License [AP-3VP6-KV...]:
-Username [masteradmin]: 
-Password [playground]: 
+pgo --apply network
 ```
+
+The above created the VPC including other typically enabled services like Active Directory, Service Gateway, VPN, and the Deep Discovery Inspector.
+
+Next, get the VPN Peers and RDP configurations:
+
+```
+cd playground-one
+
+s3cp --put vpn-peers
+s3cp --put vpn-rdps
+```
+
+These files are now located in the satellites S3 bucket. Get the bucket name with:
+
+```sh
+pgo --output network
+# s3_bucket = "pgo-cs-..."
+```
+
+> ***Fix:***
+>
+> `wg-quick` errors with `resolvconf: command not found`
+>
+> Solution:
+>
+> `sudo ln -s /usr/bin/resolvectl /usr/local/bin/resolvconf`
+
+To start the Testlabs run
+
+```sh
+# Naked
+pgo --apply testlab-bare
+
+# Full
+pgo --apply testlab-cs
+```
+
+If AMIs are configured, they will be used. Atherwise *empty* instances are used.
+
+## Playground One Web UI
+
+https://docs.olivetin.app/index.html
+https://icon-sets.iconify.design/?query=snapshot
+
+On the Satellite install the UI by running:
+
+```sh
+pgo-ui install
+```
+
+Config File: `/etc/OliveTin/config.yaml`
+
+To access the UI from outside AWS you need three things:
+
+- The Satellite SSH Key (ask me :blush:)
+- The Satellite public IP (ask me, again :stuck_out_tongue_winking_eye:)
+- Establish an SSH Tunnel: ssh -i <SSH KEY FILE>> -L 1337:localhost:1337 ubuntu@<SATELLITE PUBLIC IP>
+ 
+Example: `ssh -i pgo-satellite-pgo-cs-key-pair-y73bwukz.pem -L 1337:localhost:1337 ubuntu@3.68.166.174`
+
+Then use your browser to connect to `http://localhost:1337`.
+
+## Life-Cycle
+
+### Private IP Assignments
+
+Configuration | Instance     | Private IP
+------------- | ------------ | ----------
+Network       | Wireguard    | 10.0.4.10 
+Network       | pgo-dc       | 10.0.0.10 
+Network       | pgo-ca       | 10.0.0.11 
+Network       | sg           | 10.0.0.12
+TestLab-CS    | DSM          | 10.0.0.20 
+TestLab-CS    | Apex One     | 10.0.0.22 
+TestLab-CS    | Apex Central | 10.0.0.23 
+TestLab-CS    | PostgreSQL   | 10.0.0.24 
+Network       | ddi          | 10.0.1.2
+TestLab-CS    | Client 0     | 10.0.1.10 
+TestLab-CS    | Client 1     | 10.0.1.11 
+TestLab-CS    | Client x     | 10.0.1.xx 
 
 ### Retrieve Snapshot
 
@@ -288,27 +337,77 @@ Same for the Active Directory.
 pgo --freeze nw-delete
 ```
 
-🎉 Success 🎉
+## Knowledge Base
 
-## Private IP Assignments
+### Disaster Recovery
 
-Configuration | Instance     | Private IP
-------------- | ------------ | ----------
-Network       | Wireguard*   | 10.0.4.10 
-TestLab-CS    | Bastion*     | 10.0.4.11 
-Network       | pgo-dc       | 10.0.0.10 
-Network       | pgo-ca       | 10.0.0.11 
-Network       | sg           | 10.0.0.12
-TestLab-CS    | DSM          | 10.0.0.20 
-TestLab-CS    | Apex One     | 10.0.0.22 
-TestLab-CS    | Apex Central | 10.0.0.23 
-TestLab-CS    | PostgreSQL   | 10.0.0.24 
-Network       | ddi          | 10.0.1.2
-TestLab-CS    | Client 0     | 10.0.1.10 
-TestLab-CS    | Client 1     | 10.0.1.11 
-TestLab-CS    | Client x     | 10.0.1.xx 
+See [Setup from Scratch](#setup-from-scratch) but retrieve the latest snapshots before applying the network and testlabs.
 
-## From ISO to AMI
+
+### Transfer a custom Amazon Machine Image (AMI)
+
+To transfer a custom Amazon Machine Image (AMI) from one AWS account to another, you can share the AMI with the target account and then have the target account copy it. Here's how to do it:​
+
+🔄 Step 1: Share the AMI with the Target Account
+In the source AWS account (the one that owns the AMI):​
+
+- Share the AMI:
+  - Using the AWS Console:
+    - Navigate to the EC2 Dashboard.
+    - In the left-hand menu, select AMIs.
+    - Locate and select your custom AMI.
+    - Click on Actions > Modify Image Permissions.
+    - Choose Private.
+    - Under Shared accounts, click Add account ID.
+    - Enter the 12-digit AWS account ID of the target account.
+    - Click Share AMI, then Save changes.
+  - Using the AWS CLI:
+      ```sh
+      aws ec2 modify-image-attribute \
+      --image-id ami-xxxxxxxxxxxxxxxxx \
+      --launch-permission "Add=[{UserId=123456789012}]"
+      ```
+      Replace ami-xxxxxxxxxxxxxxxxx with your AMI ID and 123456789012 with the target AWS account ID.
+
+> Note: If your AMI uses encrypted Amazon EBS snapshots, ensure that the target account has the necessary permissions to use the associated AWS Key Management Service (KMS) keys. ​
+
+📥 Step 2: Copy the Shared AMI in the Target Account
+In the target AWS account:​
+
+- Copy the Shared AMI:
+  - Using the AWS Console:
+    - Navigate to the EC2 Dashboard.
+    - In the left-hand menu, select AMIs.
+    - Change the filter to Shared with me to view AMIs shared by other accounts.
+    - Select the shared AMI you wish to copy.
+    - Click on Actions > Copy AMI.
+    - In the Copy AMI dialog:
+    - Provide a name and description for the new AMI.
+    - Select the destination region (if different from the current one).
+    - Choose whether to encrypt the new AMI.
+    - Click Copy AMI to initiate the copy process.
+  - Using the AWS CLI:
+      ```sh
+      aws ec2 copy-image \
+      --source-image-id ami-xxxxxxxxxxxxxxxxx \
+      --source-region us-west-2 \
+      --name "MyCopiedAMI" \
+      --region us-east-1
+      ```
+      Replace ami-xxxxxxxxxxxxxxxxx with the shared AMI ID, us-west-2 with the source region, and us-east-1 with the destination region.
+
+> Note: After copying, the AMI in the target account is independent of the source account. The target account can now launch instances from this AMI, modify it, or share it further. ​
+
+⚠️ Important Considerations
+
+- Encrypted AMIs: If the AMI uses encrypted snapshots, ensure that the target account has permissions to use the associated KMS keys. ​
+- Region-Specific: AMIs are region-specific. If you need the AMI in a different region, you must copy it to that region. ​
+- Permissions: Sharing an AMI does not grant permissions to the underlying snapshots. Ensure that the necessary permissions are in place for the target account to use the snapshots.​
+- Billing: The account that owns the AMI is billed for the storage of the AMI and its snapshots. The account that copies or launches instances from the AMI is billed for the usage in their account. ​
+
+By following these steps, you can successfully transfer a custom AMI from one AWS account to another.
+
+### From ISO to AMI
 
 Get QEMU
 
@@ -316,7 +415,7 @@ Get QEMU
 brew install qemu
 ```
 
-### Service Role
+#### Service Role
 
 trust-policy.json
 
@@ -392,6 +491,8 @@ role-policy.json
 aws iam put-role-policy --role-name vmimport --policy-name vmimport --policy-document "file://role-policy.json"
 ```
 
+#### Import Snapshot
+
 container.json
 
 ```json
@@ -457,6 +558,8 @@ aws ec2 describe-import-snapshot-tasks
 }
 ```
 
+#### Register Image
+
 ```sh
 aws ec2 register-image --name "DDAN-7.6.0-1069-x86_64" \
   --root-device-name /dev/sda1 \
@@ -469,34 +572,7 @@ aws ec2 register-image --name "DDAN-7.6.0-1069-x86_64" \
 }
 ```
 
-
-
-
-
-
-
-Run through
-
-
-
-```sh
-qemu-img convert -f raw -O raw DDAN-7.6.0-1069-x86_64.iso DDAN-7.6.0-1069-x86_64.raw
-
-aws s3 cp DDAN-7.6.0-1069-x86_64.raw s3://pgo-iso/
-
-aws ec2 import-snapshot --description "DDAN-7.6.0-1069-x86_64" --disk-container "file://container.json"
-
-aws ec2 import-snapshot --description "DDAN-7.6.0-1069-x86_64" \
-  --disk-container Format=RAW,UserBucket={'S3Bucket="pgo-iso",S3Key="DDAN-7.6.0-1069-x86_64.raw"'}
-
-aws ec2 describe-import-snapshot-tasks
-
-aws ec2 register-image --name "DDAN-7.6.0-1069-x86_64" \
-  --root-device-name /dev/sda1 \
-  --block-device-mappings DeviceName=/dev/sda1,Ebs={SnapshotId=snap-xxxxxxxx}
-
-aws ec2 run-instances --image-id ami-xxxxxxxx --instance-type m5a.2xlarge
-```
+#### Run through
 
 Set environment:
 
@@ -505,7 +581,7 @@ export IMAGE_NAME="DDAN-7.6.0-1069-x86_64"
 export BUCKET="pgo-iso"
 ```
 
-### Use qemu-img to Convert ISO to RAW Format
+***Use qemu-img to Convert ISO to RAW Format***
 
 ```sh
 qemu-img convert -f raw -O raw ${IMAGE_NAME}.iso ${IMAGE_NAME}.raw
@@ -515,7 +591,7 @@ qemu-img convert -f raw -O raw ${IMAGE_NAME}.iso ${IMAGE_NAME}.raw
 - -O raw → Output format (RAW)
 - ${IMAGE_NAME}.raw → Output file (needed for AWS)
 
-### Upload the Image to AWS S3
+***Upload the Image to AWS S3***
 
 Before importing the image, upload it to an S3 bucket:
 
@@ -523,7 +599,7 @@ Before importing the image, upload it to an S3 bucket:
 aws s3 cp ${IMAGE_NAME}.raw s3://${BUCKET}/
 ```
 
-### Import the RAW Image as an EBS Snapshot
+***Import the RAW Image as an EBS Snapshot***
 Use AWS EC2 VM Import to import the disk image:
 
 ```sh
@@ -539,7 +615,7 @@ aws ec2 describe-import-snapshot-tasks
 
 Once completed, it will generate a snapshot ID.
 
-### Create an AMI from the Snapshot
+***Create an AMI from the Snapshot***
 
 Now, use the snapshot ID to create an AMI:
 
@@ -549,7 +625,7 @@ aws ec2 register-image --name "MyCustomAMI" \
   --block-device-mappings DeviceName=/dev/sda1,Ebs={SnapshotId=snap-xxxxxxxx}
 ```
 
-### Launch an EC2 Instance from the AMI
+***Launch an EC2 Instance from the AMI***
 
 Once the AMI is ready, you can launch an EC2 instance:
 

@@ -50,7 +50,8 @@ showNavigation: true
 # https://icon-sets.iconify.design/
 actions:
   - title: Playground Status
-    shell: /home/${user}/playground-one/bin/pgo-run -l
+    shell: |
+      /home/${user}/playground-one/bin/pgo-run -l
     icon: <iconify-icon icon="f7:status"></iconify-icon>
     popupOnStart: execution-dialog-stdout-only
 
@@ -58,7 +59,7 @@ actions:
     shell: /home/${user}/playground-one/bin/pgo-run {{ action }} network
     icon: <iconify-icon icon="carbon:infrastructure-classic"></iconify-icon>
     popupOnStart: execution-dialog-stdout-only
-    timeout: 900
+    timeout: 1800
     arguments:
       - name: action
         title: Action
@@ -69,11 +70,26 @@ actions:
           - value: --stop
           - value: --destroy
 
+  - title: Connect with Base Environment
+    shell: wg-quick up ${ONEPATH}/vpn-peers/pgo_admin.conf
+    icon: <iconify-icon icon="material-symbols:cloud-outline"></iconify-icon>
+    popupOnStart: execution-dialog-stdout-only
+
+  - title: Ping the Base Environment
+    shell: ping -c 3 10.0.4.10
+    icon: <iconify-icon icon="material-symbols:network-ping"></iconify-icon>
+    popupOnStart: execution-dialog-stdout-only
+
+  - title: Disconnect from Base Environment
+    shell: wg-quick down ${ONEPATH}/vpn-peers/pgo_admin.conf
+    icon: <iconify-icon icon="material-symbols:cloud-off-outline"></iconify-icon>
+    popupOnStart: execution-dialog-stdout-only
+
   - title: Testlab CS
     shell: /home/${user}/playground-one/bin/pgo-run {{ action }} testlab-cs
     icon: <iconify-icon icon="fluent-mdl2:test-case"></iconify-icon>
     popupOnStart: execution-dialog-stdout-only
-    timeout: 900
+    timeout: 1800
     arguments:
       - name: action
         title: Action
@@ -88,7 +104,7 @@ actions:
     shell: /home/${user}/playground-one/bin/pgo-run {{ action }} testlab-bare
     icon: <iconify-icon icon="material-symbols:barefoot-outline"></iconify-icon>
     popupOnStart: execution-dialog-stdout-only
-    timeout: 900
+    timeout: 1800
     arguments:
       - name: action
         title: Action
@@ -100,10 +116,10 @@ actions:
           - value: --destroy
 
   - title: Snapshots
-    icon: <iconify-icon icon="material-symbols:heap-snapshot-multiple-outline"></iconify-icon>
     shell: /home/${user}/playground-one/bin/pgo-run {{ action }} {{ configuration }}
+    icon: <iconify-icon icon="material-symbols:heap-snapshot-multiple-outline"></iconify-icon>
     popupOnStart: execution-dialog-stdout-only
-    timeout: 10
+    timeout: 1800
     arguments:
       - name: action
         title: Action
@@ -120,13 +136,18 @@ actions:
 
   - title: Playground Peers
     shell: for cnf in $ONEPATH/vpn-peers/*.conf; do echo \$cnf; echo '---'; cat \$cnf; echo; echo; done
-    icon: <iconify-icon icon="fluent:key-20-regular"></iconify-icon>
+    icon: <iconify-icon icon="material-symbols:key-outline"></iconify-icon>
     popupOnStart: execution-dialog-stdout-only
 
   - title: Playground Admin Peer
     shell: cat $ONEPATH/vpn-peers/other_admin.conf
-    icon: <iconify-icon icon="fluent:key-20-filled"></iconify-icon>
+    icon: <iconify-icon icon="material-symbols:key"></iconify-icon>
     popupOnStart: execution-dialog-stdout-only
+
+  # - title: Ping the Internet
+  #   shell: ping -c 3 1.1.1.1
+  #   icon: ping
+  #   popupOnStart: execution-dialog-stdout-only
 
 # Docs: https://docs.olivetin.app/entities/intro.html
 entities:
@@ -138,10 +159,6 @@ EOF
 }
 
 
-  # - title: Ping the Internet
-  #   shell: ping -c 3 1.1.1.1
-  #   icon: ping
-  #   popupOnStart: execution-dialog-stdout-only
 
   # - title: check log directory
   #   hidden: true

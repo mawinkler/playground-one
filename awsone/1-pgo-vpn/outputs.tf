@@ -21,6 +21,10 @@ output "vpn_server_ip" {
   value = module.vpn.vpn_server_ip
 }
 
+output "vpn_server_pip" {
+  value = module.vpn.vpn_server_pip
+}
+
 output "vpn_server_id" {
   value = module.vpn.vpn_server_id
 }

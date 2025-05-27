@@ -101,3 +101,4 @@ temp/
 bin/lambda.py
 bin/telemetry.md
 awsone/9-deep-security-public-subnet/dsm/apikey
+bin/pgo-run

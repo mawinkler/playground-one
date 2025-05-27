@@ -96,6 +96,10 @@ output "vpn_server_ip" {
   value = var.vpn_gateway ? module.vpn[0].vpn_server_ip : null
 }
 
+output "vpn_server_pip" {
+  value = var.vpn_gateway ? module.vpn[0].vpn_server_pip : null
+}
+
 output "vpn_server_id" {
   value = var.vpn_gateway ? module.vpn[0].vpn_server_id : null
 }

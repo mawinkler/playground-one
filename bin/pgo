@@ -1342,7 +1342,7 @@ function destroy() {
         #   AWS_SECRET_ACCESS_KEY="" \
         if [ "${pgo_vpn_gateway}" == 'true' ]; then
           if [ -f ${ONEPATH}/vpn-peers/pgo_admin.conf ]; then
-            wg-quick down ${ONEPATH}/vpn-peers/pgo_admin.conf
+            wg-quick down ${ONEPATH}/vpn-peers/pgo_admin.conf || true
           fi
         fi
 
@@ -1578,6 +1578,10 @@ function list() {
       printf '%s\n' "Configuration ${config} is applied"
     fi
   done
+
+  printf '\n%s\n' "EC2 instances status:"
+  aws ec2 describe-instances --filters Name=tag:Environment,Values=${environment_name} --region ${aws_region} | \
+    jq -r '.Reservations[].Instances[] | "name:" + (.Tags[] | select(.Key=="Name") | .Value) + ", id:" + .InstanceId + " - "+ .State.Name'
 }
 
 #######################################
@@ -2376,7 +2380,7 @@ function configuration_start() {
 
   case $1 in
     nw|network|all)
-      if checklock testlab-cs ; then
+      if checklock network ; then
         for instance in $(aws ec2 describe-instances --filters Name=tag:Configuration,Values=nw Name=tag:Environment,Values=${environment_name} --region ${aws_region} | \
           jq -r '.Reservations[].Instances[].InstanceId ') ; do
           printf 'State %s: %s\n' ${instance} "$(aws ec2 start-instances --instance-ids ${instance} --region ${aws_region} | \
@@ -2411,11 +2415,11 @@ function configuration_stop() {
 
   case $1 in
     nw|network|all)
-      if checklock testlab-cs ; then
+      if checklock network ; then
         for instance in $(aws ec2 describe-instances --filters Name=tag:Configuration,Values=nw Name=tag:Environment,Values=${environment_name} --region ${aws_region} | \
           jq -r '.Reservations[].Instances[].InstanceId ') ; do
           printf 'State %s: %s\n' ${instance} "$(aws ec2 stop-instances --instance-ids ${instance} --region ${aws_region} | \
-            jq -r '.StartingInstances[0].CurrentState.Name')"
+            jq -r '.StoppingInstances[0].CurrentState.Name')"
         done
       fi
       ;;&
@@ -2424,7 +2428,7 @@ function configuration_stop() {
         for instance in $(aws ec2 describe-instances --filters Name=tag:Configuration,Values=testlab-cs Name=tag:Environment,Values=${environment_name} --region ${aws_region} | \
           jq -r '.Reservations[].Instances[].InstanceId ') ; do
           printf 'State %s: %s\n' ${instance} "$(aws ec2 stop-instances --instance-ids ${instance} --region ${aws_region} | \
-            jq -r '.StartingInstances[0].CurrentState.Name')"
+            jq -r '.StoppingInstances[0].CurrentState.Name')"
         done
       fi
       ;;&
@@ -2433,7 +2437,7 @@ function configuration_stop() {
         for instance in $(aws ec2 describe-instances --filters Name=tag:Configuration,Values=testlab-bare Name=tag:Environment,Values=${environment_name} --region ${aws_region} | \
           jq -r '.Reservations[].Instances[].InstanceId ') ; do
           printf 'State %s: %s\n' ${instance} "$(aws ec2 stop-instances --instance-ids ${instance} --region ${aws_region} | \
-            jq -r '.StartingInstances[0].CurrentState.Name')"
+            jq -r '.StoppingInstances[0].CurrentState.Name')"
         done
       fi
       ;;&
