@@ -117,7 +117,7 @@ actions:
           - value: --destroy
 
   - title: Snapshots
-    shell: /home/${user}/playground-one/bin/pgo-run {{ action }} {{ configuration }}
+    shell: /home/${user}/playground-one/bin/pgo-run {{ action }} {{ configuration }} {{ snapshot_id }}
     icon: <iconify-icon icon="material-symbols:heap-snapshot-multiple-outline"></iconify-icon>
     popupOnStart: execution-dialog-stdout-only
     timeout: 1800
@@ -135,6 +135,11 @@ actions:
         choices:
           - value: network
           - value: testlab-cs
+      - name: snapshot_id
+        description: Retrieve only
+        title: Snapshot ID
+        default: 0
+        type: ascii_sentence
 
   - title: Playground Peers
     shell: for cnf in $ONEPATH/vpn-peers/*.conf; do echo \$cnf; echo '---'; cat \$cnf; echo; echo; done

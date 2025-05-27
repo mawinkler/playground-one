@@ -2658,7 +2658,7 @@ else
 fi
 
 opts_short=pci:t:a:ld:o:s:S:v:uhE:F:R:D:L:C:U
-opts_long=plan,config,init:,tfvars:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help,erase:,snapshot-freeze:,snapshot-retrieve:,snapshot-delete:,snapshot-list-tags:,snapshot-clear,update,start:,stop:
+opts_long=plan,config,init:,tfvars:,apply:,list,destroy:,output:,state:,show:,validate:,updateip,help,erase:,snapshot-freeze:,snapshot-retrieve:,snapshot-delete:,snapshot-list-tags:,snapshot-clear:,update,start:,stop:
 
 if is_darwin; then
   TEMP=$(/opt/homebrew/opt/gnu-getopt/bin/getopt -o ${opts_short} --long ${opts_long},colima: -- "$@")
