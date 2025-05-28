@@ -441,8 +441,8 @@ function get_config() {
     ami_active_directory_ca="$(yq '.services.aws.configuration.network.ami-active-directory-ca' $ONEPATH/config.yaml)"
     ami_service_gateway="$(yq '.services.aws.configuration.network.ami-service-gateway' $ONEPATH/config.yaml)"
     ami_deep_discovery_inspector="$(yq '.services.aws.configuration.network.ami-deep-discovery-inspector' $ONEPATH/config.yaml)"
-    ami_apex_one_server="$(yq '.services.aws.configuration.testlab-cs.ami-apex-one-server' $ONEPATH/config.yaml)"
-    ami_apex_one_central="$(yq '.services.aws.configuration.testlab-cs.ami-apex-one-central' $ONEPATH/config.yaml)"
+    ami_apex_one="$(yq '.services.aws.configuration.testlab-cs.ami-apex-one' $ONEPATH/config.yaml)"
+    ami_apex_central="$(yq '.services.aws.configuration.testlab-cs.ami-apex-central' $ONEPATH/config.yaml)"
     ami_windows_client="$(yq '.services.aws.configuration.testlab-cs.ami-windows-client' $ONEPATH/config.yaml)"
     ami_bastion="$(yq '.services.aws.configuration.testlab-cs.ami-bastion' $ONEPATH/config.yaml)"
     ami_dsm="$(yq '.services.aws.configuration.testlab-cs.ami-dsm' $ONEPATH/config.yaml)"
@@ -451,9 +451,9 @@ function get_config() {
     [[ "${ami_active_directory_ca}" = "null" || "${ami_active_directory_ca}" = "" ]] && ami_active_directory_ca=""
     [[ "${ami_service_gateway}" = "null" || "${ami_service_gateway}" = "" ]] && ami_service_gateway=""
     [[ "${ami_deep_discovery_inspector}" = "null" || "${ami_deep_discovery_inspector}" = "" ]] && ami_deep_discovery_inspector=""
-    [[ "${ami_apex_one_server}" = "null" || "${ami_apex_one_server}" = "" ]] && ami_apex_one_server=""
-    [[ "${ami_apex_one_central}" = "null" || "${ami_apex_one_central}" = "" ]] && ami_apex_one_central=""
-    [[ "${ami_windows_client}" = "null" || "${ami_windows_client}" = "" ]] && ami_windows_client=[]
+    [[ "${ami_apex_one}" = "null" || "${ami_apex_one}" = "" ]] && ami_apex_one=""
+    [[ "${ami_apex_central}" = "null" || "${ami_apex_central}" = "" ]] && ami_apex_central=""
+    [[ "${ami_windows_client}" = "null" || "${ami_windows_client}" = "" || "${ami_windows_client}" = "{}" ]] && ami_windows_client=[]
     [[ "${ami_bastion}" = "null" || "${ami_bastion}" = "" ]] && ami_bastion=""
     [[ "${ami_dsm}" = "null" || "${ami_dsm}" = "" ]] && ami_dsm=""
     [[ "${ami_postgresql}" = "null" || "${ami_postgresql}" = "" ]] && ami_postgresql=""

@@ -65,6 +65,7 @@ actions:
       - name: action
         title: Action
         choices:
+          - value: --init
           - value: --apply
           - value: --output
           - value: --start
@@ -95,6 +96,7 @@ actions:
       - name: action
         title: Action
         choices:
+          - value: --init
           - value: --apply
           - value: --output
           - value: --start
@@ -110,6 +112,7 @@ actions:
       - name: action
         title: Action
         choices:
+          - value: --init
           - value: --apply
           - value: --output
           - value: --start
@@ -127,7 +130,7 @@ actions:
         choices:
           - value: --snapshot-freeze
           - value: --snapshot-retrieve
-          # - value: --snapshot-delete
+          - value: --snapshot-delete
           - value: --snapshot-list-tags
           - value: --snapshot-clear
       - name: configuration
@@ -136,7 +139,7 @@ actions:
           - value: network
           - value: testlab-cs
       - name: snapshot_id
-        description: Retrieve only
+        description: Retrieve and Delete only
         title: Snapshot ID
         default: 0
         type: ascii_sentence

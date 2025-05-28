@@ -2,9 +2,7 @@
 
 ToDos:
 
-- Rename Apex Servers
 - Add t3.xlarge to testlab (Exchange)
-- PGO to remove amis from config
 
 ## Setup from Scratch
 
@@ -48,16 +46,8 @@ services:
     pgo_user_secret_key: <SECRET ACCESS KEY GENERATEY BY pgo -a user>
     vpn-gateway: true
     configuration:
-      network:
-        ami-active-directory-dc: ami-036eb8f316bfead70
-        ami-active-directory-ca: ami-0b7a3ea4c0aa0cf56
-      testlab-cs:
-        ami-apex-one-server: ami-02e2b667941d221d4
-        ami-apex-one-central: ami-0db3d88ff90e312b3
-        ami-windows-client: ["ami-0ac8520632672372e", "ami-02d7d816af0ab6646"]
-        ami-bastion: ami-0c6bf4e74f840b978
-        ami-dsm: ami-071d66264a53ff5f9
-        ami-postgresql: ami-0d2a3ca2006496dad
+      network: {}
+      testlab-cs: {}
   azure:
     enabled: false
   playground-one:
@@ -125,47 +115,7 @@ All seetings should already be correct since the `config.yaml` has been copied i
 pgo --init network
 pgo --init testlab-cs
 pgo --init testlab-bare
-
-# pgo --apply network
 ```
-
-> Note: The above created the VPC including other typically enabled services like Active Directory, Service Gateway, VPN, and the Deep Discovery Inspector.
-
-Optionally, get the VPN Peers and RDP configurations:
-
-```
-cd playground-one
-
-s3cp --put vpn-peers
-s3cp --put vpn-rdps
-```
-
-These files are now located in the satellites S3 bucket. Get the bucket name with:
-
-```sh
-pgo --output network
-# s3_bucket = "pgo-cs-..."
-```
-
-> ***Fix:***
->
-> `wg-quick` errors with `resolvconf: command not found`
->
-> Solution:
->
-> `sudo ln -s /usr/bin/resolvectl /usr/local/bin/resolvconf`
-
-To start the Testlabs run
-
-```sh
-# Naked
-pgo --apply testlab-bare
-
-# Full
-pgo --apply testlab-cs
-```
-
-If AMIs are configured, they will be used. Atherwise *empty* instances are used.
 
 ## Playground One Web UI
 
@@ -178,7 +128,7 @@ On the Satellite install the UI by running:
 pgo-ui install
 ```
 
-Config File: `/etc/OliveTin/config.yaml`
+Config File is located here: `/etc/OliveTin/config.yaml`
 
 To access the UI from outside AWS you need three things:
 
@@ -189,6 +139,115 @@ To access the UI from outside AWS you need three things:
 Example: `ssh -i pgo-satellite-pgo-cs-key-pair-y73bwukz.pem -L 1337:localhost:1337 ubuntu@3.68.166.174`
 
 Then use your browser to connect to `http://localhost:1337`.
+
+## Life-Cycle using the UI
+
+### Playground Status
+
+Lists the applied configurations and currently available EC2 instances including their state.
+
+### Create a Fresh Environment
+
+- `Snapshots --> --clear` for `network` and `testlab-cs`.
+- `Base Environment --> --init`
+- `Base Environment --> --apply`
+
+Test if the UI is connected to the network:
+
+- `Ping the Base Environment`
+- `Testlab CS --> --init`
+- `Testlab CS --> --apply`
+
+### Stop/Start the Environment
+
+- `Base Environment --> --stop/--start`
+- `Testlab CS --> --stop/--start`
+
+### Destroy the Environment
+
+- `Base Environment --> --destroy`
+- `Testlab CS --> --destroy`
+
+### Connect/Ping/Disconnect the Base Environment
+
+Press the corresponding buttons. This connects the Satellite/UI to or disconnects it from the Base Environment. Ping checks the connection.
+
+### Peers for Admin and Users
+
+Press `Playground Peers` and/or `Playground Admin Peer`.
+
+Copy the information to either your Wireguard UI client or a `.conf` file for `wg-quick`.
+
+### Snapshots
+
+This chapter covers the `network` and `testlab-cs` configurations.
+
+***Create Snapshots***
+
+It's best to first snapshot the testlab, then the the network.
+
+*Snapshots:*
+
+- Action: `--snapshot-freeze`
+- Configuration: `testlab-cs`
+
+*Snapshots:*
+
+- Action: `--snapshot-freeze`
+- Configuration: `network`
+
+You need to restart the `Base Environment` and `Testlab CS` using `Base Environment --> --start` and `Testlab CS --> --start` again.
+
+***Retrieve Snapshots***
+
+First, you need the snapshot IDs:
+
+*Snapshots:*
+
+- Action: `--snapshot-list-tags`
+- Configuration: `testlab-cs`
+
+Remember the id.
+
+*Snapshots:*
+
+- Action: `--snapshot-retrieve`
+- Configuration: `testlab-cs`
+- Snapshot ID: `<the ID from above>`
+
+You need to re-apply the configurations using `Testlab CS --> --init` and `Testlab CS --> --apply`.
+
+Same for `Base Environment` (`network`).
+
+***Delete Snapshots***
+
+First, you need the snapshot IDs:
+
+*Snapshots:*
+
+- Action: `--snapshot-list-tags`
+- Configuration: `testlab-cs`
+
+Remember the id.
+
+*Snapshots:*
+
+- Action: `--snapshot-delete`
+- Configuration: `testlab-cs`
+- Snapshot ID: `<the ID from above>`
+
+Same for `Base Environment` (`network`).
+
+***Clear Snapshot Settings from Configuration***
+
+*Snapshots:*
+
+- Action: `--snapshot-clear`
+- Configuration: `testlab-cs`
+
+This removes the AMIs from the configuration and allow you to create fresh instances. You need to re-apply the configurations using `Testlab CS --> --init` and `Testlab CS --> --apply`.
+
+Same for `Base Environment` (`network`).
 
 ## Things to Know
 
@@ -209,50 +268,31 @@ TestLab-CS    | Client 0     | 10.0.1.10
 TestLab-CS    | Client 1     | 10.0.1.11 
 TestLab-CS    | Client x     | 10.0.1.xx 
 
-### Snapshots
+## Knowledge Base
 
-***Retrieve***
+### Disaster Recovery
 
-Example using tag: `20250324-01`
+See [Setup from Scratch](#setup-from-scratch) but retrieve the latest snapshots before applying the network and testlabs.
 
-```sh
-pgo --snapshot-retrieve nw
- __                 __   __   __             __      __        ___ 
-|__) |     /\  \ / / _` |__) /  \ |  | |\ | |  \    /  \ |\ | |__  
-|    |___ /~~\  |  \__> |  \ \__/ \__/ | \| |__/    \__/ | \| |___ 
-                                                                   
-Using PDO User Access Key ID: ...4DMF
-Configuration name: nw
-Snapshot Name []: 20250324-01
-Retrieveing AMIs with Snapshot Name=20250324-01
-pgo-cs-pgo-ca=ami-05a12f55ae7405bcd
-pgo-cs-pgo-dc=ami-0e61a9f4e07e7a6bf
-pgo-cs-wireguard=ami-05b9d82424f512bfe
-/home/ubuntu/playground-one/awsone/2-network/terraform.tfvars patched.
+### Download RDPs and Peer Configurations
+
+Satellite:
+
+```
+cd playground-one
+
+s3cp --put vpn-peers
+s3cp --put vpn-rdps
 ```
 
+These files are now located in the satellites S3 bucket. Get the bucket name with:
+
 ```sh
-pgo --snapshot-retrieve testlab-cs
- __                 __   __   __             __      __        ___ 
-|__) |     /\  \ / / _` |__) /  \ |  | |\ | |  \    /  \ |\ | |__  
-|    |___ /~~\  |  \__> |  \ \__/ \__/ | \| |__/    \__/ | \| |___ 
-                                                                   
-Using PDO User Access Key ID: ...4DMF
-Configuration name: testlab-cs
-Snapshot Name []: 20250324-01
-Retrieveing AMIs with Snapshot Name=20250324-01
-pgo-cs-apex-one-central=ami-0ec4d20a387209e4c
-pgo-cs-apex-one-server=ami-0262e4fa611cede56
-pgo-cs-bastion=ami-0cee542f7127666ee
-pgo-cs-dsm=ami-05924c7d9d2b13b5b
-pgo-cs-postgresql=ami-072674ffa536a172b
-pgo-cs-windows-client-0=ami-0d52d610877fedd3b
-pgo-cs-windows-client-1=ami-020fc9b9b0428cecb
-/home/ubuntu/playground-one/awsone/3-testlab-cs/terraform.tfvars patched.
+pgo --output network
+# s3_bucket = "pgo-cs-..."
 ```
 
-
-### (Optional): Create Your own Local Administrator
+### Create Your own Local Administrator on Windows
 
 Before snapshotting it is advised to create a new local administrator. Being authenticated as the domain administrator run the following in powershell:
 
@@ -268,13 +308,6 @@ Add-LocalGroupMember -Group "Administrators" -Member $Username
 
 Write-Output "Local administrator account '$Username' has been created successfully."
 ```
-
-## Knowledge Base
-
-### Disaster Recovery
-
-See [Setup from Scratch](#setup-from-scratch) but retrieve the latest snapshots before applying the network and testlabs.
-
 
 ### Transfer a custom Amazon Machine Image (AMI)
 
@@ -564,3 +597,20 @@ Once the AMI is ready, you can launch an EC2 instance:
 ```sh
 aws ec2 run-instances --image-id ami-xxxxxxxx --instance-type m5a.2xlarge
 ```
+
+### Rename an AMI
+
+```sh
+aws ec2 copy-image \
+  --source-image-id ami-0db3d88ff90e312b3 \
+  --source-region eu-central-1 \
+  --name "testlab-cs-pgo-cs-apex-central-20250409"
+```
+
+### Fix resolvconf: command not found 
+
+`wg-quick` errors with `resolvconf: command not found`
+
+Solution:
+
+`sudo ln -s /usr/bin/resolvectl /usr/local/bin/resolvconf`

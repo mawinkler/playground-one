@@ -21,7 +21,7 @@ locals {
   })
 
   # Windows Userdata
-  userdata_apex_one_server = templatefile("${path.module}/userdata_apex_one_server.tftpl", {
+  userdata_apex_one = templatefile("${path.module}/userdata_apex_one.tftpl", {
     s3_bucket                = var.s3_bucket
     windows_ad_user_name     = var.windows_username
     windows_ad_hostname      = "Apex-One"
@@ -35,7 +35,7 @@ locals {
     userdata_windows_join_ad = local.userdata_function_windows_join_ad
   })
 
-  userdata_apex_one_central = templatefile("${path.module}/userdata_apex_one_central.tftpl", {
+  userdata_apex_central = templatefile("${path.module}/userdata_apex_central.tftpl", {
     s3_bucket                = var.s3_bucket
     windows_ad_user_name     = var.windows_username
     windows_ad_hostname      = "Apex-Central"

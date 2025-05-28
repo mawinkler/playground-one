@@ -1,26 +1,26 @@
 # #############################################################################
 # Apex Central
 # #############################################################################
-resource "aws_network_interface" "apex_one_central_eni" {
+resource "aws_network_interface" "apex_central_eni" {
   subnet_id       = var.private_subnets[0]
   private_ips     = [var.apex_central_private_ip]
   security_groups = [var.private_security_group_id]
 }
 
-resource "aws_instance" "apex_one_central" {
+resource "aws_instance" "apex_central" {
 
-  count = var.create_apex_one_central ? 1 : 0
+  count = var.create_apex_central ? 1 : 0
 
-  ami                         = var.ami_apex_one_central != "" ? var.ami_apex_one_central : data.aws_ami.windows.id
+  ami                         = var.ami_apex_central != "" ? var.ami_apex_central : data.aws_ami.windows.id
   instance_type               = var.apex_instance_type
   iam_instance_profile        = var.ec2_profile
   key_name                    = var.key_name
-  user_data                   = local.userdata_apex_one_central
+  user_data                   = local.userdata_apex_central
   get_password_data           = false
   user_data_replace_on_change = true
 
   network_interface {
-    network_interface_id = aws_network_interface.apex_one_central_eni.id
+    network_interface_id = aws_network_interface.apex_central_eni.id
     device_index         = 0 # Primary network interface
   }
 
@@ -33,7 +33,7 @@ resource "aws_instance" "apex_one_central" {
   }
 
   tags = {
-    Name          = "${var.environment}-apex-one-central"
+    Name          = "${var.environment}-apex-central"
     Environment   = "${var.environment}"
     Product       = "playground-one"
     Configuration = "testlab-cs"

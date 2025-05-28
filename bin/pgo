@@ -397,8 +397,8 @@ function init() {
       deep_security_license=${deep_security_license} \
       deep_security_username=${deep_security_username} \
       deep_security_password=${deep_security_password} \
-      ami_apex_one_server=${ami_apex_one_server} \
-      ami_apex_one_central=${ami_apex_one_central} \
+      ami_apex_one=${ami_apex_one} \
+      ami_apex_central=${ami_apex_central} \
       ami_windows_client=${ami_windows_client} \
       ami_bastion=${ami_bastion} \
       ami_dsm=${ami_dsm} \
@@ -424,8 +424,8 @@ function init() {
       deep_security_license=${deep_security_license} \
       deep_security_username=${deep_security_username} \
       deep_security_password=${deep_security_password} \
-      ami_apex_one_server=${ami_apex_one_server} \
-      ami_apex_one_central=${ami_apex_one_central} \
+      ami_apex_one=${ami_apex_one} \
+      ami_apex_central=${ami_apex_central} \
       ami_windows_client=${ami_windows_client} \
       ami_bastion=${ami_bastion} \
       ami_dsm=${ami_dsm} \
@@ -2044,14 +2044,13 @@ function freeze_configuration() {
       --region ${aws_region} \
       --output text)
 
-  unset AWS_ACCESS_KEY_ID
-  unset AWS_SECRET_ACCESS_KEY
   for instance_id in ${instance_ids}; do
     # Get Instance IDs to snapshot
     instance_name=$(aws ec2 describe-instances --instance-ids ${instance_id} --region ${aws_region} | jq -r '.Reservations[0].Instances[0].Tags[] | select(.Key=="Name") | .Value')
 
     # Filter out DDI, SG
     if [[ ! "$instance_name" == *"ddi-va"* && ! "$instance_name" == *"sg-va"* ]]; then
+      printf '%s\n' "Stopping instance ${instance_id} with name ${instance_name}"
       aws ec2 stop-instances --instance-ids ${instance_id} --region ${aws_region}
       i=1
       while [ $i -le 60 ]; do
@@ -2090,6 +2089,7 @@ function freeze_retrieve() {
     --filters "Name=name,Values=$ami_prefix*" \
     --region ${aws_region} | \
     jq -r '.Images[].Tags[] | select(.Key=="Name") | .Value' | sort | uniq)
+  tag_list=($tag_list)
 
   snapshot_name=${tag_list[$snapshot_id]}
 
@@ -2105,28 +2105,30 @@ function freeze_retrieve() {
 }
 
 function freeze_delete() {
-  key_desc="Snapshot Name"
-  snapshot_name=""
-  read -p "${key_desc} [${snapshot_name}]: " TEMP
-  if [[ ! -z "${TEMP}" ]]; then
-    snapshot_name=${TEMP}
-  fi
-  if [[ "${snapshot_name}" =~ ^[0-9a-z\-]+$ && ${#snapshot_name} -le 20 ]]; then
-    printf '%s\n' "Deleting AMIs with Snapshot Name=${snapshot_name}"
-  else
-    printf '%s\n' "Error: Invalid ${key_desc} input."
-    exit 0
-  fi
 
-  unset AWS_ACCESS_KEY_ID
-  unset AWS_SECRET_ACCESS_KEY
   configuration_name=$1
+  snapshot_id=$2
+
+  ami_prefix="${configuration_name}-"
+  tag_list=$(aws ec2 describe-images \
+    --owners self \
+    --filters "Name=name,Values=$ami_prefix*" \
+    --region ${aws_region} | \
+    jq -r '.Images[].Tags[] | select(.Key=="Name") | .Value' | sort | uniq)
+  tag_list=($tag_list)
+
+  snapshot_name=${tag_list[$snapshot_id]}
+
+  printf '%s\n' "Delete snapshot ${snapshot_name} for configuration ${configuration_name}"
+
+  # unset AWS_ACCESS_KEY_ID
+  # unset AWS_SECRET_ACCESS_KEY
   ami_prefix="${configuration_name}-${environment_name}-"
 
   # Get a list of AMIs owned by the current AWS account that start with the given prefix
   ami_ids=$(aws ec2 describe-images --owners self \
       --filters "Name=name,Values=$ami_prefix*" \
-                "Name=tag:Name,Values=${configuration_name}-${snapshot_name}" \
+                "Name=tag:Name,Values=${snapshot_name}" \
       --query "Images[*].ImageId" \
       --region ${aws_region} \
       --output text)
@@ -2137,38 +2139,41 @@ function freeze_delete() {
       exit 0
   fi
 
-  printf '\n%s\n' "Following AMIs found with prefix '$ami_prefix'."
-  printf '%s\n' $ami_ids
-  printf '\n%s\n' "${bold}Do you really want to delete?${normal}"
-  printf '%s\n' "  Only 'yes' will be accepted to approve."
-  read -p "${bold}Enter a value: ${normal}" TEMP
+  printf '%s\n%s\n' "Deleting AMIs:" $ami_ids
+  printf '\n%s\n' "Waiting for 10 secs..."
+  sleep 10
 
-  if [[ "${TEMP}" == "yes" ]]; then
+  # printf '\n%s\n' "Following AMIs found with prefix '$ami_prefix'."
+  # printf '\n%s\n' "${bold}Do you really want to delete?${normal}"
+  # printf '%s\n' "  Only 'yes' will be accepted to approve."
+  # read -p "${bold}Enter a value: ${normal}" TEMP
+
+  # if [[ "${TEMP}" == "yes" ]]; then
     # Loop through each AMI and delete it along with its associated snapshots
-    for ami_id in $ami_ids; do
-        printf '%s\n' "Processing AMI: $ami_id"
+  for ami_id in $ami_ids; do
+      printf '%s\n' "Processing AMI: $ami_id"
 
-        # Get snapshot IDs associated with the AMI
-        snapshot_ids=$(aws ec2 describe-images --image-ids "$ami_id" \
-            --query "Images[0].BlockDeviceMappings[*].Ebs.SnapshotId" \
-            --region ${aws_region} \
-            --output text)
+      # Get snapshot IDs associated with the AMI
+      snapshot_ids=$(aws ec2 describe-images --image-ids "$ami_id" \
+          --query "Images[0].BlockDeviceMappings[*].Ebs.SnapshotId" \
+          --region ${aws_region} \
+          --output text)
 
-        # Deregister the AMI
-        printf '%s\n' "Deregistering AMI: $ami_id"
-        aws ec2 deregister-image --image-id "$ami_id" --region ${aws_region}
+      # Deregister the AMI
+      printf '%s\n' "Deregistering AMI: $ami_id"
+      aws ec2 deregister-image --image-id "$ami_id" --region ${aws_region}
 
-        # Delete associated snapshots
-        for snapshot_id in $snapshot_ids; do
-            printf '%s\n' "Deleting Snapshot: $snapshot_id"
-            aws ec2 delete-snapshot --snapshot-id "$snapshot_id" --region ${aws_region}
-        done
-    done
+      # Delete associated snapshots
+      for snapshot_id in $snapshot_ids; do
+          printf '%s\n' "Deleting Snapshot: $snapshot_id"
+          aws ec2 delete-snapshot --snapshot-id "$snapshot_id" --region ${aws_region}
+      done
+  done
 
-    printf '%s\n' "All matching AMIs and their snapshots have been deleted successfully."
-  else
-    printf '\n%s\n' "${bold}Error:${normal} error asking for approval: interrupted"
-  fi
+  printf '%s\n' "All matching AMIs and their snapshots have been deleted successfully."
+  # else
+  #   printf '\n%s\n' "${bold}Error:${normal} error asking for approval: interrupted"
+  # fi
 }
 
 function freeze_list_tags() {
@@ -2180,13 +2185,14 @@ function freeze_list_tags() {
     --filters "Name=name,Values=$ami_prefix*" \
     --region ${aws_region} | \
     jq -r '.Images[].Tags[] | select(.Key=="Name") | .Value' | sort | uniq)
+  tag_list=($tag_list)
   
   if [ -z "${tag_list}" ]; then
     printf '%s\n' "No available Tags for Configuration ${configuration_name}"
   else
     printf '%s\n' "Available Tags for Configuration ${configuration_name}:"
     for i in "${!tag_list[@]}"; do
-      echo "$i: ${tag_list[$i]}"
+          printf '%s: %s\n' ${i} ${tag_list[$i]}
     done
   fi
 }
@@ -2275,19 +2281,19 @@ function snapshot_retrieve() {
     testlab-cs|all)
       freeze_retrieve testlab-cs $snapshot_id
       
-      ami_apex_one_server=""
-      ami_apex_one_central=""
+      ami_apex_one=""
+      ami_apex_central=""
       ami_windows_client="["
       ami_bastion=""
       ami_dsm=""
       ami_postgresql=""
       for ami in ${ami_list}; do
         printf '%s\n' $ami
-        if [[ $ami =~ .*apex-one-central.* ]]; then
-          ami_apex_one_central=${ami#*=}
+        if [[ $ami =~ .*apex-central.* ]]; then
+          ami_apex_central=${ami#*=}
         fi
-        if [[ $ami =~ .*apex-one-server.* ]]; then
-          ami_apex_one_server=${ami#*=}
+        if [[ $ami =~ .*apex-one.* ]]; then
+          ami_apex_one=${ami#*=}
         fi
         if [[ $ami =~ .*windows-client.* ]]; then
           ami_windows_client+="\"${ami#*=}\","
@@ -2304,17 +2310,17 @@ function snapshot_retrieve() {
       done
       ami_windows_client="${ami_windows_client%,}]"
 
-      if [ -z "${ami_apex_one_server}" ]; then
-        yq -i 'del(.services.aws.configuration.testlab-cs.ami-apex-one-server)' ${ONEPATH}/config.yaml
+      if [ -z "${ami_apex_one}" ]; then
+        yq -i 'del(.services.aws.configuration.testlab-cs.ami-apex-one)' ${ONEPATH}/config.yaml
       else
-        target_val=${ami_apex_one_server} \
-          yq -i '.services.aws.configuration.testlab-cs.ami-apex-one-server = env(target_val)' ${ONEPATH}/config.yaml
+        target_val=${ami_apex_one} \
+          yq -i '.services.aws.configuration.testlab-cs.ami-apex-one = env(target_val)' ${ONEPATH}/config.yaml
       fi
-      if [ -z "${ami_apex_one_central}" ]; then
-        yq -i 'del(.services.aws.configuration.testlab-cs.ami-apex-one-central)' ${ONEPATH}/config.yaml
+      if [ -z "${ami_apex_central}" ]; then
+        yq -i 'del(.services.aws.configuration.testlab-cs.ami-apex-central)' ${ONEPATH}/config.yaml
       else
-        target_val=${ami_apex_one_central} \
-          yq -i '.services.aws.configuration.testlab-cs.ami-apex-one-central = env(target_val)' ${ONEPATH}/config.yaml
+        target_val=${ami_apex_central} \
+          yq -i '.services.aws.configuration.testlab-cs.ami-apex-central = env(target_val)' ${ONEPATH}/config.yaml
       fi
       if [ "${ami_windows_client}" == '[]' ]; then
         yq -i 'del(.services.aws.configuration.testlab-cs.ami-windows-client)' ${ONEPATH}/config.yaml
@@ -2341,8 +2347,8 @@ function snapshot_retrieve() {
           yq -i '.services.aws.configuration.testlab-cs.ami-postgresql = env(target_val)' ${ONEPATH}/config.yaml
       fi
 
-      sed -i "/^ami_apex_one_server = .*/c  ami_apex_one_server = \"${ami_apex_one_server}\"" ${configs[testlab-cs]}/terraform.tfvars
-      sed -i "/^ami_apex_one_central = .*/c  ami_apex_one_central = \"${ami_apex_one_central}\"" ${configs[testlab-cs]}/terraform.tfvars
+      sed -i "/^ami_apex_one = .*/c  ami_apex_one = \"${ami_apex_one}\"" ${configs[testlab-cs]}/terraform.tfvars
+      sed -i "/^ami_apex_central = .*/c  ami_apex_central = \"${ami_apex_central}\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_windows_client = .*/c  ami_windows_client = ${ami_windows_client}" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_bastion = .*/c  ami_bastion = \"${ami_bastion}\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_dsm = .*/c  ami_dsm = \"${ami_dsm}\"" ${configs[testlab-cs]}/terraform.tfvars
@@ -2376,15 +2382,15 @@ function snapshot_clear() {
       printf '%s\n' "Not implemented yet"
       ;;&
     testlab-cs|all)
-      yq -i 'del(.services.aws.configuration.testlab-cs.ami-apex-one-server)' ${ONEPATH}/config.yaml
-      yq -i 'del(.services.aws.configuration.testlab-cs.ami-apex-one-central)' ${ONEPATH}/config.yaml
+      yq -i 'del(.services.aws.configuration.testlab-cs.ami-apex-one)' ${ONEPATH}/config.yaml
+      yq -i 'del(.services.aws.configuration.testlab-cs.ami-apex-central)' ${ONEPATH}/config.yaml
       yq -i 'del(.services.aws.configuration.testlab-cs.ami-windows-client)' ${ONEPATH}/config.yaml
       yq -i 'del(.services.aws.configuration.testlab-cs.ami-bastion)' ${ONEPATH}/config.yaml
       yq -i 'del(.services.aws.configuration.testlab-cs.ami-dsm)' ${ONEPATH}/config.yaml
       yq -i 'del(.services.aws.configuration.testlab-cs.ami-postgresql)' ${ONEPATH}/config.yaml
 
-      sed -i "/^ami_apex_one_server = .*/c  ami_apex_one_server = \"\"" ${configs[testlab-cs]}/terraform.tfvars
-      sed -i "/^ami_apex_one_central = .*/c  ami_apex_one_central = \"\"" ${configs[testlab-cs]}/terraform.tfvars
+      sed -i "/^ami_apex_one = .*/c  ami_apex_one = \"\"" ${configs[testlab-cs]}/terraform.tfvars
+      sed -i "/^ami_apex_central = .*/c  ami_apex_central = \"\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_windows_client = .*/c  ami_windows_client = \"\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_bastion = .*/c  ami_bastion = \"\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_dsm = .*/c  ami_dsm = \"\"" ${configs[testlab-cs]}/terraform.tfvars
@@ -2402,7 +2408,7 @@ function snapshot_delete() {
 
   case $1 in
     nw|network|all)
-      freeze_delete nw
+      freeze_delete nw $2
       ;;&
     ec2|instances|all)
       printf '%s\n' "Not implemented yet"
@@ -2709,7 +2715,7 @@ while true; do
 
     -F | --snapshot-freeze ) snapshot_freeze $2; shift 2 ;;
     -R | --snapshot-retrieve ) snapshot_retrieve $2 $4; break ;;
-    -D | --snapshot-delete ) snapshot_delete $2; shift 2 ;;
+    -D | --snapshot-delete ) snapshot_delete $2 $4; break ;;
     -L | --snapshot-list-tags ) snapshot_list $2; shift 2 ;;
     -C | --snapshot-clear ) snapshot_clear $2; shift 2 ;;
 
@@ -2723,3 +2729,5 @@ while true; do
     * ) break ;;
   esac
 done
+
+printf '\n%s\n' "🎉 Success 🎉"

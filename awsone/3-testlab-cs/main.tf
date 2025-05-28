@@ -18,18 +18,18 @@ module "ec2" {
   public_key                = data.terraform_remote_state.vpc.outputs.public_key
   private_key_path          = data.terraform_remote_state.vpc.outputs.private_key_path
   ec2_profile               = module.iam.ec2_profile
-  s3_bucket                 = data.terraform_remote_state.vpc.outputs.s3_bucket  # module.s3.s3_bucket
+  s3_bucket                 = data.terraform_remote_state.vpc.outputs.s3_bucket # module.s3.s3_bucket
   windows_username          = var.windows_username
-  create_apex_one_server    = var.create_apex_one_server
-  create_apex_one_central   = var.create_apex_one_central
+  create_apex_one           = var.create_apex_one
+  create_apex_central       = var.create_apex_central
   windows_client_count      = var.windows_client_count
   apex_central_private_ip   = var.apex_central_private_ip
   apex_one_private_ip       = var.apex_one_private_ip
   windows_server_private_ip = var.windows_server_private_ip
 
-  ami_apex_one_server  = try(var.ami_apex_one_server, "")
-  ami_apex_one_central = try(var.ami_apex_one_central, "")
-  ami_windows_client   = try(var.ami_windows_client, [])
+  ami_apex_one       = try(var.ami_apex_one, "")
+  ami_apex_central   = try(var.ami_apex_central, "")
+  ami_windows_client = try(var.ami_windows_client, [])
 
   # PGO Active Directory
   active_directory         = var.active_directory

@@ -60,4 +60,7 @@ sudo -u ubuntu bash -c '
     env
 '
 
+# fix resolvconf: command not found
+ln -s /usr/bin/resolvectl /usr/local/bin/resolvconf
+
 touch /tmp/finished-user-data

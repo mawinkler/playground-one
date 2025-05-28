@@ -71,13 +71,13 @@ variable "apex_root_volume_type" {
   default     = "gp2"
 }
 
-variable "ami_apex_one_server" {
+variable "ami_apex_one" {
   type        = string
   description = "AMI to use for instance creation."
   default     = ""
 }
 
-variable "ami_apex_one_central" {
+variable "ami_apex_central" {
   type        = string
   description = "AMI to use for instance creation."
   default     = ""
@@ -91,9 +91,9 @@ variable "ami_windows_client" {
 
 variable "windows_username" {}
 
-variable "create_apex_one_server" {}
+variable "create_apex_one" {}
 
-variable "create_apex_one_central" {}
+variable "create_apex_central" {}
 
 variable "windows_client_count" {}
 

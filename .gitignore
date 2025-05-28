@@ -102,3 +102,5 @@ bin/lambda.py
 bin/telemetry.md
 awsone/9-deep-security-public-subnet/dsm/apikey
 bin/pgo-run
+awsone/3-testlab-bare/dsm/apikey
+awsone/3-testlab-bare/cookie.txt

@@ -37,13 +37,13 @@ variable "active_directory" {
 #
 # Instance parameters
 #
-variable "ami_apex_one_server" {
+variable "ami_apex_one" {
   type        = string
   description = "AMI to use for instance creation."
   default     = ""
 }
 
-variable "ami_apex_one_central" {
+variable "ami_apex_central" {
   type        = string
   description = "AMI to use for instance creation."
   default     = ""
@@ -55,12 +55,12 @@ variable "ami_windows_client" {
   default     = []
 }
 
-variable "create_apex_one_server" {
+variable "create_apex_one" {
   type    = bool
   default = true
 }
 
-variable "create_apex_one_central" {
+variable "create_apex_central" {
   type    = bool
   default = true
 }
