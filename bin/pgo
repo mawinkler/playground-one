@@ -400,6 +400,7 @@ function init() {
       ami_apex_one=${ami_apex_one} \
       ami_apex_central=${ami_apex_central} \
       ami_windows_client=${ami_windows_client} \
+      ami_exchange=${ami_exchange} \
       ami_bastion=${ami_bastion} \
       ami_dsm=${ami_dsm} \
       ami_postgresql=${ami_postgresql} \
@@ -427,6 +428,7 @@ function init() {
       ami_apex_one=${ami_apex_one} \
       ami_apex_central=${ami_apex_central} \
       ami_windows_client=${ami_windows_client} \
+      ami_exchange=${ami_exchange} \
       ami_bastion=${ami_bastion} \
       ami_dsm=${ami_dsm} \
       ONEPATH=${ONEPATH} \
@@ -2284,6 +2286,7 @@ function snapshot_retrieve() {
       ami_apex_one=""
       ami_apex_central=""
       ami_windows_client="["
+      ami_exchange=""
       ami_bastion=""
       ami_dsm=""
       ami_postgresql=""
@@ -2297,6 +2300,9 @@ function snapshot_retrieve() {
         fi
         if [[ $ami =~ .*windows-client.* ]]; then
           ami_windows_client+="\"${ami#*=}\","
+        fi
+        if [[ $ami =~ .*exchange.* ]]; then
+          ami_exchange=${ami#*=}
         fi
         if [[ $ami =~ .*bastion.* ]]; then
           ami_bastion=${ami#*=}
@@ -2328,6 +2334,12 @@ function snapshot_retrieve() {
         target_val=${ami_windows_client} \
           yq -i '.services.aws.configuration.testlab-cs.ami-windows-client = env(target_val)' ${ONEPATH}/config.yaml
       fi
+      if [ -z "${ami_exchange}" ]; then
+        yq -i 'del(.services.aws.configuration.testlab-cs.ami-exchange)' ${ONEPATH}/config.yaml
+      else
+        target_val=${ami_exchange} \
+          yq -i '.services.aws.configuration.testlab-cs.ami-exchange = env(target_val)' ${ONEPATH}/config.yaml
+      fi
       if [ -z "${ami_bastion}" ]; then
         yq -i 'del(.services.aws.configuration.testlab-cs.ami-bastion)' ${ONEPATH}/config.yaml
       else
@@ -2350,6 +2362,7 @@ function snapshot_retrieve() {
       sed -i "/^ami_apex_one = .*/c  ami_apex_one = \"${ami_apex_one}\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_apex_central = .*/c  ami_apex_central = \"${ami_apex_central}\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_windows_client = .*/c  ami_windows_client = ${ami_windows_client}" ${configs[testlab-cs]}/terraform.tfvars
+      sed -i "/^ami_exchange = .*/c  ami_exchange = \"${ami_exchange}\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_bastion = .*/c  ami_bastion = \"${ami_bastion}\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_dsm = .*/c  ami_dsm = \"${ami_dsm}\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_postgresql = .*/c  ami_postgresql = \"${ami_postgresql}\"" ${configs[testlab-cs]}/terraform.tfvars
@@ -2392,6 +2405,7 @@ function snapshot_clear() {
       sed -i "/^ami_apex_one = .*/c  ami_apex_one = \"\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_apex_central = .*/c  ami_apex_central = \"\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_windows_client = .*/c  ami_windows_client = \"\"" ${configs[testlab-cs]}/terraform.tfvars
+      sed -i "/^ami_exchange = .*/c  ami_exchange = \"\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_bastion = .*/c  ami_bastion = \"\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_dsm = .*/c  ami_dsm = \"\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_postgresql = .*/c  ami_postgresql = \"\"" ${configs[testlab-cs]}/terraform.tfvars

@@ -55,6 +55,12 @@ variable "ami_windows_client" {
   default     = []
 }
 
+variable "ami_exchange" {
+  type        = string
+  description = "AMI to use for instance creation."
+  default     = ""
+}
+
 variable "create_apex_one" {
   type    = bool
   default = true
@@ -68,6 +74,11 @@ variable "create_apex_central" {
 variable "windows_client_count" {
   type    = number
   default = 2
+}
+
+variable "create_exchange" {
+  type    = bool
+  default = true
 }
 
 variable "windows_username" {
@@ -147,6 +158,10 @@ variable "apex_central_private_ip" {
 }
 
 variable "apex_one_private_ip" {
+  type = string
+}
+
+variable "exchange_private_ip" {
   type = string
 }
 

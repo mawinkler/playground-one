@@ -20,11 +20,8 @@ terraform.tfvars
 
 # Terraform Configurations
 awsone/2-network/pki
-awsone/3-testlab-cs/cookie.txt
-awsone/3-testlab-cs/dsm/apikey
 awsone/7-scenarios-cloudtrail/downloads/passwords.zip
 awsone/7-scenarios-cloudtrail/downloads/server.pem
-awsone/9-deep-security/cookie.txt
 awsone/9-deep-security/dsm/apikey
 awsone/sandbox
 azone/4-cluster-aks/kubeconfig
@@ -33,6 +30,9 @@ vpn-peers
 vpn-rdps
 vpn-secrets.yaml
 1-pgo-satellite-20250429
+bin/pgo-run
+cookie.txt
+apikey
 
 # Generic
 *.out
@@ -100,7 +100,3 @@ stacks/*/*/*.log
 temp/
 bin/lambda.py
 bin/telemetry.md
-awsone/9-deep-security-public-subnet/dsm/apikey
-bin/pgo-run
-awsone/3-testlab-bare/dsm/apikey
-awsone/3-testlab-bare/cookie.txt

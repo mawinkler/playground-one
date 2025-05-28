@@ -23,13 +23,16 @@ module "ec2" {
   create_apex_one           = var.create_apex_one
   create_apex_central       = var.create_apex_central
   windows_client_count      = var.windows_client_count
+  create_exchange           = var.create_exchange
   apex_central_private_ip   = var.apex_central_private_ip
   apex_one_private_ip       = var.apex_one_private_ip
   windows_server_private_ip = var.windows_server_private_ip
+  exchange_private_ip       = var.exchange_private_ip
 
   ami_apex_one       = try(var.ami_apex_one, "")
   ami_apex_central   = try(var.ami_apex_central, "")
   ami_windows_client = try(var.ami_windows_client, [])
+  ami_exchange       = try(var.ami_exchange, "")
 
   # PGO Active Directory
   active_directory         = var.active_directory

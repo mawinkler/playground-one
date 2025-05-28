@@ -50,6 +50,26 @@ output "apex_one_ssh" {
 }
 
 #
+# Exchange
+#
+output "exchange_ip" {
+  value = length(aws_instance.exchange) > 0 ? aws_instance.exchange[0].public_ip != "" ? aws_instance.exchange[0].public_ip : null : null
+}
+
+output "exchange_pip" {
+  value = length(aws_instance.exchange) > 0 ? aws_instance.exchange[0].private_ip : null
+}
+
+output "exchange_id" {
+  value = length(aws_instance.exchange) > 0 ? aws_instance.exchange[0].id : null
+}
+
+output "exchange_ssh" {
+  description = "Command to ssh to instance exchange"
+  value       = length(aws_instance.exchange) > 0 ? formatlist("ssh -i ${var.private_key_path} -o StrictHostKeyChecking=no ${var.windows_username}@%s", aws_instance.exchange[0].public_ip != "" ? aws_instance.exchange[*].public_ip : aws_instance.exchange[*].private_ip) : null
+}
+
+#
 # Windows Clients
 #
 output "windows_client_ip" {

@@ -96,6 +96,25 @@ output "apex_one_ssh" {
 }
 
 #
+# Exchange
+#
+output "exchange_ip" {
+  value = module.ec2.exchange_ip
+}
+
+output "exchange_pip" {
+  value = module.ec2.exchange_pip
+}
+
+output "exchange_id" {
+  value = module.ec2.exchange_id
+}
+
+output "exchange_ssh" {
+  value = module.ec2.exchange_ssh
+}
+
+#
 # Windows Client
 #
 output "windows_client_ip" {

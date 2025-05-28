@@ -444,6 +444,7 @@ function get_config() {
     ami_apex_one="$(yq '.services.aws.configuration.testlab-cs.ami-apex-one' $ONEPATH/config.yaml)"
     ami_apex_central="$(yq '.services.aws.configuration.testlab-cs.ami-apex-central' $ONEPATH/config.yaml)"
     ami_windows_client="$(yq '.services.aws.configuration.testlab-cs.ami-windows-client' $ONEPATH/config.yaml)"
+    ami_exchange="$(yq '.services.aws.configuration.testlab-cs.ami-exchange' $ONEPATH/config.yaml)"
     ami_bastion="$(yq '.services.aws.configuration.testlab-cs.ami-bastion' $ONEPATH/config.yaml)"
     ami_dsm="$(yq '.services.aws.configuration.testlab-cs.ami-dsm' $ONEPATH/config.yaml)"
     ami_postgresql="$(yq '.services.aws.configuration.testlab-cs.ami-postgresql' $ONEPATH/config.yaml)"
@@ -454,6 +455,7 @@ function get_config() {
     [[ "${ami_apex_one}" = "null" || "${ami_apex_one}" = "" ]] && ami_apex_one=""
     [[ "${ami_apex_central}" = "null" || "${ami_apex_central}" = "" ]] && ami_apex_central=""
     [[ "${ami_windows_client}" = "null" || "${ami_windows_client}" = "" || "${ami_windows_client}" = "{}" ]] && ami_windows_client=[]
+    [[ "${ami_exchange}" = "null" || "${ami_exchange}" = "" ]] && ami_exchange=""
     [[ "${ami_bastion}" = "null" || "${ami_bastion}" = "" ]] && ami_bastion=""
     [[ "${ami_dsm}" = "null" || "${ami_dsm}" = "" ]] && ami_dsm=""
     [[ "${ami_postgresql}" = "null" || "${ami_postgresql}" = "" ]] && ami_postgresql=""
