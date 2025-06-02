@@ -160,11 +160,11 @@ actions:
       echo "Temporary directory: \${tmpdir}"
 
       echo "Processing Base Environment"
-      pgo --output network > \${tmpdir}/network.out
+      /home/${user}/playground-one/bin/pgo-run --output network > \${tmpdir}/network.out
       echo "Processing Testlab-CS"
-      pgo --output testlab-cs > \${tmpdir}/testlab-cs.out
+      /home/${user}/playground-one/bin/pgo-run --output testlab-cs > \${tmpdir}/testlab-cs.out
       echo "Processing Testlab-Bare"
-      pgo --output testlab-bare > \${tmpdir}/testlab-bare.out
+      /home/${user}/playground-one/bin/pgo-run --output testlab-bare > \${tmpdir}/testlab-bare.out
 
       echo "Processing Private Key"
       pk=$(terraform -chdir=${ONEPATH}/awsone/2-network/ output -raw private_key_path)
@@ -182,7 +182,7 @@ actions:
       date_string=\$(date +"%Y%m%d-%H%M")
       tar cfvz testlab-\${date_string}.tgz \${tmpdir}
 
-      s3cp -p testlab-\${date_string}.tgz
+      /home/${user}/playground-one/bin/s3cp -p testlab-\${date_string}.tgz
 
       rm -rf "\${tmpdir}" testlab-\${date_string}.tgz
 
