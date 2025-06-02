@@ -1,0 +1,31 @@
+#!/bin/bash
+
+tmpdir=$(mktemp -d)
+echo "Temporary directory: ${tmpdir}"
+
+echo "Processing Base Environment"
+pgo --output network > ${tmpdir}/network.out
+echo "Processing Testlab-CS"
+pgo --output testlab-cs > ${tmpdir}/testlab-cs.out
+echo "Processing Testlab-Bare"
+pgo --output testlab-bare > ${tmpdir}/testlab-bare.out
+
+echo "Processing Private Key"
+pk=$(terraform -chdir=${ONEPATH}/awsone/2-network/ output -raw private_key_path)
+sudo cp ${pk} ${tmpdir}
+
+echo "Processing VPN Peers"
+sudo cp -r ${ONEPATH}/vpn-peers ${tmpdir}/
+
+echo "Processing RDPs"
+cp -r ${ONEPATH}/vpn-rdps ${tmpdir}/
+
+echo "Processing ownerships"
+sudo chown -R ubuntu:ubuntu ${tmpdir}
+
+date_string=$(date +"%Y%m%d-%H%M")
+tar cfvz testlab-${date_string}.tgz ${tmpdir}
+
+s3cp -p testlab-${date_string}.tgz
+
+rm -rf "${tmpdir}" testlab-${date_string}.tgz

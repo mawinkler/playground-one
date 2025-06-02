@@ -3,8 +3,6 @@
 # #############################################################################
 variable "environment" {}
 
-variable "access_ip" {}
-
 variable "one_path" {}
 
 variable "vpc_id" {}

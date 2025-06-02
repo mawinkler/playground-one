@@ -154,6 +154,12 @@ actions:
     icon: <iconify-icon icon="material-symbols:key"></iconify-icon>
     popupOnStart: execution-dialog-stdout-only
 
+  - title: Playground Package
+    shell: /home/${user}/playground-one/bin/create-package
+    icon: <iconify-icon icon="material-symbols:package-outline"></iconify-icon>
+    popupOnStart: execution-dialog-stdout-only
+    timeout: 300
+
   # - title: Ping the Internet
   #   shell: ping -c 3 1.1.1.1
   #   icon: ping

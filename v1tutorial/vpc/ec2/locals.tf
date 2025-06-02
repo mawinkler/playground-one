@@ -14,13 +14,6 @@ locals {
           cidr_blocks = setunion(var.public_subnets_cidr, var.private_subnets_cidr)
           description = "Allow All Connections From VPC"
         }
-        ssh = {
-          from        = 22
-          to          = 22
-          protocol    = "tcp"
-          cidr_blocks = var.access_ip
-          description = "Allow SSH Access"
-        }
         instance_connect = {
           from        = 22
           to          = 22

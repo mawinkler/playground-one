@@ -5,10 +5,6 @@ variable "aws_region" {
   type = string
 }
 
-variable "access_ip" {
-  type = list(any)
-}
-
 variable "environment" {
   type = string
 }
