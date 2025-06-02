@@ -156,6 +156,7 @@ actions:
 
   - title: Playground Package
     shell: |
+      #!/usr/bin/env bash
       . $ONEPATH/bin/playground-helpers.sh
 
       tmpdir=\$(mktemp -d)
