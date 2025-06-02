@@ -156,7 +156,7 @@ actions:
 
   - title: Playground Package
     shell: |
-      tmpdir=$(mktemp -d)
+      tmpdir=\$(mktemp -d)
       echo "Temporary directory: \${tmpdir}"
 
       echo "Processing Base Environment"
@@ -179,7 +179,7 @@ actions:
       echo "Processing ownerships"
       sudo chown -R ubuntu:ubuntu \${tmpdir}
 
-      date_string=$(date +"%Y%m%d-%H%M")
+      date_string=\$(date +"%Y%m%d-%H%M")
       tar cfvz testlab-\${date_string}.tgz \${tmpdir}
 
       s3cp -p testlab-\${date_string}.tgz
