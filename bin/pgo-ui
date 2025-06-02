@@ -156,6 +156,8 @@ actions:
 
   - title: Playground Package
     shell: |
+      . $ONEPATH/bin/playground-helpers.sh
+
       tmpdir=\$(mktemp -d)
       echo "Temporary directory: \${tmpdir}"
 
