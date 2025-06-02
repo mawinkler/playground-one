@@ -180,10 +180,10 @@ actions:
       sudo chown -R ubuntu:ubuntu \${tmpdir}
 
       date_string=\$(date +"%Y%m%d-%H%M")
-      tar cfvz testlab-\${date_string}.tgz \${tmpdir}
+      tar cfvz /tmp/testlab-\${date_string}.tgz \${tmpdir}
 
       s3_bucket=$(terraform -chdir=${ONEPATH}/awsone/2-network/ output -raw s3_bucket)
-      aws s3 cp testlab-\${date_string}.tgz s3://\${s3_bucket}/ 
+      aws s3 cp /tmp/testlab-\${date_string}.tgz s3://\${s3_bucket}/ 
 
     icon: <iconify-icon icon="material-symbols:package-outline"></iconify-icon>
     popupOnStart: execution-dialog-stdout-only
