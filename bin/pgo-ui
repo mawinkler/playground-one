@@ -182,9 +182,11 @@ actions:
       date_string=\$(date +"%Y%m%d-%H%M")
       tar cfvz testlab-\${date_string}.tgz \${tmpdir}
 
-      /home/${user}/playground-one/bin/s3cp -p testlab-\${date_string}.tgz
+      s3_bucket=$(terraform -chdir=${ONEPATH}/awsone/2-network/ output -raw s3_bucket)
+      aws s3 cp testlab-\${date_string}.tgz s3://\${s3_bucket}/ 
 
-      rm -rf "\${tmpdir}" testlab-\${date_string}.tgz
+      #rm -rf "\${tmpdir}" 
+      #testlab-\${date_string}.tgz
 
     icon: <iconify-icon icon="material-symbols:package-outline"></iconify-icon>
     popupOnStart: execution-dialog-stdout-only
