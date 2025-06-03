@@ -182,6 +182,8 @@ actions:
       date_string=\$(date +"%Y%m%d-%H%M")
       tar cfvz /tmp/testlab-\${date_string}.tgz \${tmpdir}
 
+      export AWS_ACCESS_KEY_ID="$(yq '.services.aws.pgo_user_access_key' $ONEPATH/config.yaml)"
+      export AWS_SECRET_ACCESS_KEY="$(yq '.services.aws.pgo_user_secret_key' $ONEPATH/config.yaml)"
       s3_bucket=$(terraform -chdir=${ONEPATH}/awsone/2-network/ output -raw s3_bucket)
       aws s3 cp /tmp/testlab-\${date_string}.tgz s3://\${s3_bucket}/ 
 
