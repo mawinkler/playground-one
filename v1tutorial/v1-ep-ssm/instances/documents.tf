@@ -1,5 +1,5 @@
 resource "aws_ssm_document" "server-agent-linux" {
-  name            = "TrendMicroServerAgentLinuxDeploy"
+  name            = "TrendMicroServerAgentLinuxDeployTut"
   document_format = "YAML"
   document_type   = "Command"
   target_type     = "/AWS::EC2::Instance"
@@ -40,7 +40,7 @@ DOC
 }
 
 resource "aws_ssm_document" "server-agent-windows" {
-  name            = "TrendMicroServerAgentWindowsDeploy"
+  name            = "TrendMicroServerAgentWindowsDeployTut"
   document_format = "YAML"
   document_type   = "Command"
   target_type     = "/AWS::EC2::Instance"
@@ -74,7 +74,7 @@ DOC
 }
 
 resource "aws_ssm_document" "sensor-agent-linux" {
-  name            = "TrendMicroSensorAgentLinuxDeploy"
+  name            = "TrendMicroSensorAgentLinuxDeployTut"
   document_format = "YAML"
   document_type   = "Command"
   target_type     = "/AWS::EC2::Instance"
@@ -115,7 +115,7 @@ DOC
 }
 
 resource "aws_ssm_document" "sensor-agent-windows" {
-  name            = "TrendMicroSensorAgentWindowsDeploy"
+  name            = "TrendMicroSensorAgentWindowsDeployTut"
   document_format = "YAML"
   document_type   = "Command"
   target_type     = "/AWS::EC2::Instance"

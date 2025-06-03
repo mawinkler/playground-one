@@ -20,9 +20,15 @@ variable "private_key_path" {}
 
 variable "s3_bucket" {}
 
-variable "linux_username" {}
+variable "linux_username" {
+  type    = string
+  default = "ubuntu"
+}
 
-variable "linux_hostname" {}
+variable "linux_hostname" {
+  type    = string
+  default = "linuxsrv"
+}
 
 variable "linux_count" {}
 
@@ -44,9 +50,15 @@ variable "linux_instance_type" {
   default     = "t3.medium"
 }
 
-variable "windows_username" {}
+variable "windows_username" {
+  type    = string
+  default = "Administrator"
+}
 
-variable "windows_hostname" {}
+variable "windows_hostname" {
+  type    = string
+  default = "Windows-Server"
+}
 
 variable "windows_ad_user_name" {}
 

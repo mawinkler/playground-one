@@ -7,16 +7,16 @@ The TestLab provides a complete and secure test environment hosted on AWS. Curre
 - Dedicated VPC with secure VPN Access
 - Graphical Management UI
 - Base Services:
-  - Microsoft Active Directory
-  - Microsoft Certification Authority
-  - Microsoft Exchange
+    - Microsoft Active Directory
+    - Microsoft Certification Authority
+    - Microsoft Exchange
 - Trend Micro Services
-  - Service Gateway
-  - Deep Discovery Inspector
-  - Deep Security w/ PostgrSQL
-  - Apex One
-  - Apex Central
-  - Windows Clients/Member Servers
+    - Service Gateway
+    - Deep Discovery Inspector
+    - Deep Security w/ PostgrSQL
+    - Apex One
+    - Apex Central
+    - Windows Clients/Member Servers
 
 The TestLab supports to flavours - one fully integrated with ready to use configuration of Trend Micro solutions. Second, a bare playground just with member servers and a Deep Security base installation.
 

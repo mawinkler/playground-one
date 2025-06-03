@@ -34,5 +34,5 @@ output "windows_ssh" {
 # S3
 #
 output "s3_bucket" {
-  value = data.terraform_remote_state.vpc.outputs.s3_bucket
+  value = module.s3.s3_bucket
 }
