@@ -40,7 +40,7 @@ variable "linux_count" {
 }
 
 variable "windows_count" {
-  default = 1
+  default = 3
 }
 
 variable "windows_ad_safe_password" {
