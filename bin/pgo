@@ -2051,7 +2051,9 @@ function freeze_configuration() {
     instance_name=$(aws ec2 describe-instances --instance-ids ${instance_id} --region ${aws_region} | jq -r '.Reservations[0].Instances[0].Tags[] | select(.Key=="Name") | .Value')
 
     # Filter out DDI, SG
-    if [[ ! "$instance_name" == *"ddi-va"* && ! "$instance_name" == *"sg-va"* ]]; then
+    # if [[ ! "$instance_name" == *"ddi-va"* && ! "$instance_name" == *"sg-va"* ]]; then
+    # Filter out DDI
+    if [[ ! "$instance_name" == *"ddi-va"* ]]; then
       printf '%s\n' "Stopping instance ${instance_id} with name ${instance_name}"
       aws ec2 stop-instances --instance-ids ${instance_id} --region ${aws_region}
       i=1

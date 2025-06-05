@@ -636,3 +636,30 @@ aws ec2 copy-image \
 Solution:
 
 `sudo ln -s /usr/bin/resolvectl /usr/local/bin/resolvconf`
+
+### Windows Things
+
+#### Disable IE ESC via Server Manager (GUI)
+
+Open Server Manager.
+
+- Click Local Server in the left pane.
+- On the right, find the property labeled:
+- IE Enhanced Security Configuration.
+- Click the "On" link next to it.
+- In the popup, set Off for:
+  - Administrators
+  - Users
+- Click OK.
+
+📝 This takes effect immediately. No reboot needed.
+
+#### Disable IE ESC via PowerShell
+
+```ps1
+# Administrators
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A7-37EF-4b3f-8CFC-4F3A74704073}" -Name "IsInstalled" -Value 0
+
+# Users
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A8BEE295-14F5-457f-B7D7-45A48FD9BF61}" -Name "IsInstalled" -Value 0
+```
