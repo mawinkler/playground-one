@@ -1,0 +1,43 @@
+#!/bin/bash
+
+satellite_region="eu-central-1"
+
+ui_protocol="tcp"
+ui_port=1337
+
+date_string=$(date +"%Y%m%d")
+
+sg_id=$(aws ec2 describe-security-groups \
+  --filters Name=group-name,Values=pgo-satellite-pgo-cs-public-sg \
+  --query "SecurityGroups[*].GroupId" \
+  --region ${satellite_region} \
+  --output text)
+
+printf 'Security Group ID %s\n' "$sg_id"
+
+cidr=$(curl -s ifconfig.me && echo)'/32'
+printf 'Public IP/CIDR %s\n' "$cidr"
+
+printf 'Checking if ingress rule for port %s with source %s exists\n' "$ui_port" "$cidr"
+
+EXISTS=$(aws ec2 describe-security-groups \
+  --group-ids $sg_id \
+  --query 'SecurityGroups[?IpPermissions[?FromPort==`'$ui_port'` && ToPort==`'$ui_port'` && contains(IpRanges[].CidrIp, `'$cidr'`)]].{GroupId: GroupId}' \
+  --output text \
+  --region ${satellite_region})
+
+if [ -z "$EXISTS" ]; then
+  printf 'Adding ingress rule for port %s with source %s\n' "$ui_port" "$cidr"
+  # aws ec2 authorize-security-group-ingress \
+  #   --group-id ${sg_id} \
+  #   --protocol ${ui_protocol} \
+  #   --port ${ui_port} \
+  #   --cidr ${cidr} \
+  #   --region ${satellite_region}
+  aws ec2 authorize-security-group-ingress \
+    --group-id ${sg_id} \
+    --region ${satellite_region} \
+    --ip-permissions 'IpProtocol='$ui_protocol',FromPort='$ui_port',ToPort='$ui_port',IpRanges=[{CidrIp='$cidr',Description="Created at '$date_string'"}]'
+else
+  printf 'Rule already exists. No action taken.\n'
+fi
