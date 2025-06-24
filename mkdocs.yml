@@ -115,7 +115,10 @@ nav:
     # - Privileged Shell: scenarios/container-security-eks-privileged-shell.md
     # - Server & Workload Protection:
     #   - Malware Upload: scenarios/server-workload-ecs-ec2-malware-upload.md
-    - TestLab:  scenarios/testlab/testlab-cs.md
+    # - TestLab:
+    #   - Admin Guide: scenarios/testlab/testlab-cs-admin.md
+    #   - Master Guide: scenarios/testlab/testlab-cs-master.md
+    #   - User Guide: scenarios/testlab/testlab-cs-user.md
   - FAQ: faq.md
   - Bloopers: bloopers.md
 theme:

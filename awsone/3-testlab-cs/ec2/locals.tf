@@ -66,7 +66,7 @@ locals {
   userdata_transport = templatefile("${path.module}/userdata_transport.tftpl", {
     s3_bucket                = var.s3_bucket
     windows_ad_user_name     = var.windows_username
-    windows_ad_hostname      = "Exchange"
+    windows_ad_hostname      = "Transport"
     windows_ad_safe_password = var.windows_ad_safe_password
     windows_ad_domain_name   = var.active_directory ? var.windows_ad_domain_name : ""
     # windows_password       = random_password.windows_password.result
