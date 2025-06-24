@@ -69,6 +69,23 @@ output "exchange_ssh" {
   value       = length(aws_instance.exchange) > 0 ? formatlist("ssh -i ${var.private_key_path} -o StrictHostKeyChecking=no ${var.windows_username}@%s", aws_instance.exchange[0].public_ip != "" ? aws_instance.exchange[*].public_ip : aws_instance.exchange[*].private_ip) : null
 }
 
+output "transport_ip" {
+  value = length(aws_instance.transport) > 0 ? aws_instance.transport[0].public_ip != "" ? aws_instance.transport[0].public_ip : null : null
+}
+
+output "transport_pip" {
+  value = length(aws_instance.transport) > 0 ? aws_instance.transport[0].private_ip : null
+}
+
+output "transport_id" {
+  value = length(aws_instance.transport) > 0 ? aws_instance.transport[0].id : null
+}
+
+output "transport_ssh" {
+  description = "Command to ssh to instance transport"
+  value       = length(aws_instance.transport) > 0 ? formatlist("ssh -i ${var.private_key_path} -o StrictHostKeyChecking=no ${var.windows_username}@%s", aws_instance.transport[0].public_ip != "" ? aws_instance.transport[*].public_ip : aws_instance.transport[*].private_ip) : null
+}
+
 #
 # Windows Clients
 #

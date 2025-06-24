@@ -401,6 +401,7 @@ function init() {
       ami_apex_central=${ami_apex_central} \
       ami_windows_client=${ami_windows_client} \
       ami_exchange=${ami_exchange} \
+      ami_transport=${ami_transport} \
       ami_bastion=${ami_bastion} \
       ami_dsm=${ami_dsm} \
       ami_postgresql=${ami_postgresql} \
@@ -429,6 +430,7 @@ function init() {
       ami_apex_central=${ami_apex_central} \
       ami_windows_client=${ami_windows_client} \
       ami_exchange=${ami_exchange} \
+      ami_transport=${ami_transport} \
       ami_bastion=${ami_bastion} \
       ami_dsm=${ami_dsm} \
       ONEPATH=${ONEPATH} \
@@ -952,8 +954,8 @@ function update_ip() {
   fi
 
   for config in satellite network testlab-cs testlab-bare eks-ec2 eks-fg aks ecs-ec2 ecs-fg scenarios-ec2 scenarios-fg scenarios-aks dsm dsw wsw; do
-    init ${config}
     if checklock ${config} ; then
+      init ${config}
       apply ${config}
     fi
   done
@@ -2052,8 +2054,8 @@ function freeze_configuration() {
 
     # Filter out DDI, SG
     # if [[ ! "$instance_name" == *"ddi-va"* && ! "$instance_name" == *"sg-va"* ]]; then
-    # Filter out DDI
-    if [[ ! "$instance_name" == *"ddi-va"* ]]; then
+    # Filter out Wireguard
+    if [[ ! "$instance_name" == *"wireguard"* ]]; then
       printf '%s\n' "Stopping instance ${instance_id} with name ${instance_name}"
       aws ec2 stop-instances --instance-ids ${instance_id} --region ${aws_region}
       i=1
@@ -2289,6 +2291,7 @@ function snapshot_retrieve() {
       ami_apex_central=""
       ami_windows_client="["
       ami_exchange=""
+      ami_transport=""
       ami_bastion=""
       ami_dsm=""
       ami_postgresql=""
@@ -2305,6 +2308,9 @@ function snapshot_retrieve() {
         fi
         if [[ $ami =~ .*exchange.* ]]; then
           ami_exchange=${ami#*=}
+        fi
+        if [[ $ami =~ .*transport.* ]]; then
+          ami_transport=${ami#*=}
         fi
         if [[ $ami =~ .*bastion.* ]]; then
           ami_bastion=${ami#*=}
@@ -2342,6 +2348,12 @@ function snapshot_retrieve() {
         target_val=${ami_exchange} \
           yq -i '.services.aws.configuration.testlab-cs.ami-exchange = env(target_val)' ${ONEPATH}/config.yaml
       fi
+      if [ -z "${ami_transport}" ]; then
+        yq -i 'del(.services.aws.configuration.testlab-cs.ami-transport)' ${ONEPATH}/config.yaml
+      else
+        target_val=${ami_transport} \
+          yq -i '.services.aws.configuration.testlab-cs.ami-transport = env(target_val)' ${ONEPATH}/config.yaml
+      fi
       if [ -z "${ami_bastion}" ]; then
         yq -i 'del(.services.aws.configuration.testlab-cs.ami-bastion)' ${ONEPATH}/config.yaml
       else
@@ -2365,6 +2377,7 @@ function snapshot_retrieve() {
       sed -i "/^ami_apex_central = .*/c  ami_apex_central = \"${ami_apex_central}\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_windows_client = .*/c  ami_windows_client = ${ami_windows_client}" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_exchange = .*/c  ami_exchange = \"${ami_exchange}\"" ${configs[testlab-cs]}/terraform.tfvars
+      sed -i "/^ami_transport = .*/c  ami_transport = \"${ami_transport}\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_bastion = .*/c  ami_bastion = \"${ami_bastion}\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_dsm = .*/c  ami_dsm = \"${ami_dsm}\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_postgresql = .*/c  ami_postgresql = \"${ami_postgresql}\"" ${configs[testlab-cs]}/terraform.tfvars
@@ -2408,6 +2421,7 @@ function snapshot_clear() {
       sed -i "/^ami_apex_central = .*/c  ami_apex_central = \"\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_windows_client = .*/c  ami_windows_client = \"\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_exchange = .*/c  ami_exchange = \"\"" ${configs[testlab-cs]}/terraform.tfvars
+      sed -i "/^ami_transport = .*/c  ami_transport = \"\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_bastion = .*/c  ami_bastion = \"\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_dsm = .*/c  ami_dsm = \"\"" ${configs[testlab-cs]}/terraform.tfvars
       sed -i "/^ami_postgresql = .*/c  ami_postgresql = \"\"" ${configs[testlab-cs]}/terraform.tfvars

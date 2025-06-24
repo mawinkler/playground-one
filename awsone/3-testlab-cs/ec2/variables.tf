@@ -120,7 +120,7 @@ variable "exchange_instance_type" {
 variable "exchange_root_volume_size" {
   type        = number
   description = "Volumen size of root volumen of Windows Server"
-  default     = "60"
+  default     = "100"
 }
 
 variable "exchange_root_volume_type" {
@@ -136,3 +136,29 @@ variable "ami_exchange" {
 }
 
 variable "exchange_private_ip" {}
+
+variable "transport_instance_type" {
+  type        = string
+  description = "EC2 instance type for Windows Server"
+  default     = "t3.xlarge"
+}
+
+variable "transport_root_volume_size" {
+  type        = number
+  description = "Volumen size of root volumen of Windows Server"
+  default     = "60"
+}
+
+variable "transport_root_volume_type" {
+  type        = string
+  description = "Volumen type of root volumen of Windows Server."
+  default     = "gp2"
+}
+
+variable "ami_transport" {
+  type        = string
+  description = "AMI to use for instance creation."
+  default     = ""
+}
+
+variable "transport_private_ip" {}

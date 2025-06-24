@@ -114,6 +114,22 @@ output "exchange_ssh" {
   value = module.ec2.exchange_ssh
 }
 
+output "transport_ip" {
+  value = module.ec2.transport_ip
+}
+
+output "transport_pip" {
+  value = module.ec2.transport_pip
+}
+
+output "transport_id" {
+  value = module.ec2.transport_id
+}
+
+output "transport_ssh" {
+  value = module.ec2.transport_ssh
+}
+
 #
 # Windows Client
 #

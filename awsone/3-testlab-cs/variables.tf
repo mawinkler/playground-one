@@ -61,6 +61,12 @@ variable "ami_exchange" {
   default     = ""
 }
 
+variable "ami_transport" {
+  type        = string
+  description = "AMI to use for instance creation."
+  default     = ""
+}
+
 variable "create_apex_one" {
   type    = bool
   default = true
@@ -162,6 +168,10 @@ variable "apex_one_private_ip" {
 }
 
 variable "exchange_private_ip" {
+  type = string
+}
+
+variable "transport_private_ip" {
   type = string
 }
 

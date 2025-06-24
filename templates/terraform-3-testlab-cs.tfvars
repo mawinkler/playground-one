@@ -20,6 +20,7 @@ ami_apex_one = "${ami_apex_one}"
 ami_apex_central = "${ami_apex_central}"
 ami_windows_client = ${ami_windows_client}
 ami_exchange = "${ami_exchange}"
+ami_transport = "${ami_transport}"
 
 create_apex_one = true
 create_apex_central = true
@@ -50,5 +51,6 @@ bastion_private_ip = "10.0.4.11"
 apex_central_private_ip = "10.0.0.23"
 apex_one_private_ip = "10.0.0.22"
 exchange_private_ip = "10.0.0.25"
+transport_private_ip = "10.0.0.26"
 windows_server_private_ip = "10.0.1.0"
 postgresql_private_ip = "10.0.0.24"
