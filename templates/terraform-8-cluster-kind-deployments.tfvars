@@ -9,6 +9,7 @@ aws_secret_key = "${aws_pgo_user_secret_key}"
 container_security      = ${vision_one_cs_enabled}
 api_key                 = "${vision_one_api_key}"
 api_url                 = "${vision_one_api_url}"
+registration_key        = "${vision_one_cs_registration_key}"
 cluster_policy          = "${vision_one_cs_policy}"
 cluster_policy_operator = "${vision_one_cs_policy_operator}"
 group_id                = "${vision_one_cs_group_id}"

@@ -39,6 +39,10 @@ variable "api_url" {
   type = string
 }
 
+variable "registration_key" {
+  type = string
+}
+
 # Calico
 variable "calico" {
   type = bool

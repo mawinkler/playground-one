@@ -483,6 +483,20 @@ function update_vision_one_config() {
   fi
 
   if ${vision_one_cs_enabled} ; then
+
+    key_desc="Registration Key"
+    read -p "${key_desc} [${vision_one_cs_registration_key:0:10}...]: " TEMP
+    if [[ ! -z "${TEMP}" ]]; then
+      vision_one_cs_registration_key=${TEMP}
+    fi
+    if [[ "${vision_one_cs_registration_key}" =~ ^ey[0-9a-zA-Z]+\.ey[0-9a-zA-Z\.\_-]+$ ]]; then
+      target_val=${vision_one_cs_registration_key} \
+        yq -i '.services.vision-one.container-security.registration-key = env(target_val)' ${ONEPATH}/config.yaml
+    else
+      echo "Error: Invalid ${key_desc} input."
+      exit 0
+    fi
+
     key_desc="Container Security Policy Name"
     read -p "${key_desc} [${vision_one_cs_policy}]: " TEMP
     if [[ ! -z "${TEMP}" ]]; then

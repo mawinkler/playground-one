@@ -725,6 +725,7 @@ function init() {
       aws_pgo_user_access_key=${aws_pgo_user_access_key} \
       aws_pgo_user_secret_key=${aws_pgo_user_secret_key} \
       vision_one_cs_enabled=${vision_one_cs_enabled} \
+      vision_one_cs_registration_key=${vision_one_cs_registration_key} \
       vision_one_cs_policy=${vision_one_cs_policy} \
       vision_one_cs_policy_operator=${vision_one_cs_policy_operator} \
       vision_one_cs_group_id="00000000-0000-0000-0000-000000000000" \
