@@ -2052,10 +2052,8 @@ function freeze_configuration() {
     # Get Instance IDs to snapshot
     instance_name=$(aws ec2 describe-instances --instance-ids ${instance_id} --region ${aws_region} | jq -r '.Reservations[0].Instances[0].Tags[] | select(.Key=="Name") | .Value')
 
-    # Filter out DDI, SG
-    # if [[ ! "$instance_name" == *"ddi-va"* && ! "$instance_name" == *"sg-va"* ]]; then
-    # Filter out Wireguard
-    if [[ ! "$instance_name" == *"wireguard"* ]]; then
+    # Filter out DDI and Wireguard
+    if [[ ! "$instance_name" == *"ddi-va"* && ! "$instance_name" == *"wireguard"* ]]; then
       printf '%s\n' "Stopping instance ${instance_id} with name ${instance_name}"
       aws ec2 stop-instances --instance-ids ${instance_id} --region ${aws_region}
       i=1
@@ -2718,7 +2716,7 @@ if [[ ${configured_cidr} != *"$current_cidr"* ]] ; then
 fi
 
 # Check for a valid configuration
-if [ "$2" != "--" ] && [ "$2" != "" ]; then
+if [ "$2" != "" ] && [[ ! "$2" == "-"* ]]; then
   [ "${configs[$2]+abc}" ] && printf '%s\n' "Configuration name: ${2}" || (printf '%s\n' "${bold}${red}Configuration ${2} does not exist.${normal}"; exit 0;)
 fi
 

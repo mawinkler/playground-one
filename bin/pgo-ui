@@ -66,6 +66,7 @@ actions:
         title: Action
         choices:
           - value: --init
+          - value: --plan
           - value: --apply
           - value: --output
           - value: --start
@@ -97,6 +98,7 @@ actions:
         title: Action
         choices:
           - value: --init
+          - value: --plan
           - value: --apply
           - value: --output
           - value: --start
@@ -113,6 +115,7 @@ actions:
         title: Action
         choices:
           - value: --init
+          - value: --plan
           - value: --apply
           - value: --output
           - value: --start
