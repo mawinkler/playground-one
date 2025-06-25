@@ -147,13 +147,13 @@ actions:
         default: 0
         type: ascii_sentence
 
-  - title: Playground Peers
-    shell: for cnf in $ONEPATH/vpn-peers/*.conf; do echo \$cnf; echo '---'; cat \$cnf; echo; echo; done
+  - title: Playground User Peers
+    shell: for cnf in $ONEPATH/vpn-peers/user_*.conf; do echo \$cnf; echo '---'; cat \$cnf; echo; echo; done
     icon: <iconify-icon icon="material-symbols:key-outline"></iconify-icon>
     popupOnStart: execution-dialog-stdout-only
 
-  - title: Playground Admin Peer
-    shell: cat $ONEPATH/vpn-peers/other_admin.conf
+  - title: Playground Admin Peers
+    shell: cat $ONEPATH/vpn-peers/admin_*.conf
     icon: <iconify-icon icon="material-symbols:key"></iconify-icon>
     popupOnStart: execution-dialog-stdout-only
 

@@ -13,34 +13,34 @@ cat <<-EOT >> $ONEPATH/vpn-secrets.yaml
 wg_peers:
 EOT
 
-# peers=("admin" "user1" "user2" "user3" "user4")
-# start_ip=10
-# for ((i=0; i<${#peers[@]}; i++)); do
-#   read privkey pubkey < <(bash -c 'priv=$(wg genkey); pub=$(echo $priv | wg pubkey); printf "$priv $pub\n"')
-
-#   cat <<-EOT >> $ONEPATH/vpn-secrets.yaml
-#   - name: ${peers[i]}
-#     addr: 172.16.16.$(expr $start_ip + $i)
-#     privkey: $privkey
-#     pubkey: $pubkey
-
-# EOT
-# done
-
-peers=("admin" "user1" "user2" "user3")
-tech_bu=("bnl" "cee" "dach" "france" "italy" "nordics" "spain" "uk" "other" "pgo")
 start_ip=10
 
-for ((i=0; i<${#tech_bu[@]}; i++)); do
-  for ((j=0; j<${#peers[@]}; j++)); do
+admins=(admin 5 0)
+pgos=(pgo_admin 1 1)
+users=(user 60 2)
+matrix=(admins pgos users)
+
+for row in "${matrix[@]}"; do
+  eval "r=(\"\${$row[@]}\")"
+  for ((j=0; j<r[1]; j++)); do
     read privkey pubkey < <(bash -c 'priv=$(wg genkey); pub=$(echo $priv | wg pubkey); printf "$priv $pub\n"')
 
-    cat <<-EOT >> $ONEPATH/vpn-secrets.yaml
-    - name: ${tech_bu[i]}_${peers[j]}
-      addr: 172.16.16.$(expr $i \* 10 + $j + $start_ip)
-      privkey: $privkey
-      pubkey: $pubkey
+    if [ "${r[2]}" == 1 ]; then
+      cat <<-EOT >> $ONEPATH/vpn-secrets.yaml
+      - name: ${r[0]}
+        addr: 172.16.16.$(expr ${r[2]} \* 10 + $j + $start_ip)
+        privkey: $privkey
+        pubkey: $pubkey
 
 EOT
+    else
+      cat <<-EOT >> $ONEPATH/vpn-secrets.yaml
+      - name: ${r[0]}_$j
+        addr: 172.16.16.$(expr ${r[2]} \* 10 + $j + $start_ip)
+        privkey: $privkey
+        pubkey: $pubkey
+
+EOT
+    fi
   done
 done
