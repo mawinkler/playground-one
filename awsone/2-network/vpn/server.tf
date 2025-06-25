@@ -23,6 +23,7 @@ resource "aws_instance" "wireguard" {
   instance_type               = "t4g.nano"
   user_data                   = local.userdata
   user_data_replace_on_change = true
+  key_name                    = var.key_name
 
   # Attach the ENI to the instance
   network_interface {

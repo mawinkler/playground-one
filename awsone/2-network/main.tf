@@ -34,6 +34,7 @@ module "vpn" {
   public_subnets_cidr  = module.vpc.public_subnet_cidr_blocks
   private_subnets_cidr = module.vpc.private_subnet_cidr_blocks
   vpn_private_ip       = var.vpn_private_ip
+  key_name             = module.ec2.key_name
 }
 
 # module "vpn-awsclient" {
