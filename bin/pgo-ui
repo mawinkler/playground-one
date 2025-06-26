@@ -153,7 +153,7 @@ actions:
     popupOnStart: execution-dialog-stdout-only
 
   - title: Playground Admin Peers
-    shell: cat $ONEPATH/vpn-peers/admin_*.conf
+    shell: for cnf in $ONEPATH/vpn-peers/admin_*.conf; do echo \$cnf; echo '---'; cat \$cnf; echo; echo; done
     icon: <iconify-icon icon="material-symbols:key"></iconify-icon>
     popupOnStart: execution-dialog-stdout-only
 
