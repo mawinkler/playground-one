@@ -30,3 +30,23 @@ resource "local_file" "windows_client_rdp_config" {
     username = "Administrator@${var.environment}.local"
   })
 }
+
+resource "local_file" "exchange_rdp_config" {
+  count = var.create_exchange ? 1 : 0
+
+  filename = "../../vpn-rdps/exchange.rdp"
+  content = templatefile("${path.module}/rdp_config.tftpl", {
+    hostname = aws_instance.exchange[0].private_ip
+    username = "Administrator@${var.environment}.local"
+  })
+}
+
+resource "local_file" "transport_rdp_config" {
+  count = var.create_exchange ? 1 : 0
+
+  filename = "../../vpn-rdps/transport.rdp"
+  content = templatefile("${path.module}/rdp_config.tftpl", {
+    hostname = aws_instance.transport[0].private_ip
+    username = "Administrator@${var.environment}.local"
+  })
+}
