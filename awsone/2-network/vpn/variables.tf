@@ -15,6 +15,8 @@ variable "public_subnets_cidr" {}
 
 variable "private_subnets_cidr" {}
 
+variable "intra_subnets_cidr" {}
+
 variable "vpn_private_ip" {}
 
 variable "key_name" {}

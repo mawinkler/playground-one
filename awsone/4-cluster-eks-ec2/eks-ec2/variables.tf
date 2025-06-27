@@ -19,6 +19,10 @@ variable "intra_subnets" {}
 
 variable "private_security_group_id" {}
 
+variable "public_security_group_id" {}
+
+variable "vpn_server_security_group_id" {}
+
 # Autoscaler
 variable "autoscaler_enabled" {
   type        = bool

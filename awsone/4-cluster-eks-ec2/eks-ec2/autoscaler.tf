@@ -1,18 +1,6 @@
 # #############################################################################
 # EC2 Autoscaler
 # #############################################################################
-provider "helm" {
-  kubernetes {
-    host                   = data.aws_eks_cluster.eks.endpoint
-    cluster_ca_certificate = base64decode(data.aws_eks_cluster.eks.certificate_authority[0].data)
-    exec {
-      api_version = "client.authentication.k8s.io/v1beta1"
-      args        = ["eks", "get-token", "--cluster-name", "${module.eks.cluster_name}"]
-      command     = "aws"
-    }
-  }
-}
-
 resource "kubernetes_namespace" "cluster_autoscaler" {
   # depends_on = [var.autoscaler_dependency]
   count = (var.autoscaler_enabled && local.autoscaler_create_namespace && local.autoscaler_namespace != "kube-system") ? 1 : 0
@@ -22,6 +10,7 @@ resource "kubernetes_namespace" "cluster_autoscaler" {
   }
 }
 
+# https://artifacthub.io/packages/helm/cluster-autoscaler/cluster-autoscaler
 resource "helm_release" "cluster_autoscaler" {
   # depends_on = [var.autoscaler_dependency, kubernetes_namespace.cluster_autoscaler]
   # depends_on = [kubernetes_namespace.cluster_autoscaler, module.fargate_profile]

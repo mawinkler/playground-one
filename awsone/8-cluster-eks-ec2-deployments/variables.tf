@@ -10,7 +10,7 @@ variable "aws_access_key" {
 }
 
 variable "aws_secret_key" {
-  type = string
+  type      = string
   sensitive = true
 }
 
@@ -44,6 +44,10 @@ variable "api_key" {
 }
 
 variable "api_url" {
+  type = string
+}
+
+variable "registration_key" {
   type = string
 }
 

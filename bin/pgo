@@ -455,6 +455,7 @@ function init() {
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
       vision_one_cs_enabled=${vision_one_cs_enabled} \
+      vision_one_cs_registration_key=${vision_one_cs_registration_key} \
       vision_one_cs_policy=${vision_one_cs_policy} \
       vision_one_cs_policy_operator=${vision_one_cs_policy_operator} \
       vision_one_cs_group_id=${vision_one_cs_group_id} \
@@ -488,6 +489,7 @@ function init() {
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
       vision_one_cs_enabled=${vision_one_cs_enabled} \
+      vision_one_cs_registration_key=${vision_one_cs_registration_key} \
       vision_one_cs_policy=${vision_one_cs_policy} \
       vision_one_cs_policy_operator=${vision_one_cs_policy_operator} \
       vision_one_cs_group_id=${vision_one_cs_group_id} \
@@ -517,6 +519,7 @@ function init() {
       environment_name=${environment_name} \
       pgo_access_ip=${pgo_access_ip//[\[\]\" ]/} \
       vision_one_cs_enabled=${vision_one_cs_enabled} \
+      vision_one_cs_registration_key=${vision_one_cs_registration_key} \
       vision_one_cs_policy=${vision_one_cs_policy} \
       vision_one_cs_policy_operator=${vision_one_cs_policy_operator} \
       vision_one_cs_group_id=${vision_one_cs_group_id} \
@@ -1143,6 +1146,8 @@ function destroy() {
       ;;&
     eks|eks-ec2|all)
       if checklock eks-ec2 ; then
+        export KUBE_CONFIG_PATH=~/.kube/config
+
         cluster_name=$(terraform -chdir=${configs[eks-ec2]} output -json cluster_name 2>/dev/null | jq -r .)
         if [ -n "${cluster_name}" ]; then
           kubectl config use-context ${cluster_name} || true  # true if cluster is somehow broken

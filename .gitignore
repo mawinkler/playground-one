@@ -100,3 +100,5 @@ stacks/*/*/*.log
 temp/
 bin/lambda.py
 bin/telemetry.md
+awsone/3-testlab-bare/dsm/apikey
+awsone/3-testlab-bare/cookie.txt

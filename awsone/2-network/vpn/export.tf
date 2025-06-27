@@ -6,7 +6,8 @@ locals {
   client_dns = ["169.254.169.253", "1.1.1.1", "1.0.0.1"]
   client_routes = flatten([
     var.public_subnets_cidr,
-    var.private_subnets_cidr, # All IPs in the VPC
+    var.private_subnets_cidr, # All IPs in the VPCs private subnets
+    var.intra_subnets_cidr,   # All IPs in the VPCs intra subnets
     "169.254.169.253/32",     # AWS DNS
     # "0.0.0.0/32",                # Route all traffic through VPN (uncomment if you want this)
   ])

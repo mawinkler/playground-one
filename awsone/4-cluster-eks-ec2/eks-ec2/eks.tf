@@ -11,7 +11,7 @@ resource "random_string" "suffix" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "~> 20.33.1"
+  version = "~> 20.37.1"
 
   cluster_name    = "${var.environment}-eks-ec2-${random_string.suffix.result}"
   cluster_version = local.kubernetes_version
@@ -28,9 +28,9 @@ module "eks" {
   # to the shared node security group
   # enable_efa_support = true
 
-  vpc_id                   = var.vpc_id
-  subnet_ids               = var.private_subnets
-  control_plane_subnet_ids = var.intra_subnets
+  vpc_id     = var.vpc_id
+  subnet_ids = var.private_subnets
+  # control_plane_subnet_ids = var.intra_subnets
 
   enable_irsa = true
 
@@ -104,6 +104,14 @@ module "eks" {
       type                       = "ingress"
       source_node_security_group = true
     }
+    ingress_vpn_api_ports_tcp = {
+      description              = "Access K8s API from VPN"
+      protocol                 = "tcp"
+      from_port                = 443
+      to_port                  = 443
+      type                     = "ingress"
+      source_security_group_id = var.vpn_server_security_group_id
+    }
   }
 
   eks_managed_node_groups = {
@@ -115,7 +123,7 @@ module "eks" {
 
       # instance_types = ["t3.medium"]
       instance_types = ["t3.xlarge", "t3.large"]
-      capacity_type  = "SPOT"  # "ON_DEMAND"
+      capacity_type  = "SPOT" # "ON_DEMAND"
       labels = {
         Name        = "${var.environment}-eks"
         Environment = "${var.environment}"
@@ -185,14 +193,14 @@ data "aws_eks_cluster_auth" "eks" {
   name = module.eks.cluster_name
 }
 
-provider "kubernetes" {
-  host                   = data.aws_eks_cluster.eks.endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.eks.certificate_authority[0].data)
-  token                  = data.aws_eks_cluster_auth.eks.token
+# provider "kubernetes" {
+#   host                   = data.aws_eks_cluster.eks.endpoint
+#   cluster_ca_certificate = base64decode(data.aws_eks_cluster.eks.certificate_authority[0].data)
+#   token                  = data.aws_eks_cluster_auth.eks.token
 
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.eks.id]
-    command     = "aws"
-  }
-}
+#   exec {
+#     api_version = "client.authentication.k8s.io/v1beta1"
+#     args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.eks.id]
+#     command     = "aws"
+#   }
+# }

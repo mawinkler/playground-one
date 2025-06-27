@@ -18,6 +18,10 @@ output "private_security_group_id" {
   value = module.ec2.private_security_group_id
 }
 
+output "vpn_server_security_group_id" {
+  value = module.vpn[0].vpn_server_security_group_id
+}
+
 # SSM
 # output "ssm_key" {
 #   value = module.ec2.ssm_key
