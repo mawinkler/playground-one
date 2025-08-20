@@ -541,25 +541,26 @@ function get_config() {
 
 function telemetry() {
 
-  api_url=https://telemetry.collectingphotons.space/v1
+  echo .
+  # api_url=https://telemetry.collectingphotons.space/v1
 
-  telemetry_action=$1
-  telemetry_configuration=$2
+  # telemetry_action=$1
+  # telemetry_configuration=$2
 
-  unix_date=$(date -u +"%Y-%m-%d %T")
-  account_id_hash=$(echo -n ${aws_account_id} | md5sum | cut -d " " -f1)
-  operating_system="$(uname -s -r -v -m)"
-  curl -s "${api_url}/telemetry" \
-    -H 'Content-Type: application/json' \
-    -d "
-  {
-    \"exec_time\": \"${unix_date}\",
-    \"account_id\": \"${account_id_hash}\",
-    \"operating_system\": \"${operating_system}\",
-    \"environment\": \"${environment_name}\",
-    \"region\": \"${aws_region}\",
-    \"action\": \"${telemetry_action}\",
-    \"configuration\": \"${telemetry_configuration}\"
-  }
-      "
+  # unix_date=$(date -u +"%Y-%m-%d %T")
+  # account_id_hash=$(echo -n ${aws_account_id} | md5sum | cut -d " " -f1)
+  # operating_system="$(uname -s -r -v -m)"
+  # curl -s "${api_url}/telemetry" \
+  #   -H 'Content-Type: application/json' \
+  #   -d "
+  # {
+  #   \"exec_time\": \"${unix_date}\",
+  #   \"account_id\": \"${account_id_hash}\",
+  #   \"operating_system\": \"${operating_system}\",
+  #   \"environment\": \"${environment_name}\",
+  #   \"region\": \"${aws_region}\",
+  #   \"action\": \"${telemetry_action}\",
+  #   \"configuration\": \"${telemetry_configuration}\"
+  # }
+  #     "
 }
