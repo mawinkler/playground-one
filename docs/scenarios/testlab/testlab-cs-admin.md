@@ -176,3 +176,26 @@ TestLab-Bare  | PostgreSQL         | 10.0.2.24
 TestLab-Bare  | Client 0           | 10.0.2.120
 TestLab-Bare  | Client 1           | 10.0.2.121
 TestLab-Bare  | Client x           | 10.0.2.xx
+
+### Wireguard on Linux
+
+```sh
+# Create tunnel as admin_0
+wg-quick up $ONEPATH/vpn-peers/admin_0.conf
+
+# Close tunnel
+wg-quick down $ONEPATH/vpn-peers/admin_0.conf
+```
+
+If config files are lost:
+
+```sh
+# List interfaces
+wg show interfaces
+
+# or
+ip link show
+
+# Close tunnel without config file
+sudo ip link delete admin_0
+```

@@ -12,6 +12,8 @@ variable "cluster_policy" {}
 
 variable "api_key" {}
 
+variable "registration_key" {}
+
 variable "group_id" {}
 
 variable "namespace" {

@@ -16,6 +16,8 @@ module "ecs_service" {
     my-vol = {}
   }
 
+  enable_execute_command = true
+
   # Container definition(s)
   # container_definitions = {
   #   (local.container_name) = {
@@ -44,7 +46,8 @@ module "ecs_service" {
 
   container_definitions = {
     (local.container_name) = {
-      image = "mawinkler/goof:latest"
+      # image = "mawinkler/goof:latest"
+      image = "mawinkler/troopers:latest"
       port_mappings = [
         {
           name          = local.container_name

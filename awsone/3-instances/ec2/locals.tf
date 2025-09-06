@@ -21,7 +21,7 @@ locals {
   })
 
   # Linux Userdata
-  userdata_linux = templatefile("${path.module}/../../0-templates/userdata_linux.tftpl", {
+  userdata_linux = templatefile("${path.module}/../../0-templates/userdata_linux_deb.tftpl", {
     s3_bucket      = var.s3_bucket
     linux_hostname = var.linux_hostname
     tm_agent       = var.agent_variant

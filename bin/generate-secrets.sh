@@ -15,9 +15,9 @@ EOT
 
 start_ip=10
 
-admins=(admin 5 0)
+admins=(admin 1 0)
 pgos=(pgo_admin 1 1)
-users=(user 60 2)
+users=(user 1 2)
 matrix=(admins pgos users)
 
 for row in "${matrix[@]}"; do

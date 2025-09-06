@@ -66,7 +66,7 @@ mainSteps:
       - Write-Host "Extracting package"
       - Expand-Archive -LiteralPath {{Package}} -DestinationPath . -Force
       - Write-Host "Running installer"
-      - Start-Process -FilePath EndpointBasecamp.exe -NoNewWindow
+      - Start-Process -FilePath ./EndpointBasecamp.exe -NoNewWindow
 DOC
 
   tags = {

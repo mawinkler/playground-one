@@ -65,9 +65,19 @@ module "eks" {
   }
 
   access_entries = {
+    # rdsec-eks-readonly = {
+    #   principal_arn = aws_iam_role.rdsec_eks_role.arn  # "arn:aws:iam::YOUR_ACCOUNT_ID:role/RDSec-EKS-Readonly"
+
+    #   kubernetes_groups = [
+    #     "k8s-inventory-clusterrole"
+    #   ]
+
+    #   username = "rdsec-eks-readonly"
+    # }
+
     "${var.environment}-cluster-access" = {
       kubernetes_groups = []
-      principal_arn     = aws_iam_role.this.arn
+      principal_arn     = aws_iam_role.cluster_access_role.arn
 
       policy_associations = {
         namespaced = {
@@ -88,10 +98,11 @@ module "eks" {
   }
 
   eks_managed_node_group_defaults = {
-    ami_type                              = "AL2_x86_64"
+    ami_type                              = "AL2023_x86_64_STANDARD"
     cluster_additional_security_group_ids = [var.private_security_group_id]
     disk_size                             = 50
-    instance_types                        = ["t3.medium", "t3.large", "t3.xlarge"]
+    # instance_types                        = ["t3.medium", "t3.large", "t3.xlarge"]
+    instance_types                        = ["t3.xlarge"]
     vpc_security_group_ids                = [var.private_security_group_id]
   }
 
@@ -117,12 +128,13 @@ module "eks" {
   eks_managed_node_groups = {
     "${var.environment}-node" = {
       min_size     = 1
-      max_size     = 10
-      desired_size = 2
+      max_size     = 2
+      desired_size = 1
       key_name     = "${var.key_name}"
 
       # instance_types = ["t3.medium"]
-      instance_types = ["t3.xlarge", "t3.large"]
+      instance_types = ["t3.xlarge"]
+      # instance_types = ["t3.xlarge", "t3.large"]
       capacity_type  = "SPOT" # "ON_DEMAND"
       labels = {
         Name        = "${var.environment}-eks"
@@ -192,15 +204,3 @@ data "aws_eks_cluster_auth" "eks" {
   ]
   name = module.eks.cluster_name
 }
-
-# provider "kubernetes" {
-#   host                   = data.aws_eks_cluster.eks.endpoint
-#   cluster_ca_certificate = base64decode(data.aws_eks_cluster.eks.certificate_authority[0].data)
-#   token                  = data.aws_eks_cluster_auth.eks.token
-
-#   exec {
-#     api_version = "client.authentication.k8s.io/v1beta1"
-#     args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.eks.id]
-#     command     = "aws"
-#   }
-# }

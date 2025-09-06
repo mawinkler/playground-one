@@ -113,6 +113,41 @@ pgo --init testlab-cs
 pgo --init testlab-bare
 ```
 
+### Admin Users for Testlab-CS
+
+Add the following Policy to the `pgo-cs` IAM group:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "access-analyzer:ListPolicyGenerations",
+                "iam:CreateVirtualMFADevice",
+                "iam:EnableMFADevice",
+                "iam:GetAccessKeyLastUsed",
+                "iam:GetLoginProfile",
+                "iam:listMFADevices",
+                "iam:ListPolicies",
+                "iam:ListServiceSpecificCredentials",
+                "iam:ListSigningCertificates",
+                "iam:ListSSHPublicKeys",
+                "iam:ListUserPolicies",
+                "iam:ListUsers",
+                "iam:ListUserTags",
+                "iam:ListVirtualMFADevices"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+```
+
+Create the IAM User, set to force password change and request to enable MFA. Assign the User to the `pgo-cs` group.
+
 ## Playground One Web UI
 
 https://docs.olivetin.app/index.html

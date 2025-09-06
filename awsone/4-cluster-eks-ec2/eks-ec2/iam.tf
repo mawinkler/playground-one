@@ -4,8 +4,8 @@
 #
 # EKS Cluster
 #
-resource "aws_iam_role" "this" {
-  name = "${var.environment}-cluster-access"
+resource "aws_iam_role" "cluster_access_role" {
+  name = "${var.environment}-cluster-access-${random_string.suffix.result}"
 
   # Just using for this example
   assume_role_policy = jsonencode({
@@ -29,6 +29,98 @@ resource "aws_iam_role" "this" {
     Configuration = "eks-ec2"
   }
 }
+
+# #
+# # RDSec
+# #
+# resource "aws_iam_role" "rdsec_eks_role" {
+#   # name = "${var.environment}-rdsec-cluster-access"
+#   name = "RDSec-EKS-Readonly"
+
+#   assume_role_policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#       {
+#         Action = "sts:AssumeRole"
+#         Effect = "Allow"
+#         Principal = {
+#           "AWS": "arn:aws:iam::278722347474:role/RDSec-EKS-Readonly"
+#         }
+#       },
+#     ]
+#   })
+
+#   tags = {
+#     Name          = "${var.environment}-eks-ec2-rdsec-cluster-access-${random_string.suffix.result}"
+#     Environment   = "${var.environment}-eks-ec2-${random_string.suffix.result}"
+#     Product       = "playground-one"
+#     Configuration = "eks-ec2"
+#   }
+# }
+
+# data "aws_iam_policy_document" "rdsec_eks_policy_document" {
+
+#   statement {
+#     actions = [
+#       "eks:DescribeCluster",
+#       "eks:ListClusters"
+#     ]
+#     resources = [
+#       "*",
+#     ]
+#     effect = "Allow"
+#   }
+
+# }
+
+# resource "aws_iam_policy" "rdsec_eks_policy" {
+#   name        = "${module.eks.cluster_name}-rdsec-cluster-access"
+#   path        = "/"
+#   description = "Policy for RDSec Cluster Access"
+
+#   policy = data.aws_iam_policy_document.rdsec_eks_policy_document.json
+# }
+
+# resource "aws_iam_role_policy_attachment" "rdsec_eks_policy" {
+#   count = var.autoscaler_enabled ? 1 : 0
+
+#   role       = aws_iam_role.rdsec_eks_role.name
+#   policy_arn = aws_iam_policy.rdsec_eks_policy.arn
+# }
+
+# resource "kubernetes_cluster_role_v1" "rdsec_eks_cluster_role" {
+#   metadata {
+#     name = "k8s-inventory-clusterrole"
+#   }
+
+#   rule {
+#     api_groups = [""]
+#     resources  = ["pods", "nodes", "services"]
+#     verbs      = ["get", "list", "watch"]
+#   }
+
+#   rule {
+#     api_groups = ["networking.k8s.io", "extensions"]
+#     resources  = ["ingresses"]
+#     verbs      = ["get", "list", "watch"]
+#   }
+# }
+
+# resource "kubernetes_cluster_role_binding_v1" "rdsec_eks_cluster_role_binding" {
+#   metadata {
+#     name = "k8s-inventory-clusterrole"
+#   }
+#   role_ref {
+#     api_group = "rbac.authorization.k8s.io"
+#     kind      = "ClusterRole"
+#     name      = "k8s-inventory-clusterrole"
+#   }
+#   subject {
+#     api_group = "rbac.authorization.k8s.io"
+#     kind      = "Group"
+#     name      = "k8s-inventory-clusterrole"
+#   }
+# }
 
 #
 # EC2 Autoscaler
